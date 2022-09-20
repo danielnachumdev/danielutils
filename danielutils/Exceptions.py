@@ -1,0 +1,18 @@
+class OverloadException(Exception):
+    """Base exception for overload decorator
+    """
+    pass
+
+
+class OverloadNotFound(OverloadException):
+    """
+    Exception to raise if a function is called with certian argument types but this function hasn't been overloaded with those types
+    """
+    pass
+
+
+class OverloadDuplication(OverloadException):
+    """
+    Exception to raise if a function is overloaded twice with same argument types
+    """
+    pass
