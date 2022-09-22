@@ -4,6 +4,19 @@ from .Functions import isoneof, isoneof_strict
 from .Exceptions import OverloadDuplication, OverloadNotFound
 
 
+def NotImplemented(func: Callable) -> Callable:
+    """decorator to mark function as not implemented for development purposes
+
+    Args:
+        func (Callable): the function to decorate
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> Any:
+        raise NotImplementedError(
+            f"As marked by the developer {func.__module__}.{func.__name__} is not implemented yet..")
+    return wrapper
+
+
 def NotFullyImplemented(func: Callable) -> Callable:
     """decorator to mark function as not fully implemented for development purposes
 
@@ -55,7 +68,7 @@ def validate(*args) -> Callable:
         def validate_type(v: Any, T: Type, validation_func: Callable[[Any], bool] = isinstance) -> None:
             if not validation_func(v, T):
                 raise TypeError(
-                    f"In {func.__module__}.{func.__name__}(...) for argument '{ v.__name__ if hasattr(v, '__name__') else v}' its  type is '{type(v)}' but must be of type '{T}'")
+                    f"In {func.__module__}.{func.__name__}(...) for argument '{ v.__name__ if hasattr(v, '__name__') else v}' its type is '{type(v)}' but must be of type '{T}'")
 
         def validate_condition(v: Any, condition: Callable[[Any], bool], msg: str = None) -> None:
             if not condition(v):

@@ -8,7 +8,7 @@ def read_file(path: str) -> list[str]:
 
 
 README_PATH = 'README.md'
-VERSION = '0.5.0'
+VERSION = '0.5.1'
 DESCRIPTION = 'A python utils library for things I find usefull'
 LONG_DESCRIPTION = '\n'.join(read_file(README_PATH))
 setup(
@@ -21,7 +21,7 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "archive/"]),
-    install_requires=["mido"],
+    install_requires=[],
     keywords=['functions', 'decorators', 'methods'],
     classifiers=[
         # "Development Status :: 1 - Planning",
