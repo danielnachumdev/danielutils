@@ -44,7 +44,23 @@ def is_number(text: str) -> bool:
 
 @validate(str)
 def is_hebrew(text: str) -> bool:
-    for c in text:
-        if c not in HEBREW_LETTERS:
-            return False
-    return True
+    return check_foreach(text, lambda c: c in HEBREW_LETTERS)
+
+
+@validate(str)
+def is_binary(text: str) -> bool:
+    return check_foreach(text, lambda c: c in [0, 1])
+
+
+@validate(str)
+def is_decimal(text: str) -> bool:
+    return check_foreach(text, lambda c: c in range(10))
+
+
+@validate(str)
+def is_hex(h: str) -> bool:
+    try:
+        int(h, 16)
+        return True
+    except ValueError:
+        return False
