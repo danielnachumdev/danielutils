@@ -74,27 +74,84 @@ def is_directory(path: str) -> bool:
     return os.path.isdir(path)
 
 
-# @validate(str)
-# def get_files(path: str) -> list[str]:
-#     if is_directory(path):
-#         pass
+@validate(str)
+def get_files(path: str) -> list[str]:
+    """return a list of names of all files inside specified directory
+
+    Args:
+        path (str): directory
+
+    Returns:
+        list[str]: all files
+    """
+    files_and_directories = get_files_and_directories(path)
+    return list(
+        filter(lambda name: is_file(f"{path}\\{name}"), files_and_directories))
 
 
-# @validate(str)
-# def get_directories(path: str) -> list[str]:
-#     if is_directory(path):
-#         pass
+@validate(str)
+def get_files_and_directories(path: str) -> list[str]:
+    """get a list of all files and directories in specified path
+
+    Args:
+        path (str): path to check
+
+    Returns:
+        list[str]: all files and directories
+    """
+    return os.listdir(path)
 
 
-# @ validate(str)
-# def delete_directory(path: str) -> None:
-#     """delete a directory and all its contents
+@validate(str)
+def get_directories(path: str) -> list[str]:
+    """get all directories in specified path
 
-#     Args:
-#         path (str): _description_
-#     """
-#     if is_directory(path):
-#         for dir in get_directories(path):
-#             delete_directory(f"{path}\\{dir}")
-#         for file in get_files(dir):
-#             delete_file(file)
+    Args:
+        path (str): path to check
+
+    Returns:
+        list[str]: all directories
+    """
+    files_and_directories = get_files_and_directories(path)
+    return list(
+        filter(lambda name: is_directory(f"{path}\\{name}"), files_and_directories))
+
+
+@ validate(str)
+def delete_directory(path: str) -> None:
+    """delete a directory and all its contents
+
+    Args:
+        path (str): _description_
+    """
+    if is_directory(path):
+        for dir in get_directories(path):
+            delete_directory(f"{path}\\{dir}")
+        for file in get_files(dir):
+            delete_file(f"{path}\\{dir}")
+
+
+@validate(str, str)
+def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
+    from pathlib import Path
+    return list(
+        filter(
+            lambda name: Path(f"{path}\\{name}").suffix == file_type,
+            get_files(path)
+        )
+    )
+
+
+@validate(str, str)
+def get_file_type_from_directory_recursivly(path: str, file_type: str):
+    from pathlib import Path
+    res = []
+    res.extend(
+        list(
+            filter(
+                lambda name: Path(f"{path}\\{name}").suffix == file_type,
+                get_files(path)
+            )
+        )
+    )
+    return res
