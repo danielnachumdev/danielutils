@@ -72,3 +72,29 @@ def is_directory(path: str) -> bool:
         path (str): path to checl
     """
     return os.path.isdir(path)
+
+
+# @validate(str)
+# def get_files(path: str) -> list[str]:
+#     if is_directory(path):
+#         pass
+
+
+# @validate(str)
+# def get_directories(path: str) -> list[str]:
+#     if is_directory(path):
+#         pass
+
+
+# @ validate(str)
+# def delete_directory(path: str) -> None:
+#     """delete a directory and all its contents
+
+#     Args:
+#         path (str): _description_
+#     """
+#     if is_directory(path):
+#         for dir in get_directories(path):
+#             delete_directory(f"{path}\\{dir}")
+#         for file in get_files(dir):
+#             delete_file(file)

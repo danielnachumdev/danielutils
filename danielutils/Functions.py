@@ -56,7 +56,7 @@ def areoneof(values: Sequence[Any], types: Sequence[Type]) -> bool:
         TypeError: if values is not a Sequence
 
     Returns:
-        bool: _description_
+        bool: the result of the check
     """
     if not isinstance(types, Sequence):
         raise TypeError("'types' must be of type Sequence")
@@ -88,22 +88,22 @@ def check_foreach(values: Sequence[Any], condition: Callable[[Any], bool]) -> bo
     return True
 
 
-def almost_equal(*args: Sequence[Any], func: Callable[[Any, Any, Any], bool] = math.isclose, diff: Any = 0.00000000001) -> bool:
-    """checks wheter all values are within absolute range of each other in O(n**2)
+# def almost_equal(*args: Sequence[Any], func: Callable[[Any, Any, Any], bool] = math.isclose, diff: Any = 0.00000000001) -> bool:
+#     """checks wheter all values are within absolute range of each other in O(n**2)
 
-    Args:
-        func (Callable[[Any, Any, Any], bool], optional): function to check. Defaults to math.isclose.
-        diff (Any, optional): default absolute tolerance. Defaults to 0.00000000001.
+#     Args:
+#         func (Callable[[Any, Any, Any], bool], optional): function to check. Defaults to math.isclose.
+#         diff (Any, optional): default absolute tolerance. Defaults to 0.00000000001.
 
-    Returns:
-        bool: return True if all values are within specified tolerande from all other values
-    """
-    for i in range(len(args)):
-        for j in range(i+1, len(args)):
-            if func is math.isclose:
-                if not func(args[i], args[j], abs_tol=diff):
-                    return False
-            else:
-                if not func(args[i], args[j], diff):
-                    return False
-    return True
+#     Returns:
+#         bool: return True if all values are within specified tolerande from all other values
+#     """
+#     for i in range(len(args)):
+#         for j in range(i+1, len(args)):
+#             if func is math.isclose:
+#                 if not func(args[i], args[j], abs_tol=diff):
+#                     return False
+#             else:
+#                 if not func(args[i], args[j], diff):
+#                     return False
+#     return True

@@ -16,3 +16,15 @@ class OverloadDuplication(OverloadException):
     Exception to raise if a function is overloaded twice with same argument types
     """
     pass
+
+
+class ValidationError(Exception):
+    pass
+
+
+class ValidationTypeError(ValidationError, TypeError):
+    pass
+
+
+class ValidationValueError(ValidationError, ValueError):
+    pass
