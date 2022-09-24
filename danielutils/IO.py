@@ -146,12 +146,13 @@ def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
 def get_file_type_from_directory_recursivly(path: str, file_type: str):
     from pathlib import Path
     res = []
-    res.extend(
-        list(
-            filter(
-                lambda name: Path(f"{path}\\{name}").suffix == file_type,
-                get_files(path)
-            )
+    for dir in get_directories(path):
+        res.extend(f"{dir}\\{v}" for v in get_file_type_from_directory_recursivly(
+            f"{path}\\{dir}", file_type))
+    res.extend(list(
+        filter(
+            lambda name: Path(f"{path}\\{name}").suffix == file_type,
+            get_files(path)
         )
-    )
+    ))
     return res

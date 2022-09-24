@@ -28,3 +28,7 @@ class ValidationTypeError(ValidationError, TypeError):
 
 class ValidationValueError(ValidationError, ValueError):
     pass
+
+
+class ValidationDuplicationError(ValidationError):
+    pass

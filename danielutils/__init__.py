@@ -6,3 +6,4 @@ from .System import *
 from .Text import *
 # from .Exceptions import *
 from .Conversions import *
+from .Classes import *
