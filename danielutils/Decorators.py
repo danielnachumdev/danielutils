@@ -69,7 +69,7 @@ def validate(*args) -> Callable:
 
     def wrapper(func: Callable) -> Callable:
         global __validation_set
-        func_id = f"{func.__module__}.{func.__name__}"
+        func_id = f"{func.__module__}.{func.__qualname__}"
         if func_id not in __validation_set:
             __validation_set.add(func_id)
         else:
