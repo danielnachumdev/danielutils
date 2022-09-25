@@ -7,3 +7,5 @@ from .Text import *
 # from .Exceptions import *
 from .Conversions import *
 from .Classes import *
+from .Testing import *
+from .Time import *

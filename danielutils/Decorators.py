@@ -13,7 +13,7 @@ def NotImplemented(func: Callable) -> Callable:
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         raise NotImplementedError(
-            f"As marked by the developer {func.__module__}.{func.__name__} is not implemented yet..")
+            f"As marked by the developer {func.__module__}.{func.__qualname__} is not implemented yet..")
     return wrapper
 
 
@@ -26,7 +26,7 @@ def PartallyImplemented(func: Callable) -> Callable:
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         print(
-            f"As marked by the developer, {func.__module__}.{func.__name__} may not be fully implemented and may not work propely")
+            f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and may not work propely")
         return func(*args, **kwargs)
     return wrapper
 
@@ -79,12 +79,12 @@ def validate(*args) -> Callable:
         def validate_type(v: Any, T: Type, validation_func: Callable[[Any], bool] = isinstance) -> None:
             if not validation_func(v, T):
                 raise ValidationTypeError(
-                    f"In {func.__module__}.{func.__name__}(...)\nThe argument is: '{ v.__name__ if hasattr(v, '__name__') else v}'\nIt has the type of '{type(v)}'\nIt should be from type(s): '{T}'")
+                    f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt should be from type(s): '{T}'")
 
         def validate_condition(v: Any, constraint: Callable[[Any], bool], msg: str = None) -> None:
             if not constraint(v):
                 raise ValidationValueError(
-                    msg or f"In {func.__module__}.{func.__name__}(...)\nThe argument '{str(v)}' has failed provided constraint\nConstraint in {constraint.__module__}.{constraint.__name__}")
+                    msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument '{str(v)}' has failed provided constraint\nConstraint in {constraint.__module__}.{constraint.__qualname__}")
 
         @functools.wraps(func)
         def inner(*innerargs, **innerkwargs) -> Any:
@@ -155,7 +155,7 @@ def overload(*types) -> Callable:
     def wrapper(func: Callable) -> Callable:
 
         # assing current overload to overload dictionary
-        name = f"{func.__module__}.{func.__name__}"
+        name = f"{func.__module__}.{func.__qualname__}"
 
         if name not in __overload_dict:
             __overload_dict[name] = dict()
@@ -171,7 +171,7 @@ def overload(*types) -> Callable:
         def inner(*args, **kwargs) -> Any:
 
             # select corret overload
-            for variable_types, curr_func in __overload_dict[f"{func.__module__}.{func.__name__}"].items():
+            for variable_types, curr_func in __overload_dict[f"{func.__module__}.{func.__qualname__}"].items():
                 if len(variable_types) != len(args):
                     continue
 
@@ -188,7 +188,7 @@ def overload(*types) -> Callable:
 
             # or raise exception if no overload exists for current arguments
             raise OverloadNotFound(
-                f"function {func.__module__}.{func.__name__} is not overloaded with {[type(v) for v in args]}")
+                f"function {func.__module__}.{func.__qualname__} is not overloaded with {[type(v) for v in args]}")
 
         return inner
     return wrapper
@@ -206,7 +206,7 @@ def abstractmethod(func: Callable) -> Callable:
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         raise NotImplementedError(
-            f"{func.__module__}.{func.__name__} MUST be overrided in a child class")
+            f"{func.__module__}.{func.__qualname__} MUST be overrided in a child class")
     return wrapper
 
 
@@ -251,7 +251,7 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
         @functools.wraps(obj)
         def inner(*args, **kwargs) -> Any:
             print(
-                f"As marked by the developer, {obj.__module__}.{obj.__name__} is deprecated")
+                f"As marked by the developer, {obj.__module__}.{obj.__qualname__} is deprecated")
             return obj(*args, **kwargs)
         return inner
 
@@ -260,7 +260,7 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
         @functools.wraps(func)
         def inner(*args, **kwargs) -> Any:
             print(
-                f"As marked by the developer, {func.__module__}.{func.__name__} is deprecated")
+                f"As marked by the developer, {func.__module__}.{func.__qualname__} is deprecated")
             if obj:
                 print(obj)
             return func(*args, **kwargs)
