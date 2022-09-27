@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Decorators import validate
-from typing import Any, Tuple
+from typing import Any, Tuple, Iterable
 
 
 class Node:
@@ -48,6 +48,9 @@ class Stack:
 
     def __len__(self) -> int:
         return len(self.data)
+
+    def top(self) -> Any:
+        return self.data[-1]
 
 
 class Queue:

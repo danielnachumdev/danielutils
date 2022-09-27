@@ -3,54 +3,10 @@ import functools
 from .Functions import areoneof, isoneof, isoneof_strict
 # from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError
 
-
-def NotImplemented(func: Callable) -> Callable:
-    """decorator to mark function as not implemented for development purposes
-
-    Args:
-        func (Callable): the function to decorate
-    """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        raise NotImplementedError(
-            f"As marked by the developer {func.__module__}.{func.__qualname__} is not implemented yet..")
-    return wrapper
-
-
-def PartallyImplemented(func: Callable) -> Callable:
-    """decorator to mark function as not fully implemented for development purposes
-
-    Args:
-        func (Callable): the function to decorate
-    """
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        print(
-            f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and may not work propely")
-        return func(*args, **kwargs)
-    return wrapper
-
-
-def memo(func: Callable) -> Callable:
-    """decorator to memorize function calls in order to improve preformance by using more memory
-
-    Args:
-        func (Callable): function to memorize
-    """
-    cache: dict[Tuple, Any] = {}
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if (args, *kwargs.items()) not in cache:
-            cache[(args, *kwargs.items())] = func(*args, **kwargs)
-        return cache[(args, *kwargs.items())]
-    return wrapper
-
-
 __validation_set = set()
 
 
-def validate(*args) -> Callable:
+def validate(*args, ret=None) -> Callable:
     """validate decorator
 
         Is passed types of variables to perform type checking over\n
@@ -64,8 +20,9 @@ def validate(*args) -> Callable:
             4.1 a Type or Sequence[Type]\n
             4.2 a function to call on argument\n
             4.3 a str to display in a ValueError iff the condition from 4.2 fails\n
+    In addition you can use keyword 'ret' for the returned value same as specified in 1,2,3
     """
-    from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError
+    from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
 
     def wrapper(func: Callable) -> Callable:
         global __validation_set
@@ -79,7 +36,7 @@ def validate(*args) -> Callable:
         def validate_type(v: Any, T: Type, validation_func: Callable[[Any], bool] = isinstance) -> None:
             if not validation_func(v, T):
                 raise ValidationTypeError(
-                    f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt should be from type(s): '{T}'")
+                    f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt is marked as type(s): '{T}'")
 
         def validate_condition(v: Any, constraint: Callable[[Any], bool], msg: str = None) -> None:
             if not constraint(v):
@@ -114,8 +71,63 @@ def validate(*args) -> Callable:
                                     innerargs[i], constraint, message)
                     else:
                         validate_type(innerargs[i], args[i])
-            return func(*innerargs, **innerkwargs)
+            res = func(*innerargs, **innerkwargs)
+            if ret:
+                msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{ret}'"
+                if isoneof(ret, [list, Tuple]):
+                    if not isoneof(res, ret):
+                        raise ValidationReturnTypeError(msg)
+                else:
+                    if not isinstance(res, ret):
+                        raise ValidationReturnTypeError(msg)
+            return res
         return inner
+    return wrapper
+
+
+@validate(Callable)
+def NotImplemented(func: Callable) -> Callable:
+    """decorator to mark function as not implemented for development purposes
+
+    Args:
+        func (Callable): the function to decorate
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> Any:
+        raise NotImplementedError(
+            f"As marked by the developer {func.__module__}.{func.__qualname__} is not implemented yet..")
+    return wrapper
+
+
+@validate(Callable)
+def PartallyImplemented(func: Callable) -> Callable:
+    """decorator to mark function as not fully implemented for development purposes
+
+    Args:
+        func (Callable): the function to decorate
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> Any:
+        print(
+            f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and may not work propely")
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@validate(Callable)
+def memo(func: Callable) -> Callable:
+    """decorator to memorize function calls in order to improve preformance by using more memory
+
+    Args:
+        func (Callable): function to memorize
+    """
+    cache: dict[Tuple, Any] = {}
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if (args, *kwargs.items()) not in cache:
+            cache[(args, *kwargs.items())] = func(*args, **kwargs)
+        return cache[(args, *kwargs.items())]
     return wrapper
 
 
@@ -154,7 +166,7 @@ def overload(*types) -> Callable:
 
     def wrapper(func: Callable) -> Callable:
 
-        # assing current overload to overload dictionary
+        # assign current overload to overload dictionary
         name = f"{func.__module__}.{func.__qualname__}"
 
         if name not in __overload_dict:
@@ -194,6 +206,7 @@ def overload(*types) -> Callable:
     return wrapper
 
 
+@validate(Callable)
 def abstractmethod(func: Callable) -> Callable:
     """A decorator to mark a function to be 'pure vitual' / 'abstract'
 
@@ -229,7 +242,8 @@ def override(func: Callable) -> Callable:
     return wrapper
 
 
-@validate([[str, Callable], None, None])
+@PartallyImplemented
+@validate([str, Callable])
 def deprecate(obj: Union[str, Callable] = None) -> Callable:
     """decorator to mark function as depracated
 
@@ -255,7 +269,6 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
             return obj(*args, **kwargs)
         return inner
 
-    @validate(Callable)
     def wrapper(func: Callable) -> Callable:
         @functools.wraps(func)
         def inner(*args, **kwargs) -> Any:

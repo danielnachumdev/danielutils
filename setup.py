@@ -21,7 +21,7 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "archive/"]),
-    install_requires=[],
+    install_requires=["bs4"],
     keywords=['functions', 'decorators', 'methods'],
     classifiers=[
         # "Development Status :: 1 - Planning",

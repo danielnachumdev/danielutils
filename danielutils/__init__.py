@@ -9,3 +9,4 @@ from .Conversions import *
 from .Classes import *
 from .Testing import *
 from .Time import *
+from .Internet import *

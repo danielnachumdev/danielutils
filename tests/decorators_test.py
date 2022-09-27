@@ -130,25 +130,32 @@ def test_overload():
 
     @overload([int, float])
     def b(a):
-        pass
+        return 3
 
     @overload(str)
     def b(a):
-        pass
+        return 4
 
     @overload((bool))
     def b(a):
-        pass
+        return 5
     # use skip
 
     @overload(None, (int, float), None)
     def c(_, a, __):
-        pass
+        return 6
 
     @overload(None, [str], None)
     def c(_, a, __):
-        pass
+        return 7
 
+    @overload(int)
+    def return_two(v):
+        return v, v
+
+    @overload(str)
+    def return_two(v):
+        return v, v
     results = [
         noerr(a, 1, expected=1),
         noerr(a, -5, expected=1),
@@ -157,7 +164,16 @@ def test_overload():
         err(a,),
         err(a),
         err(a, ""),
-        False
+        noerr(b, 5, expected=3),
+        noerr(b, 5.0, expected=3),
+        noerr(b, "5.0", expected=4),
+        noerr(b, True, expected=5),
+        noerr(c, 1, 5.0, 1, expected=6),
+        noerr(c, 2.3, 5.0, None, expected=6),
+        noerr(c, "1", 5.0, "1", expected=6),
+        noerr(c, 1, "5.0", 1, expected=7),
+        noerr(return_two, 1, expected=(1, 1)),
+        noerr(return_two, "1", expected=("1", "1")),
     ]
     assert all(results), results
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from .Decorators import validate
 from typing import Union
@@ -11,8 +12,8 @@ def write_to_file(path: str, lines: list[str]) -> None:
         path (str): path of file
         lines (list[str]): data to write
     """
-    with open(path, "w") as f:
-        for line in lines:
+    with open(path, "w", encoding="utf-8") as f:
+        for i, line in enumerate(lines):
             f.write(line)
 
 

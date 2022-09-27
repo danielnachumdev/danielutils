@@ -12,8 +12,8 @@ ENGLISH_LETTERS_DEC = [ord(v) for v in ENGLISH_LETTERS]
 ENGLISH_LETTERS_HEX = [hex(v) for v in ENGLISH_LETTERS_DEC]
 
 
-@validate(str)
-def is_english(s: str):
+@validate(str, ret=bool)
+def is_english(s: str) -> bool:
     return check_foreach(s, lambda c: c in ENGLISH_LETTERS)
     # try:
     #     s.encode(encoding='utf-8').decode('ascii')
@@ -23,12 +23,12 @@ def is_english(s: str):
     #     return True
 
 
-@validate(str)
+@validate(str, ret=bool)
 def is_int(text: str) -> bool:
     return text.isnumeric()
 
 
-@validate(str)
+@validate(str, ret=bool)
 def is_float(text: str) -> bool:
     try:
         float(text)
@@ -37,30 +37,63 @@ def is_float(text: str) -> bool:
         return False
 
 
-@validate(str)
+@validate(str, ret=bool)
 def is_number(text: str) -> bool:
     return is_float(text)
 
 
-@validate(str)
+@validate(str, ret=bool)
 def is_hebrew(text: str) -> bool:
     return check_foreach(text, lambda c: c in HEBREW_LETTERS)
 
 
-@validate(str)
+@validate(str, ret=bool)
 def is_binary(text: str) -> bool:
     return check_foreach(text, lambda c: c in [0, 1])
 
 
-@validate(str)
+@validate(str, ret=bool)
 def is_decimal(text: str) -> bool:
     return check_foreach(text, lambda c: c in range(10))
 
 
-@validate(str)
+@validate(str, ret=bool)
 def is_hex(h: str) -> bool:
     try:
         int(h, 16)
         return True
     except ValueError:
         return False
+
+
+# @validate(str, str, ret=bool)
+# def is_matching(text: str, pattern: str) -> bool:
+#     if pattern == "":
+#         return text == ""
+#     if pattern == "*":
+#         return True
+#     if pattern[0] != "*" and pattern[0] not in text:
+#         return False
+#     i = 0
+#     pattern_index = 0
+#     while i < len(text):
+#         if pattern_index >= len(pattern):
+#             return False
+#         if pattern[pattern_index] == "*":
+#             if pattern_index == len(pattern)-1:
+#                 return True
+#             if pattern[pattern_index+1] in text:
+#                 i = text.index(pattern[pattern_index+1], i)-1
+#                 pattern_index += 1
+#             else:
+#                 return False
+#         else:
+#             if pattern[pattern_index] == "\\":
+#                 pattern_index += 1
+#             if not (text[i] == pattern[pattern_index]):
+#                 return False
+#             pattern_index += 1
+#         i += 1
+#     if pattern_index < len(pattern):
+#         return False
+#     return True

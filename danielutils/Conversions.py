@@ -92,7 +92,7 @@ def to_hex(v: int) -> str:
 
 
 @overload(str)
-def to_hex(v: Any) -> str:
+def to_hex(v: str) -> str:
     """to_hex has several options:\n
     1. type(v) == int\n
     2. type(v) == str and len(v) == 1

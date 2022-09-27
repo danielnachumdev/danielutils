@@ -26,6 +26,10 @@ class ValidationTypeError(ValidationError, TypeError):
     pass
 
 
+class ValidationReturnTypeError(ValidationError, TypeError):
+    pass
+
+
 class ValidationValueError(ValidationError, ValueError):
     pass
 
