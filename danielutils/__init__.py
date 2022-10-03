@@ -10,3 +10,4 @@ from .Classes import *
 from .Testing import *
 from .Time import *
 from .Internet import *
+from .Threading import *

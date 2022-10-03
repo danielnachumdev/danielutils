@@ -1,53 +1,36 @@
-from danielutils import atomic, write_to_file, sleep
+import traceback
+from danielutils import atomic, write_to_file, sleep, atomic_print
 from inspect import getmembers
-import typing
 import threading
-import time
-count = 0
-# order = []
-
-# lock = threading.Lock()
+from typing import Callable
+THREAD_COUNT = 1
+ITERATIONS = 1
 
 
-@atomic
-def check_this():
-    """
-    acquires lock at the beginning
-    and releases at the end of this block
-    """
-    # with lock:
+def test(func: Callable):
+    import inspect
+    print(*inspect.stack(), sep="\n")
+    # traceback.print_stack()
 
-    a, b = 1, 0
-    print("locked")
-    try:
-        print(a // b)
-    except Exception as _:
-        print(_)
-    print("lock is released")
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper
 
 
-[threading.Thread(target=check_this).start() for _ in range(2)]
-
-
-@atomic
-def critical_info(i, j):
-    print
-    global count
-    print(count, end="", flush=True)
-    count += 1
+@test
+def thread_main(i, j):
+    # atomic_print(i, j)
+    print(i, j)
 
 
 def main():
-    global count
-    res = []
-    for i in range(1):
-        threads = [threading.Thread(target=critical_info, args=[i, j])
-                   for j in range(10)]
+    for i in range(ITERATIONS):
+        threads = [threading.Thread(target=thread_main, args=[i, j])
+                   for j in range(THREAD_COUNT)]
         for t in threads:
             t.start()
-        # sleep(0.1)
-        count = 0
-        print()
 
 
-# main()
+if __name__ == '__main__':
+    thread_main(1, 2)
+    # main()

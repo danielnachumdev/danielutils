@@ -1,3 +1,4 @@
+import threading
 from typing import Callable, Type, Any, Union, Tuple
 import functools
 from .Functions import areoneof, isoneof, isoneof_strict
@@ -109,7 +110,7 @@ def PartallyImplemented(func: Callable) -> Callable:
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         print(
-            f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and may not work propely")
+            f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and might not work propely")
         return func(*args, **kwargs)
     return wrapper
 
@@ -281,10 +282,11 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
     return wrapper
 
 
-@PartallyImplemented
+# @PartallyImplemented
+
+
 @validate(Callable)
 def atomic(func):
-    import threading
     lock = threading.Lock()
 
     @functools.wraps(func)
