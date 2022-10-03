@@ -281,6 +281,18 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
     return wrapper
 
 
+@PartallyImplemented
+@validate(Callable)
+def atomic(func):
+    import threading
+    lock = threading.Lock()
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        with lock:
+            return func(*args, **kwargs)
+    return wrapper
+
 # @PartallyImplemented
 # @validate(str, Type, bool, Callable, str)
 # def opt(opt_name: str, opt_type: Type, is_required: bool = True, constraints: Callable[[Any], bool] = None, constraints_description: str = None) -> Callable:

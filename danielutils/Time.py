@@ -6,3 +6,7 @@ def measure(func, *args, **kwargs):
     func(*args, **kwargs)
     end = time.time()
     return end-start
+
+
+def sleep(secs: float):
+    time.sleep(secs)
