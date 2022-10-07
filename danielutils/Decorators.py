@@ -1,4 +1,3 @@
-import threading
 from typing import Callable, Type, Any, Union, Tuple
 import functools
 from .Functions import areoneof, isoneof, isoneof_strict
@@ -107,9 +106,11 @@ def PartallyImplemented(func: Callable) -> Callable:
     Args:
         func (Callable): the function to decorate
     """
+    from .Color import warning
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
-        print(
+        warning(
             f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and might not work propely")
         return func(*args, **kwargs)
     return wrapper
@@ -261,11 +262,12 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
         \tdef foo(...):
         \t\t...
     """
+    from .Color import warning
     # if callable(obj):
     if isinstance(obj, Callable):
         @functools.wraps(obj)
         def inner(*args, **kwargs) -> Any:
-            print(
+            warning(
                 f"As marked by the developer, {obj.__module__}.{obj.__qualname__} is deprecated")
             return obj(*args, **kwargs)
         return inner
@@ -273,7 +275,7 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
     def wrapper(func: Callable) -> Callable:
         @functools.wraps(func)
         def inner(*args, **kwargs) -> Any:
-            print(
+            warning(
                 f"As marked by the developer, {func.__module__}.{func.__qualname__} is deprecated")
             if obj:
                 print(obj)
@@ -287,6 +289,7 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
 
 @validate(Callable)
 def atomic(func):
+    import threading
     lock = threading.Lock()
 
     @functools.wraps(func)
@@ -294,6 +297,61 @@ def atomic(func):
         with lock:
             return func(*args, **kwargs)
     return wrapper
+
+
+@validate([int, lambda d: d > 0, "limit_recursion's max_depth must be a positive integer"], None, bool)
+def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
+    """decorator to limit recursion of functions
+
+    Args:
+        max_depth (int): max recursion depth which is allowed for this function
+        return_value (_type_, optional): The value to return when the limit is reached. Defaults to None.
+            if is None, will return the last (args, kwargs)
+        quiet (bool, optional): wheter to print a warning message. Defaults to True.
+    """
+    import traceback
+    import re
+    from .Color import warning
+
+    def wrapper(func):
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            depth = functools.reduce(
+                lambda count, line:
+                    count + 1 if re.search(f"{func.__name__}\(.*\)$", line)
+                    else count,
+                traceback.format_stack(), 0
+            )
+            if depth >= max_depth:
+                if not quiet:
+                    warning(
+                        f"limit_recursion has limited the number of calls for {func.__module__}.{func.__qualname__} to {max_depth}")
+                if return_value:
+                    return return_value
+                return args, kwargs
+            return func(*args, **kwargs)
+        return inner
+    return wrapper
+
+# def catch(obj) -> Callable:
+#     def logic(func, *args, **kwargs):
+#         try:
+#             return func(*args, **kwargs)
+#         except Exception as e:
+#             name = f"{func.__module__}.{func.__qualname__}(...)"
+#             exp = f"{type(e).__name__}: {e}"
+#             print(f"{name} caught {exp}")
+
+#     def inner(*args, **kwargs):
+#         return logic(obj, *args, **kwargs)
+
+#     if isinstance(obj, Callable):
+#         return inner
+
+#     def wrapper(func):
+#         return inner
+#     return wrapper
+
 
 # @PartallyImplemented
 # @validate(str, Type, bool, Callable, str)

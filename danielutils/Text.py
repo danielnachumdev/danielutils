@@ -66,34 +66,12 @@ def is_hex(h: str) -> bool:
         return False
 
 
-# @validate(str, str, ret=bool)
-# def is_matching(text: str, pattern: str) -> bool:
-#     if pattern == "":
-#         return text == ""
-#     if pattern == "*":
-#         return True
-#     if pattern[0] != "*" and pattern[0] not in text:
-#         return False
-#     i = 0
-#     pattern_index = 0
-#     while i < len(text):
-#         if pattern_index >= len(pattern):
-#             return False
-#         if pattern[pattern_index] == "*":
-#             if pattern_index == len(pattern)-1:
-#                 return True
-#             if pattern[pattern_index+1] in text:
-#                 i = text.index(pattern[pattern_index+1], i)-1
-#                 pattern_index += 1
-#             else:
-#                 return False
-#         else:
-#             if pattern[pattern_index] == "\\":
-#                 pattern_index += 1
-#             if not (text[i] == pattern[pattern_index]):
-#                 return False
-#             pattern_index += 1
-#         i += 1
-#     if pattern_index < len(pattern):
-#         return False
-#     return True
+# __all__ = [
+#     HEBREW_LETTERS,
+#     HEBREW_LETTERS_DEC,
+#     HEBREW_LETTERS_HEX,
+#     ENGLISH_LETTERS,
+#     ENGLISH_LETTERS_DEC,
+#     ENGLISH_LETTERS_DEC,
+#     ENGLISH_LETTERS_HEX,
+# ]

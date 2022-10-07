@@ -11,3 +11,4 @@ from .Testing import *
 from .Time import *
 from .Internet import *
 from .Threading import *
+from .Color import *

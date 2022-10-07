@@ -1,5 +1,4 @@
 from typing import Any, Type, Callable, Sequence
-import math
 
 
 def isoneof(v: Any, types: Sequence[Type]) -> bool:
