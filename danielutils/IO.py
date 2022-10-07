@@ -157,3 +157,19 @@ def get_file_type_from_directory_recursivly(path: str, file_type: str):
         )
     ))
     return res
+
+
+__all__ = [
+    "write_to_file",
+    "file_exists",
+    "delete_file",
+    "read_file",
+    "is_file",
+    "is_directory",
+    "get_files",
+    "get_files_and_directories",
+    "get_directories",
+    "delete_directory",
+    "get_file_type_from_directory",
+    "get_file_type_from_directory_recursivly"
+]

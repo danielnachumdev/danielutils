@@ -48,17 +48,30 @@ def __special_print(*args, sep=" ", end="\n", start_with=None):
 
 
 def warning(*args, sep=" ", end="\n"):
+    """print a warning message
+
+    Args:
+        sep (str, optional): print seperator. Defaults to " ".
+        end (str, optional): print endline. Defaults to "\n".
+    """
+
     __special_print(*args, sep=sep, end=end,
                     start_with=ColoredText.yellow("WARNING"))
 
 
 def error(*args, sep=" ", end="\n"):
+    """print an error message
+
+    Args:
+        sep (str, optional): print seperator. Defaults to " ".
+        end (str, optional): print endline. Defaults to "\n".
+    """
     __special_print(*args, sep=sep, end=end,
                     start_with=ColoredText.red("ERROR"))
 
 
 __all__ = [
-    ColoredText,
-    warning,
-    error
+    "ColoredText",
+    "warning",
+    "error"
 ]

@@ -39,3 +39,13 @@ def url_decode(s: str) -> str:
 def get_elements(html: str, tag: str) -> list[str]:
     from bs4 import BeautifulSoup as bs4
     return [str(v) for v in bs4(html, 'html.parser').find_all(tag)]
+
+
+__all__ = [
+    "prettify_html",
+    "get_html",
+    "get_url_details",
+    "url_encode",
+    "url_decode",
+    "get_elements"
+]

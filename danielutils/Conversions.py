@@ -101,3 +101,15 @@ def to_hex(v: str) -> str:
         str: str of the hex value
     """
     return char_to_hex(v)
+
+
+__all__ = [
+    "char_to_int",
+    "int_to_char",
+    "hex_to_char",
+    "hex_to_dec",
+    "char_to_hex",
+    "dec_to_hex",
+    "int_to_hex",
+    "to_hex"
+]

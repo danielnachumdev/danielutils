@@ -66,12 +66,19 @@ def is_hex(h: str) -> bool:
         return False
 
 
-# __all__ = [
-#     HEBREW_LETTERS,
-#     HEBREW_LETTERS_DEC,
-#     HEBREW_LETTERS_HEX,
-#     ENGLISH_LETTERS,
-#     ENGLISH_LETTERS_DEC,
-#     ENGLISH_LETTERS_DEC,
-#     ENGLISH_LETTERS_HEX,
-# ]
+__all__ = [
+    "HEBREW_LETTERS",
+    "HEBREW_LETTERS_DEC",
+    "HEBREW_LETTERS_HEX",
+    "ENGLISH_LETTERS",
+    "ENGLISH_LETTERS_DEC",
+    "ENGLISH_LETTERS_HEX",
+    "is_english",
+    "is_int",
+    "is_float",
+    "is_number",
+    "is_hebrew",
+    "is_binary",
+    "is_decimal",
+    "is_hex"
+]

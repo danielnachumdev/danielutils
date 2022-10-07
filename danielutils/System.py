@@ -15,5 +15,8 @@ def cm(command: str) -> str:
     return os.popen(command).read()
 
 
+__all__ = [
+    "cm"
+]
 # def open_file(filepath: str):
 #     subprocess.Popen(['start', filepath], shell=True)

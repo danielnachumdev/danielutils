@@ -26,6 +26,10 @@ def err(call_able, *args, expected=None, ** kwargs) -> bool:
     return False
 
 
+__all__ = [
+    "noerr",
+    "err"
+]
 # def test_func(functor, inputs, outputs) -> None:
 #     if not callable(functor):
 #         raise TypeError("functor must return true for callable(functor)")
