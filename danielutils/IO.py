@@ -126,10 +126,10 @@ def delete_directory(path: str) -> None:
         path (str): _description_
     """
     if is_directory(path):
+        for file in get_files(dir):
+            delete_file(f"{path}\\{file}")
         for dir in get_directories(path):
             delete_directory(f"{path}\\{dir}")
-        for file in get_files(dir):
-            delete_file(f"{path}\\{dir}")
 
 
 @validate(str, str)

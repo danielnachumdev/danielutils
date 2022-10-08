@@ -1,23 +1,43 @@
-from typing import Any, Type, Callable, Sequence
+from typing import Any, Type, Callable, Sequence, Union
 
 
-def isoneof(v: Any, types: Sequence[Type]) -> bool:
-    """performs isinstance() or ... or isinstance()
+def isoftype(v: Any, t: Any):
+    if t == Any:
+        return True
+    if isinstance(v, (list, tuple)):
+        if hasattr(t, '__args__'):
+            for subv in v:
+                if not isoftype(subv, t.__args__[0]):
+                    return False
+    elif isinstance(v, dict):
+        if hasattr(t, '__args__'):
+            keyt, valuet = t.__args__[0], t.__args__[1]
+            for key, value in v.items():
+                if not isoftype(key, keyt) or not isoftype(value, valuet):
+                    return False
+    else:
+        if not isinstance(v, t):
+            return False
+    return True
+
+
+def isoneof(v: Any, types: Union[list[Type], tuple[Type]]) -> bool:
+    """performs isoftype() or ... or isoftype()
 
     Args:
         v (Any): the value to check it's type
-        types (Sequence[Type]): A Sequence of approved types
+        types (Union[list[Type], tuple[Type]): A Sequence of approved types
 
     Raises:
-        TypeError: if the second argument is not a Sequence
+        TypeError: if the second argument is not from Union[list[Type], tuple[Type]
 
     Returns:
-        bool: return True iff isinstance(v, types[0]) or ... isinstance(v, types[...])
+        bool: return True iff isoftype(v, types[0]) or ... isoftype(v, types[...])
     """
-    if not isinstance(types, Sequence):
-        raise TypeError("'types' must be of type Sequence")
+    if not isinstance(types, (list, tuple)):
+        raise TypeError("'types' must be of type 'list' or 'tuple'")
     for T in types:
-        if isinstance(v, T):
+        if isoftype(v, T):
             return True
     return False
 
@@ -91,7 +111,8 @@ __all__ = [
     "isoneof",
     "isoneof_strict",
     "areoneof",
-    "check_foreach"
+    "check_foreach",
+    "isoftype"
 ]
 # def almost_equal(*args: Sequence[Any], func: Callable[[Any, Any, Any], bool] = math.isclose, diff: Any = 0.00000000001) -> bool:
 #     """checks wheter all values are within absolute range of each other in O(n**2)

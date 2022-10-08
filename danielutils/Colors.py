@@ -52,7 +52,7 @@ def warning(*args, sep=" ", end="\n"):
 
     Args:
         sep (str, optional): print seperator. Defaults to " ".
-        end (str, optional): print endline. Defaults to "\n".
+        end (str, optional): print endline. Defaults to "\\n".
     """
 
     __special_print(*args, sep=sep, end=end,
@@ -64,7 +64,7 @@ def error(*args, sep=" ", end="\n"):
 
     Args:
         sep (str, optional): print seperator. Defaults to " ".
-        end (str, optional): print endline. Defaults to "\n".
+        end (str, optional): print endline. Defaults to "\\n".
     """
     __special_print(*args, sep=sep, end=end,
                     start_with=ColoredText.red("ERROR"))

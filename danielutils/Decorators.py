@@ -140,10 +140,10 @@ def overload(*types) -> Callable:
     """decorator for overloading functions\n
     Usage\n-------\n
     @overload(str,str)\n
-    def print_name_and_color(name,color):
+    def print_info(name,color):
         ...\n\n
     @overload(str,[int,float]))\n
-    def print_name_and_age(name,age):
+    def print_info(name,age):
         ...\n\n
 
     also, use 'None' to skip\n\n\n
@@ -167,6 +167,8 @@ def overload(*types) -> Callable:
     types = tuple(types)
 
     def wrapper(func: Callable) -> Callable:
+        if not isinstance(func, Callable):
+            raise TypeError("overload decorator must be used on a callable")
 
         # assign current overload to overload dictionary
         name = f"{func.__module__}.{func.__qualname__}"
@@ -227,21 +229,21 @@ def abstractmethod(func: Callable) -> Callable:
 
 purevirtual = abstractmethod
 
-__virtualization_tables = dict()
+# __virtualization_tables = dict()
 
 
-@NotImplemented
-def virtual(func: Callable) -> Callable:
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-    return wrapper
+# @NotImplemented
+# def virtual(func: Callable) -> Callable:
+#     def wrapper(*args, **kwargs):
+#         return func(*args, **kwargs)
+#     return wrapper
 
 
-@NotImplemented
-def override(func: Callable) -> Callable:
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-    return wrapper
+# @NotImplemented
+# def override(func: Callable) -> Callable:
+#     def wrapper(*args, **kwargs):
+#         return func(*args, **kwargs)
+#     return wrapper
 
 
 @PartallyImplemented
@@ -342,8 +344,8 @@ __all__ = [
     "overload",
     "abstractmethod",
     "purevirtual",
-    "virtual",
-    "override",
+    # "virtual",
+    # "override",
     "deprecate",
     "atomic",
     "limit_recursion"

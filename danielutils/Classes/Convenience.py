@@ -1,7 +1,10 @@
-class FloatRange:
+from ..Decorators import validate
+
+
+class frange:
     """same as built it range(start,stop,step) but with floats
     """
-
+    @validate(None, [int, float], [int, float], [int, float])
     def __init__(self, start, stop=None, step=1):
         if stop is None:
             self.start = 0
@@ -21,3 +24,17 @@ class FloatRange:
         if (self.curr > self.stop and self.step > 0) or (self.curr < self.stop and self.step < 0):
             raise StopIteration()
         return res
+
+
+float_range = frange
+
+
+class DisablePytestDiscovery:
+    __test__ = False
+
+
+__all__ = [
+    "frange",
+    "float_range",
+    "DisablePytestDiscovery"
+]
