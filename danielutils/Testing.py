@@ -87,41 +87,70 @@ class TestFactory(DisablePytestDiscovery):
 
 @validate(str, str, bool)
 def create_test_file(path: str, output_folder: str = None, overwrite: bool = False):
-    if output_folder is not None and file_exists(output_folder) and not overwrite:
-        return
-    lines = read_file(path)
-    lines = [
-        line for line in lines if "def" in line or "class" in line]
-    infile_parts = []
     filename = Path(path).stem
+    output_path = f"./test_{filename.lower()}.py"
+    if output_folder is not None:
+        output_path = f"{output_folder}/test_{filename.lower()}.py"
+    if output_folder is not None and file_exists(output_path) and not overwrite:
+        return
+
+    lines = read_file(path)
+    allowed = ["def", "class", "@property"]
+
+    def is_ok(line: str):
+        for allow in allowed:
+            if line.strip().startswith(allow):
+                return True
+        return False
+    lines = filter(is_ok, lines)
+
+    infile_parts = []
     import_path = ".".join([part for part in Path(path).parts])[:-3]
     res = [
         "from danielutils import TestFactory, Test\n",
-        f"from {import_path} import *\n"
+        f"from {import_path} import *\n",
+        "\n\n"
     ]
-    res.append("\n\n")
+    indents = 0
+    is_property: bool = False
     for line in lines:
-        indents = len(re.findall(r"^(    )+", line))
+        matches = re.search(r"^( {4})+", line)
+        if matches is not None:
+            indents = matches.regs[0][1]//4
+        else:
+            indents = 0
         if indents == 0 and len(infile_parts) > 0:
             infile_parts.pop()
-        if "class" in line:
+
+        if "@property" in line:
+            is_property = True
+            continue
+
+        if line.strip().startswith("class"):
             class_name = re.findall(r"class (\b\w+\b)", line)
             if class_name:
                 infile_parts.append(class_name[0])
             continue
         if indents != len(infile_parts):
             continue
-        name = re.findall(r"def (.+)\(", line.strip())
+
+        name = re.findall(r"def (.+?)\(", line.strip())
         if not name or "#" in line or line.startswith("def __"):
             continue
         name = name[0]
+        res.append(f"def test_{name}():\n")
         func_name = ".".join(v for v in infile_parts+[name])
+
+        if is_property:
+            params = "*args,**kwargs"
+            res.append(
+                f"\tdef inner({params}): return {filename}({params}).{name}\n")
+            func_name = "inner"
+            is_property = False
         res.append(
-            f"def test_{name}():\n\tassert TestFactory({func_name}).add_tests([\n\t\n\t])()\n\n\n")
-    if output_folder is not None:
-        write_to_file(f"{output_folder}/test_{filename.lower()}.py", res)
-    else:
-        write_to_file(f"./test_{filename.lower()}.py", res)
+            f"\tassert TestFactory({func_name}).add_tests([\n\t\n\t])()\n\n\n")
+    if len(res) > 3:
+        write_to_file(output_path, res)
 
 
 __all__ = [
