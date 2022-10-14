@@ -18,6 +18,10 @@ def test_isoftype():
         Test((dict(one=1), dict[str, int]), True),
         Test((d, dict[Union[type, str], Any]), True),
         Test((d, dict), True),
+        Test(("", str), True),
+        Test(([""], list), True),
+        Test(([""], list[str]), True),
+        Test(([""], list[int]), False),
     ])()
 
 

@@ -1,6 +1,6 @@
 from typing import Callable, Type, Any, Union, Tuple
 import functools
-from .Functions import areoneof, isoneof, isoneof_strict
+from .Functions import areoneof, isoneof, isoneof_strict, isoftype
 # from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError
 
 __validation_set = set()
@@ -197,7 +197,7 @@ def overload(*types) -> Callable:
                             if not isoneof_strict(args[i], variable_type):
                                 break
                         else:
-                            if not isinstance(args[i], variable_type):
+                            if not isoftype(args[i], variable_type):
                                 break
                 else:
                     return curr_func(*args, **kwargs)

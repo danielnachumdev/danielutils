@@ -5,21 +5,31 @@ from typing import Union
 
 
 @validate(str, list)
-def write_to_file(path: str, lines: list[str]) -> None:
+def write_to_file(path: str, lines: Union[list[str], list[bytes]], write_bytes: bool = False) -> None:
     """clear and then write data to file
 
     Args:
         path (str): path of file
         lines (list[str]): data to write
     """
-    with open(path, "w", encoding="utf-8") as f:
-        for i, line in enumerate(lines):
-            f.write(line)
+
+    try:
+        if write_bytes:
+            with open(path, "wb") as f:
+                f.writelines(lines)
+        else:
+            with open(path, "w", encoding="utf-8") as f:
+                f.writelines(lines)
+    except Exception as e:
+        if isinstance(e, TypeError):
+            raise Exception(
+                "'lines' contains a 'bytes' object.\nTo use with bytes use: write_bytes = True ")
+        raise e
 
 
 @validate(str)
-def file_exists(path: str) -> bool:
-    """checks wheter a file exists
+def path_exists(path: str) -> bool:
+    """checks wheter a path exists
 
     Args:
         path (str): path to check
@@ -28,6 +38,32 @@ def file_exists(path: str) -> bool:
         bool: result of check
     """
     return os.path.exists(path)
+
+
+@validate(str)
+def file_exists(path: str) -> bool:
+    """checks wheter a file exists at specified path
+
+    Args:
+        path (str): path to check
+
+    Returns:
+        bool: will return true iff the path exists and it is a path to a file
+    """
+    return path_exists(path) and is_file(path)
+
+
+@validate(str)
+def directory_exists(path: str) -> bool:
+    """checks wheter a directory exists at specified path
+
+    Args:
+        path (str): path to check
+
+    Returns:
+        bool: will return true iff the path exists and it is a path to a directory
+    """
+    return path_exists(path) and is_directory(path)
 
 
 @validate(str)
@@ -41,8 +77,8 @@ def delete_file(path: str) -> None:
         os.remove(path)
 
 
-@validate(str)
-def read_file(path: str) -> list[str]:
+@validate(str, bool)
+def read_file(path: str, read_bytes: bool = False) -> list[str]:
     """read all lines from a file
 
     Args:
@@ -51,8 +87,18 @@ def read_file(path: str) -> list[str]:
     Returns:
         list[str]: a list of all the lines in the file
     """
-    with open(path, "r", encoding="utf8") as txt_file:
-        return txt_file.readlines()
+    try:
+        if read_bytes:
+            with open(path, "rb") as f:
+                return f.readlines()
+        else:
+            with open(path, "r", encoding="mbcs") as f:
+                return f.readlines()
+    except Exception as e:
+        if isinstance(e, UnicodeDecodeError):
+            raise Exception(
+                f"Can't read byte in file.\nTo use with bytes use: read_bytes = True ")
+        raise e
 
 
 @validate(str)
@@ -126,10 +172,21 @@ def delete_directory(path: str) -> None:
         path (str): _description_
     """
     if is_directory(path):
-        for file in get_files(path):
+        for file in get_files(dir):
             delete_file(f"{path}\\{file}")
         for dir in get_directories(path):
             delete_directory(f"{path}\\{dir}")
+
+
+@validate(str)
+def create_directory(path: str) -> None:
+    """create a directory at the specified path if it dosen't already exists
+
+    Args:
+        path (str): the path to create a directory at
+    """
+    if not directory_exists(path):
+        os.makedirs(path)
 
 
 @validate(str, str)
@@ -161,7 +218,9 @@ def get_file_type_from_directory_recursivly(path: str, file_type: str):
 
 __all__ = [
     "write_to_file",
+    "path_exists",
     "file_exists",
+    "directory_exists",
     "delete_file",
     "read_file",
     "is_file",
@@ -170,6 +229,7 @@ __all__ = [
     "get_files_and_directories",
     "get_directories",
     "delete_directory",
+    "create_directory",
     "get_file_type_from_directory",
     "get_file_type_from_directory_recursivly"
 ]

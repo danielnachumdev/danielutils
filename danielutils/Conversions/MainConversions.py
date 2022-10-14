@@ -1,5 +1,4 @@
-from .Decorators import validate, overload
-from typing import Any
+from ..Decorators import validate, overload
 
 
 @validate([str, lambda s:len(s) == 1, "len(s) must be 1"])
@@ -85,22 +84,14 @@ def int_to_hex(num: int) -> str:
     return hex(num)
 
 
-@overload(int)
-def to_hex(v: int) -> str:
-    # docstring at last implementation
-    return int_to_hex(v)
+@validate(bytes)
+def bytes_to_str(b: bytes) -> str:
+    return b.decode("utf-8")
 
 
-@overload(str)
-def to_hex(v: str) -> str:
-    """to_hex has several options:\n
-    1. type(v) == int\n
-    2. type(v) == str and len(v) == 1
-
-    Returns:
-        str: str of the hex value
-    """
-    return char_to_hex(v)
+@validate(str)
+def str_to_bytes(s: str) -> bytes:
+    return bytes(s, encoding='utf-8')
 
 
 __all__ = [
@@ -111,5 +102,6 @@ __all__ = [
     "char_to_hex",
     "dec_to_hex",
     "int_to_hex",
-    "to_hex"
+    "bytes_to_str",
+    "str_to_bytes"
 ]

@@ -70,7 +70,7 @@ class TestFactory(DisablePytestDiscovery):
                 if res == test.outputs:
                     passed_test = True
             except Exception as e:
-                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {type(e).__qualname__}, := {test.exceptions}"
+                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {type(e).__qualname__}{e.args}, := {test.exceptions}"
                 if type(e).__qualname__ == test.exceptions:
                     passed_test = True
             finally:

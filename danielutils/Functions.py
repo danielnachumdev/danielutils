@@ -9,16 +9,24 @@ def isoftype(v: Any, t: Any):
             for subv in v:
                 if not isoftype(subv, t.__args__[0]):
                     return False
+            return True
+        else:
+            if t in (list, tuple):
+                return True
+            return False
     elif isinstance(v, dict):
         if hasattr(t, '__args__'):
             keyt, valuet = t.__args__[0], t.__args__[1]
             for key, value in v.items():
                 if not isoftype(key, keyt) or not isoftype(value, valuet):
                     return False
-    else:
-        if not isinstance(v, t):
+            return True
+        else:
+            if t is dict:
+                return True
             return False
-    return True
+    else:
+        return isinstance(v, t)
 
 
 def isoneof(v: Any, types: Union[list[Type], tuple[Type]]) -> bool:
