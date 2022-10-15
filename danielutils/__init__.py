@@ -12,3 +12,4 @@ from .Time import *
 from .Internet import *
 from .Threading import *
 from .Colors import *
+from .Data import *

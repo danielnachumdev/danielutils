@@ -12,7 +12,7 @@ ENGLISH_LETTERS_DEC = [ord(v) for v in ENGLISH_LETTERS]
 ENGLISH_LETTERS_HEX = [hex(v) for v in ENGLISH_LETTERS_DEC]
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_english(s: str) -> bool:
     return check_foreach(s, lambda c: c in ENGLISH_LETTERS)
     # try:
@@ -23,12 +23,12 @@ def is_english(s: str) -> bool:
     #     return True
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_int(text: str) -> bool:
     return text.isnumeric()
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_float(text: str) -> bool:
     try:
         float(text)
@@ -37,27 +37,27 @@ def is_float(text: str) -> bool:
         return False
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_number(text: str) -> bool:
     return is_float(text)
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_hebrew(text: str) -> bool:
     return check_foreach(text, lambda c: c in HEBREW_LETTERS)
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_binary(text: str) -> bool:
     return check_foreach(text, lambda c: c in [0, 1])
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_decimal(text: str) -> bool:
     return check_foreach(text, lambda c: c in range(10))
 
 
-@validate(str, ret=bool)
+@validate(str, returntype=bool)
 def is_hex(h: str) -> bool:
     try:
         int(h, 16)

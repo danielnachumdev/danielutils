@@ -6,7 +6,7 @@ from .Functions import areoneof, isoneof, isoneof_strict, isoftype
 __validation_set = set()
 
 
-def validate(*args, ret=None) -> Callable:
+def validate(*args, returntype=None) -> Callable:
     """validate decorator
 
         Is passed types of variables to perform type checking over\n
@@ -20,7 +20,7 @@ def validate(*args, ret=None) -> Callable:
             4.1 a Type or Sequence[Type]\n
             4.2 a function to call on argument\n
             4.3 a str to display in a ValueError iff the condition from 4.2 fails\n
-    In addition you can use keyword 'ret' for the returned value same as specified in 1,2,3
+    In addition you can use keyword 'returntype' for the returned value same as specified in 1,2,3
     """
     from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
 
@@ -72,13 +72,13 @@ def validate(*args, ret=None) -> Callable:
                     else:
                         validate_type(innerargs[i], args[i])
             res = func(*innerargs, **innerkwargs)
-            if ret:
-                msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{ret}'"
-                if isoneof(ret, [list, Tuple]):
-                    if not isoneof(res, ret):
+            if returntype:
+                msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{returntype}'"
+                if isoneof(returntype, [list, Tuple]):
+                    if not isoneof(res, returntype):
                         raise ValidationReturnTypeError(msg)
                 else:
-                    if not isinstance(res, ret):
+                    if not isinstance(res, returntype):
                         raise ValidationReturnTypeError(msg)
             return res
         return inner
