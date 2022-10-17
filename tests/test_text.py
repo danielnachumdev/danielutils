@@ -8,8 +8,8 @@ def test_is_english():
     ])()
 
 
-def test_is_int():
-    assert TestFactory(is_int).add_tests([
+def test_is_str_number():
+    assert TestFactory(is_str_number).add_tests([
 
     ])()
 
