@@ -1,6 +1,6 @@
 from ..danielutils.Testing import TestFactory, Test
 from ..danielutils.Functions import *
-from typing import Union, Any
+from ..danielutils.Typing import Union, Any, Callable
 
 
 def test_isoftype():
@@ -8,6 +8,8 @@ def test_isoftype():
     d[int] = 0
     d["str"] = str
 
+    def foo(a: int) -> int:
+        pass
     assert TestFactory(isoftype).add_tests([
         Test((5, int), True),
         Test((5, float), False),
@@ -22,6 +24,22 @@ def test_isoftype():
         Test(([""], list), True),
         Test(([""], list[str]), True),
         Test(([""], list[int]), False),
+        Test((1, Union[int, float]), True),
+        Test((int, Union[int, float, type]), True),
+        Test((int, [int, float, type]), True),
+        Test((1, Union[int, list[int]]), True),
+        Test(([4], Union[int, list[int]]), True),
+        Test(([4.5], Union[int, list[int]]), False),
+        Test((Union, type(Union)), True),
+        Test((Union[int, float], type(Union)), True),
+        Test((Callable, type(Callable)), True),
+        Test((Callable[[], bool], type(Callable)), True),
+        Test((Callable[[], bool], type(Callable[[], bool])), True),
+        Test((Callable[[int, float], bool], type(
+            Callable[[int, float], bool])), True),
+        Test((foo, Callable), True),
+        Test((foo, Callable[[int], int]), True),
+        # Test((Union, type(Union)), True),
     ])()
 
 

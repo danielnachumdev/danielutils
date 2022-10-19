@@ -1,9 +1,7 @@
-from typing import Any, Type, Callable, Sequence, Union
+from .Typing import Any, Type, Sequence, Union, Iterable, Callable
 
 
 def isoftype(v: Any, t: Any):
-    if t == Any:
-        return True
     if isinstance(v, (list, tuple)):
         if hasattr(t, '__args__'):
             for subv in v:
@@ -11,7 +9,7 @@ def isoftype(v: Any, t: Any):
                     return False
             return True
         else:
-            if t in (list, tuple):
+            if t in (list, tuple, Iterable):
                 return True
             return False
     elif isinstance(v, dict):
@@ -25,7 +23,26 @@ def isoftype(v: Any, t: Any):
             if t is dict:
                 return True
             return False
-    else:
+    else:  # for instances but also for Union
+        if t.__module__ == "typing":
+            if t == Any:
+                return True
+            elif hasattr(v, '__origin__'):
+                if v.__origin__ == Union:
+                    return type(Union) == t
+        elif "Callable" in str(t):
+            if v is not Callable and "Callable" in str(v):
+                # the case is Callable[[somethings],something]
+                if t is type(Callable):
+                    return True
+                # vargs = v.__args__
+                # targs = t.__args__
+                pass
+        elif hasattr(t, '__origin__'):
+            if t.__origin__ == list:
+                return False
+        elif type(t) == list or type(t) == tuple:
+            return isoneof(v, t)
         return isinstance(v, t)
 
 

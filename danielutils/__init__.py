@@ -11,3 +11,4 @@ from .Internet import *
 from .Threading import *
 from .Colors import *
 from .Data import *
+from .Typing import *

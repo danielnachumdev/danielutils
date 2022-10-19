@@ -1,9 +1,43 @@
-from typing import Callable, Type, Any, Union, Tuple
+from .Typing import Callable, Type, Any, Union, Tuple
 import functools
 from .Functions import areoneof, isoneof, isoneof_strict, isoftype
-# from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError
-
+from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
 __validation_set = set()
+
+
+def __validate_type(func: Callable, v: Any, T: Type, validation_func: Callable[[Any], bool] = isoftype, msg: str = None) -> None:
+    if not validation_func(v, T):
+        raise ValidationTypeError(
+            msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt is marked as type(s): '{T}'")
+
+
+def __validate_condition(func: Callable, v: Any, constraint: Callable[[Any], bool], msg: str = None) -> None:
+    if not constraint(v):
+        raise ValidationValueError(
+            msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument '{str(v)}' has failed provided constraint\nConstraint in {constraint.__module__}.{constraint.__qualname__}")
+
+
+def __validate_arg(func: Callable, curr_arg: Any, curr_innerarg: Any) -> None:
+    if isoneof(curr_arg, [list, Tuple]):
+        # multiple type only:
+        if areoneof(curr_arg, [Type]):
+            __validate_type(func, curr_innerarg, curr_arg, isoneof)
+
+        else:  # maybe with condition:
+            class_type, constraint = curr_arg[0], curr_arg[1]
+
+            # Type validation
+            if isoneof(class_type, [list, Tuple]):
+                __validate_type(func, curr_innerarg, class_type, isoneof)
+            else:
+                __validate_type(func, curr_innerarg, class_type, isinstance)
+
+            # constraints validation
+            if constraint is not None:
+                message = curr_arg[2] if len(curr_arg) > 2 else None
+                __validate_condition(func, curr_innerarg, constraint, message)
+    else:
+        __validate_type(func, curr_innerarg, curr_arg)
 
 
 def validate(*args, returntype=None) -> Callable:
@@ -33,73 +67,35 @@ def validate(*args, returntype=None) -> Callable:
             raise ValidationDuplicationError(
                 "validate decorator is being used on two functions in the same module with the same name\nmaybe use @overload instead")
 
-        def validate_type(v: Any, T: Type, validation_func: Callable[[Any], bool] = isinstance) -> None:
-            if not validation_func(v, T):
-                raise ValidationTypeError(
-                    f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt is marked as type(s): '{T}'")
-
-        def validate_condition(v: Any, constraint: Callable[[Any], bool], msg: str = None) -> None:
-            if not constraint(v):
-                raise ValidationValueError(
-                    msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument '{str(v)}' has failed provided constraint\nConstraint in {constraint.__module__}.{constraint.__qualname__}")
-
-        @functools.wraps(func)
+        @ functools.wraps(func)
         def inner(*innerargs, **innerkwargs) -> Any:
             for i in range(min(len(args), len(innerargs))):
                 if args[i] is not None:
-                    if isoneof(args[i], [list, Tuple]):
-                        # multiple type only:
-                        if areoneof(args[i], [Type]):
-                            validate_type(innerargs[i], args[i], isoneof)
-
-                        else:  # maybe with condition:
-                            class_type, constraint = args[i][0], args[i][1]
-
-                            # Type validation
-                            if isoneof(class_type, [list, Tuple]):
-                                validate_type(
-                                    innerargs[i], class_type, isoneof)
-                            else:
-                                validate_type(
-                                    innerargs[i], class_type, isinstance)
-
-                            # constraints validation
-                            if constraint is not None:
-                                message = args[i][2] if len(
-                                    args[i]) > 2 else None
-                                validate_condition(
-                                    innerargs[i], constraint, message)
-                    else:
-                        validate_type(innerargs[i], args[i])
+                    __validate_arg(func, args[i], innerargs[i])
             res = func(*innerargs, **innerkwargs)
-            if returntype:
+            if returntype is not None:
                 msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{returntype}'"
-                if isoneof(returntype, [list, Tuple]):
-                    if not isoneof(res, returntype):
-                        raise ValidationReturnTypeError(msg)
-                else:
-                    if not isinstance(res, returntype):
-                        raise ValidationReturnTypeError(msg)
+                __validate_type(func, res, returntype, msg=msg)
             return res
         return inner
     return wrapper
 
 
-@validate(Callable)
+@ validate(Callable)
 def NotImplemented(func: Callable) -> Callable:
     """decorator to mark function as not implemented for development purposes
 
     Args:
         func (Callable): the function to decorate
     """
-    @functools.wraps(func)
+    @ functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         raise NotImplementedError(
             f"As marked by the developer {func.__module__}.{func.__qualname__} is not implemented yet..")
     return wrapper
 
 
-@validate(Callable)
+@ validate(Callable)
 def PartallyImplemented(func: Callable) -> Callable:
     """decorator to mark function as not fully implemented for development purposes
 
@@ -108,7 +104,7 @@ def PartallyImplemented(func: Callable) -> Callable:
     """
     from .Colors import warning
 
-    @functools.wraps(func)
+    @ functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         warning(
             f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and might not work propely")
@@ -116,7 +112,7 @@ def PartallyImplemented(func: Callable) -> Callable:
     return wrapper
 
 
-@validate(Callable)
+@ validate(Callable)
 def memo(func: Callable) -> Callable:
     """decorator to memorize function calls in order to improve preformance by using more memory
 
@@ -125,7 +121,7 @@ def memo(func: Callable) -> Callable:
     """
     cache: dict[Tuple, Any] = {}
 
-    @functools.wraps(func)
+    @ functools.wraps(func)
     def wrapper(*args, **kwargs):
         if (args, *kwargs.items()) not in cache:
             cache[(args, *kwargs.items())] = func(*args, **kwargs)
@@ -154,16 +150,16 @@ def overload(*types) -> Callable:
     \nNotice:
         The function's __doc__ will hold the value of the last variant only
     """
-    from .Exceptions import OverloadDuplication, OverloadNotFound
     # make sure to use uniqe global dictonary
+    if len(types) == 1 and type(types[0]).__name__ == "function":
+        raise ValueError("can't create an overload without defining types")
     global __overload_dict
-
     # allow input of both tuples and lists for flexabily
     types = list(types)
     for i, maybe_list_of_types in enumerate(types):
         if isoneof(maybe_list_of_types, [list, Tuple]):
             types[i] = tuple(sorted(list(maybe_list_of_types),
-                             key=lambda sub_type: sub_type.__name__))
+                                    key=lambda sub_type: sub_type.__name__))
     types = tuple(types)
 
     def wrapper(func: Callable) -> Callable:
@@ -183,7 +179,7 @@ def overload(*types) -> Callable:
 
         __overload_dict[name][types] = func
 
-        @functools.wraps(func)
+        @ functools.wraps(func)
         def inner(*args, **kwargs) -> Any:
 
             # select corret overload
@@ -210,7 +206,7 @@ def overload(*types) -> Callable:
     return wrapper
 
 
-@validate(Callable)
+@ validate(Callable)
 def abstractmethod(func: Callable) -> Callable:
     """A decorator to mark a function to be 'pure vitual' / 'abstract'
 
@@ -220,7 +216,7 @@ def abstractmethod(func: Callable) -> Callable:
     Raises:
         NotImplementedError: the error that will rise when the marked function will be called if not overriden in a derived class
     """
-    @functools.wraps(func)
+    @ functools.wraps(func)
     def wrapper(*args, **kwargs):
         raise NotImplementedError(
             f"{func.__module__}.{func.__qualname__} MUST be overrided in a child class")
@@ -246,8 +242,8 @@ purevirtual = abstractmethod
 #     return wrapper
 
 
-@PartallyImplemented
-@validate([str, Callable])
+@ PartallyImplemented
+@ validate([str, Callable])
 def deprecate(obj: Union[str, Callable] = None) -> Callable:
     """decorator to mark function as depracated
 
@@ -267,7 +263,7 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
     from .Colors import warning
     # if callable(obj):
     if isinstance(obj, Callable):
-        @functools.wraps(obj)
+        @ functools.wraps(obj)
         def inner(*args, **kwargs) -> Any:
             warning(
                 f"As marked by the developer, {obj.__module__}.{obj.__qualname__} is deprecated")
@@ -275,7 +271,7 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
         return inner
 
     def wrapper(func: Callable) -> Callable:
-        @functools.wraps(func)
+        @ functools.wraps(func)
         def inner(*args, **kwargs) -> Any:
             warning(
                 f"As marked by the developer, {func.__module__}.{func.__qualname__} is deprecated")
@@ -289,19 +285,19 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
 # @PartallyImplemented
 
 
-@validate(Callable)
+@ validate(Callable)
 def atomic(func):
     import threading
     lock = threading.Lock()
 
-    @functools.wraps(func)
+    @ functools.wraps(func)
     def wrapper(*args, **kwargs):
         with lock:
             return func(*args, **kwargs)
     return wrapper
 
 
-@validate([int, lambda d: d > 0, "limit_recursion's max_depth must be a positive integer"], None, bool)
+@ validate([int, lambda d: d > 0, "limit_recursion's max_depth must be a positive integer"], None, bool)
 def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     """decorator to limit recursion of functions
 
@@ -316,7 +312,7 @@ def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     from .Colors import warning
 
     def wrapper(func):
-        @functools.wraps(func)
+        @ functools.wraps(func)
         def inner(*args, **kwargs):
             depth = functools.reduce(
                 lambda count, line:
@@ -349,6 +345,8 @@ __all__ = [
     "deprecate",
     "atomic",
     "limit_recursion"
+
+
 ]
 # def catch(obj) -> Callable:
 #     def logic(func, *args, **kwargs):

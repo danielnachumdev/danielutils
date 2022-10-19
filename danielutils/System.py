@@ -1,5 +1,5 @@
 from .Decorators import overload
-from typing import Tuple, Union
+from .Typing import Tuple, Union
 import subprocess
 
 

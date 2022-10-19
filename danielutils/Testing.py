@@ -1,4 +1,5 @@
-from typing import Sequence, Callable, Union, Any
+from typing import Sequence, Union, Any
+from collections.abc import Callable
 from .Decorators import validate
 from .Colors import ColoredText
 from .Classes import DisablePytestDiscovery
@@ -157,8 +158,6 @@ __all__ = [
     "Test",
     "TestFactory",
     "create_test_file"
-
-
 ]
 # def test_func(functor, inputs, outputs) -> None:
 #     if not callable(functor):

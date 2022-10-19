@@ -1,7 +1,7 @@
 import urllib.request
 import urllib.parse
 from urllib.parse import urlparse
-from typing import Tuple
+from .Typing import Tuple
 import urllib
 from .Decorators import validate
 
