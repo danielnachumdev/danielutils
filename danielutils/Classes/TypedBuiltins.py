@@ -67,12 +67,12 @@ class tdict(dict):
 
     @overload(None, type, type, dict)
     def __init__(self, keyt: type, val_t: type, ** kwargs):
-        """dict(type) -> new empty dictionary dict(mapping) -> new dictionary initialized from a mapping object's
+        """dict(type,type) -> new empty dictionary dict(mapping) -> new dictionary initialized from a mapping object's
     (key, value) pairs
-dict(type,iterable) -> new dictionary initialized as if via:
+dict(type,type,iterable) -> new dictionary initialized as if via:
     d = {} for k, v in iterable:
         d[k] = v
-dict(type,**kwargs) -> new dictionary initialized with the name=value pairs
+dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
     in the keyword argument list. For example: dict(one=1, two=2)
         """
         self.key_t = keyt
@@ -80,10 +80,10 @@ dict(type,**kwargs) -> new dictionary initialized with the name=value pairs
         super().__init__(**kwargs)
 
     def __setitem__(self, key, value) -> None:
-        if not isinstance(key, self.key_t):
+        if not isoftype(key, self.key_t):
             raise TypeError(
                 f"In class 'tdict' error creating new key-value pair as key = '{key}' is not of type '{self.key_t}'")
-        if not isinstance(value, self.val_t):
+        if not isoftype(value, self.val_t):
             raise TypeError(
                 f"In class 'tdict' error creating new key-value pair as value = '{value}' is not of type '{ self.val_t}'")
         super().__setitem__(key, value)

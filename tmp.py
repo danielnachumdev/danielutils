@@ -1,5 +1,5 @@
 from danielutils import *
-from danielutils.Classes.TypedBuiltins import tlist
+from danielutils.Exceptions import *
 # from typing import *
 # print(isoftype(Callable[[], bool], type(Callable)))
 # v = Callable[[int], bool]
@@ -12,6 +12,18 @@ from danielutils.Classes.TypedBuiltins import tlist
 #     pass
 
 # from builtins import function
-d = tdict(int, int)
-d[1] = 1
-print(d)
+d: tdict[tlist[int], int] = tdict(int, tlist[int])
+
+
+def inner(key, value):
+    d[key] = value
+    return True
+
+
+TestFactory(inner, verbose=True).add_tests([
+    Test((1, [1]), outputs=True),
+    Test((1.0, [1]), exception=TypeError),
+    Test(("5", [1]), exception=TypeError),
+    Test((1, [1]), outputs=True),
+    Test((1, [1.0]), exception=TypeError),
+])()

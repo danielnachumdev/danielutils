@@ -67,13 +67,17 @@ class TestFactory(DisablePytestDiscovery):
                 res = self.func(* test.inputs)
                 if not isinstance(res, tuple):
                     res = (res,)
-                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {res}, := {test.outputs}"
+                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {res} := {test.outputs}"
                 if res == test.outputs:
                     passed_test = True
             except Exception as e:
-                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {type(e).__qualname__}{e.args}, := {test.exceptions}"
                 if type(e).__qualname__ == test.exceptions:
                     passed_test = True
+                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {type(e).__qualname__}"
+                if passed_test:
+                    msg += f" := {test.exceptions}"
+                else:
+                    msg += f"{e.args} := {test.exceptions}"
             finally:
                 if passed_test:
                     pass_count += 1

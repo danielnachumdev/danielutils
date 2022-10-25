@@ -39,7 +39,7 @@ def isoftype(v: Any, t: Any):
                 # targs = t.__args__
                 pass
         elif hasattr(t, '__origin__'):
-            if t.__origin__ == list:
+            if isinstance(t.__origin__, list):
                 return False
         elif type(t) == list or type(t) == tuple:
             return isoneof(v, t)
