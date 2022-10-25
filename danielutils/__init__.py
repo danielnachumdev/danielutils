@@ -12,3 +12,4 @@ from .Threading import *
 from .Colors import *
 from .Data import *
 from .Typing import *
+from .DataStructures import *

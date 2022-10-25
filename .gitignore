@@ -2,6 +2,7 @@ main.py
 .vscode/
 *.txt
 html/
+tmp.py
 #official python gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
