@@ -83,7 +83,3 @@ class Queue:
 
 class LinkedList:
     pass
-
-
-class Graph:
-    pass

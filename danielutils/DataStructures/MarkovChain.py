@@ -34,7 +34,7 @@ class MarkovNode:
         self.occurrences.append(occurrence)
         self.indecies.append(index)
 
-    def select_random_child(self) -> int:
+    def next(self) -> int:
         count = sum(self.occurrences)
         selector = random.randint(0, count)
         for i, child_occur in enumerate(self.occurrences):
@@ -80,7 +80,7 @@ class MarkovChain:
             res.append(n)
             if not n.has_children():
                 break
-            index = n.select_random_child()
+            index = n.next()
         return res
 
 
