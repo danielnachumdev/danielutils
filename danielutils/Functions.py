@@ -4,8 +4,8 @@ from .Typing import Any, Type, Sequence, Union, Iterable, Callable
 def isoftype(v: Any, t: Any):
     if isinstance(v, (list, tuple)):
         if hasattr(t, '__args__'):
-            for subv in v:
-                if not isoftype(subv, t.__args__[0]):
+            for sub_v in v:
+                if not isoftype(sub_v, t.__args__[0]):
                     return False
             return True
         else:
@@ -14,9 +14,9 @@ def isoftype(v: Any, t: Any):
             return False
     elif isinstance(v, dict):
         if hasattr(t, '__args__'):
-            keyt, valuet = t.__args__[0], t.__args__[1]
+            key_t, value_t = t.__args__[0], t.__args__[1]
             for key, value in v.items():
-                if not isoftype(key, keyt) or not isoftype(value, valuet):
+                if not isoftype(key, key_t) or not isoftype(value, value_t):
                     return False
             return True
         else:
@@ -35,8 +35,8 @@ def isoftype(v: Any, t: Any):
                 # the case is Callable[[somethings],something]
                 if t is type(Callable):
                     return True
-                # vargs = v.__args__
-                # targs = t.__args__
+                # v_args = v.__args__
+                # t_args = t.__args__
                 pass
         elif hasattr(t, '__origin__'):
             if isinstance(t.__origin__, list):
@@ -68,17 +68,17 @@ def isoneof(v: Any, types: Union[list[Type], tuple[Type]]) -> bool:
 
 
 def isoneof_strict(v: Any, types: Sequence[Type]) -> bool:
-    """performs 'type(v) in types' efficently
+    """performs 'type(v) in types' efficiently
 
     Args:
         v (Any): value to check
-        types (Sequence[Type]): ssequence of aprroved types
+        types (Sequence[Type]): sequence of approved types
 
     Raises:
         TypeError: if types is not a sequence
 
     Returns:
-        bool: true if type of value appers in types
+        bool: true if type of value appears in types
     """
     if not isinstance(types, Sequence):
         raise TypeError("lst must be of type Sequence")
@@ -140,14 +140,14 @@ __all__ = [
     "isoftype"
 ]
 # def almost_equal(*args: Sequence[Any], func: Callable[[Any, Any, Any], bool] = math.isclose, diff: Any = 0.00000000001) -> bool:
-#     """checks wheter all values are within absolute range of each other in O(n**2)
+#     """checks whether all values are within absolute range of each other in O(n**2)
 
 #     Args:
 #         func (Callable[[Any, Any, Any], bool], optional): function to check. Defaults to math.isclose.
 #         diff (Any, optional): default absolute tolerance. Defaults to 0.00000000001.
 
 #     Returns:
-#         bool: return True if all values are within specified tolerande from all other values
+#         bool: return True if all values are within specified tolerance from all other values
 #     """
 #     for i in range(len(args)):
 #         for j in range(i+1, len(args)):

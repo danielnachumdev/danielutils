@@ -6,7 +6,7 @@ class OverloadException(Exception):
 
 class OverloadNotFound(OverloadException):
     """
-    Exception to raise if a function is called with certian argument types but this function hasn't been overloaded with those types
+    Exception to raise if a function is called with certain argument types but this function hasn't been overloaded with those types
     """
     pass
 

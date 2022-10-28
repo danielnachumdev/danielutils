@@ -2,11 +2,11 @@ from .Decorators import validate
 
 
 class ColoredText:
-    __rgb_validateion = [int, lambda v: 0 <=
+    __rgb_validation = [int, lambda v: 0 <=
                          v <= 255, "rgb value must be in [0,255]"]
 
     @staticmethod
-    @validate(__rgb_validateion, __rgb_validateion, __rgb_validateion, str)
+    @validate(__rgb_validation, __rgb_validation, __rgb_validation, str)
     def from_rgb(r: int, g: int, b: int, text: str):
         return f"\033[38;2;{r};{g};{b}m{text}\033[38;2;255;255;255m"
 
@@ -51,7 +51,7 @@ def warning(*args, sep=" ", end="\n"):
     """print a warning message
 
     Args:
-        sep (str, optional): print seperator. Defaults to " ".
+        sep (str, optional): print separator. Defaults to " ".
         end (str, optional): print endline. Defaults to "\\n".
     """
 
@@ -63,7 +63,7 @@ def error(*args, sep=" ", end="\n"):
     """print an error message
 
     Args:
-        sep (str, optional): print seperator. Defaults to " ".
+        sep (str, optional): print separator. Defaults to " ".
         end (str, optional): print endline. Defaults to "\\n".
     """
     __special_print(*args, sep=sep, end=end,

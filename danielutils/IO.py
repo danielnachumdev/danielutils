@@ -29,7 +29,7 @@ def write_to_file(path: str, lines: Union[list[str], list[bytes]], write_bytes: 
 
 @validate(str)
 def path_exists(path: str) -> bool:
-    """checks wheter a path exists
+    """checks whether a path exists
 
     Args:
         path (str): path to check
@@ -42,7 +42,7 @@ def path_exists(path: str) -> bool:
 
 @validate(str)
 def file_exists(path: str) -> bool:
-    """checks wheter a file exists at specified path
+    """checks whether a file exists at specified path
 
     Args:
         path (str): path to check
@@ -55,7 +55,7 @@ def file_exists(path: str) -> bool:
 
 @validate(str)
 def directory_exists(path: str) -> bool:
-    """checks wheter a directory exists at specified path
+    """checks whether a directory exists at specified path
 
     Args:
         path (str): path to check
@@ -103,20 +103,20 @@ def read_file(path: str, read_bytes: bool = False) -> list[str]:
 
 @validate(str)
 def is_file(path: str) -> bool:
-    """return wheter a path represents a file
+    """return whether a path represents a file
 
     Args:
-        path (str): path to checl
+        path (str): path to check
     """
     return os.path.isfile(path)
 
 
 @validate(str)
 def is_directory(path: str) -> bool:
-    """return wheter a path represents a directory
+    """return whether a path represents a directory
 
     Args:
-        path (str): path to checl
+        path (str): path to check
     """
     return os.path.isdir(path)
 
@@ -180,7 +180,7 @@ def delete_directory(path: str) -> None:
 
 @validate(str)
 def create_directory(path: str) -> None:
-    """create a directory at the specified path if it dosen't already exists
+    """create a directory at the specified path if it doesn't already exists
 
     Args:
         path (str): the path to create a directory at
@@ -201,11 +201,11 @@ def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
 
 
 @validate(str, str)
-def get_file_type_from_directory_recursivly(path: str, file_type: str):
+def get_file_type_from_directory_recursively(path: str, file_type: str):
     from pathlib import Path
     res = []
     for dir in get_directories(path):
-        res.extend(f"{dir}\\{v}" for v in get_file_type_from_directory_recursivly(
+        res.extend(f"{dir}\\{v}" for v in get_file_type_from_directory_recursively(
             f"{path}\\{dir}", file_type))
     res.extend(list(
         filter(
@@ -231,5 +231,5 @@ __all__ = [
     "delete_directory",
     "create_directory",
     "get_file_type_from_directory",
-    "get_file_type_from_directory_recursivly"
+    "get_file_type_from_directory_recursively"
 ]

@@ -68,7 +68,7 @@ def test_get_file_type_from_directory():
     ])()
 
 
-def test_get_file_type_from_directory_recursivly():
-    assert TestFactory(get_file_type_from_directory_recursivly).add_tests([
+def test_get_file_type_from_directory_recursively():
+    assert TestFactory(get_file_type_from_directory_recursively).add_tests([
 
     ])()

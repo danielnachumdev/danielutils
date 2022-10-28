@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Typing import Any, Sequence, Union, Tuple, TypeVar
-from..Decorators import overload, validate
+from ..Decorators import overload, validate
 
 
 class GraphNode:
@@ -78,7 +78,7 @@ class TypedGraph(Graph):
         for i in range(1, len(nodes)):
             if type(nodes[0].value) != type(nodes[i].value):
                 raise TypeError(
-                    "One or more of the values is of diffrent type than the others")
+                    "One or more of the values is of different type than the others")
         super().__init__(nodes, connections, weights)
 
 

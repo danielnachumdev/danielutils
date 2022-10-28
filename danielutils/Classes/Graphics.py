@@ -11,7 +11,7 @@
 #         self.bg_color = bg_color
 #         self.g: graphics = None
 
-#     def set_backgound_color(self, bg_color):
+#     def set_background_color(self, bg_color):
 #         self.bg_color = bg_color
 
 #     def draw_line(self):

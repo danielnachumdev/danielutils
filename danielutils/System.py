@@ -13,16 +13,16 @@ def cm(command: str, shell: bool = True) -> Tuple[int, bytes, bytes]:
 
 @overload(list[str])
 def cm(*args, shell: bool = True) -> Tuple[int, bytes, bytes]:
-    """exceute windows shell command and return output
+    """Execute windows shell command and return output
 
     Args:
         command or args:\n
-        command (str): A string representation of the command to exceute.
+        command (str): A string representation of the command to execute.
         args (list[str]): A list of all the command parts
-        shell (bool, optional): whether to exceute in shell. Defaults to True.
+        shell (bool, optional): whether to execute in shell. Defaults to True.
 
     Raises:
-        TypeError: wiil raise if 'shell' is not boolean
+        TypeError: will raise if 'shell' is not boolean
 
     Returns:
         Tuple[int, bytes, bytes]: return code, stdout, stderr

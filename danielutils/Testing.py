@@ -23,7 +23,7 @@ class Test(DisablePytestDiscovery):
     def __init__(self, inputs: Union[Sequence, Any], outputs: Union[Sequence, Any] = None, exception=None):
         if outputs is None and exception is None:
             raise ValueError(
-                "Cannot create a test where which doesnt return anything and not raises any exception")
+                "Cannot create a test where which doesn't return anything and not raises any exception")
         if outputs and exception:
             raise ValueError("cant check both return value and exception")
 
@@ -109,7 +109,7 @@ def create_test_file(path: str, output_folder: str = None, overwrite: bool = Fal
         return False
     lines = filter(is_ok, lines)
 
-    infile_parts = []
+    in_file_parts = []
     import_path = ".".join([part for part in Path(path).parts])[:-3]
     res = [
         "from danielutils import TestFactory, Test\n",
@@ -124,8 +124,8 @@ def create_test_file(path: str, output_folder: str = None, overwrite: bool = Fal
             indents = matches.regs[0][1]//4
         else:
             indents = 0
-        if indents == 0 and len(infile_parts) > 0:
-            infile_parts.pop()
+        if indents == 0 and len(in_file_parts) > 0:
+            in_file_parts.pop()
 
         if "@property" in line:
             is_property = True
@@ -134,9 +134,9 @@ def create_test_file(path: str, output_folder: str = None, overwrite: bool = Fal
         if line.strip().startswith("class"):
             class_name = re.findall(r"class (\b\w+\b)", line)
             if class_name:
-                infile_parts.append(class_name[0])
+                in_file_parts.append(class_name[0])
             continue
-        if indents != len(infile_parts):
+        if indents != len(in_file_parts):
             continue
 
         name = re.findall(r"def (.+?)\(", line.strip())
@@ -144,7 +144,7 @@ def create_test_file(path: str, output_folder: str = None, overwrite: bool = Fal
             continue
         name = name[0]
         res.append(f"def test_{name}():\n")
-        func_name = ".".join(v for v in infile_parts+[name])
+        func_name = ".".join(v for v in in_file_parts+[name])
 
         if is_property:
             params = "*args,**kwargs"
@@ -168,7 +168,7 @@ __all__ = [
 #         raise TypeError("functor must return true for callable(functor)")
 
 #     if len(inputs) != len(outputs):
-#         raise ValueError("Amount of inputs and outputs is diffrent")
+#         raise ValueError("Amount of inputs and outputs is different")
 
 #     for input, output in zip(inputs, outputs):
 #         res = functor(*input[0], **input[1])

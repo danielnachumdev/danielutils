@@ -6,7 +6,7 @@ def char_to_int(c: str) -> int:
     """convert char to its representing int value
 
     Args:
-        c (str): char to ceonvert
+        c (str): char to convert
 
     Returns:
         int: int value
@@ -16,13 +16,13 @@ def char_to_int(c: str) -> int:
 
 @validate(int)
 def int_to_char(num: int) -> str:
-    """convert int to its correspondint char
+    """convert int to its corresponding char
 
     Args:
         num (int): number to convert
 
     Returns:
-        str: result charachter
+        str: result character
     """
     return chr(num)
 
@@ -68,7 +68,7 @@ def char_to_hex(c: str) -> str:
 
 @validate(int)
 def dec_to_hex(num: int) -> str:
-    """conver decimal number to hex
+    """convert decimal number to hex
 
     Args:
         num (int): number to convert

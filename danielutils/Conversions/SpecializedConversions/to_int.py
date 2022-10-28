@@ -4,7 +4,7 @@ from typing import Union
 
 
 def to_int(value: str) -> Union[int, list[int]]:
-    """converts a single charachter or a full string to an int or list of int respectivly
+    """converts a single character or a full string to an int or list of int respectively
     """
     if len(value) == 1:
         return char_to_int(value)

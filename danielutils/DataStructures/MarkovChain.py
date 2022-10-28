@@ -3,7 +3,7 @@ from ..Typing import Any, Tuple, Iterable, Union
 import random
 
 INDEX_INDEX = 0
-OCCURANCE_INDEX = 1
+OCCUPANCE_INDEX = 1
 
 
 class MarkovNode:
@@ -11,28 +11,28 @@ class MarkovNode:
     def __init__(self, value: Any) -> None:
         self.value = value
         self.occurrences = []
-        self.indecies = []
+        self.indices = []
 
     @overload(None, Any, list[Tuple[int, int]])
     def __init__(self, value: Any, children: list[Tuple[float, int]] = None) -> None:
         self.value = value
-        self.occurrences = [tup[OCCURANCE_INDEX] for tup in children]
-        self.indecies = [tup[INDEX_INDEX] for tup in children]
+        self.occurrences = [tup[OCCUPANCE_INDEX] for tup in children]
+        self.indices = [tup[INDEX_INDEX] for tup in children]
 
     @overload(None, Any, list[int], list[int])
-    def __init__(self, value: Any,  indecies: list[int], occurrences: list[int]) -> None:
-        if len(occurrences) != len(indecies):
+    def __init__(self, value: Any,  indices: list[int], occurrences: list[int]) -> None:
+        if len(occurrences) != len(indices):
             raise ValueError("")
         self.value = value
         self.occurrences = occurrences
-        self.indecies = indecies
+        self.indices = indices
 
     def __str__(self) -> str:
         return f"({str(self.value)})"
 
     def add_child(self, occurrence: float, index: int) -> None:
         self.occurrences.append(occurrence)
-        self.indecies.append(index)
+        self.indices.append(index)
 
     def next(self) -> int:
         count = sum(self.occurrences)
@@ -41,7 +41,7 @@ class MarkovNode:
             selector -= child_occur
             if selector <= 0:
                 break
-        return self.indecies[i]
+        return self.indices[i]
 
     def __repr__(self) -> str:
         return str(self)

@@ -14,8 +14,8 @@ def test_NotImplemented():
     ])()
 
 
-def test_PartallyImplemented():
-    assert TestFactory(PartallyImplemented).add_tests([
+def test_PartiallyImplemented():
+    assert TestFactory(PartiallyImplemented).add_tests([
 
     ])()
 

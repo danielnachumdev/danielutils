@@ -12,7 +12,7 @@ ENGLISH_LETTERS_DEC = [ord(v) for v in ENGLISH_LETTERS]
 ENGLISH_LETTERS_HEX = [hex(v) for v in ENGLISH_LETTERS_DEC]
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_english(s: str) -> TypeGuard[str]:
     return check_foreach(s, lambda c: c in ENGLISH_LETTERS)
     # try:
@@ -23,7 +23,7 @@ def is_english(s: str) -> TypeGuard[str]:
     #     return True
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_str_number(text: str) -> bool:
     return text.isnumeric()
 
@@ -36,7 +36,7 @@ def is_int(num: Union[int, float]) -> TypeGuard[int]:
     return int(num) == num
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_float(text: str) -> TypeGuard[float]:
     try:
         float(text)
@@ -45,27 +45,27 @@ def is_float(text: str) -> TypeGuard[float]:
         return False
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_number(text: str) -> bool:
     return is_float(text)
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_hebrew(text: str) -> TypeGuard[str]:
     return check_foreach(text, lambda c: c in HEBREW_LETTERS)
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_binary(text: str) -> bool:
     return check_foreach(text, lambda c: c in [0, 1])
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_decimal(text: str) -> bool:
     return check_foreach(text, lambda c: c in range(10))
 
 
-@validate(str, returntype=bool)
+@validate(str, return_type=bool)
 def is_hex(h: str) -> bool:
     try:
         int(h, 16)

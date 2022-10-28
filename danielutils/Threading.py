@@ -1,6 +1,6 @@
 from .Decorators import atomic
 
-# altough it's related to threading, atomic decorator implemented at .Decorators
+# although it's related to threading, atomic decorator implemented at .Decorators
 
 
 @atomic
