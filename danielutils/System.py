@@ -2,6 +2,7 @@ from .Decorators import overload, timeout
 from .Typing import Tuple, Union, IO
 from .Conversions import str_to_bytes
 import subprocess
+import time
 
 
 @overload(str)
@@ -34,7 +35,29 @@ def cm(*args, shell: bool = True) -> Tuple[int, bytes, bytes]:
     return res.returncode, res.stdout, res.stderr
 
 
+def sleep(seconds: float):
+    time.sleep(seconds)
+
+
 def acm(command: str, inputs: list[str], i_timeout: float = 0.01, cwd=None, env=None, shell: bool = False, use_write_helper: bool = True) -> tuple[int, bytes | None, bytes | None]:
+    """Advanced command
+
+    Args:
+        command (str): The command to execute
+        inputs (list[str]): the inputs to give to the program from the command
+        i_timeout (float, optional): An individual timeout for every step of the execution. Defaults to 0.01.
+        cwd (_type_, optional): Current working directory. Defaults to None.
+        env (_type_, optional): Environment variables. Defaults to None.
+        shell (bool, optional): whether to execute the command through shell. Defaults to False.
+        use_write_helper (bool, optional): whether to parse each input as it would have been parse with builtin print() or to use raw text. Defaults to True.
+
+    Raises:
+        If @timeout will raise something other than TimeoutError
+        If the subprocess input and output handling will raise an exception
+
+    Returns:
+        tuple[int, bytes | None, bytes | None]: return code, stdout, stderr
+    """
     try:
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, env=env, shell=shell)
@@ -45,21 +68,19 @@ def acm(command: str, inputs: list[str], i_timeout: float = 0.01, cwd=None, env=
             p.stdin.write(b_args+b_end)
             p.stdin.flush()
 
-        def extend_from_stream(s: IO[bytes], l: list):
-            @timeout(i_timeout)
-            def readline():
-                l.extend([s.readline()])
+        @timeout(i_timeout)
+        def readline(s: IO, l: list):
+            l.extend([s.readline()])
 
+        def extend_from_stream(s: IO[bytes], l: list):
             if s is not None and s.readable():
                 while True:
                     try:
-                        readline()
+                        readline(s, l)
                     except TimeoutError:
                         break
-                    except BaseException as e:
-                        raise e
-
-                # l.extend(s.readlines())
+                    except BaseException as e1:
+                        raise e1
 
         stdout: list = []
         stderr: list = []
@@ -78,8 +99,8 @@ def acm(command: str, inputs: list[str], i_timeout: float = 0.01, cwd=None, env=
             p.stderr.close()
         returncode = p.wait()
         return returncode, b"".join(stdout), stderr
-    except BaseException as e:
-        raise e
+    except BaseException as e2:
+        raise e2
     finally:
         if p is not None:
             if p.stdin is not None:
@@ -92,5 +113,6 @@ def acm(command: str, inputs: list[str], i_timeout: float = 0.01, cwd=None, env=
 
 __all__ = [
     "cm",
-    "acm"
+    "acm",
+    "sleep"
 ]

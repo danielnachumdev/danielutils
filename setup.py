@@ -8,7 +8,7 @@ def read_file(path: str) -> list[str]:
 
 
 README_PATH = 'README.md'
-VERSION = '0.7.2'
+VERSION = '0.7.3'
 DESCRIPTION = 'A python utils library for things I find usefull'
 LONG_DESCRIPTION = '\n'.join(read_file(README_PATH))
 setup(
