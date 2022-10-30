@@ -14,7 +14,7 @@ LONG_DESCRIPTION = '\n'.join(read_file(README_PATH))
 setup(
     name="danielutils",
     version=VERSION,
-    author="danielnachumdev (Daniel Nachum)",
+    author="danielnachumdev",
     author_email="<danielnachumdev@gmail.com>",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
