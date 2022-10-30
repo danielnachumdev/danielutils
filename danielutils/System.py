@@ -1,5 +1,6 @@
 from .Decorators import overload, timeout
-from .Typing import Tuple, Union, IO
+from .Typing import Tuple, IO
+from .Exceptions import TimeoutError
 from .Conversions import str_to_bytes
 import subprocess
 import time

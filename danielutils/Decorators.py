@@ -339,7 +339,7 @@ def timeout(timeout: float):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             res = [
-                TimeoutError(f'function [{func.__module__}.{func.__qualname__}] timeout [{timeout} seconds] exceeded!')]
+                TimeoutError(f'{func.__module__}.{func.__qualname__} timed out after {timeout} seconds!')]
 
             def newFunc():
                 try:
