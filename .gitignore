@@ -3,6 +3,8 @@ main.py
 *.txt
 html/
 tmp.py
+tests/
+archive/
 #official python gitignore
 # Byte-compiled / optimized / DLL files
 __pycache__/
