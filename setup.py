@@ -17,11 +17,13 @@ setup(
     author="danielnachumdev",
     author_email="<danielnachumdev@gmail.com>",
     description=DESCRIPTION,
-    long_description=LONG_DESCRIPTION,
+    long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
+    url='https://github.com/danielnachumdev/danielutils',
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "archive/"]),
     install_requires=["bs4"],
+    platforms=["All"],
     keywords=['functions', 'decorators', 'methods'],
     classifiers=[
         # "Development Status :: 1 - Planning",
