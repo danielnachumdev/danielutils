@@ -36,3 +36,7 @@ class ValidationValueError(ValidationError, ValueError):
 
 class ValidationDuplicationError(ValidationError):
     pass
+
+
+class TimeoutError(AssertionError):
+    pass

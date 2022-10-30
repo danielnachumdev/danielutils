@@ -15,16 +15,17 @@ class GraphNode:
 
 
 class Connection:
-    @validate(None, GraphNode, GraphNode)
-    def __init__(self, node1: GraphNode, node2: GraphNode):
+    @validate(None, GraphNode, GraphNode, Any)
+    def __init__(self, node1: GraphNode, node2: GraphNode, weight: Any):
         self.node1 = node1
         self.node2 = node2
+        self.weight = weight
 
 
 class Graph:
     @classmethod
     @validate(None, list, list, list)
-    def from_lists(cls, values: list[Any], connections: list[list[int]], weights: list[list[Any]] = None) -> Graph:
+    def from_lists(cls, values: list[Any], connections: list[list[int]]) -> Graph:
         nodes = [GraphNode(v) for v in values]
         parsed_connections = []
         for i1, i_connections in enumerate(connections):
@@ -33,20 +34,13 @@ class Graph:
         return cls(
             nodes,
             parsed_connections,
-            weights
         )
 
-    def __init__(self, nodes: list[GraphNode], connections: list[Connection], weights: list[list[Any]] = None):
-        l1, l2, l3 = len(nodes), len(connections), len(
-            weights) if weights is not None else 0
-        if not (
-            ((weights is not None) and (l1 == l2 == l3)) or
-            ((weights is None) and (l1 == l2))
-        ):
+    def __init__(self, nodes: list[GraphNode], connections: list[Connection]):
+        if not (len(nodes) == len(connections)):
             raise ValueError("Length of input params is not th same")
         self.nodes = nodes
         self.connections = connections
-        self.weights = weights
 
     def __str__(self) -> str:
         res = ", ".join([

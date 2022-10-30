@@ -1,7 +1,8 @@
 from .Typing import Callable, Type, Any, Union, Tuple
 import functools
+import threading
 from .Functions import areoneof, isoneof, isoneof_strict, isoftype
-from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
+from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError, ValidationReturnTypeError, TimeoutError
 __validation_set = set()
 
 
@@ -332,6 +333,35 @@ def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     return wrapper
 
 
+def timeout(timeout: float):
+    # https://stackoverflow.com/a/21861599/6416556
+    def deco(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            res = [
+                TimeoutError(f'function [{func.__module__}.{func.__qualname__}] timeout [{timeout} seconds] exceeded!')]
+
+            def newFunc():
+                try:
+                    res[0] = func(*args, **kwargs)
+                except Exception as function_error:
+                    res[0] = function_error
+
+            t = threading.Thread(target=newFunc)
+            t.daemon = True
+            try:
+                t.start()
+                t.join(timeout)
+            except Exception as thread_error:
+                raise thread_error
+            ret = res[0]
+            if isinstance(ret, BaseException):
+                raise ret
+            return ret
+        return wrapper
+    return deco
+
+
 __all__ = [
     "validate",
     "NotImplemented",
@@ -344,54 +374,6 @@ __all__ = [
     # "override",
     "deprecate",
     "atomic",
-    "limit_recursion"
-
-
+    "limit_recursion",
+    "timeout"
 ]
-# def catch(obj) -> Callable:
-#     def logic(func, *args, **kwargs):
-#         try:
-#             return func(*args, **kwargs)
-#         except Exception as e:
-#             name = f"{func.__module__}.{func.__qualname__}(...)"
-#             exp = f"{type(e).__name__}: {e}"
-#             print(f"{name} caught {exp}")
-
-#     def inner(*args, **kwargs):
-#         return logic(obj, *args, **kwargs)
-
-#     if isinstance(obj, Callable):
-#         return inner
-
-#     def wrapper(func):
-#         return inner
-#     return wrapper
-
-
-# @PartiallyImplemented
-# @validate(str, Type, bool, Callable, str)
-# def opt(opt_name: str, opt_type: Type, is_required: bool = True, constraints: Callable[[Any], bool] = None, constraints_description: str = None) -> Callable:
-#     """the opt decorator is to easily handle function options
-
-#     Args:
-#         name (str): name of option
-#         type (Type): type of option
-#         required (bool, optional): if this option is required. Defaults to True.
-#         constraints (Callable[[Any], bool], optional): a function to check constraints on the option. Defaults to None.
-#         constraints_description (str, optional): a message to show if constraints check fails. Defaults to None.
-
-#     Returns:
-#         Callable: return decorated function
-#     """
-#     def wrapper(func):
-#         @ functools.wraps(func)
-#         def inner(*args, **kwargs):
-#             if is_required and args[0] is None:
-#                 raise ValueError(
-#                     f"{opt_name} was marked as required and got None")
-#             if not isinstance(args[0], opt_type):
-#                 raise TypeError(
-#                     f"{opt_name} has value of wrong type: {args[0]} which is {type(args[0])} instead of {opt_type}")
-#             return func(*args, **kwargs)
-#         return inner
-#     return wrapper

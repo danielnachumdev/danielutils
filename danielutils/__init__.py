@@ -13,3 +13,4 @@ from .Colors import *
 from .Data import *
 from .Typing import *
 from .DataStructures import *
+from .Math import *
