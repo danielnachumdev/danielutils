@@ -132,12 +132,20 @@ def check_foreach(values: Sequence[Any], condition: Callable[[Any], bool]) -> bo
     return True
 
 
+def get_source_code(obj: object) -> list[str]:
+    if not isinstance(obj, object):
+        raise ValueError("obj must be an object")
+    import inspect
+    return inspect.getsource(obj)
+
+
 __all__ = [
     "isoneof",
     "isoneof_strict",
     "areoneof",
     "check_foreach",
-    "isoftype"
+    "isoftype",
+    "get_source_code"
 ]
 # def almost_equal(*args: Sequence[Any], func: Callable[[Any, Any, Any], bool] = math.isclose, diff: Any = 0.00000000001) -> bool:
 #     """checks whether all values are within absolute range of each other in O(n**2)

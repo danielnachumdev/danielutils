@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import codecs
 
 
-def read_file(path: str) -> list[str]:
+def read_file(path: str) -> "list[str]":
     with codecs.open(path, 'r', 'utf-8') as f:
         return [l.strip() for l in f.readlines()]
 

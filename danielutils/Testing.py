@@ -89,6 +89,9 @@ class TestFactory(DisablePytestDiscovery):
         print(f"PASSED {pass_count} / {count}".center(20, " ").center(40, "="))
         return pass_count == count
 
+    def execute(self) -> bool:
+        return self()
+
 
 @validate(str, str, bool)
 def create_test_file(path: str, output_folder: str = None, overwrite: bool = False):
