@@ -59,7 +59,7 @@ def validate(*args, return_type=None) -> Callable:
     """
     from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
 
-    def wrapper(func: Callable) -> Callable:
+    def deco(func: Callable) -> Callable:
         global __validation_set
         func_id = f"{func.__module__}.{func.__qualname__}"
         if func_id not in __validation_set:
@@ -69,7 +69,7 @@ def validate(*args, return_type=None) -> Callable:
                 "validate decorator is being used on two functions in the same module with the same name\nmaybe use @overload instead")
 
         @ functools.wraps(func)
-        def inner(*inner_args, **inner_kwargs) -> Any:
+        def wrapper(*inner_args, **inner_kwargs) -> Any:
             for i in range(min(len(args), len(inner_args))):
                 if args[i] is not None:
                     __validate_arg(func, args[i], inner_args[i])
@@ -78,8 +78,8 @@ def validate(*args, return_type=None) -> Callable:
                 msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{return_type}'"
                 __validate_type(func, res, return_type, msg=msg)
             return res
-        return inner
-    return wrapper
+        return wrapper
+    return deco
 
 
 @ validate(Callable)
@@ -168,7 +168,7 @@ def overload(*types) -> Callable:
                                         key=lambda sub_type: sub_type.__name__))
         types = tuple(types)
 
-    def wrapper(func: Callable) -> Callable:
+    def deco(func: Callable) -> Callable:
         if not isinstance(func, Callable):
             raise TypeError("overload decorator must be used on a callable")
 
@@ -186,7 +186,7 @@ def overload(*types) -> Callable:
         __overload_dict[name][types] = func
 
         @ functools.wraps(func)
-        def inner(*args, **kwargs) -> Any:
+        def wrapper(*args, **kwargs) -> Any:
             default_func = None
             # select correct overload
             for variable_types, curr_func in __overload_dict[f"{func.__module__}.{func.__qualname__}"].items():
@@ -218,8 +218,8 @@ def overload(*types) -> Callable:
             raise OverloadNotFound(
                 f"function {func.__module__}.{func.__qualname__} is not overloaded with {[type(v) for v in args]}")
 
-        return inner
-    return wrapper
+        return wrapper
+    return deco
 
 
 @ validate(Callable)
@@ -280,22 +280,22 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
     # if callable(obj):
     if isinstance(obj, Callable):
         @ functools.wraps(obj)
-        def inner(*args, **kwargs) -> Any:
+        def wrapper(*args, **kwargs) -> Any:
             warning(
                 f"As marked by the developer, {obj.__module__}.{obj.__qualname__} is deprecated")
             return obj(*args, **kwargs)
-        return inner
+        return wrapper
 
-    def wrapper(func: Callable) -> Callable:
+    def deco(func: Callable) -> Callable:
         @ functools.wraps(func)
-        def inner(*args, **kwargs) -> Any:
+        def wrapper(*args, **kwargs) -> Any:
             warning(
                 f"As marked by the developer, {func.__module__}.{func.__qualname__} is deprecated")
             if obj:
                 print(obj)
             return func(*args, **kwargs)
-        return inner
-    return wrapper
+        return wrapper
+    return deco
 
 
 @ validate(Callable)
@@ -324,9 +324,9 @@ def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     import re
     from .Colors import warning
 
-    def wrapper(func):
+    def deco(func):
         @ functools.wraps(func)
-        def inner(*args, **kwargs):
+        def wrapper(*args, **kwargs):
             depth = functools.reduce(
                 lambda count, line:
                     count + 1 if re.search(f"{func.__name__}\(.*\)$", line)
@@ -341,13 +341,27 @@ def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
                     return return_value
                 return args, kwargs
             return func(*args, **kwargs)
-        return inner
-    return wrapper
+        return wrapper
+    return deco
 
 
-def timeout(timeout: float):
+@validate([int, float])
+def timeout(timeout: int | float) -> Callable:
+    """A decorator to limit runtime for a function
+
+    Args:
+        timeout (int | float): allowed runtime duration
+
+    Raises:
+        thread_error: if there is a thread related error
+        function_error: if there is an error in the decorated function
+
+    Returns:
+        Callable: The decorated function
+    """
     # https://stackoverflow.com/a/21861599/6416556
-    def deco(func):
+    @validate(Callable)
+    def deco(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             res = [
