@@ -1,3 +1,4 @@
+from math import inf
 from .Decorators import overload, timeout
 from .Typing import Tuple, IO
 from .Exceptions import TimeoutError
@@ -40,7 +41,14 @@ def sleep(seconds: float):
     time.sleep(seconds)
 
 
-def acm(command: str, inputs: list[str], i_timeout: float = 0.01, cwd=None, env=None, shell: bool = False, use_write_helper: bool = True) -> tuple[int, bytes | None, bytes | None]:
+def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
+    b_args = str_to_bytes(sep).join(str_to_bytes(v) for v in args)
+    b_end = str_to_bytes(end)
+    p.stdin.write(b_args+b_end)
+    p.stdin.flush()
+
+
+def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, cwd=None, env=None, shell: bool = False, use_write_helper: bool = True) -> tuple[int, list[bytes] | None, list[bytes] | None]:
     """Advanced command
 
     Args:
@@ -59,49 +67,54 @@ def acm(command: str, inputs: list[str], i_timeout: float = 0.01, cwd=None, env=
     Returns:
         tuple[int, bytes | None, bytes | None]: return code, stdout, stderr
     """
+
+    if inputs is None:
+        inputs = []
+    p = None
     try:
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, env=env, shell=shell)
 
-        def write(*args, sep=" ", end="\n") -> None:
-            b_args = str_to_bytes(sep).join(str_to_bytes(v) for v in args)
-            b_end = str_to_bytes(end)
-            p.stdin.write(b_args+b_end)
-            p.stdin.flush()
-
         @timeout(i_timeout)
-        def readline(s: IO, l: list):
-            l.extend([s.readline()])
+        def readlines(s: IO, l: list):
+            l.extend(s.readlines())
 
         def extend_from_stream(s: IO[bytes], l: list):
             if s is not None and s.readable():
-                while True:
-                    try:
-                        readline(s, l)
-                    except TimeoutError:
-                        break
-                    except BaseException as e1:
-                        raise e1
+                # prev_len = len(l)-1
+                # new_len = len(l)
+                # while prev_len < new_len:
+                try:
+                    # prev_len = new_len
+                    readlines(s, l)
+                    # new_len = len(l)
+                except TimeoutError:
+                    # break
+                    pass
+                except BaseException as e1:
+                    raise e1
 
-        stdout: list = []
-        stderr: list = []
+        stdout: list[bytes] = []
+        stderr: list[bytes] = []
         for input in inputs:
             if p.stdin.writable():
                 if use_write_helper:
-                    write(input)
+                    __acm_write(input, p=p)
                 else:
-                    write(input, sep="", end="")
+                    __acm_write(input, p=p, sep="", end="")
             extend_from_stream(p.stdout, stdout)
             extend_from_stream(p.stderr, stderr)
-
+        else:
+            extend_from_stream(p.stdout, stdout)
+            extend_from_stream(p.stderr, stderr)
         p.stdin.close()
         p.stdout.close()
         if p.stderr is not None:
             p.stderr.close()
         returncode = p.wait()
-        return returncode, b"".join(stdout), stderr
+        return returncode, stdout, stderr
     except BaseException as e2:
-        raise e2
+        raise type(e2)(f"Maybe use shell=True? original error:\n{e2.args}")
     finally:
         if p is not None:
             if p.stdin is not None:
