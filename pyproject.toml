@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "danilutils"
+version = "0.7.5"
+authors = [
+  { name="danielnachumdev", email="danielnachumdev@gmail.com" },
+]
+description = "A python utils library for things I find useful"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    # "Operating System :: Unix",
+    # "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/danielnachumdev/danielutils"
+"Bug Tracker" = "https://github.com/danielnachumdev/danielutils/issues"

@@ -367,13 +367,13 @@ def timeout(timeout: int | float) -> Callable:
             res = [
                 TimeoutError(f'{func.__module__}.{func.__qualname__} timed out after {timeout} seconds!')]
 
-            def newFunc():
+            def timeout_wrapper():
                 try:
                     res[0] = func(*args, **kwargs)
                 except Exception as function_error:
                     res[0] = function_error
 
-            t = threading.Thread(target=newFunc)
+            t = threading.Thread(target=timeout_wrapper)
             t.daemon = True
             try:
                 t.start()
