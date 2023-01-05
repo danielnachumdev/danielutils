@@ -24,10 +24,11 @@ def cm(*args, shell: bool = True) -> Tuple[int, bytes, bytes]:
         Tuple[int, bytes, bytes]: return code, stdout, stderr
     """
     if not isinstance(shell, bool):
-        raise TypeError("In function 'cm' param 'shell' must be of type bool")
+        raise TypeError(
+            "In function 'cm' param 'shell' must be of type bool")
     if Path(args[0]).is_file():
         args = (f"\"{args[0]}\"", *args[1:])
-    res = subprocess.run(*args, shell=shell, capture_output=True)
+    res = subprocess.run(" ".join(args), shell=shell, capture_output=True)
     return res.returncode, res.stdout, res.stderr
 
 
