@@ -345,31 +345,62 @@ def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     return wrapper
 
 
-def timeout(timeout: float):
+@validate([int, float])
+def timeout(timeout: float) -> Callable:
+    """WILL NOT WORK WHEN DEBUGGING
+
+    Args:
+        timeout (float): seconds to wait until forced timeout
+
+    Raises:
+        thread_error: any internal error from the target
+        res: TimeoutError
+
+    Returns:
+        Callable: decorated function
+    """
     # https://stackoverflow.com/a/21861599/6416556
-    def deco(func):
+    @validate(Callable)
+    def deco(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             res = [
                 TimeoutError(f'{func.__module__}.{func.__qualname__} timed out after {timeout} seconds!')]
 
-            def timeout_wrapper():
+            def timeout_wrapper() -> None:
                 try:
                     res[0] = func(*args, **kwargs)
                 except Exception as function_error:
                     res[0] = function_error
 
-            t = threading.Thread(target=timeout_wrapper)
-            t.daemon = True
+            t = threading.Thread(target=timeout_wrapper, daemon=True)
             try:
                 t.start()
                 t.join(timeout)
             except Exception as thread_error:
                 raise thread_error
-            ret = res[0]
-            if isinstance(ret, BaseException):
-                raise ret
-            return ret
+            if isinstance(res[0], BaseException):
+                raise res[0]
+            return res[0]
+        return wrapper
+    return deco
+
+
+@validate(Callable, Callable)
+def attach(before: Callable = None, after: Callable = None) -> Callable:
+    if before is None and after is None:
+        raise ValueError("You must supply at least one function")
+
+    @validate(Callable)
+    def deco(func: Callable):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if before is not None:
+                before()
+            res = func(*args, **kwargs)
+            if after is not None:
+                after()
+            return res
         return wrapper
     return deco
 
@@ -387,5 +418,6 @@ __all__ = [
     "deprecate",
     "atomic",
     "limit_recursion",
-    "timeout"
+    "timeout",
+    "attach"
 ]
