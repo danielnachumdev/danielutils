@@ -361,7 +361,7 @@ def timeout(timeout: float) -> Callable:
     """
     # https://stackoverflow.com/a/21861599/6416556
     @validate(Callable)
-    def deco(func: Callable) -> Callable:
+    def timeout_deco(func: Callable) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             res = [
@@ -383,7 +383,7 @@ def timeout(timeout: float) -> Callable:
                 raise res[0]
             return res[0]
         return wrapper
-    return deco
+    return timeout_deco
 
 
 @validate(Callable, Callable)
@@ -392,7 +392,7 @@ def attach(before: Callable = None, after: Callable = None) -> Callable:
         raise ValueError("You must supply at least one function")
 
     @validate(Callable)
-    def deco(func: Callable):
+    def attach_deco(func: Callable):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             if before is not None:
@@ -402,7 +402,7 @@ def attach(before: Callable = None, after: Callable = None) -> Callable:
                 after()
             return res
         return wrapper
-    return deco
+    return attach_deco
 
 
 __all__ = [
