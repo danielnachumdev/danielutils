@@ -2,14 +2,14 @@
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 [project]
-name = "danilutils"
-version = "0.7.5"
+name = "danielutils"
+version = "0.7.6.3"
 authors = [
   { name="danielnachumdev", email="danielnachumdev@gmail.com" },
 ]
 description = "A python utils library for things I find useful"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10.5"
 classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",

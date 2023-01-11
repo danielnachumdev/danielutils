@@ -4,6 +4,7 @@ import threading
 from .Functions import areoneof, isoneof, isoneof_strict, isoftype
 from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError, ValidationReturnTypeError, TimeoutError
 __validation_set = set()
+__validation_instantiation_rule = dict()
 
 
 def __validate_type(func: Callable, v: Any, T: Type, validation_func: Callable[[Any], bool] = isoftype, msg: str = None) -> None:
@@ -41,7 +42,7 @@ def __validate_arg(func: Callable, curr_arg: Any, curr_inner_arg: Any) -> None:
         __validate_type(func, curr_inner_arg, curr_arg)
 
 
-def validate(*args, return_type=None) -> Callable:
+def validate(*args, return_type=None, can_instantiate_multiple_times: bool = False) -> Callable:
     """validate decorator
 
         Is passed types of variables to perform type checking over\n
@@ -59,14 +60,21 @@ def validate(*args, return_type=None) -> Callable:
     """
     from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
 
-    def deco(func: Callable) -> Callable:
-        global __validation_set
+    def wrapper(func: Callable) -> Callable:
+        global __validation_set, __validation_instantiation_rule
         func_id = f"{func.__module__}.{func.__qualname__}"
+
+        if func_id not in __validation_instantiation_rule:
+            __validation_instantiation_rule[func_id] = can_instantiate_multiple_times
+        assert can_instantiate_multiple_times == __validation_instantiation_rule[
+            func_id], "can't change instantiation status on runtime"
+
         if func_id not in __validation_set:
             __validation_set.add(func_id)
         else:
-            raise ValidationDuplicationError(
-                "validate decorator is being used on two functions in the same module with the same name\nmaybe use @overload instead")
+            if not __validation_instantiation_rule[func_id]:
+                raise ValidationDuplicationError(
+                    "validate decorator is being used on two functions in the same module with the same name\nmaybe use @overload instead")
 
         @ functools.wraps(func)
         def wrapper(*inner_args, **inner_kwargs) -> Any:
@@ -360,32 +368,53 @@ def timeout(timeout: int | float) -> Callable:
         Callable: The decorated function
     """
     # https://stackoverflow.com/a/21861599/6416556
-    @validate(Callable)
-    def deco(func: Callable) -> Callable:
+    def timeout_deco(func: Callable) -> Callable:
+        if not isinstance(func, Callable):
+            raise ValueError("timeout must decorate a function")
+
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             res = [
                 TimeoutError(f'{func.__module__}.{func.__qualname__} timed out after {timeout} seconds!')]
 
-            def timeout_wrapper():
+            def timeout_wrapper() -> None:
                 try:
                     res[0] = func(*args, **kwargs)
                 except Exception as function_error:
                     res[0] = function_error
 
-            t = threading.Thread(target=timeout_wrapper)
-            t.daemon = True
+            t = threading.Thread(target=timeout_wrapper, daemon=True)
             try:
                 t.start()
                 t.join(timeout)
             except Exception as thread_error:
                 raise thread_error
-            ret = res[0]
-            if isinstance(ret, BaseException):
-                raise ret
-            return ret
+            if isinstance(res[0], BaseException):
+                raise res[0]
+            return res[0]
         return wrapper
-    return deco
+    return timeout_deco
+
+
+@validate(Callable, Callable)
+def attach(before: Callable = None, after: Callable = None) -> Callable:
+    if before is None and after is None:
+        raise ValueError("You must supply at least one function")
+
+    def attach_deco(func: Callable):
+        if not isinstance(func, Callable):
+            raise ValueError("attach must decorate a function")
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            if before is not None:
+                before()
+            res = func(*args, **kwargs)
+            if after is not None:
+                after()
+            return res
+        return wrapper
+    return attach_deco
 
 
 __all__ = [
@@ -401,5 +430,6 @@ __all__ = [
     "deprecate",
     "atomic",
     "limit_recursion",
-    "timeout"
+    "timeout",
+    "attach"
 ]

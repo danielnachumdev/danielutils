@@ -2,6 +2,7 @@
 import os
 from .Decorators import validate
 from typing import Union
+from pathlib import Path
 
 
 @validate(str, list)
@@ -172,10 +173,11 @@ def delete_directory(path: str) -> None:
         path (str): _description_
     """
     if is_directory(path):
-        for file in get_files(dir):
+        for file in get_files(path):
             delete_file(f"{path}\\{file}")
         for dir in get_directories(path):
             delete_directory(f"{path}\\{dir}")
+        os.rmdir(path)
 
 
 @validate(str)
@@ -191,7 +193,6 @@ def create_directory(path: str) -> None:
 
 @validate(str, str)
 def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
-    from pathlib import Path
     return list(
         filter(
             lambda name: Path(f"{path}\\{name}").suffix == file_type,
@@ -202,7 +203,6 @@ def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
 
 @validate(str, str)
 def get_file_type_from_directory_recursively(path: str, file_type: str):
-    from pathlib import Path
     res = []
     for dir in get_directories(path):
         res.extend(f"{dir}\\{v}" for v in get_file_type_from_directory_recursively(
@@ -214,6 +214,22 @@ def get_file_type_from_directory_recursively(path: str, file_type: str):
         )
     ))
     return res
+
+
+def rename_file(path: str, new_name: str) -> None:
+    new_path = "./" + \
+        "/".join(Path(path).parts[:-1])+"/"+new_name+Path(path).suffix
+    move_file(path, new_path)
+
+
+def move_file(old_path: str, new_path: str) -> None:
+    os.rename(old_path, new_path)
+
+
+async def open_file(file_path: str, application_path: str):
+    import subprocess
+    p = subprocess.Popen([application_path, file_path])
+    return_code = p.wait()
 
 
 __all__ = [
@@ -231,5 +247,8 @@ __all__ = [
     "delete_directory",
     "create_directory",
     "get_file_type_from_directory",
-    "get_file_type_from_directory_recursively"
+    "get_file_type_from_directory_recursively",
+    "rename_file",
+    "move_file",
+    "open_file"
 ]

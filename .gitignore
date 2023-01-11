@@ -1,6 +1,7 @@
 main.py
 .vscode/
 *.txt
+*.json
 html/
 tmp.py
 tests/
