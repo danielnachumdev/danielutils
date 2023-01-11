@@ -60,7 +60,9 @@ def validate(*args, return_type=None, can_instantiate_multiple_times: bool = Fal
     """
     from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
 
-    def wrapper(func: Callable) -> Callable:
+    def deco(func: Callable) -> Callable:
+        if not isinstance(func, Callable):
+            raise ValueError("validate decorator must decorate a callable")
         global __validation_set, __validation_instantiation_rule
         func_id = f"{func.__module__}.{func.__qualname__}"
 
