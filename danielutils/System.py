@@ -1,3 +1,4 @@
+import os
 from math import inf
 from .Decorators import overload, timeout, validate
 from .Typing import Tuple, IO
@@ -26,8 +27,9 @@ def cm(*args, shell: bool = True) -> Tuple[int, bytes, bytes]:
     if not isinstance(shell, bool):
         raise TypeError(
             "In function 'cm' param 'shell' must be of type bool")
-    if Path(args[0]).is_file():
-        args = (f"\"{args[0]}\"", *args[1:])
+    for i, arg in enumerate(args):
+        if Path(args[i]).is_file() or Path(args[i]).is_dir():
+            args = (*args[:i], f"\"{arg}\"", *args[i+1:])
     res = subprocess.run(" ".join(args), shell=shell, capture_output=True)
     return res.returncode, res.stdout, res.stderr
 
