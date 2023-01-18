@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..Typing import Any, Sequence, Union, Tuple, TypeVar
+from ..Typing import Any, Sequence, Union, TypeVar
 from ..Decorators import overload, validate
 
 

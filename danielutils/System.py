@@ -1,7 +1,7 @@
 import os
 from math import inf
 from .Decorators import overload, timeout, validate
-from .Typing import Tuple, IO
+from .Typing import IO
 from .Exceptions import TimeoutError
 from .Conversions import str_to_bytes
 from pathlib import Path
@@ -9,7 +9,7 @@ import subprocess
 import time
 
 
-def cm(*args, shell: bool = True) -> Tuple[int, bytes, bytes]:
+def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
     """Execute windows shell command and return output
 
     Args:

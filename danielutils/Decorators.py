@@ -1,4 +1,4 @@
-from .Typing import Callable, Type, Any, Union, Tuple
+from .Typing import Callable, Any, Union
 import functools
 import threading
 from .Functions import areoneof, isoneof, isoneof_strict, isoftype
@@ -7,7 +7,7 @@ __validation_set = set()
 __validation_instantiation_rule = dict()
 
 
-def __validate_type(func: Callable, v: Any, T: Type, validation_func: Callable[[Any], bool] = isoftype, msg: str = None) -> None:
+def __validate_type(func: Callable, v: Any, T: type, validation_func: Callable[[Any], bool] = isoftype, msg: str = None) -> None:
     if not validation_func(v, T):
         raise ValidationTypeError(
             msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt is marked as type(s): '{T}'")
@@ -20,16 +20,16 @@ def __validate_condition(func: Callable, v: Any, constraint: Callable[[Any], boo
 
 
 def __validate_arg(func: Callable, curr_arg: Any, curr_inner_arg: Any) -> None:
-    if isoneof(curr_arg, [list, Tuple]):
+    if isoneof(curr_arg, [list, tuple]):
         # multiple type only:
-        if areoneof(curr_arg, [Type]):
+        if areoneof(curr_arg, [type]):
             __validate_type(func, curr_inner_arg, curr_arg, isoneof)
 
         else:  # maybe with condition:
             class_type, constraint = curr_arg[0], curr_arg[1]
 
             # Type validation
-            if isoneof(class_type, [list, Tuple]):
+            if isoneof(class_type, [list, tuple]):
                 __validate_type(func, curr_inner_arg, class_type, isoneof)
             else:
                 __validate_type(func, curr_inner_arg, class_type, isinstance)
@@ -128,7 +128,7 @@ def memo(func: Callable) -> Callable:
     Args:
         func (Callable): function to memorize
     """
-    cache: dict[Tuple, Any] = {}
+    cache: dict[tuple, Any] = {}
 
     @ functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -138,7 +138,7 @@ def memo(func: Callable) -> Callable:
     return wrapper
 
 
-__overload_dict: dict[str, dict[Tuple, Callable]] = dict()
+__overload_dict: dict[str, dict[tuple, Callable]] = dict()
 
 
 def overload(*types) -> Callable:
@@ -171,7 +171,7 @@ def overload(*types) -> Callable:
     if len(types) > 0:
         types = list(types)
         for i, maybe_list_of_types in enumerate(types):
-            if isoneof(maybe_list_of_types, [list, Tuple]):
+            if isoneof(maybe_list_of_types, [list, tuple]):
                 types[i] = tuple(sorted(list(maybe_list_of_types),
                                         key=lambda sub_type: sub_type.__name__))
         types = tuple(types)
@@ -211,7 +211,7 @@ def overload(*types) -> Callable:
 
                 for i, variable_type in enumerate(variable_types):
                     if variable_type is not None:
-                        if isoneof(variable_type, [list, Tuple]):
+                        if isoneof(variable_type, [list, tuple]):
                             if not isoneof_strict(args[i], variable_type):
                                 break
                         else:

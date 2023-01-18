@@ -1,7 +1,6 @@
 from ..Decorators import validate, overload
-from ..Typing import Any, Tuple, Iterable, Union
+from ..Typing import Any, Iterable, Union
 import random
-
 INDEX_INDEX = 0
 OCCUPANCE_INDEX = 1
 
@@ -13,8 +12,8 @@ class MarkovNode:
         self.occurrences = []
         self.indices = []
 
-    @overload(None, Any, list[Tuple[int, int]])
-    def __init__(self, value: Any, children: list[Tuple[float, int]] = None) -> None:
+    @overload(None, Any, list[tuple[int, int]])
+    def __init__(self, value: Any, children: list[tuple[float, int]] = None) -> None:
         self.value = value
         self.occurrences = [tup[OCCUPANCE_INDEX] for tup in children]
         self.indices = [tup[INDEX_INDEX] for tup in children]
