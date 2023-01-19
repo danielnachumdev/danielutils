@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import shutil
 import os
 from .Decorators import validate
 from typing import Union
@@ -237,6 +238,18 @@ async def open_file(file_path: str, application_path: str):
     return_code = p.wait()
 
 
+def move_directory(old_path: str, new_path: str) -> None:
+    shutil.move(old_path, new_path)
+
+
+def copy_file(src: str, dest: str) -> None:
+    shutil.copy(src, dest)
+
+
+def copy_directory(src: str, dest: str) -> None:
+    shutil.copy(src, dest)
+
+
 __all__ = [
     "write_to_file",
     "path_exists",
@@ -256,5 +269,8 @@ __all__ = [
     "get_file_type_from_directory_recursively",
     "rename_file",
     "move_file",
-    "open_file"
+    "open_file",
+    "move_directory",
+    "copy_file",
+    "copy_directory"
 ]
