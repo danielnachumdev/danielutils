@@ -1,52 +1,118 @@
-from .Typing import Any, Type, Sequence, Union, Iterable, Callable
+from .Typing import Any, type, Sequence, Union, Iterable, Callable
+from typing import get_args, get_origin, get_type_hints
 
 
-def isoftype(v: Any, t: Any):
-    if isinstance(v, (list, tuple)):
-        if hasattr(t, '__args__'):
-            for sub_v in v:
-                if not isoftype(sub_v, t.__args__[0]):
+def __isoftype_inquire(obj: Any) -> tuple[Any, Any, Any]:
+    origin = None
+    args = None
+    type_hints = None
+    try:
+        origin = get_origin(obj)
+    except:
+        pass
+    try:
+        args = get_args(obj)
+    except:
+        pass
+    try:
+        type_hints = get_type_hints(obj)
+    except:
+        pass
+    return origin, args, type_hints
+
+
+def isoftype(obj: Any, T: Any) -> bool:
+    obj_origin, obj_args, obj_hints = __isoftype_inquire(obj)
+    t_origin, t_args, t_hints = __isoftype_inquire(T)
+    if t_origin is not None:
+        if t_origin in {list}:
+            for sub_v in obj:
+                if not isoftype(sub_v, t_args[0]):
                     return False
             return True
-        else:
-            if t in (list, tuple, Iterable):
-                return True
-            return False
-    elif isinstance(v, dict):
-        if hasattr(t, '__args__'):
-            key_t, value_t = t.__args__[0], t.__args__[1]
-            for key, value in v.items():
-                if not isoftype(key, key_t) or not isoftype(value, value_t):
+        elif t_origin is dict:
+            key_t, value_t,  = t_args[0], t_args[1]
+            for k, v in obj.items():
+                if not isoftype(v, value_t):
+                    return False
+                if not isoftype(k, key_t):
                     return False
             return True
-        else:
-            if t is dict:
-                return True
-            return False
-    else:  # for instances but also for Union
-        if t.__module__ == "typing":
-            if t == Any:
-                return True
-            elif hasattr(v, '__origin__'):
-                if v.__origin__ == Union:
-                    return type(Union) == t
-        elif "Callable" in str(t):
-            if v is not Callable and "Callable" in str(v):
-                # the case is Callable[[somethings],something]
-                if t is type(Callable):
+        elif t_origin in {Union}:
+            for sub_t in t_args:
+                if isoftype(obj, sub_t):
                     return True
-                # v_args = v.__args__
-                # t_args = t.__args__
-                pass
-        elif hasattr(t, '__origin__'):
-            if isinstance(t.__origin__, list):
-                return False
-        elif type(t) == list or type(t) == tuple:
-            return isoneof(v, t)
-        return isinstance(v, t)
+            return False
+        elif t_origin in {Callable}:
+            if obj.__name__ == "<lambda>":
+                return True
+            tmp = list(obj_hints.values())
+            obj_return_type = tmp[-1]
+            obj_param_types = tuple(tmp[:-1])
+            del tmp
+            t_return_type = t_args[1]
+            t_param_types = tuple(t_args[0])
+            return obj_return_type is t_return_type and obj_param_types == t_param_types
+    else:
+        if T is Any:
+            return True
+        elif type(T) in {list}:
+            for sub_t in T:
+                if isoftype(obj, sub_t):
+                    return True
+            return False
+        elif obj_origin is not None:
+            if obj_origin is Union:
+                return T is type(Union)
+    return isinstance(obj, T)
 
 
-def isoneof(v: Any, types: Union[list[Type], tuple[Type]]) -> bool:
+# def isoftype(v: Any, t: Any):
+#     if isinstance(v, (list, tuple)):
+#         if hasattr(t, '__args__'):
+#             for sub_v in v:
+#                 if not isoftype(sub_v, t.__args__[0]):
+#                     return False
+#             return True
+#         else:
+#             if t in (list, tuple, Iterable):
+#                 return True
+#             return False
+#     elif isinstance(v, dict):
+#         if hasattr(t, '__args__'):
+#             key_t, value_t = t.__args__[0], t.__args__[1]
+#             for key, value in v.items():
+#                 if not isoftype(key, key_t) or not isoftype(value, value_t):
+#                     return False
+#             return True
+#         else:
+#             if t is dict:
+#                 return True
+#             return False
+#     else:  # for instances but also for Union
+#         if t.__module__ == "typing":
+#             if t == Any:
+#                 return True
+#             elif hasattr(v, '__origin__'):
+#                 if v.__origin__ == Union:
+#                     return type(Union) == t
+#         elif "Callable" in str(t):
+#             if v is not Callable and "Callable" in str(v):
+#                 # the case is Callable[[somethings],something]
+#                 if t is type(Callable):
+#                     return True
+#                 # v_args = v.__args__
+#                 # t_args = t.__args__
+#                 pass
+#         elif hasattr(t, '__origin__'):
+#             if isinstance(t.__origin__, list):
+#                 return False
+#         elif type(t) == list or type(t) == tuple:
+#             return isoneof(v, t)
+#         return isinstance(v, t)
+
+
+def isoneof(v: Any, types: Union[list[type], tuple[type]]) -> bool:
     """performs isoftype() or ... or isoftype()
 
     Args:
@@ -67,7 +133,7 @@ def isoneof(v: Any, types: Union[list[Type], tuple[Type]]) -> bool:
     return False
 
 
-def isoneof_strict(v: Any, types: Sequence[Type]) -> bool:
+def isoneof_strict(v: Any, types: Sequence[type]) -> bool:
     """performs 'type(v) in types' efficiently
 
     Args:
@@ -88,7 +154,7 @@ def isoneof_strict(v: Any, types: Sequence[Type]) -> bool:
     return False
 
 
-def areoneof(values: Sequence[Any], types: Sequence[Type]) -> bool:
+def areoneof(values: Sequence[Any], types: Sequence[type]) -> bool:
     """performs 'isoneof(values[0],types) and ... and isoneof(values[...],types)'
 
     Args:

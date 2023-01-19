@@ -1,9 +1,10 @@
+*.csv
 main.py
 .vscode/
 *.txt
 *.json
 html/
-tmp.py
+tmp*.py
 tests/
 archive/
 #official python gitignore

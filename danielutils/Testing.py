@@ -9,17 +9,17 @@ from pathlib import Path
 import re
 
 
-def passed(text: str):
-    pass_text = ColoredText.green("PASSED")
-    print(f"{pass_text}: {text}")
-
-
-def failed(text: str):
-    failed_text = ColoredText.red("FAILED")
-    print(f"{failed_text}: {text}")
-
-
 class Test(DisablePytestDiscovery):
+    @staticmethod
+    def passed(text: str):
+        pass_text = ColoredText.green("PASSED")
+        print(f"{pass_text}: {text}")
+
+    @staticmethod
+    def failed(text: str):
+        failed_text = ColoredText.red("FAILED")
+        print(f"{failed_text}: {text}")
+
     def __init__(self, inputs: Union[Sequence, Any], outputs: Union[Sequence, Any] = None, exception=None):
         if outputs is None and exception is None:
             raise ValueError(
@@ -35,6 +35,40 @@ class Test(DisablePytestDiscovery):
         self.exceptions = None
         if exception is not None:
             self.exceptions = exception.__qualname__
+
+    def acquire_result(self, func: Callable) -> bool:
+        return func(*self.inputs)
+
+    def is_passing(self, func: Callable) -> bool:
+        output = func(*self.inputs)
+        if not isoneof(output, [list, tuple]):
+            output = (output,)
+        return output == self.outputs
+
+    def test(self, func: Callable, verbose: bool = False, test_number: int = 0) -> bool:
+        has_passed = False
+        try:
+            msg = None
+            res = self.acquire_result(func)
+            if not isoneof(res, [list, tuple]):
+                res = (res,)
+            has_passed = res == self.outputs
+            msg = f"{test_number}: {func.__qualname__}{self.inputs} => {res} := {self.outputs}"
+        except Exception as e:
+            if type(e).__qualname__ == self.exceptions:
+                passed_test = True
+            msg = f"{test_number}: {func.__qualname__}{self.inputs} => {type(e).__qualname__}"
+            if passed_test:
+                msg += f" := {self.exceptions}"
+            else:
+                msg += f"{e.args} := {self.exceptions}"
+        finally:
+            if has_passed:
+                if verbose:
+                    Test.passed(msg)
+            else:
+                Test.failed(msg)
+            return has_passed
 
 
 # @pytest.mark.filterwarnings("ignore:api v1")
@@ -59,32 +93,10 @@ class TestFactory(DisablePytestDiscovery):
         print(f"Testing {name}...\n")
         count: int = 0
         pass_count: int = 0
-        for test in self.tests:
+        for i, test in enumerate(self.tests):
+            if test.test(self.func, self.verbose, i):
+                pass_count += 1
             count += 1
-            try:
-                msg = None
-                passed_test = False
-                res = self.func(* test.inputs)
-                if not isinstance(res, tuple):
-                    res = (res,)
-                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {res} := {test.outputs}"
-                if res == test.outputs:
-                    passed_test = True
-            except Exception as e:
-                if type(e).__qualname__ == test.exceptions:
-                    passed_test = True
-                msg = f"{count}: {self.func.__qualname__}{test.inputs} => {type(e).__qualname__}"
-                if passed_test:
-                    msg += f" := {test.exceptions}"
-                else:
-                    msg += f"{e.args} := {test.exceptions}"
-            finally:
-                if passed_test:
-                    pass_count += 1
-                    if self.verbose:
-                        passed(msg)
-                else:
-                    failed(msg)
         print()
         print(f"PASSED {pass_count} / {count}".center(20, " ").center(40, "="))
         return pass_count == count

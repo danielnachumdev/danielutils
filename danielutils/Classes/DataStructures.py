@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Decorators import validate
-from ..Typing import Any, Tuple, Iterable, Union
+from ..Typing import Any, Iterable, Union
 from ..Functions import isoftype
 
 

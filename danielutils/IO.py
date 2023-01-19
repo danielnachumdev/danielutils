@@ -173,11 +173,16 @@ def delete_directory(path: str) -> None:
         path (str): _description_
     """
     if is_directory(path):
-        for file in get_files(path):
-            delete_file(f"{path}\\{file}")
-        for dir in get_directories(path):
-            delete_directory(f"{path}\\{dir}")
+        clear_directory(path)
         os.rmdir(path)
+
+
+@validate(str)
+def clear_directory(path: str) -> None:
+    for file in get_files(path):
+        delete_file(f"{path}\\{file}")
+    for dir in get_directories(path):
+        delete_directory(f"{path}\\{dir}")
 
 
 @validate(str)
@@ -245,6 +250,7 @@ __all__ = [
     "get_files_and_directories",
     "get_directories",
     "delete_directory",
+    "clear_directory",
     "create_directory",
     "get_file_type_from_directory",
     "get_file_type_from_directory_recursively",

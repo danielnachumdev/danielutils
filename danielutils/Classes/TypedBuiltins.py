@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..Typing import Any, Union, Iterable, Tuple
+from ..Typing import Any, Union, Iterable
 from ..Decorators import validate, overload
 from ..Functions import isoftype
 
@@ -60,7 +60,7 @@ class tdict(dict):
         super().__init__()
 
     @overload(None, type, type, Iterable)
-    def __init__(self, keyt: type, val_t: type, iterable: Iterable[Tuple]):
+    def __init__(self, keyt: type, val_t: type, iterable: Iterable[tuple]):
         self.key_t = keyt
         self.val_t = val_t
         super().__init__(iterable)

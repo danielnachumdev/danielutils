@@ -1,7 +1,6 @@
 import urllib.request
 import urllib.parse
 from urllib.parse import urlparse
-from .Typing import Tuple
 import urllib
 from .Decorators import validate
 
@@ -21,7 +20,7 @@ def get_html(url: str) -> str:
 
 
 @validate(str)
-def get_url_details(url: str) -> Tuple[str, str, str, str, str]:
+def get_url_details(url: str) -> tuple[str, str, str, str, str]:
     scheme, netloc, path, params, query, fragment = urlparse(url)
     return scheme, netloc, path, params, query, fragment
 
