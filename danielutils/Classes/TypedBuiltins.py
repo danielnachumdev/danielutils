@@ -92,6 +92,12 @@ dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
         return f"dict[{self.key_t.__name__}, {self.val_t.__name__}]: {super().__str__()}"
 
 
+# TODO tset
+class tset(set):
+    def __init__(self):
+        pass
+
+
 __all__ = [
     "tlist",
     "tdict"

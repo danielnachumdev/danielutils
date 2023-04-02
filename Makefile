@@ -1,8 +1,6 @@
 .PHONY: clean all tests build
 
-all: tests build
-
-tests:
+all: build
 
 build:
 	python ./publish.py

@@ -1,7 +1,5 @@
 from __future__ import annotations
-from ..Decorators import validate
-from ..Typing import Any, Iterable, Union
-from ..Functions import isoftype
+from typing import Any
 
 
 class Node:
@@ -72,7 +70,7 @@ class Queue:
 
     def __str__(self) -> str:
         s = ", ".join(str(v) for v in self.data)
-        return f"Stack({s})"
+        return f"Queue({s})"
 
     def __repr__(self) -> str:
         return str(self)

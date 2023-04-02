@@ -1,5 +1,6 @@
 from ..danielutils.Testing import TestFactory, Test
 from ..danielutils.Typing import *
+from ..danielutils.Functions import isoftype
 
 
 def test_isoftype():

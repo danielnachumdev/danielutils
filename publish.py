@@ -1,3 +1,5 @@
+import subprocess
+from pathlib import Path
 import sys
 from danielutils import cm, read_file, bytes_to_str, get_files
 import re
@@ -7,7 +9,7 @@ TOML = "./pyproject.toml"
 README = "./README.md"
 
 
-def get_latest(version: str) -> str:
+def get_latest(version: str = '0.0.0') -> str:
     DIST = "./dist"
     DIST_PATTERN = r"danielutils-(\d+)\.(\d+)\.(\d+)\.tar\.gz"
     best = version
@@ -78,12 +80,42 @@ def main(version):
                              "twine", "upload", f"dist/danielutils-{version}.tar.gz")
 
 
+def run_tests():
+    def has_fails(pytest_out: str) -> bool:
+        RE = r'=+ (?:(?P<FAIL>\d+ failed), )?(?P<PASS>\d+ passed) in [\d\.]+s =+'
+        if not re.match(RE, pytest_out):
+            print("Failed to match pytest output")
+            return True
+
+        res = re.findall(RE, pytest_out)[0]
+        failed, passed = 0, 0
+        if len(res) == 2:
+            failed, passed = res
+            failed = int(failed.split()[0])
+        return failed > 0
+
+    COMMAND = "pytest"
+    code, stdout, stderr = cm(COMMAND)
+    if code != 0:
+        err = stderr.decode()
+        if err != "":
+            print(err)
+            return False
+    summary = stdout.decode().splitlines()[-1]
+    if has_fails(summary):
+        print(summary)
+        return False
+    return True
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("invalid use, please supply a version number")
-        exit()
-    version = sys.argv[1]
-    if re.match(VERSION_PATTERN, version):
-        main(version)
-    else:
-        print("invalid version. example 1.0.5.20")
+    if len(sys.argv) != 1:
+        print("You passed some unwanted arguments..")
+    if run_tests():
+        print("Passed all test!")
+        version = input(
+            f"Please supply a new version number (LATEST = {get_latest()}):")
+        if re.match(VERSION_PATTERN, version):
+            main(version)
+        else:
+            print("invalid version. example 1.0.5.20")
