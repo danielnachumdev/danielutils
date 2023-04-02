@@ -198,7 +198,7 @@ def check_foreach(values: Sequence[Any], condition: Callable[[Any], bool]) -> bo
     return True
 
 
-def get_source_code(obj: object) -> list[str]:
+def get_source_code(obj: object) -> str:
     if not isinstance(obj, object):
         raise ValueError("obj must be an object")
     import inspect

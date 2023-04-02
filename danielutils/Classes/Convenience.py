@@ -34,7 +34,5 @@ class DisablePytestDiscovery:
 
 
 __all__ = [
-    "frange",
-    "float_range",
     "DisablePytestDiscovery"
 ]

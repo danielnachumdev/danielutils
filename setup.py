@@ -23,7 +23,7 @@ setup(
     license="MIT License",
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "archive/"]),
-    install_requires=["bs4"],
+    install_requires=["bs4", "pyautogui", "screeninfo", "Pillow"],
     platforms=["All"],
     keywords=['functions', 'decorators', 'methods'],
     classifiers=[
