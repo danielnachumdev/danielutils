@@ -40,3 +40,19 @@ class ValidationDuplicationError(ValidationError):
 
 class TimeoutError(AssertionError):
     pass
+
+
+class ValidationException(Exception):
+    pass
+
+
+class EmptyAnnotationException(ValidationException):
+    pass
+
+
+class InvalidDefaultValueException(ValidationException):
+    pass
+
+
+class InvalidReturnValueException(ValidationException):
+    pass

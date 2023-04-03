@@ -1,8 +1,79 @@
 from .Typing import Callable, Any, Union
 import functools
 import threading
+import inspect
 from .Functions import areoneof, isoneof, isoneof_strict, isoftype
-from .Exceptions import OverloadDuplication, OverloadNotFound, ValidationTypeError, ValidationValueError, ValidationReturnTypeError, TimeoutError
+from .Exceptions import *
+
+
+def __get_function_return_type(func) -> type:
+    return_annotation = inspect.signature(func).return_annotation
+    if "inspect._empty" in str(return_annotation) or return_annotation is None:
+        return type(None)
+    return return_annotation
+
+
+def validate(func: Callable) -> Callable:
+    """A decorator that validates the annotations and types of the arguments and return value of a function.
+
+    Args:
+        func (Callable): The function to be decorated.
+
+    Raises:
+        TypeError: if the decorated object is nto a Callable
+        EmptyAnnotationException: If an argument is not annotated.
+        InvalidDefaultValueException: If an argument's default value is not of the annotated type.
+        ValidationException: If an argument's value is not of the expected type.
+        InvalidReturnValueException: If the return value is not of the expected type.
+
+    Returns:
+        Callable: A wrapper function that performs the validation and calls the original function.
+    """
+    if not isinstance(func, Callable):
+        raise TypeError("The validate decorator must only decorate a function")
+    func_name = f"{func.__module__}.{func.__qualname__}"
+    # get the signature of the function
+    signature = inspect.signature(func)
+    for arg_name, arg_param in signature.parameters.items():
+        arg_type = arg_param.annotation
+        # check if an annotation is missing
+        if arg_type == inspect.Parameter.empty:
+            raise EmptyAnnotationException(
+                f"In {func_name}, argument '{arg_name}' is not annotated")
+
+        # check if the argument has a default value
+        default_value = signature.parameters[arg_name].default
+        if default_value != inspect.Parameter.empty:
+            # if it does, check the type of the default value
+            if not isoftype(default_value, arg_type):
+                raise InvalidDefaultValueException(
+                    f"In {func_name}, argument '{arg_name}'s default value is annotated as {arg_type} but got '{default_value}' which is {type(default_value)}")
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        """wrapper function for the type validating - will run on each call independently
+        """
+        # check all arguments
+        bound = signature.bind(*args, **kwargs)
+        for variable_name, variable_value in bound.arguments.items():
+            annotated_type = signature.parameters[variable_name].annotation
+            expected_type = func.__annotations__[variable_name]
+            if not isoftype(variable_value, expected_type):
+                raise ValidationException(
+                    f"In {func_name}, argument '{variable_name}' is annotated as {annotated_type} but got '{variable_value}' which is {type(variable_value)}")
+
+        # call the function
+        result = func(*args, **kwargs)
+
+        # check the return type
+        return_type = __get_function_return_type(func)
+        if not isoftype(result, return_type):
+            raise InvalidReturnValueException(
+                f"In function {func_name}, the return type is annotated as {return_type} but got '{result}' which is {type(result)}")
+        return result
+    return wrapper
+
+
 __validation_set = set()
 __validation_instantiation_rule = dict()
 
@@ -420,6 +491,7 @@ def attach(before: Callable = None, after: Callable = None) -> Callable:
 
 
 __all__ = [
+    "validate",
     "validate_explicit",
     "NotImplemented",
     "PartiallyImplemented",
@@ -434,4 +506,5 @@ __all__ = [
     "limit_recursion",
     "timeout",
     "attach"
+
 ]
