@@ -21,7 +21,18 @@ def __isoftype_inquire(obj: Any) -> tuple[Any, Any, Any]:
     return origin, args, type_hints
 
 
-def isoftype(obj: Any, T: Any) -> bool:
+def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
+    """Checks if an object is of the given type or any of its subtypes.
+
+    Args:
+        obj (Any): The object to be checked.
+        T (Any): The type or types to be checked against.
+
+    Returns:
+        bool: True if the object is of the given type or any of its subtypes, False otherwise.
+    """
+    if not isinstance(strict, bool):
+        raise TypeError("'strict' must be of type bool")
     obj_origin, obj_args, obj_hints = __isoftype_inquire(obj)
     t_origin, t_args, t_hints = __isoftype_inquire(T)
     if t_origin is not None:
@@ -45,11 +56,14 @@ def isoftype(obj: Any, T: Any) -> bool:
             return False
         elif t_origin in {Callable}:
             if obj.__name__ == "<lambda>":
-                return True
+                print("using lambda function with isoftype is ambiguous")
+                return not strict
             tmp = list(obj_hints.values())
             obj_return_type = tmp[-1]
             obj_param_types = tuple(tmp[:-1])
             del tmp
+            if len(t_args) == 0:
+                return True
             t_return_type = t_args[1]
             t_param_types = tuple(t_args[0])
             return obj_return_type is t_return_type and obj_param_types == t_param_types

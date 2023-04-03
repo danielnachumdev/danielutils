@@ -1,4 +1,4 @@
-# danielutils v=0.7.7
+# danielutils v=0.7.8
 A utils library for things that I find useful for my coding workflow.\
 Feel free to use and / or contribute / improve my code :)
 
