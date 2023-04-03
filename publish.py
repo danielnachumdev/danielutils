@@ -89,6 +89,8 @@ def run_tests() -> bool:
         return failed > 0
 
     COMMAND = "pytest"
+    if input("Do you want to generate a report as well? <y|n>: ") == "y":
+        COMMAND += " --html=pytest_report.html"
     code, stdout, stderr = cm(COMMAND)
     if code != 0:
         err = stderr.decode()
