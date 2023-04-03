@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Typing import Any, Union, Iterable
-from ..Decorators import validate, overload
+from ..Decorators import validate_explicit, overload
 from ..Functions import isoftype
 
 
@@ -15,7 +15,7 @@ class tlist(list):
     def get_type_error_msg(self, v: Any):
         return f"A value is of the wrong type:\n'{v}' is of type '{type(v)}' but should be of type '{self.type}'"
 
-    @validate(None, [type, type(Union[Any, Any])], Iterable)
+    @validate_explicit(None, [type, type(Union[Any, Any])], Iterable)
     def __init__(self, type: type, iterable: Iterable = None):
         """_summary_
 
@@ -43,7 +43,7 @@ class tlist(list):
             raise TypeError(self.get_type_error_msg(value))
         super().append(value)
 
-    @validate(None, Iterable)
+    @validate_explicit(None, Iterable)
     def extend(self, iterable: Iterable) -> None:
         for v in iterable:
             self.append(v)

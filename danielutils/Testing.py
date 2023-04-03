@@ -1,6 +1,6 @@
 from typing import Sequence, Union, Any
 from collections.abc import Callable
-from .Decorators import validate
+from .Decorators import validate_explicit
 from .Colors import ColoredText
 from .Classes import DisablePytestDiscovery
 from .Functions import isoneof
@@ -73,13 +73,13 @@ class Test(DisablePytestDiscovery):
 
 # @pytest.mark.filterwarnings("ignore:api v1")
 class TestFactory(DisablePytestDiscovery):
-    @validate(None, Callable, bool)
+    @validate_explicit(None, Callable, bool)
     def __init__(self, func: Callable, verbose: bool = False):
         self.func = func
         self.tests: list[Test] = []
         self.verbose = verbose
 
-    @validate(None, Test)
+    @validate_explicit(None, Test)
     def add_test(self, test: Test):
         self.tests.append(test)
         return self
@@ -105,7 +105,7 @@ class TestFactory(DisablePytestDiscovery):
         return self()
 
 
-@validate(str, str, bool)
+@validate_explicit(str, str, bool)
 def create_test_file(path: str, output_folder: str = None, overwrite: bool = False):
     filename = Path(path).stem
     output_path = f"./test_{filename.lower()}.py"

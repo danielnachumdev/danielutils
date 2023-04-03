@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import shutil
 import os
-from .Decorators import validate
+from .Decorators import validate_explicit
 from typing import Union
 from pathlib import Path
 
 
-@validate(str, list)
+@validate_explicit(str, list)
 def write_to_file(path: str, lines: Union[list[str], list[bytes]], write_bytes: bool = False) -> None:
     """clear and then write data to file
 
@@ -29,7 +29,7 @@ def write_to_file(path: str, lines: Union[list[str], list[bytes]], write_bytes: 
         raise e
 
 
-@validate(str)
+@validate_explicit(str)
 def path_exists(path: str) -> bool:
     """checks whether a path exists
 
@@ -42,7 +42,7 @@ def path_exists(path: str) -> bool:
     return os.path.exists(path)
 
 
-@validate(str)
+@validate_explicit(str)
 def file_exists(path: str) -> bool:
     """checks whether a file exists at specified path
 
@@ -55,7 +55,7 @@ def file_exists(path: str) -> bool:
     return path_exists(path) and is_file(path)
 
 
-@validate(str)
+@validate_explicit(str)
 def directory_exists(path: str) -> bool:
     """checks whether a directory exists at specified path
 
@@ -68,7 +68,7 @@ def directory_exists(path: str) -> bool:
     return path_exists(path) and is_directory(path)
 
 
-@validate(str)
+@validate_explicit(str)
 def delete_file(path: str) -> None:
     """deletes a file if it exists
 
@@ -79,7 +79,7 @@ def delete_file(path: str) -> None:
         os.remove(path)
 
 
-@validate(str, bool)
+@validate_explicit(str, bool)
 def read_file(path: str, read_bytes: bool = False) -> list[str]:
     """read all lines from a file
 
@@ -103,7 +103,7 @@ def read_file(path: str, read_bytes: bool = False) -> list[str]:
         raise e
 
 
-@validate(str)
+@validate_explicit(str)
 def is_file(path: str) -> bool:
     """return whether a path represents a file
 
@@ -113,7 +113,7 @@ def is_file(path: str) -> bool:
     return os.path.isfile(path)
 
 
-@validate(str)
+@validate_explicit(str)
 def is_directory(path: str) -> bool:
     """return whether a path represents a directory
 
@@ -123,7 +123,7 @@ def is_directory(path: str) -> bool:
     return os.path.isdir(path)
 
 
-@validate(str)
+@validate_explicit(str)
 def get_files(path: str) -> list[str]:
     """return a list of names of all files inside specified directory
 
@@ -138,7 +138,7 @@ def get_files(path: str) -> list[str]:
         filter(lambda name: is_file(f"{path}\\{name}"), files_and_directories))
 
 
-@validate(str)
+@validate_explicit(str)
 def get_files_and_directories(path: str) -> list[str]:
     """get a list of all files and directories in specified path
 
@@ -151,7 +151,7 @@ def get_files_and_directories(path: str) -> list[str]:
     return os.listdir(path)
 
 
-@validate(str)
+@validate_explicit(str)
 def get_directories(path: str) -> list[str]:
     """get all directories in specified path
 
@@ -166,7 +166,7 @@ def get_directories(path: str) -> list[str]:
         filter(lambda name: is_directory(f"{path}\\{name}"), files_and_directories))
 
 
-@ validate(str)
+@ validate_explicit(str)
 def delete_directory(path: str) -> None:
     """delete a directory and all its contents
 
@@ -178,7 +178,7 @@ def delete_directory(path: str) -> None:
         os.rmdir(path)
 
 
-@validate(str)
+@validate_explicit(str)
 def clear_directory(path: str) -> None:
     for file in get_files(path):
         delete_file(f"{path}\\{file}")
@@ -186,7 +186,7 @@ def clear_directory(path: str) -> None:
         delete_directory(f"{path}\\{dir}")
 
 
-@validate(str)
+@validate_explicit(str)
 def create_directory(path: str) -> None:
     """create a directory at the specified path if it doesn't already exists
 
@@ -197,7 +197,7 @@ def create_directory(path: str) -> None:
         os.makedirs(path)
 
 
-@validate(str, str)
+@validate_explicit(str, str)
 def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
     return list(
         filter(
@@ -207,7 +207,7 @@ def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
     )
 
 
-@validate(str, str)
+@validate_explicit(str, str)
 def get_file_type_from_directory_recursively(path: str, file_type: str):
     res = []
     for dir in get_directories(path):

@@ -42,7 +42,7 @@ def __validate_arg(func: Callable, curr_arg: Any, curr_inner_arg: Any) -> None:
         __validate_type(func, curr_inner_arg, curr_arg)
 
 
-def validate(*args, return_type=None, can_instantiate_multiple_times: bool = False) -> Callable:
+def validate_explicit(*args, return_type=None, can_instantiate_multiple_times: bool = False) -> Callable:
     """validate decorator
 
         Is passed types of variables to perform type checking over\n
@@ -92,7 +92,7 @@ def validate(*args, return_type=None, can_instantiate_multiple_times: bool = Fal
     return deco
 
 
-@ validate(Callable)
+@ validate_explicit(Callable)
 def NotImplemented(func: Callable) -> Callable:
     """decorator to mark function as not implemented for development purposes
 
@@ -106,7 +106,7 @@ def NotImplemented(func: Callable) -> Callable:
     return wrapper
 
 
-@ validate(Callable)
+@ validate_explicit(Callable)
 def PartiallyImplemented(func: Callable) -> Callable:
     """decorator to mark function as not fully implemented for development purposes
 
@@ -123,7 +123,7 @@ def PartiallyImplemented(func: Callable) -> Callable:
     return wrapper
 
 
-@ validate(Callable)
+@ validate_explicit(Callable)
 def memo(func: Callable) -> Callable:
     """decorator to memorize function calls in order to improve performance by using more memory
 
@@ -232,7 +232,7 @@ def overload(*types) -> Callable:
     return deco
 
 
-@ validate(Callable)
+@ validate_explicit(Callable)
 def abstractmethod(func: Callable) -> Callable:
     """A decorator to mark a function to be 'pure virtual' / 'abstract'
 
@@ -269,7 +269,7 @@ purevirtual = abstractmethod
 
 
 @ PartiallyImplemented
-@ validate([str, Callable])
+@ validate_explicit([str, Callable])
 def deprecate(obj: Union[str, Callable] = None) -> Callable:
     """decorator to mark function as deprecated
 
@@ -308,7 +308,7 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
     return deco
 
 
-@ validate(Callable)
+@ validate_explicit(Callable)
 def atomic(func):
     import threading
     lock = threading.Lock()
@@ -320,7 +320,7 @@ def atomic(func):
     return wrapper
 
 
-@ validate([int, lambda d: d > 0, "limit_recursion's max_depth must be a positive integer"], None, bool)
+@ validate_explicit([int, lambda d: d > 0, "limit_recursion's max_depth must be a positive integer"], None, bool)
 def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     """decorator to limit recursion of functions
 
@@ -355,7 +355,7 @@ def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     return deco
 
 
-@validate([int, float])
+@validate_explicit([int, float])
 def timeout(timeout: int | float) -> Callable:
     """A decorator to limit runtime for a function
 
@@ -398,7 +398,7 @@ def timeout(timeout: int | float) -> Callable:
     return timeout_deco
 
 
-@validate(Callable, Callable)
+@validate_explicit(Callable, Callable)
 def attach(before: Callable = None, after: Callable = None) -> Callable:
     if before is None and after is None:
         raise ValueError("You must supply at least one function")
@@ -420,7 +420,7 @@ def attach(before: Callable = None, after: Callable = None) -> Callable:
 
 
 __all__ = [
-    "validate",
+    "validate_explicit",
     "NotImplemented",
     "PartiallyImplemented",
     "memo",

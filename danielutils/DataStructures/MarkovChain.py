@@ -1,4 +1,4 @@
-from ..Decorators import validate, overload
+from ..Decorators import validate_explicit, overload
 from ..Typing import Any, Iterable, Union
 import random
 INDEX_INDEX = 0
@@ -50,15 +50,15 @@ class MarkovNode:
 
 
 class MarkovChain:
-    @validate(None, list[MarkovNode])
+    @validate_explicit(None, list[MarkovNode])
     def __init__(self, nodes: list[MarkovNode] = None) -> None:
         self.nodes = nodes if nodes is not None else []
 
-    @validate(None, int)
+    @validate_explicit(None, int)
     def __getitem__(self, index: int) -> MarkovNode:
         return self.nodes[index]
 
-    @validate(None, MarkovNode)
+    @validate_explicit(None, MarkovNode)
     def append(self, node: MarkovNode) -> None:
         self.nodes.append(node)
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .Decorators import validate
+from .Decorators import validate_explicit
 from .Functions import check_foreach
 from .Typing import Union, TypeGuard
 HEBREW_LETTERS = ['\u05D0', '\u2135', '\uFB21', '\uFB2E', '\uFB2F', '\uFB30', '\uFB4F', '\u05D1', '\u2136', '\uFB31', '\uFB4C', '\u05D2', '\u2137', '\uFB32', '\u05D3', '\u2138', '\uFB22', '\uFB33', '\u05D4', '\uFB23', '\uFB34', '\u05D5', '\uFB4B', '\uFB35', '\u05F0', '\u05F1', '\u05D6', '\uFB36', '\u05D7', '\u05D8', '\uFB38', '\u05D9', '\uFB1D', '\uFB39', '\u05EF', '\u05F2', '\uFB1F', '\u05DB', '\uFB24',
@@ -12,7 +12,7 @@ ENGLISH_LETTERS_DEC = [ord(v) for v in ENGLISH_LETTERS]
 ENGLISH_LETTERS_HEX = [hex(v) for v in ENGLISH_LETTERS_DEC]
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_english(s: str) -> TypeGuard[str]:
     return check_foreach(s, lambda c: c in ENGLISH_LETTERS)
     # try:
@@ -23,12 +23,12 @@ def is_english(s: str) -> TypeGuard[str]:
     #     return True
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_str_number(text: str) -> bool:
     return text.isnumeric()
 
 
-@validate([int, float])
+@validate_explicit([int, float])
 def is_int(num: Union[int, float]) -> TypeGuard[int]:
     if isinstance(num, int):
         return True
@@ -36,7 +36,7 @@ def is_int(num: Union[int, float]) -> TypeGuard[int]:
     return int(num) == num
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_float(text: str) -> TypeGuard[float]:
     try:
         float(text)
@@ -45,27 +45,27 @@ def is_float(text: str) -> TypeGuard[float]:
         return False
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_number(text: str) -> bool:
     return is_float(text)
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_hebrew(text: str) -> TypeGuard[str]:
     return check_foreach(text, lambda c: c in HEBREW_LETTERS)
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_binary(text: str) -> bool:
     return check_foreach(text, lambda c: c in [0, 1])
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_decimal(text: str) -> bool:
     return check_foreach(text, lambda c: c in range(10))
 
 
-@validate(str, return_type=bool)
+@validate_explicit(str, return_type=bool)
 def is_hex(h: str) -> bool:
     try:
         int(h, 16)
