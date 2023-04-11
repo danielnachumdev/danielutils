@@ -17,3 +17,4 @@ from .Math import *
 from .Serialization import *
 from .Path import *
 from .Windows import *
+from .Print import *

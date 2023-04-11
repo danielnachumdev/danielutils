@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import IO
 import shutil
 import os
 from .Decorators import validate_explicit
@@ -250,6 +251,23 @@ def copy_directory(src: str, dest: str) -> None:
     shutil.copy(src, dest)
 
 
+class IndentedWriter:
+    def __init__(self, output_stream: IO, indent_char: str = "\t"):
+        self.indent_level = 0
+        self.output_stream: IO = output_stream
+        self.indent_char = indent_char
+
+    def write(self, *args, sep=" ", end="\n"):
+        self.output_stream.write(
+            self.indent_level*self.indent_char + sep.join(args)+end)
+
+    def indent(self):
+        self.indent_level += 1
+
+    def undent(self):
+        self.indent_level = max(0, self.indent_level-1)
+
+
 __all__ = [
     "write_to_file",
     "path_exists",
@@ -272,5 +290,6 @@ __all__ = [
     "open_file",
     "move_directory",
     "copy_file",
-    "copy_directory"
+    "copy_directory",
+    "IndentedWriter"
 ]
