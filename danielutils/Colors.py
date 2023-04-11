@@ -1,12 +1,9 @@
-from .Decorators import validate_explicit
+from .Decorators import validate
 
 
 class ColoredText:
-    __rgb_validation = [int, lambda v: 0 <=
-                        v <= 255, "rgb value must be in [0,255]"]
-
     @staticmethod
-    @validate_explicit(__rgb_validation, __rgb_validation, __rgb_validation, str)
+    @validate
     def from_rgb(r: int, g: int, b: int, text: str):
         return f"\033[38;2;{r};{g};{b}m{text}\033[38;2;255;255;255m"
 

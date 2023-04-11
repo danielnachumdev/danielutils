@@ -16,19 +16,6 @@ def measure(func, *args, **kwargs) -> float:
     return end-start
 
 
-def sleep(secs: float) -> None:
-    """A function that pauses the execution (of the thread) for the given number of seconds.
-
-    Args:
-        secs (float): The number of seconds to sleep.
-
-    Returns:
-        None
-    """
-    time.sleep(secs)
-
-
 __all__ = [
     "measure",
-    "sleep"
 ]

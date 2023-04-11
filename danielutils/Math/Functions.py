@@ -1,8 +1,8 @@
 from ..Typing import Union
-from ..Decorators import validate_explicit
+from ..Decorators import validate
 
 
-@validate_explicit([int, float])
+@validate
 def sign(v: Union[int, float]) -> int:
     if v == 0:
         return 1

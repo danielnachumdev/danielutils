@@ -1,6 +1,6 @@
 from __future__ import annotations
 from ..Typing import Any, Sequence, Union, TypeVar
-from ..Decorators import overload, validate_explicit
+from ..Decorators import overload, validate
 
 
 class GraphNode:
@@ -15,7 +15,7 @@ class GraphNode:
 
 
 class Connection:
-    @validate_explicit(None, GraphNode, GraphNode, Any)
+    @validate
     def __init__(self, node1: GraphNode, node2: GraphNode, weight: Any):
         self.node1 = node1
         self.node2 = node2
@@ -24,7 +24,7 @@ class Connection:
 
 class Graph:
     @classmethod
-    @validate_explicit(None, list, list, list)
+    @validate
     def from_lists(cls, values: list[Any], connections: list[list[int]]) -> Graph:
         nodes = [GraphNode(v) for v in values]
         parsed_connections = []

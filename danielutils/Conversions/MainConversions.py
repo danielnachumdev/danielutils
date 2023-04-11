@@ -1,7 +1,7 @@
-from ..Decorators import validate_explicit, overload
+from ..Decorators import validate
 
 
-@validate_explicit([str, lambda s:len(s) == 1, "len(s) must be 1"])
+@validate
 def char_to_int(c: str) -> int:
     """convert char to its representing int value
 
@@ -14,7 +14,7 @@ def char_to_int(c: str) -> int:
     return ord(c)
 
 
-@validate_explicit(int)
+@validate
 def int_to_char(num: int) -> str:
     """convert int to its corresponding char
 
@@ -27,7 +27,7 @@ def int_to_char(num: int) -> str:
     return chr(num)
 
 
-@validate_explicit(str)
+@validate
 def hex_to_char(h: str) -> str:
     """convert hex number to char
 
@@ -40,7 +40,7 @@ def hex_to_char(h: str) -> str:
     return int_to_char(hex_to_dec(h))
 
 
-@validate_explicit(str)
+@validate
 def hex_to_dec(h: str) -> int:
     """convert hex to dec
 
@@ -53,7 +53,7 @@ def hex_to_dec(h: str) -> int:
     return int(h, 16)
 
 
-@validate_explicit([str, lambda s:len(s) == 1, "len(s) must be 1"])
+@validate
 def char_to_hex(c: str) -> str:
     """convert char to hex
 
@@ -66,7 +66,7 @@ def char_to_hex(c: str) -> str:
     return int_to_hex(char_to_int(c))
 
 
-@validate_explicit(int)
+@validate
 def dec_to_hex(num: int) -> str:
     """convert decimal number to hex
 
@@ -79,17 +79,17 @@ def dec_to_hex(num: int) -> str:
     return int_to_hex(num)
 
 
-@validate_explicit(int)
+@validate
 def int_to_hex(num: int) -> str:
     return hex(num)
 
 
-@validate_explicit(bytes)
+@validate
 def bytes_to_str(b: bytes) -> str:
     return b.decode("utf-8")
 
 
-@validate_explicit(str)
+@validate
 def str_to_bytes(s: str) -> bytes:
     return bytes(s, encoding='utf-8')
 

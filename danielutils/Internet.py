@@ -2,14 +2,14 @@ import urllib.request
 import urllib.parse
 from urllib.parse import urlparse
 import urllib
-from .Decorators import validate_explicit
+from .Decorators import validate
 
 
 def prettify_html(html: str) -> str:
     return html
 
 
-@validate_explicit(str)
+@validate
 def get_html(url: str) -> str:
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
     headers = {'User-Agent': user_agent, }
@@ -19,18 +19,18 @@ def get_html(url: str) -> str:
     return html
 
 
-@validate_explicit(str)
+@validate
 def get_url_details(url: str) -> tuple[str, str, str, str, str]:
     scheme, netloc, path, params, query, fragment = urlparse(url)
     return scheme, netloc, path, params, query, fragment
 
 
-@validate_explicit(str)
+@validate
 def url_encode(s: str) -> str:
     return urllib.parse.quote(s)
 
 
-@validate_explicit(str)
+@validate
 def url_decode(s: str) -> str:
     return urllib.parse.unquote_plus(s)
 

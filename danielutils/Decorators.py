@@ -6,15 +6,11 @@ from .Functions import areoneof, isoneof, isoneof_strict, isoftype
 from .Exceptions import *
 
 
-def __get_function_return_type(func) -> type:
-    return_annotation = inspect.signature(func).return_annotation
-    if "inspect._empty" in str(return_annotation) or return_annotation is None:
-        return type(None)
-    return return_annotation
-
-
 def validate(func: Callable) -> Callable:
     """A decorator that validates the annotations and types of the arguments and return value of a function.
+
+        * 'None' is allowed as default value for everything
+        * Because of their use in classes, the generally accepted keywords 'self' and 'cls' are not validated to not break intellisense when using 'Any'
 
     Args:
         func (Callable): The function to be decorated.
@@ -35,15 +31,19 @@ def validate(func: Callable) -> Callable:
     # get the signature of the function
     signature = inspect.signature(func)
     for arg_name, arg_param in signature.parameters.items():
-        arg_type = arg_param.annotation
-        # check if an annotation is missing
-        if arg_type == inspect.Parameter.empty:
-            raise EmptyAnnotationException(
-                f"In {func_name}, argument '{arg_name}' is not annotated")
+        if arg_name not in {"self", "cls"}:
+            arg_type = arg_param.annotation
+            # check if an annotation is missing
+            if arg_type == inspect.Parameter.empty:
+                raise EmptyAnnotationException(
+                    f"In {func_name}, argument '{arg_name}' is not annotated")
 
         # check if the argument has a default value
         default_value = signature.parameters[arg_name].default
         if default_value != inspect.Parameter.empty:
+            # allow everything to be set to None as default
+            if default_value is None:
+                continue
             # if it does, check the type of the default value
             if not isoftype(default_value, arg_type):
                 raise InvalidDefaultValueException(
@@ -66,7 +66,8 @@ def validate(func: Callable) -> Callable:
         result = func(*args, **kwargs)
 
         # check the return type
-        return_type = __get_function_return_type(func)
+        return_type = type(None) if ("inspect._empty" in str(signature.return_annotation)
+                                     or signature.return_annotation is None) else signature.return_annotation
         if not isoftype(result, return_type):
             raise InvalidReturnValueException(
                 f"In function {func_name}, the return type is annotated as {return_type} but got '{result}' which is {type(result)}")
@@ -74,96 +75,96 @@ def validate(func: Callable) -> Callable:
     return wrapper
 
 
-__validation_set = set()
-__validation_instantiation_rule = dict()
+# __validation_set = set()
+# __validation_instantiation_rule = dict()
 
 
-def __validate_type(func: Callable, v: Any, T: type, validation_func: Callable[[Any], bool] = isoftype, msg: str = None) -> None:
-    if not validation_func(v, T):
-        raise ValidationTypeError(
-            msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt is marked as type(s): '{T}'")
+# def __validate_type(func: Callable, v: Any, T: type, validation_func: Callable[[Any], bool] = isoftype, msg: str = None) -> None:
+#     if not validation_func(v, T):
+#         raise ValidationTypeError(
+#             msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt is marked as type(s): '{T}'")
 
 
-def __validate_condition(func: Callable, v: Any, constraint: Callable[[Any], bool], msg: str = None) -> None:
-    if not constraint(v):
-        raise ValidationValueError(
-            msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument '{str(v)}' has failed provided constraint\nConstraint in {constraint.__module__}.{constraint.__qualname__}")
+# def __validate_condition(func: Callable, v: Any, constraint: Callable[[Any], bool], msg: str = None) -> None:
+#     if not constraint(v):
+#         raise ValidationValueError(
+#             msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument '{str(v)}' has failed provided constraint\nConstraint in {constraint.__module__}.{constraint.__qualname__}")
 
 
-def __validate_arg(func: Callable, curr_arg: Any, curr_inner_arg: Any) -> None:
-    if isoneof(curr_arg, [list, tuple]):
-        # multiple type only:
-        if areoneof(curr_arg, [type]):
-            __validate_type(func, curr_inner_arg, curr_arg, isoneof)
+# def __validate_arg(func: Callable, curr_arg: Any, curr_inner_arg: Any) -> None:
+#     if isoneof(curr_arg, [list, tuple]):
+#         # multiple type only:
+#         if areoneof(curr_arg, [type]):
+#             __validate_type(func, curr_inner_arg, curr_arg, isoneof)
 
-        else:  # maybe with condition:
-            class_type, constraint = curr_arg[0], curr_arg[1]
+#         else:  # maybe with condition:
+#             class_type, constraint = curr_arg[0], curr_arg[1]
 
-            # Type validation
-            if isoneof(class_type, [list, tuple]):
-                __validate_type(func, curr_inner_arg, class_type, isoneof)
-            else:
-                __validate_type(func, curr_inner_arg, class_type, isinstance)
+#             # Type validation
+#             if isoneof(class_type, [list, tuple]):
+#                 __validate_type(func, curr_inner_arg, class_type, isoneof)
+#             else:
+#                 __validate_type(func, curr_inner_arg, class_type, isinstance)
 
-            # constraints validation
-            if constraint is not None:
-                message = curr_arg[2] if len(curr_arg) > 2 else None
-                __validate_condition(func, curr_inner_arg, constraint, message)
-    else:
-        __validate_type(func, curr_inner_arg, curr_arg)
-
-
-def validate_explicit(*args, return_type=None, can_instantiate_multiple_times: bool = False) -> Callable:
-    """validate decorator
-
-        Is passed types of variables to perform type checking over\n
-        The arguments must be passed in the same order\n
-
-    for each parameter respectively you can choose one of four options:\n
-        1. None - to skip\n
-        2. Type - a type to check \n
-        3. Sequence of Type to check if the type is contained in the sequence\n
-        4. Sequence that contains three arguments:\n
-            4.1 a Type or Sequence[Type]\n
-            4.2 a function to call on argument\n
-            4.3 a str to display in a ValueError iff the condition from 4.2 fails\n
-    In addition you can use keyword 'return_type' for the returned value same as specified in 1,2,3
-    """
-    from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
-
-    def deco(func: Callable) -> Callable:
-        if not isinstance(func, Callable):
-            raise ValueError("validate decorator must decorate a callable")
-        global __validation_set, __validation_instantiation_rule
-        func_id = f"{func.__module__}.{func.__qualname__}"
-
-        if func_id not in __validation_instantiation_rule:
-            __validation_instantiation_rule[func_id] = can_instantiate_multiple_times
-        assert can_instantiate_multiple_times == __validation_instantiation_rule[
-            func_id], "can't change instantiation status on runtime"
-
-        if func_id not in __validation_set:
-            __validation_set.add(func_id)
-        else:
-            if not __validation_instantiation_rule[func_id]:
-                raise ValidationDuplicationError(
-                    "validate decorator is being used on two functions in the same module with the same name\nmaybe use @overload instead")
-
-        @ functools.wraps(func)
-        def wrapper(*inner_args, **inner_kwargs) -> Any:
-            for i in range(min(len(args), len(inner_args))):
-                if args[i] is not None:
-                    __validate_arg(func, args[i], inner_args[i])
-            res = func(*inner_args, **inner_kwargs)
-            if return_type is not None:
-                msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{return_type}'"
-                __validate_type(func, res, return_type, msg=msg)
-            return res
-        return wrapper
-    return deco
+#             # constraints validation
+#             if constraint is not None:
+#                 message = curr_arg[2] if len(curr_arg) > 2 else None
+#                 __validate_condition(func, curr_inner_arg, constraint, message)
+#     else:
+#         __validate_type(func, curr_inner_arg, curr_arg)
 
 
-@ validate_explicit(Callable)
+# def validate_explicit(*args, return_type=None, can_instantiate_multiple_times: bool = False) -> Callable:
+#     """validate decorator
+
+#         Is passed types of variables to perform type checking over\n
+#         The arguments must be passed in the same order\n
+
+#     for each parameter respectively you can choose one of four options:\n
+#         1. None - to skip\n
+#         2. Type - a type to check \n
+#         3. Sequence of Type to check if the type is contained in the sequence\n
+#         4. Sequence that contains three arguments:\n
+#             4.1 a Type or Sequence[Type]\n
+#             4.2 a function to call on argument\n
+#             4.3 a str to display in a ValueError iff the condition from 4.2 fails\n
+#     In addition you can use keyword 'return_type' for the returned value same as specified in 1,2,3
+#     """
+#     from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
+
+#     def deco(func: Callable) -> Callable:
+#         if not isinstance(func, Callable):
+#             raise ValueError("validate decorator must decorate a callable")
+#         global __validation_set, __validation_instantiation_rule
+#         func_id = f"{func.__module__}.{func.__qualname__}"
+
+#         if func_id not in __validation_instantiation_rule:
+#             __validation_instantiation_rule[func_id] = can_instantiate_multiple_times
+#         assert can_instantiate_multiple_times == __validation_instantiation_rule[
+#             func_id], "can't change instantiation status on runtime"
+
+#         if func_id not in __validation_set:
+#             __validation_set.add(func_id)
+#         else:
+#             if not __validation_instantiation_rule[func_id]:
+#                 raise ValidationDuplicationError(
+#                     "validate decorator is being used on two functions in the same module with the same name\nmaybe use @overload instead")
+
+#         @ functools.wraps(func)
+#         def wrapper(*inner_args, **inner_kwargs) -> Any:
+#             for i in range(min(len(args), len(inner_args))):
+#                 if args[i] is not None:
+#                     __validate_arg(func, args[i], inner_args[i])
+#             res = func(*inner_args, **inner_kwargs)
+#             if return_type is not None:
+#                 msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{return_type}'"
+#                 __validate_type(func, res, return_type, msg=msg)
+#             return res
+#         return wrapper
+#     return deco
+
+
+@validate
 def NotImplemented(func: Callable) -> Callable:
     """decorator to mark function as not implemented for development purposes
 
@@ -177,7 +178,7 @@ def NotImplemented(func: Callable) -> Callable:
     return wrapper
 
 
-@ validate_explicit(Callable)
+@validate
 def PartiallyImplemented(func: Callable) -> Callable:
     """decorator to mark function as not fully implemented for development purposes
 
@@ -194,7 +195,7 @@ def PartiallyImplemented(func: Callable) -> Callable:
     return wrapper
 
 
-@ validate_explicit(Callable)
+@validate
 def memo(func: Callable) -> Callable:
     """decorator to memorize function calls in order to improve performance by using more memory
 
@@ -303,7 +304,7 @@ def overload(*types) -> Callable:
     return deco
 
 
-@ validate_explicit(Callable)
+@validate
 def abstractmethod(func: Callable) -> Callable:
     """A decorator to mark a function to be 'pure virtual' / 'abstract'
 
@@ -316,11 +317,9 @@ def abstractmethod(func: Callable) -> Callable:
     @ functools.wraps(func)
     def wrapper(*args, **kwargs):
         raise NotImplementedError(
-            f"{func.__module__}.{func.__qualname__} MUST be overrided in a child class")
+            f"{func.__module__}.{func.__qualname__} MUST be overridden in a child class")
     return wrapper
 
-
-purevirtual = abstractmethod
 
 # __virtualization_tables = dict()
 
@@ -339,48 +338,48 @@ purevirtual = abstractmethod
 #     return wrapper
 
 
-@ PartiallyImplemented
-@ validate_explicit([str, Callable])
-def deprecate(obj: Union[str, Callable] = None) -> Callable:
-    """decorator to mark function as deprecated
+# @ PartiallyImplemented
+# @validate
+# def deprecate(obj:  Callable) -> Callable:
+#     """decorator to mark function as deprecated
 
-    Args:
-        obj (Union[str, None, Callable], optional): Defaults to None.
+#     Args:
+#         obj (Union[str, None, Callable], optional): Defaults to None.
 
-        Can operate in two configurations:\n
-        1. obj is the function that you want to deprecate\n
-        \t@deprecate\n
-        \tdef foo(...):\n
-        \t\t...\n\n
-        2. obj is an advise message\n
-        \t@deprecate("instead use ...")\n
-        \tdef foo(...):
-        \t\t...
-    """
-    from .Colors import warning
-    # if callable(obj):
-    if isinstance(obj, Callable):
-        @ functools.wraps(obj)
-        def wrapper(*args, **kwargs) -> Any:
-            warning(
-                f"As marked by the developer, {obj.__module__}.{obj.__qualname__} is deprecated")
-            return obj(*args, **kwargs)
-        return wrapper
+#         Can operate in two configurations:\n
+#         1. obj is the function that you want to deprecate\n
+#         \t@deprecate\n
+#         \tdef foo(...):\n
+#         \t\t...\n\n
+#         2. obj is an advise message\n
+#         \t@deprecate("instead use ...")\n
+#         \tdef foo(...):
+#         \t\t...
+#     """
+#     from .Colors import warning
+#     # if callable(obj):
+#     if isinstance(obj, Callable):
+#         @ functools.wraps(obj)
+#         def wrapper(*args, **kwargs) -> Any:
+#             warning(
+#                 f"As marked by the developer, {obj.__module__}.{obj.__qualname__} is deprecated")
+#             return obj(*args, **kwargs)
+#         return wrapper
 
-    def deco(func: Callable) -> Callable:
-        @ functools.wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            warning(
-                f"As marked by the developer, {func.__module__}.{func.__qualname__} is deprecated")
-            if obj:
-                print(obj)
-            return func(*args, **kwargs)
-        return wrapper
-    return deco
+#     def deco(func: Callable) -> Callable:
+#         @ functools.wraps(func)
+#         def wrapper(*args, **kwargs) -> Any:
+#             warning(
+#                 f"As marked by the developer, {func.__module__}.{func.__qualname__} is deprecated")
+#             if obj:
+#                 print(obj)
+#             return func(*args, **kwargs)
+#         return wrapper
+#     return deco
 
 
-@ validate_explicit(Callable)
-def atomic(func):
+@validate
+def atomic(func: Callable) -> Callable:
     lock = threading.Lock()
 
     @ functools.wraps(func)
@@ -390,8 +389,8 @@ def atomic(func):
     return wrapper
 
 
-@ validate_explicit([int, lambda d: d > 0, "limit_recursion's max_depth must be a positive integer"], None, bool)
-def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
+@validate
+def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True):
     """decorator to limit recursion of functions
 
     Args:
@@ -425,7 +424,7 @@ def limit_recursion(max_depth: int, return_value=None, quiet: bool = True):
     return deco
 
 
-@validate_explicit([int, float])
+@validate
 def timeout(timeout: int | float) -> Callable:
     """A decorator to limit runtime for a function
 
@@ -468,8 +467,8 @@ def timeout(timeout: int | float) -> Callable:
     return timeout_deco
 
 
-@validate_explicit(Callable, Callable)
-def attach(before: Callable = None, after: Callable = None) -> Callable:
+@validate
+def attach(before: Callable, after: Callable) -> Callable:
     if before is None and after is None:
         raise ValueError("You must supply at least one function")
 
@@ -491,16 +490,14 @@ def attach(before: Callable = None, after: Callable = None) -> Callable:
 
 __all__ = [
     "validate",
-    "validate_explicit",
     "NotImplemented",
     "PartiallyImplemented",
     "memo",
     "overload",
     "abstractmethod",
-    "purevirtual",
     # "virtual",
     # "override",
-    "deprecate",
+    # "deprecate",
     "atomic",
     "limit_recursion",
     "timeout",

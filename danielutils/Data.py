@@ -1,13 +1,13 @@
 import json
-from .Decorators import validate_explicit
+from .Decorators import validate
 
 
-@validate_explicit(dict)
+@validate
 def dict_to_json(d: dict) -> str:
     return json.dumps(d, indent=4)
 
 
-@validate_explicit(str)
+@validate
 def json_to_dict(j: str) -> dict:
     return json.loads(j)
 

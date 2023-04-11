@@ -1,6 +1,6 @@
 import os
 from math import inf
-from .Decorators import overload, timeout, validate_explicit
+from .Decorators import overload, timeout, validate
 from .Typing import IO
 from .Exceptions import TimeoutError
 from .Conversions import str_to_bytes
@@ -35,12 +35,15 @@ def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
     return res.returncode, res.stdout, res.stderr
 
 
-@validate_explicit([int, float])
-def sleep(seconds: int | float):
+@validate
+def sleep(seconds: int | float) -> None:
     """make current thread sleep
 
     Args:
         seconds (float): number of seconds to sleep
+
+    Returns:
+        None
     """
     time.sleep(seconds)
 
@@ -52,8 +55,8 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
     p.stdin.flush()
 
 
-@validate_explicit(str, [list, lambda l:areoneof(l, [str]), "inputs must be a list of strings"], [int, float], bool, bool, None, None,)
-def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, shell: bool = False, use_write_helper: bool = True, cwd=None, env=None) -> tuple[int, list[bytes] | None, list[bytes] | None]:
+@validate
+def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, shell: bool = False, use_write_helper: bool = True, cwd: str = None, env: str = None) -> tuple[int, list[bytes] | None, list[bytes] | None]:
     """Advanced command
 
     Args:
