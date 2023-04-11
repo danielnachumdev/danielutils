@@ -51,7 +51,7 @@ def aprint(*args, sep=" ", end="\n") -> None:
     Returns:
         None
     """
-    print(sep.join(args)+end)
+    print(*args, sep=sep, end=end)
 
 
 @atomic
