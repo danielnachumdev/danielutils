@@ -381,7 +381,6 @@ def deprecate(obj: Union[str, Callable] = None) -> Callable:
 
 @ validate_explicit(Callable)
 def atomic(func):
-    import threading
     lock = threading.Lock()
 
     @ functools.wraps(func)
