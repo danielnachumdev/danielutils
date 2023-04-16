@@ -468,7 +468,7 @@ def timeout(timeout: int | float) -> Callable:
 
 
 @validate
-def attach(before: Callable, after: Callable) -> Callable:
+def attach(before: Callable = None, after: Callable = None) -> Callable:
     if before is None and after is None:
         raise ValueError("You must supply at least one function")
 
