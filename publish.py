@@ -1,4 +1,4 @@
-from danielutils import cm, read_file, bytes_to_str, get_files
+from danielutils import cm, read_file, bytes_to_str, get_files, directory_exists
 import re
 VERSION_PATTERN = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 SETUP = "./setup.py"
@@ -8,6 +8,8 @@ README = "./README.md"
 
 def get_latest(version: str = '0.0.0') -> str:
     DIST = "./dist"
+    if not directory_exists(DIST):
+        return version
     DIST_PATTERN = r"danielutils-(\d+)\.(\d+)\.(\d+)\.tar\.gz"
     best = version
     for filename in get_files(DIST):
