@@ -252,14 +252,20 @@ def copy_directory(src: str, dest: str) -> None:
 
 
 class IndentedWriter:
-    def __init__(self, output_stream: IO, indent_char: str = "\t"):
+    def __init__(self, output_stream: IO = None, indent_char: str = "\t"):
         self.indent_level = 0
         self.output_stream: IO = output_stream
         self.indent_char = indent_char
 
     def write(self, *args, sep=" ", end="\n"):
+        if self.output_stream is None:
+            raise ValueError(
+                "Can't write to an empty stream. the stream must not be None either by set_stream or by initialization")
         self.output_stream.write(
             self.indent_level*self.indent_char + sep.join(args)+end)
+
+    def set_stream(self, stream):
+        self.output_stream = stream
 
     def indent(self):
         self.indent_level += 1
