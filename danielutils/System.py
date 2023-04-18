@@ -1,3 +1,4 @@
+from typing import Generator
 import os
 from math import inf
 from .Decorators import overload, timeout, validate
@@ -129,8 +130,41 @@ def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, shell: 
                 p.stdout.close()
 
 
+def cmrt(*args, shell: bool = True) -> Generator[bytes, None, None]:
+    """Executes a command and yields stdout and stderr in real-time.
+
+    Args:
+        *args: A sequence of strings representing the command and its arguments.
+        shell (bool, optional): If True, the command is executed through the shell. Defaults to True.
+
+    Raises:
+        TypeError: If `shell` argument is not a boolean.
+
+    Yields:
+        An iterator that yields bytes for stdout and stderr lines in real-time.
+    """
+    if not isinstance(shell, bool):
+        raise TypeError("The 'shell' parameter must be of type bool.")
+
+    # Quote the arguments that represent file or directory paths.
+    for i, arg in enumerate(args):
+        if Path(args[i]).is_file() or Path(args[i]).is_dir():
+            args = (*args[:i], f"\"{arg}\"", *args[i+1:])
+
+    # Join the arguments into a command string and execute the command.
+    cmd = " ".join(args)
+    process = subprocess.Popen(
+        cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Yield stdout and stderr in real-time.
+    while process.poll() is None:
+        yield from process.stderr
+        yield from process.stdout
+
+
 __all__ = [
     "cm",
     "acm",
-    "sleep"
+    "sleep",
+    "cmrt"
 ]
