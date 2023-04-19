@@ -5,6 +5,20 @@ from typing import Callable, Any, TypeVar
 T = TypeVar("T")
 
 
+class Queue:
+    def __init__(self):
+        self.data = []
+
+    def pop(self):
+        return self.data.pop()
+
+    def push(self, value):
+        self.data.append(value)
+
+    def peek(self):
+        return self.data[-1]
+
+
 class PriorityQueue:
     def __init__(self, weight_func: Callable[[T], int | float] = weight, comparer: Comparer = Comparer.GREATER):
         self.heap = Heap(comparer)
