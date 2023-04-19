@@ -21,6 +21,10 @@ def flatten_iterables(iterable: Iterable) -> list:
     return lis
 
 
+def handle_tuple(tup):
+    pass
+
+
 class Interface(type):
     KEY = "__isinterface__"
 
@@ -74,7 +78,7 @@ class Interface(type):
         return function_names
 
     @staticmethod
-    def what_functions_need_to_be_implemented(cls) -> list[str]:
+    def unimplemented_functions(cls) -> list[str]:
         res = []
         for func_name in Interface.get_decalred_function_names(cls):
             func = cls.__dict__[func_name]
@@ -83,16 +87,48 @@ class Interface(type):
         return res
 
     @staticmethod
+    def implemented_functions(cls):
+        res = []
+        for func_name in Interface.get_decalred_function_names(cls):
+            func = cls.__dict__[func_name]
+            if Interface.is_func_implemented(func):
+                res.append(func_name)
+        return res
+
+    @staticmethod
     def handle_new_subclass(cls, name, bases, namespace):
-        need_to_be_implemented = []
+        need_to_be_implemented = set()
         for base in bases:
-            clstree = list(set(flatten_iterables(
-                inspect.getclasstree([base], unique=True))))
-            if object in clstree:
-                clstree.remove(object)
-            for prev_cls in clstree:
-                need_to_be_implemented += Interface.what_functions_need_to_be_implemented(
-                    prev_cls)
+            clstree = inspect.getclasstree([base], unique=True)
+            for item in clstree:
+                if isinstance(item, tuple):
+                    derived, parent = item
+                    if derived is object:
+                        continue
+                    need_to_be_implemented.update(
+                        Interface.unimplemented_functions(derived))
+                else:
+                    if len(item) == 1:
+                        item = item[0]
+                        derived, parent = item
+                        if derived is object:
+                            continue
+                        if len(parent) == 1:
+                            parent = parent[0]
+                            if parent is not object:
+                                need_to_be_implemented.update(Interface.unimplemented_functions(
+                                    parent))
+                        else:
+                            breakpoint()
+                            pass
+                        need_to_be_implemented.difference_update(
+                            Interface.implemented_functions(derived))
+                        need_to_be_implemented.update(
+                            Interface.unimplemented_functions(derived))
+                    else:
+                        breakpoint()
+                        pass
+
         missing = []
         for func_name in need_to_be_implemented:
             if func_name not in namespace or not Interface.is_func_implemented(namespace[func_name]):
