@@ -119,14 +119,14 @@ class Interface(type):
                                 need_to_be_implemented.update(Interface.unimplemented_functions(
                                     parent))
                         else:
-                            breakpoint()
+                            breakpoint()  # TODO is reachable?
                             pass
                         need_to_be_implemented.difference_update(
                             Interface.implemented_functions(derived))
                         need_to_be_implemented.update(
                             Interface.unimplemented_functions(derived))
                     else:
-                        breakpoint()
+                        breakpoint()  # TODO is reachable?
                         pass
 
         missing = []
