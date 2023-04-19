@@ -18,7 +18,7 @@ class Comparer():
     SMALLER = __Comparer(lambda a, b: weight(b)-weight(a))
 
     def __init__(self, func: Callable[[T, T], int]):
-        self.__comp = Comparer.__Comparer(func)
+        self.__comp = __Comparer(func)
 
     def compare(self, v1, v2):
         return self.__comp(v1, v2)

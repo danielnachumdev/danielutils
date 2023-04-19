@@ -9,14 +9,20 @@ class Queue:
     def __init__(self):
         self.data = []
 
-    def pop(self):
+    def pop(self) -> Any:
         return self.data.pop()
 
-    def push(self, value):
+    def push(self, value: Any) -> None:
         self.data.append(value)
 
-    def peek(self):
+    def peek(self) -> Any:
         return self.data[-1]
+
+    def __len__(self) -> int:
+        return len(self.data)
+
+    def is_empty(self) -> bool:
+        return len(self) == 0
 
 
 class PriorityQueue:

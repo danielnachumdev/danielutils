@@ -4,25 +4,13 @@ import re
 
 
 def flatten_iterables(iterable: Iterable) -> list:
-    """Convert iterables (lists, tuples, sets...) to list (excluding string and dictionary)
-
-    Args:
-        iterables (Iterable): Iterables to flatten
-
-    Returns:
-        list: return a flattened list
-    """
-    lis = []
-    for i in iterable:
-        if isinstance(i, Iterable) and not isinstance(i, str):
-            lis.extend(flatten_iterables(i))
+    res = []
+    for obj in iterable:
+        if isinstance(obj, Iterable) and not isinstance(obj, str):
+            res.extend(flatten_iterables(obj))
         else:
-            lis.append(i)
-    return lis
-
-
-def handle_tuple(tup):
-    pass
+            res.append(obj)
+    return res
 
 
 class Interface(type):
@@ -55,7 +43,9 @@ class Interface(type):
     @staticmethod
     def is_func_implemented(func) -> bool:
         src = inspect.getsource(func).splitlines()
-        return not (len(src) == 2 and src[1].strip() == "pass") and not (func.__qualname__.startswith("Interface"))
+        is_minimal_deceleration = (len(src) == 2 and src[1].strip() == "pass")
+        is_default_override = (func.__qualname__.startswith("Interface"))
+        return (not is_minimal_deceleration) and (not is_default_override)
 
     @staticmethod
     def handle_new_interface(cls, name, bases, namespace):
@@ -68,19 +58,17 @@ class Interface(type):
         return super().__new__(cls, name, bases, namespace)
 
     @staticmethod
-    def get_decalred_function_names(cls) -> list[str]:
+    def get_declared_function_names(cls) -> list[str]:
         src = inspect.getsource(cls).splitlines()
-        function_names = []
         for line in src:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
-                function_names.append(func_name)
-        return function_names
+                yield func_name
 
     @staticmethod
     def unimplemented_functions(cls) -> list[str]:
         res = []
-        for func_name in Interface.get_decalred_function_names(cls):
+        for func_name in Interface.get_declared_function_names(cls):
             func = cls.__dict__[func_name]
             if not Interface.is_func_implemented(func):
                 res.append(func_name)
@@ -89,7 +77,7 @@ class Interface(type):
     @staticmethod
     def implemented_functions(cls):
         res = []
-        for func_name in Interface.get_decalred_function_names(cls):
+        for func_name in Interface.get_declared_function_names(cls):
             func = cls.__dict__[func_name]
             if Interface.is_func_implemented(func):
                 res.append(func_name)
@@ -98,8 +86,10 @@ class Interface(type):
     @staticmethod
     def handle_new_subclass(cls, name, bases, namespace):
         need_to_be_implemented = set()
+        ancestry = set()
         for base in bases:
             clstree = inspect.getclasstree([base], unique=True)
+            ancestry.update(flatten_iterables(clstree))
             for item in clstree:
                 if isinstance(item, tuple):
                     derived, parent = item
@@ -128,12 +118,18 @@ class Interface(type):
                     else:
                         breakpoint()  # TODO is reachable?
                         pass
+        if object in ancestry:
+            ancestry.remove(object)
 
         missing = []
         for func_name in need_to_be_implemented:
             if func_name not in namespace or not Interface.is_func_implemented(namespace[func_name]):
-                namespace[Interface.KEY] = True
-                missing.append(func_name)
+                for ancestor in ancestry:
+                    if func_name in Interface.implemented_functions(ancestor):
+                        break
+                else:
+                    namespace[Interface.KEY] = True
+                    missing.append(func_name)
 
         if "__init__" in need_to_be_implemented:
             if Interface.KEY in namespace:
@@ -144,7 +140,8 @@ class Interface(type):
                 namespace["__init__"] = Interface.create_init_handler(
                     name, missing)
             else:
-                pass
+                if "__init__" not in namespace:
+                    namespace["__init__"] = object.__init__
         return super().__new__(cls, name, bases, namespace)
 
     @staticmethod
