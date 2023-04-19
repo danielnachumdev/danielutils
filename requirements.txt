@@ -1,3 +1,5 @@
 pyautogui
 screeninfo
 Pillow
+pytest
+bs4
