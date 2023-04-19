@@ -4,7 +4,7 @@ import re
 
 
 class InterfaceHelper:
-    MINIMAL_DECELERATION = r".*def \w+.*\(.*\).*:\n.*\.{3}\n"
+    IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*\w+)?:\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
     # .*def \w+.*\(.*\).*:\n.*?(?:[^\w]*\"{3}.*\"{3})\.{3}\n
 
     def flatten_iterables(iterable: Iterable) -> list:
@@ -17,9 +17,13 @@ class InterfaceHelper:
         return res
 
     def is_func_implemented(func) -> bool:
+        if hasattr(func, Interface.FUNCKEY):
+            return func.__dict__[Interface.FUNCKEY]
+
         src = inspect.getsource(func)
-        if re.match(InterfaceHelper.MINIMAL_DECELERATION, src):
+        if re.match(InterfaceHelper.IMPLICIT_ABSTRACT, src):
             return False
+
         is_default_override = (
             func.__qualname__.startswith(InterfaceHelper.__name__))
         return not is_default_override
@@ -81,6 +85,12 @@ class InterfaceHelper:
 
 class Interface(type):
     KEY = "__isinterface__"
+    FUNCKEY = "__isabstractmethod__"
+
+    @staticmethod
+    def abstractmethod(func):
+        setattr(func, Interface.FUNCKEY, True)
+        return func
 
     def __new__(cls, name, bases, namespace):
         if len(bases) == 0:
@@ -106,47 +116,88 @@ class Interface(type):
         for base in bases:
             clstree = inspect.getclasstree([base], unique=True)
             ancestry.update(InterfaceHelper.flatten_iterables(clstree))
-            for item in clstree:
-                if isinstance(item, tuple):
-                    derived, parent = item
-                    if derived is object:
-                        continue
-                    need_to_be_implemented.update(
-                        InterfaceHelper.unimplemented_functions(derived))
-                else:
-                    if len(item) == 1:
+            for base in bases:
+                clstree = inspect.getclasstree([base], unique=True)
+                for item in clstree:
+                    if isinstance(item, tuple):
+                        derived, parent = item
+                    elif len(item) == 1:
                         item = item[0]
                         derived, parent = item
-                        if derived is object:
-                            continue
-                        if len(parent) == 1:
-                            parent = parent[0]
-                            if parent is not object:
-                                need_to_be_implemented.update(InterfaceHelper.unimplemented_functions(
-                                    parent))
-                        else:
-                            breakpoint()  # TODO is reachable?
-                            pass
-                        need_to_be_implemented.difference_update(
-                            InterfaceHelper.implemented_functions(derived))
-                        need_to_be_implemented.update(
-                            InterfaceHelper.unimplemented_functions(derived))
                     else:
-                        breakpoint()  # TODO is reachable?
-                        pass
+                        # multiple inheritance case - need to be implemented
+                        breakpoint()
+                        continue
+
+                    if derived is object:
+                        continue
+
+                    if isinstance(parent, tuple):
+                        if len(parent) != 1:
+                            breakpoint()
+                            pass
+                        parent = parent[0]
+
+                    if parent is not object:
+                        need_to_be_implemented.update(
+                            InterfaceHelper.unimplemented_functions(parent))
+
+                    need_to_be_implemented.difference_update(
+                        InterfaceHelper.implemented_functions(derived))
+                    need_to_be_implemented.update(
+                        InterfaceHelper.unimplemented_functions(derived))
+
+            # for item in clstree:
+            #     if isinstance(item, tuple):
+            #         derived, parent = item
+            #         if derived is object:
+            #             continue
+            #         need_to_be_implemented.update(
+            #             InterfaceHelper.unimplemented_functions(derived))
+            #     else:
+            #         if len(item) == 1:
+            #             item = item[0]
+            #             derived, parent = item
+            #             if derived is object:
+            #                 continue
+            #             if len(parent) == 1:
+            #                 parent = parent[0]
+            #                 if parent is not object:
+            #                     need_to_be_implemented.update(InterfaceHelper.unimplemented_functions(
+            #                         parent))
+            #             else:
+            #                 breakpoint()  # TODO is reachable?
+            #                 pass
+            #             need_to_be_implemented.difference_update(
+            #                 InterfaceHelper.implemented_functions(derived))
+            #             need_to_be_implemented.update(
+            #                 InterfaceHelper.unimplemented_functions(derived))
+            #         else:
+            #             breakpoint()  # TODO is reachable?
+            #             pass
 
         if object in ancestry:
             ancestry.remove(object)
 
         missing = []
         for func_name in need_to_be_implemented:
-            if func_name not in namespace or not InterfaceHelper.is_func_implemented(namespace[func_name]):
-                for ancestor in ancestry:
-                    if func_name in InterfaceHelper.implemented_functions(ancestor):
-                        break
-                else:
-                    namespace[Interface.KEY] = True
-                    missing.append(func_name)
+            has_been_declared = func_name in namespace
+            if not has_been_declared:
+                namespace[Interface.KEY] = True
+                missing.append(func_name)
+                continue
+
+            is_implemented = InterfaceHelper.is_func_implemented(
+                namespace[func_name])
+            if is_implemented:
+                continue
+
+            for ancestor in ancestry:
+                if func_name in InterfaceHelper.implemented_functions(ancestor):
+                    break
+            else:
+                namespace[Interface.KEY] = True
+                missing.append(func_name)
 
         namespace[Interface.KEY] = True
         if "__init__" in need_to_be_implemented:
