@@ -15,7 +15,7 @@ def test_no_implementation():
         instance = MyClass()
 
 
-def test2():
+def test_multiple_inheritance_and_multiple_implemetation():
     class Interface1(metaclass=Interface):
         def foo(self):
             ...
@@ -35,7 +35,7 @@ def test2():
     instance = MyClass()
 
 
-def test3():
+def test_inheritance_with_dummy_class():
     class Interface1(metaclass=Interface):
         def foo(self):
             ...
@@ -51,7 +51,7 @@ def test3():
     instance = MyClass()
 
 
-def test4():
+def test_inheritance_with_more_interfaces():
     class Interface1(metaclass=Interface):
         def foo(self):
             ...
@@ -181,3 +181,52 @@ def test_advanced_case():
     instance.foo()
     instance.foofoo()
     instance.bar()
+
+
+def test_inheticane_with_dummy_class_and_init():
+    class Shape(metaclass=Interface):
+        def __init__(self, name: str):
+            self.name = name
+
+        def __str__(self) -> str:
+            return f"{self.name}: area={self.area()}, circumfarence={self.circumfarence()}"
+
+        def area(self) -> float:
+            ...
+
+        def circumfarence(self) -> float:
+            ...
+
+    class Circle(Shape):
+        def __init__(self, r: float):
+            super().__init__("Circle")
+            self.r = r
+
+        def area(self) -> float:
+            return self.r**2*math.pi
+
+        def circumfarence(self) -> float:
+            return 2*math.pi*self.r
+
+    class Rectangle(Shape):
+        ...
+
+    class Square(Rectangle):
+        def __init__(self, size: float):
+            super().__init__("Square")
+            self.size = size
+
+        def area(self) -> float:
+            return self.size**2
+
+        def circumfarence(self) -> float:
+            return 4*self.size
+
+    with pytest.raises(NotImplementedError):
+        Shape()
+
+    with pytest.raises(NotImplementedError):
+        Rectangle()
+
+    Circle(4)
+    Square(4)
