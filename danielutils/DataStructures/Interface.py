@@ -1,12 +1,10 @@
 from typing import Callable, Iterable
 import inspect
 import re
+import traceback
 
 
 class InterfaceHelper:
-    IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*\w+)?:\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
-    # .*def \w+.*\(.*\).*:\n.*?(?:[^\w]*\"{3}.*\"{3})\.{3}\n
-
     def flatten_iterables(iterable: Iterable) -> list:
         res = []
         for obj in iterable:
@@ -21,7 +19,7 @@ class InterfaceHelper:
             return func.__dict__[Interface.FUNCKEY]
 
         src = inspect.getsource(func)
-        if re.match(InterfaceHelper.IMPLICIT_ABSTRACT, src):
+        if re.match(Interface.IMPLICIT_ABSTRACT, src):
             return False
 
         is_default_override = (
@@ -51,39 +49,34 @@ class InterfaceHelper:
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
                 yield func_name
 
-    def create_init_handler(cls_name, missing: list[str] = None):
-        def inner(*args, **kwargs):
+    def create_init_handler(cls_name, /, original_init: Callable = None, missing: list[str] = None):
+        def __interfaceinit__(*args, **kwargs):
+            caller_frame = traceback.format_stack()[-2]
+            is_super_call = bool(re.match(
+                r"\s+File \".*\", line \d+, in __init__\n\s+super\(\)\.__init__\(.*\)\n", caller_frame))
+            if is_super_call:
+                if original_init:
+                    return original_init(*args, **kwargs)
+                raise NotImplementedError(
+                    f"Can't use super().__init__(...) in {cls_name}.__init__(...) if the __init__ function is not defined a parent interface")
+
             if missing:
                 raise NotImplementedError(
                     f"Can't instantiate '{cls_name}' because it is an interface. It is missing implementations for {missing}")
             else:
                 raise NotImplementedError(
                     f"'{cls_name}' is an interface, Can't create instances")
-        return inner
+        return __interfaceinit__
 
     def create_generic_handler(cls_name, func_name):
-        def inner(*args, **kwargs):
+        def __interfacehandler__(*args, **kwargs):
             raise NotImplementedError(
                 f"Interface {func_name} must be implemented")
-        return inner
-
-    def check_parent(parent):
-        clstree = inspect.getclasstree([parent])
-        parents = []
-        for obj in clstree:
-            if isinstance(obj, tuple):
-                if obj[0] is not object:
-                    parents.append(obj[0])
-            elif isinstance(obj, list):
-                for tup in obj:
-                    if tup[0] is not object:
-                        parents.append(tup[0])
-        for parent in parents:
-            if Interface.is_cls_interface(parent):
-                pass
+        return __interfacehandler__
 
 
 class Interface(type):
+    IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*\w+)?:\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
     KEY = "__isinterface__"
     FUNCKEY = "__isabstractmethod__"
 
@@ -100,7 +93,11 @@ class Interface(type):
 
     @staticmethod
     def __handle_new_interface(cls, name, bases, namespace):
-        namespace["__init__"] = InterfaceHelper.create_init_handler(name)
+        original_init = None
+        if "__init__" in namespace:
+            original_init = namespace["__init__"]
+        namespace["__init__"] = InterfaceHelper.create_init_handler(
+            name, original_init=original_init)
         for k, v in namespace.items():
             if isinstance(v, Callable) and not k == "__init__":
                 if not InterfaceHelper.is_func_implemented(v):
@@ -116,65 +113,34 @@ class Interface(type):
         for base in bases:
             clstree = inspect.getclasstree([base], unique=True)
             ancestry.update(InterfaceHelper.flatten_iterables(clstree))
-            for base in bases:
-                clstree = inspect.getclasstree([base], unique=True)
-                for item in clstree:
-                    if isinstance(item, tuple):
-                        derived, parent = item
-                    elif len(item) == 1:
-                        item = item[0]
-                        derived, parent = item
-                    else:
-                        # multiple inheritance case - need to be implemented
+            for item in clstree:
+                if isinstance(item, tuple):
+                    derived, parent = item
+                elif len(item) == 1:
+                    item = item[0]
+                    derived, parent = item
+                else:
+                    # multiple inheritance case - need to be implemented
+                    breakpoint()
+                    continue
+
+                if derived is object:
+                    continue
+
+                if isinstance(parent, tuple):
+                    if len(parent) != 1:
                         breakpoint()
-                        continue
+                        pass
+                    parent = parent[0]
 
-                    if derived is object:
-                        continue
-
-                    if isinstance(parent, tuple):
-                        if len(parent) != 1:
-                            breakpoint()
-                            pass
-                        parent = parent[0]
-
-                    if parent is not object:
-                        need_to_be_implemented.update(
-                            InterfaceHelper.unimplemented_functions(parent))
-
-                    need_to_be_implemented.difference_update(
-                        InterfaceHelper.implemented_functions(derived))
+                if parent is not object:
                     need_to_be_implemented.update(
-                        InterfaceHelper.unimplemented_functions(derived))
+                        InterfaceHelper.unimplemented_functions(parent))
 
-            # for item in clstree:
-            #     if isinstance(item, tuple):
-            #         derived, parent = item
-            #         if derived is object:
-            #             continue
-            #         need_to_be_implemented.update(
-            #             InterfaceHelper.unimplemented_functions(derived))
-            #     else:
-            #         if len(item) == 1:
-            #             item = item[0]
-            #             derived, parent = item
-            #             if derived is object:
-            #                 continue
-            #             if len(parent) == 1:
-            #                 parent = parent[0]
-            #                 if parent is not object:
-            #                     need_to_be_implemented.update(InterfaceHelper.unimplemented_functions(
-            #                         parent))
-            #             else:
-            #                 breakpoint()  # TODO is reachable?
-            #                 pass
-            #             need_to_be_implemented.difference_update(
-            #                 InterfaceHelper.implemented_functions(derived))
-            #             need_to_be_implemented.update(
-            #                 InterfaceHelper.unimplemented_functions(derived))
-            #         else:
-            #             breakpoint()  # TODO is reachable?
-            #             pass
+                need_to_be_implemented.difference_update(
+                    InterfaceHelper.implemented_functions(derived))
+                need_to_be_implemented.update(
+                    InterfaceHelper.unimplemented_functions(derived))
 
         if object in ancestry:
             ancestry.remove(object)
@@ -199,19 +165,15 @@ class Interface(type):
                 namespace[Interface.KEY] = True
                 missing.append(func_name)
 
-        namespace[Interface.KEY] = True
-        if "__init__" in need_to_be_implemented:
-            if Interface.KEY in namespace:
+        if missing:
+            namespace[Interface.KEY] = True
+            if "__init__" in need_to_be_implemented:
                 namespace["__init__"] = InterfaceHelper.create_init_handler(
-                    name)
+                    name, missing=missing)
         else:
-            if missing:
-                namespace["__init__"] = InterfaceHelper.create_init_handler(
-                    name, missing)
-            else:
-                namespace[Interface.KEY] = False
-                if "__init__" not in namespace:
-                    namespace["__init__"] = object.__init__
+            namespace[Interface.KEY] = False
+            if "__init__" not in namespace:
+                namespace["__init__"] = object.__init__
         return super().__new__(cls, name, bases, namespace)
 
     @staticmethod

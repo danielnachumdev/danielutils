@@ -1,3 +1,5 @@
+import traceback
+import re
 from .Typing import Callable, Any, Union
 import functools
 import threading
@@ -399,8 +401,7 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
             if is None, will return the last (args, kwargs)
         quiet (bool, optional): whether to print a warning message. Defaults to True.
     """
-    import traceback
-    import re
+
     from .Colors import warning
 
     def deco(func):

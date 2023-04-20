@@ -6,7 +6,7 @@ import pytest
 def test_no_implementation():
     class Interface1(metaclass=Interface):
         def foo(self):
-            pass
+            ...
 
     class MyClass(Interface1):
         pass
@@ -18,11 +18,11 @@ def test_no_implementation():
 def test2():
     class Interface1(metaclass=Interface):
         def foo(self):
-            pass
+            ...
 
     class Interface2(metaclass=Interface):
         def bar(self):
-            pass
+            ...
 
     class MyClass(Interface1, Interface2):
         def foo(self):
@@ -38,7 +38,7 @@ def test2():
 def test3():
     class Interface1(metaclass=Interface):
         def foo(self):
-            pass
+            ...
 
     class AbstractClass(Interface1, metaclass=Interface):
         pass
@@ -54,11 +54,11 @@ def test3():
 def test4():
     class Interface1(metaclass=Interface):
         def foo(self):
-            pass
+            ...
 
     class Interface2(Interface1, metaclass=Interface):
         def bar(self):
-            pass
+            ...
 
     class MyClass(Interface2):
         def foo(self):
@@ -140,3 +140,44 @@ def test_classic_use_case():
         print(shape)
         print(isinstance(shape, Shape))
         print(isinstance(shape, ColoredObject))
+
+
+def test_advanced_case():
+    class Interface1(metaclass=Interface):
+        def __init__(self):
+            self.x = 5
+
+        def foo(self):
+            ...
+
+        def foofoo(self):
+            print("foofoo")
+
+    class Interface2(metaclass=Interface):
+        def bar(self):
+            """_summary_
+            """
+            ...
+
+    class MyClass(Interface1, Interface2):
+        def __init__(self):
+            super().__init__()
+
+        def foo(self):
+            print("foo")
+
+        def bar(self):
+            print(self.x)
+            print("bar")
+
+    with pytest.raises(NotImplementedError):
+        Interface1()
+
+    with pytest.raises(NotImplementedError):
+        Interface2()
+
+    # This should create an instance of MyClass successfully
+    instance = MyClass()
+    instance.foo()
+    instance.foofoo()
+    instance.bar()
