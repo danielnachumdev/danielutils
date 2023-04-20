@@ -134,12 +134,15 @@ def test_classic_use_case():
         def __str__(self) -> str:
             return super().__str__()+f" color-{self.color}"
 
-    shapes: list[Shape] = [Circle(2), Square(
-        2), Rectangel(2, 3), ColoredCircle(5, "red")]
-    for shape in shapes:
-        print(shape)
-        print(isinstance(shape, Shape))
-        print(isinstance(shape, ColoredObject))
+    shapes: list[Shape] = [
+        Circle(2),
+        Square(2),
+        Rectangel(2, 3),
+        ColoredCircle(5, "red")
+    ]
+    assert isinstance(shapes[3], Circle)
+    assert isinstance(shapes[3], ColoredCircle)
+    assert isinstance(shapes[3], Shape)
 
 
 def test_advanced_case():
@@ -189,12 +192,15 @@ def test_inheticane_with_dummy_class_and_init():
             self.name = name
 
         def __str__(self) -> str:
-            return f"{self.name}: area={self.area()}, circumfarence={self.circumfarence()}"
+            return f"{self.name}: {self.area()=}, {self.circumfarence()=}, {self.sum_inner_angle()=}"
 
         def area(self) -> float:
             ...
 
         def circumfarence(self) -> float:
+            ...
+
+        def sum_inner_angle(self) -> float:
             ...
 
     class Circle(Shape):
@@ -208,10 +214,21 @@ def test_inheticane_with_dummy_class_and_init():
         def circumfarence(self) -> float:
             return 2*math.pi*self.r
 
-    class Rectangle(Shape):
-        ...
+        def sum_inner_angle(self) -> float:
+            return math.inf
 
-    class Square(Rectangle):
+    class Quadrilateral(Shape):
+        def __init__(self, name):
+            super().__init__(name)
+
+        def sum_inner_angle(self) -> float:
+            return 360
+
+    class Quadrilateral2(Shape):
+        def sum_inner_angle(self) -> float:
+            return 360
+
+    class Square(Quadrilateral):
         def __init__(self, size: float):
             super().__init__("Square")
             self.size = size
@@ -222,11 +239,22 @@ def test_inheticane_with_dummy_class_and_init():
         def circumfarence(self) -> float:
             return 4*self.size
 
+    class Square2(Quadrilateral2):
+        def __init__(self, size: float):
+            super().__init__("Square")
+            self.size = size
+
+        def area(self) -> float:
+            return self.size**2
+
+        def circumfarence(self) -> float:
+            return 4*self.size
     with pytest.raises(NotImplementedError):
         Shape()
 
     with pytest.raises(NotImplementedError):
-        Rectangle()
+        Quadrilateral()
 
     Circle(4)
     Square(4)
+    Square2(4)

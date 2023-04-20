@@ -5,6 +5,8 @@ import traceback
 
 
 class InterfaceHelper:
+    ORIGINAL_INIT = "__originalinit__"
+
     def flatten_iterables(iterable: Iterable) -> list:
         res = []
         for obj in iterable:
@@ -48,24 +50,36 @@ class InterfaceHelper:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
                 yield func_name
+    __mro_dict = dict()
 
-    def create_init_handler(cls_name, /, original_init: Callable = None, missing: list[str] = None):
+    def create_init_handler(cls_name, missing: list[str] = None):
+
         def __interfaceinit__(*args, **kwargs):
+            instance = args[0]
+            if instance not in InterfaceHelper.__mro_dict:
+                InterfaceHelper.__mro_dict[instance] = 1
+            else:
+                InterfaceHelper.__mro_dict[instance] += 1
+
             caller_frame = traceback.format_stack()[-2]
             is_super_call = bool(re.match(
                 r"\s+File \".*\", line \d+, in __init__\n\s+super\(\)\.__init__\(.*\)\n", caller_frame))
             if is_super_call:
-                if original_init:
-                    return original_init(*args, **kwargs)
+                mro = instance.__class__.mro()
+                for cls in mro[InterfaceHelper.__mro_dict[instance]:]:
+                    if hasattr(cls, InterfaceHelper.ORIGINAL_INIT):
+                        result = getattr(cls, InterfaceHelper.ORIGINAL_INIT)(
+                            *args, **kwargs)
+                        if instance in InterfaceHelper.__mro_dict:
+                            del InterfaceHelper.__mro_dict[instance]
+                        return result
                 raise NotImplementedError(
                     f"Can't use super().__init__(...) in {cls_name}.__init__(...) if the __init__ function is not defined a parent interface")
 
-            if missing:
-                raise NotImplementedError(
-                    f"Can't instantiate '{cls_name}' because it is an interface. It is missing implementations for {missing}")
-            else:
-                raise NotImplementedError(
-                    f"'{cls_name}' is an interface, Can't create instances")
+            del InterfaceHelper.__mro_dict[instance]
+
+            raise NotImplementedError(
+                f"'{cls_name}' is an interface, Can't create instances")
         return __interfaceinit__
 
     def create_generic_handler(cls_name, func_name):
@@ -93,11 +107,9 @@ class Interface(type):
 
     @staticmethod
     def __handle_new_interface(cls, name, bases, namespace):
-        original_init = None
         if "__init__" in namespace:
-            original_init = namespace["__init__"]
-        namespace["__init__"] = InterfaceHelper.create_init_handler(
-            name, original_init=original_init)
+            namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
+        namespace["__init__"] = InterfaceHelper.create_init_handler(name)
         for k, v in namespace.items():
             if isinstance(v, Callable) and not k == "__init__":
                 if not InterfaceHelper.is_func_implemented(v):
@@ -142,15 +154,17 @@ class Interface(type):
                 need_to_be_implemented.update(
                     InterfaceHelper.unimplemented_functions(derived))
 
+        # cleanup
+        del item, clstree, derived, parent, base
+
         if object in ancestry:
             ancestry.remove(object)
 
-        missing = []
+        missing: set = set()
         for func_name in need_to_be_implemented:
             has_been_declared = func_name in namespace
             if not has_been_declared:
-                namespace[Interface.KEY] = True
-                missing.append(func_name)
+                missing.add(func_name)
                 continue
 
             is_implemented = InterfaceHelper.is_func_implemented(
@@ -162,18 +176,27 @@ class Interface(type):
                 if func_name in InterfaceHelper.implemented_functions(ancestor):
                     break
             else:
-                namespace[Interface.KEY] = True
-                missing.append(func_name)
+                missing.add(func_name)
+
+        # cleanup
+        del ancestry
+
+        if "__init__" in namespace:
+            namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
+        else:
+            if InterfaceHelper.ORIGINAL_INIT in namespace:
+                del namespace[InterfaceHelper.ORIGINAL_INIT]
 
         if missing:
             namespace[Interface.KEY] = True
             if "__init__" in need_to_be_implemented:
                 namespace["__init__"] = InterfaceHelper.create_init_handler(
-                    name, missing=missing)
+                    name, missing)
         else:
             namespace[Interface.KEY] = False
             if "__init__" not in namespace:
                 namespace["__init__"] = object.__init__
+
         return super().__new__(cls, name, bases, namespace)
 
     @staticmethod
