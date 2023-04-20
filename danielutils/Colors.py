@@ -4,7 +4,7 @@ from .Decorators import validate
 class ColoredText:
     @staticmethod
     @validate
-    def from_rgb(r: int, g: int, b: int, text: str):
+    def from_rgb(r: int, g: int, b: int, text: str) -> str:
         return f"\033[38;2;{r};{g};{b}m{text}\033[38;2;255;255;255m"
 
     @staticmethod
@@ -36,10 +36,10 @@ def __special_print(*args, sep=" ", end="\n", start_with=None):
     if start_with:
         if "\n" not in sep:
             print(f"{start_with}: ", end="")
-            print(sep.join([arg for arg in args]), sep="", end=end)
+            print(sep.join([str(arg) for arg in args]), sep="", end=end)
         else:
             print(
-                sep.join([f"{start_with}: {arg}" for arg in args]), sep="", end=end)
+                sep.join([f"{start_with}: {str(arg)}" for arg in args]), sep="", end=end)
     else:
         print(*args, sep=sep, end=end)
 
