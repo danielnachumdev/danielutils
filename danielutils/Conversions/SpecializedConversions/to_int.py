@@ -1,6 +1,6 @@
-from ...Decorators import overload
-from ..MainConversions import *
+"""functions that convert values to int"""
 from typing import Union
+from ..MainConversions import char_to_int
 
 
 def to_int(value: str) -> Union[int, list[int]]:

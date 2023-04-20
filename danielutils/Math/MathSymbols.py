@@ -1,63 +1,28 @@
+"""file with math symbols constants"""
 # https://unicode-table.com/en/sets/mathematical-signs/
-special_double_n = "ℕ"
-special_double_q = "ℚ"
-special_double_r = "ℝ"
-special_double_z = "ℤ"
-special_double_c = "ℂ"
-special_rpab = "〉"  # right pointing angle bracket
-special_lpab = "〈"  # left pointing angle bracket
-special_forall = "∀"
-special_exists = "∃"
-special_vl = "|"
-special_sigma = "∑"
-special_pi = "∏"
-special_circled_plus = "⊕"
-special_ne = "≠"
-special_equiv = "≡"
-special_lambda = "λ"
-special_square_root = "√"
-special_cube_root = "∛"
-special_forth_root = "∜"
+SPECIAL_DOUBLE_N = "ℕ"
+SPECIAL_DOUBLE_Q = "ℚ"
+SPECIAL_DOUBLE_R = "ℝ"
+SPECIAL_DOUBLE_Z = "ℤ"
+SPECIAL_DOUBLE_C = "ℂ"
+SPECIAL_RPAB = "〉"  # right pointing angle bracket
+SPECIAL_LPAB = "〈"  # left pointing angle bracket
+SPECIAL_FORALL = "∀"
+SPECIAL_EXISTS = "∃"
+SPEICAL_VL = "|"
+SPECIAL_SIGMA = "∑"
+SPECIAL_PI = "∏"
+SPECIAL_CIRCLED_PLUS = "⊕"
+SPECIAL_NE = "≠"
+SPECIAL_EQUIV = "≡"
+SPECIAL_LAMBDA = "λ"
+SPECIAL_SQRT = "√"
+SPECIAL_CUBE_ROOT = "∛"
+SPECIAL_4TH_ROOT = "∜"
 
 
-superscript_small_case_a = 'ᵃ'
-superscript_small_case_b = 'ᵇ'
-superscript_small_case_c = 'ᶜ'
-superscript_small_case_d = 'ᵈ'
-superscript_small_case_e = 'ᵉ'
-superscript_small_case_f = 'ᶠ'
-superscript_small_case_g = 'ᵍ'
-superscript_small_case_h = 'ʰ'
-superscript_small_case_i = 'ⁱ'
-superscript_small_case_j = 'ʲ'
-superscript_small_case_k = 'ᵏ'
-superscript_small_case_l = 'ˡ'
-superscript_small_case_m = 'ᵐ'
-superscript_small_case_n = 'ⁿ'
-superscript_small_case_o = 'ᵒ'
-superscript_small_case_p = 'ᵖ'
-superscript_small_case_q = '𐞥'
-superscript_small_case_r = 'ʳ'
-superscript_small_case_s = 'ˢ'
-superscript_small_case_t = 'ᵗ'
-superscript_small_case_u = 'ᵘ'
-superscript_small_case_v = 'ᵛ'
-superscript_small_case_w = 'ʷ'
-superscript_small_case_x = 'ˣ'
-superscript_small_case_y = 'ʸ'
-superscript_small_case_z = 'ᶻ'
-
-superscript_small_letters = [
-    superscript_small_case_a, superscript_small_case_b, superscript_small_case_c,
-    superscript_small_case_d, superscript_small_case_e, superscript_small_case_f,
-    superscript_small_case_g, superscript_small_case_h, superscript_small_case_i,
-    superscript_small_case_j, superscript_small_case_k, superscript_small_case_l,
-    superscript_small_case_m, superscript_small_case_n, superscript_small_case_o,
-    superscript_small_case_p, superscript_small_case_q, superscript_small_case_r,
-    superscript_small_case_s, superscript_small_case_t, superscript_small_case_u,
-    superscript_small_case_v, superscript_small_case_w, superscript_small_case_x,
-    superscript_small_case_y, superscript_small_case_z
-]
+SUPERSCRIPT_SMALL_LETTERS = ['ᵃ','ᵇ','ᶜ','ᵈ','ᵉ','ᶠ','ᵍ','ʰ','ⁱ','ʲ','ᵏ','ˡ','ᵐ','ⁿ',
+                             'ᵒ','ᵖ','𐞥','ʳ','ˢ','ᵗ','ᵘ','ᵛ','ʷ','ˣ','ʸ','ᶻ']
 
 # superscript_big_case_a = 'ⁱ'
 # superscript_big_case_b = 'ⁱ'
@@ -87,9 +52,9 @@ superscript_small_letters = [
 # superscript_big_case_z = 'ⁱ'
 
 
-superscript_dict = dict()
+superscript_dict = {}
 superscript_dict.update(
-    {chr(i+ord('a')): superscript_small_letters[i] for i in range(26)}
+    {chr(i+ord('a')): SUPERSCRIPT_SMALL_LETTERS[i] for i in range(26)}
 )
 superscript_digits = ["⁰", "¹", "²", "³",
                       "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
@@ -104,34 +69,8 @@ superscript_dict.update({
     ")": "⁾",
 })
 
-subscript_small_case_a = 'ₐ'
-subscript_small_case_b = 'ᵇ'
-subscript_small_case_c = ''
-subscript_small_case_d = 'ᵈ'
-subscript_small_case_e = 'ₑ'
-subscript_small_case_f = ''
-subscript_small_case_g = 'ᶢ'
-subscript_small_case_h = 'ₕ'
-subscript_small_case_i = 'ᵢ'
-subscript_small_case_j = 'ⱼ'
-subscript_small_case_k = 'ₖ'
-subscript_small_case_l = 'ₗ'
-subscript_small_case_m = 'ₘ'
-subscript_small_case_n = 'ₙ'
-subscript_small_case_o = 'ₒ'
-subscript_small_case_p = 'ₚ'
-subscript_small_case_q = ''
-subscript_small_case_r = 'ᵣ'
-subscript_small_case_s = 'ₛ'
-subscript_small_case_t = 'ₜ'
-subscript_small_case_u = 'ᵤ'
-subscript_small_case_v = 'ᵥ'
-subscript_small_case_w = ''
-subscript_small_case_x = 'ₓ'
-subscript_small_case_y = ''
-subscript_small_case_z = ''
-subscript_small_letters = [subscript_small_case_a, subscript_small_case_b, subscript_small_case_c, subscript_small_case_d, subscript_small_case_e, subscript_small_case_f, subscript_small_case_g, subscript_small_case_h, subscript_small_case_i, subscript_small_case_j, subscript_small_case_k, subscript_small_case_l,
-                           subscript_small_case_m, subscript_small_case_n, subscript_small_case_o, subscript_small_case_p, subscript_small_case_q, subscript_small_case_r, subscript_small_case_s, subscript_small_case_t, subscript_small_case_u, subscript_small_case_v, subscript_small_case_w, subscript_small_case_x, subscript_small_case_y, subscript_small_case_z]
+SUBSCRIPT_SMALL_LETTERS = ['ₐ','','','','ₑ','','','ₕ','ᵢ','ⱼ','ₖ','ₗ','ₘ',
+                           'ₙ','ₒ','ₚ','','ᵣ','ₛ','ₜ','ᵤ','ᵥ','','ₓ','','']
 # subscript_big_case_a = 'ⁱ'
 # subscript_big_case_b = 'ⁱ'
 # subscript_big_case_c = 'ⁱ'
@@ -158,10 +97,10 @@ subscript_small_letters = [subscript_small_case_a, subscript_small_case_b, subsc
 # subscript_big_case_x = 'ⁱ'
 # subscript_big_case_y = 'ⁱ'
 # subscript_big_case_z = 'ⁱ'
-subscript_dict = dict()
+subscript_dict = {}
 subscript_dict.update(
-    {chr(i+ord('a')): subscript_small_letters[i]
-     for i in range(len(subscript_small_letters))}
+    {chr(i+ord('a')): SUBSCRIPT_SMALL_LETTERS[i]
+     for i in range(len(SUBSCRIPT_SMALL_LETTERS))}
 )
 
 subscript_digits = ["\u2080", "\u2081", "\u2082", "\u2083",

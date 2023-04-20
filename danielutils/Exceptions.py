@@ -3,69 +3,81 @@
 class OverloadException(Exception):
     """Base exception for overload decorator
     """
-    pass
 
 
 class OverloadNotFound(OverloadException):
+    """Exception to raise if a function is called with certain
+    argument types but this function hasn't been overloaded with those types
     """
-    Exception to raise if a function is called with certain argument types but this function hasn't been overloaded with those types
-    """
-    pass
 
 
 class OverloadDuplication(OverloadException):
     """
     Exception to raise if a function is overloaded twice with same argument types
     """
-    pass
 
 
-class ValidationError(Exception):
-    pass
+# class ValidationError(Exception):
+#     """_summary_
+
+#     Args:
+#         Exception (_type_): _description_
+
+#     Returns:
+#         _type_: _description_
+#     """
 
 
-class ValidationTypeError(ValidationError, TypeError):
-    pass
+# class ValidationTypeError(ValidationError, TypeError):
+#     pass
 
 
-class ValidationReturnTypeError(ValidationError, TypeError):
-    pass
+# class ValidationReturnTypeError(ValidationError, TypeError):
+#     pass
 
 
-class ValidationValueError(ValidationError, ValueError):
-    pass
+# class ValidationValueError(ValidationError, ValueError):
+#     pass
 
 
-class ValidationDuplicationError(ValidationError):
-    pass
-
-
-class TimeoutError(AssertionError):
-    pass
+# class ValidationDuplicationError(ValidationError):
+#     pass
 
 
 class ValidationException(Exception):
-    pass
+    """generic validation exception for validate decorator
+    """
 
 
 class EmptyAnnotationException(ValidationException):
-    pass
+    """exception for validate decorator to be used if a function needs to 
+    be validated but has an empty annotation for one of the arguments
+    """
 
 
 class InvalidDefaultValueException(ValidationException):
-    pass
+    """exception for validate decorator to be used if a function has
+    a default value that doesn't conform to the annotated type
+    """
 
 
 class InvalidReturnValueException(ValidationException):
-    pass
+    """exception for validate decorator to be used if a function has
+    an annotated return value but the actual return value doesn't conform to it
+    """
 
 
 class PrintCatch:
+    """a utility class to be used with a "with" block to print 
+    any exception that happens inside of it rather than exiting the program
+    """
+
     def __enter__(self):
         return self
 
     def __exit__(self, cls, instance, traceback):
         if instance:
             from .Colors import error
-            error(str(instance))
+            error(f"{cls} {instance}")
             return isinstance(instance, cls)
+        return False

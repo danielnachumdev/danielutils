@@ -1,13 +1,21 @@
-
+from typing import Any
 from .Comparer import Comparer
 
 
 class Heap:
+    """a Heap class which will do the sorting according to the supplied comparer object
+    """
+
     def __init__(self, comparer: Comparer):
         self.arr = []
         self.comparer = comparer
 
-    def push(self, val) -> None:
+    def push(self, val: Any) -> None:
+        """will add a new object to the heap
+
+        Args:
+            val (Any): the object to add to the heap
+        """
         res = -1
         curr_index = len(self)
         self.arr.append(val)
@@ -26,9 +34,19 @@ class Heap:
         return self.arr[index]
 
     def is_empty(self) -> bool:
+        """return whether the heap is empty
+
+        Returns:
+            bool: result
+        """
         return len(self) == 0
 
-    def pop(self):
+    def pop(self) -> Any:
+        """return the value at the top of the heap while removing it
+
+        Returns:
+            Any: the result
+        """
         res = self[0]
         self.arr[0], self.arr[-1] = self[-1], self[0]
         self.arr.pop()
@@ -60,16 +78,27 @@ class Heap:
     def __str__(self):
         return str(self.arr)
 
-    def peek(self):
+    def peek(self) -> Any:
+        """return the value at the top of the Heap without removing it
+
+        Returns:
+            Any: the result
+        """
         return self[0]
 
 
 class MaxHeap(Heap):
+    """classic MaxHeap implementation
+    """
+
     def __init__(self):
         super().__init__(Comparer.GREATER)
 
 
 class MinHeap(Heap):
+    """classic MinHeap implementation
+    """
+
     def __init__(self):
         super().__init__(Comparer.SMALLER)
 

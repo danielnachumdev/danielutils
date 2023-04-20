@@ -3,12 +3,18 @@ from typing import Any
 
 
 class Node:
-    def __init__(self, data: Any = None, next: Node | list[Node] = None):
-        self.data = data
-        self.next = next
+    """classic Node implementation
+    """
 
-    def has_next(self) -> bool:
-        return self.next is not None
+    def __init__(self, data: Any, nxt=None) -> None:
+        self.data = data
+        self.nxt = nxt
+
+    def __str__(self) -> str:
+        return f"Node(data={self.data}, next={self.nxt})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
 
 __all__ = [

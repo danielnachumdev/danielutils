@@ -1,19 +1,26 @@
-import sys
 from .MathSymbols import subscript_dict, superscript_dict
 
 
 def mprint_parse_one(s: str) -> str:
+    """a helper function that parses "mathematically" one string
+
+    Args:
+        s (str): the string to parse with math symbols
+
+    Returns:
+        str: the result
+    """
 
     def inner(res, index, dct):
         start = index
         while index < len(s) and s[index] not in {' ', '*', '+', '-', '/', '_', '^'}:
             index += 1
         end = index
-        for c in s[start:end]:
-            if c in dct:
-                res += dct[c]
+        for char in s[start:end]:
+            if char in dct:
+                res += dct[char]
             else:
-                res += c
+                res += char
         index -= 1
         return res, index
     res: str = ""

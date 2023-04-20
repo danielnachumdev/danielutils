@@ -1,18 +1,20 @@
-import traceback
 import re
-from .Typing import Callable, Any, Union
+import traceback
 import functools
-import threading
 import inspect
-from .Functions import areoneof, isoneof, isoneof_strict, isoftype
+import threading
+from typing import Callable, Any
+from .Functions import isoneof, isoneof_strict, isoftype
 from .Exceptions import *
 
 
 def validate(func: Callable) -> Callable:
-    """A decorator that validates the annotations and types of the arguments and return value of a function.
+    """A decorator that validates the annotations and types of the arguments and return
+    value of a function.
 
         * 'None' is allowed as default value for everything
-        * Because of their use in classes, the generally accepted keywords 'self' and 'cls' are not validated to not break intellisense when using 'Any'
+        * Because of their use in classes, the generally accepted keywords 'self' and 'cls'
+        are not validated to not break intellisense when using 'Any'
 
     Args:
         func (Callable): The function to be decorated.
@@ -49,7 +51,8 @@ def validate(func: Callable) -> Callable:
             # if it does, check the type of the default value
             if not isoftype(default_value, arg_type):
                 raise InvalidDefaultValueException(
-                    f"In {func_name}, argument '{arg_name}'s default value is annotated as {arg_type} but got '{default_value}' which is {type(default_value)}")
+                    f"In {func_name}, argument '{arg_name}'s default value is annotated \
+                    as {arg_type} but got '{default_value}' which is {type(default_value)}")
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -62,7 +65,8 @@ def validate(func: Callable) -> Callable:
             expected_type = func.__annotations__[variable_name]
             if not isoftype(variable_value, expected_type):
                 raise ValidationException(
-                    f"In {func_name}, argument '{variable_name}' is annotated as {annotated_type} but got '{variable_value}' which is {type(variable_value)}")
+                    f"In {func_name}, argument '{variable_name}' is annotated as \
+                        {annotated_type} but got '{variable_value}' which is {type(variable_value)}")
 
         # call the function
         result = func(*args, **kwargs)
@@ -72,112 +76,24 @@ def validate(func: Callable) -> Callable:
                                      or signature.return_annotation is None) else signature.return_annotation
         if not isoftype(result, return_type):
             raise InvalidReturnValueException(
-                f"In function {func_name}, the return type is annotated as {return_type} but got '{result}' which is {type(result)}")
+                f"In function {func_name}, the return type is annotated as \
+                {return_type} but got '{result}' which is {type(result)}")
         return result
     return wrapper
 
 
-# __validation_set = set()
-# __validation_instantiation_rule = dict()
+# @validate
+# def NotImplemented(func: Callable) -> Callable:
+#     """decorator to mark function as not implemented for development purposes
 
-
-# def __validate_type(func: Callable, v: Any, T: type, validation_func: Callable[[Any], bool] = isoftype, msg: str = None) -> None:
-#     if not validation_func(v, T):
-#         raise ValidationTypeError(
-#             msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument is: '{ v.__qualname__ if hasattr(v, '__qualname__') else v}'\nIt has the type of '{type(v)}'\nIt is marked as type(s): '{T}'")
-
-
-# def __validate_condition(func: Callable, v: Any, constraint: Callable[[Any], bool], msg: str = None) -> None:
-#     if not constraint(v):
-#         raise ValidationValueError(
-#             msg or f"In {func.__module__}.{func.__qualname__}(...)\nThe argument '{str(v)}' has failed provided constraint\nConstraint in {constraint.__module__}.{constraint.__qualname__}")
-
-
-# def __validate_arg(func: Callable, curr_arg: Any, curr_inner_arg: Any) -> None:
-#     if isoneof(curr_arg, [list, tuple]):
-#         # multiple type only:
-#         if areoneof(curr_arg, [type]):
-#             __validate_type(func, curr_inner_arg, curr_arg, isoneof)
-
-#         else:  # maybe with condition:
-#             class_type, constraint = curr_arg[0], curr_arg[1]
-
-#             # Type validation
-#             if isoneof(class_type, [list, tuple]):
-#                 __validate_type(func, curr_inner_arg, class_type, isoneof)
-#             else:
-#                 __validate_type(func, curr_inner_arg, class_type, isinstance)
-
-#             # constraints validation
-#             if constraint is not None:
-#                 message = curr_arg[2] if len(curr_arg) > 2 else None
-#                 __validate_condition(func, curr_inner_arg, constraint, message)
-#     else:
-#         __validate_type(func, curr_inner_arg, curr_arg)
-
-
-# def validate_explicit(*args, return_type=None, can_instantiate_multiple_times: bool = False) -> Callable:
-#     """validate decorator
-
-#         Is passed types of variables to perform type checking over\n
-#         The arguments must be passed in the same order\n
-
-#     for each parameter respectively you can choose one of four options:\n
-#         1. None - to skip\n
-#         2. Type - a type to check \n
-#         3. Sequence of Type to check if the type is contained in the sequence\n
-#         4. Sequence that contains three arguments:\n
-#             4.1 a Type or Sequence[Type]\n
-#             4.2 a function to call on argument\n
-#             4.3 a str to display in a ValueError iff the condition from 4.2 fails\n
-#     In addition you can use keyword 'return_type' for the returned value same as specified in 1,2,3
+#     Args:
+#         func (Callable): the function to decorate
 #     """
-#     from .Exceptions import ValidationDuplicationError, ValidationTypeError, ValidationValueError, ValidationReturnTypeError
-
-#     def deco(func: Callable) -> Callable:
-#         if not isinstance(func, Callable):
-#             raise ValueError("validate decorator must decorate a callable")
-#         global __validation_set, __validation_instantiation_rule
-#         func_id = f"{func.__module__}.{func.__qualname__}"
-
-#         if func_id not in __validation_instantiation_rule:
-#             __validation_instantiation_rule[func_id] = can_instantiate_multiple_times
-#         assert can_instantiate_multiple_times == __validation_instantiation_rule[
-#             func_id], "can't change instantiation status on runtime"
-
-#         if func_id not in __validation_set:
-#             __validation_set.add(func_id)
-#         else:
-#             if not __validation_instantiation_rule[func_id]:
-#                 raise ValidationDuplicationError(
-#                     "validate decorator is being used on two functions in the same module with the same name\nmaybe use @overload instead")
-
-#         @ functools.wraps(func)
-#         def wrapper(*inner_args, **inner_kwargs) -> Any:
-#             for i in range(min(len(args), len(inner_args))):
-#                 if args[i] is not None:
-#                     __validate_arg(func, args[i], inner_args[i])
-#             res = func(*inner_args, **inner_kwargs)
-#             if return_type is not None:
-#                 msg = f"In {func.__module__}.{func.__qualname__}(...)\nThe returned value is: '{ res.__qualname__ if hasattr(res, '__qualname__') else res}'\nIt has the type of '{type(res)}'\nIt is marked as type(s): '{return_type}'"
-#                 __validate_type(func, res, return_type, msg=msg)
-#             return res
-#         return wrapper
-#     return deco
-
-
-@validate
-def NotImplemented(func: Callable) -> Callable:
-    """decorator to mark function as not implemented for development purposes
-
-    Args:
-        func (Callable): the function to decorate
-    """
-    @ functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        raise NotImplementedError(
-            f"As marked by the developer {func.__module__}.{func.__qualname__} is not implemented yet..")
-    return wrapper
+#     @ functools.wraps(func)
+#     def wrapper(*args, **kwargs) -> Any:
+#         raise NotImplementedError(
+#             f"As marked by the developer {func.__module__}.{func.__qualname__} is not implemented yet..")
+#     return wrapper
 
 
 @validate
@@ -192,7 +108,8 @@ def PartiallyImplemented(func: Callable) -> Callable:
     @ functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
         warning(
-            f"As marked by the developer, {func.__module__}.{func.__qualname__} may not be fully implemented and might not work properly")
+            f"As marked by the developer, {func.__module__}.{func.__qualname__} "
+            "may not be fully implemented and might not work properly.")
         return func(*args, **kwargs)
     return wrapper
 
@@ -214,7 +131,7 @@ def memo(func: Callable) -> Callable:
     return wrapper
 
 
-__overload_dict: dict[str, dict[tuple, Callable]] = dict()
+__overload_dict: dict[str, dict[tuple, Callable]] = {}
 
 
 def overload(*types) -> Callable:
@@ -229,12 +146,15 @@ def overload(*types) -> Callable:
 
     * use None to skip argument
     * use no arguments to mark as default function
-    * you should overload in decreasing order of specificity! e.g @overload(int) should appear in the code before @overload(Any)
+    * you should overload in decreasing order of specificity! e.g 
+    @overload(int) should appear in the code before @overload(Any)
 
     \n\n\n
     \nRaises:
-        OverloadDuplication: if a functions is overloaded twice (or more) with same argument types
-        OverloadNotFound: if an overloaded function is called with types that has no variant of the function
+        OverloadDuplication: if a functions is overloaded twice (or more)
+        with same argument types
+        OverloadNotFound: if an overloaded function is called with 
+        types that has no variant of the function
 
     \nNotice:
         The function's __doc__ will hold the value of the last variant only
@@ -260,7 +180,7 @@ def overload(*types) -> Callable:
         name = f"{func.__module__}.{func.__qualname__}"
 
         if name not in __overload_dict:
-            __overload_dict[name] = dict()
+            __overload_dict[name] = {}
 
         if types in __overload_dict[name]:
             # raise if current overload already exists for current function
@@ -278,9 +198,8 @@ def overload(*types) -> Callable:
                     if default_func is None:
                         default_func = curr_func
                         continue
-                    else:
-                        # will not reach here because of duplicate overloading so this is redundant
-                        raise ValueError("Can't have two default functions")
+                    # will not reach here because of duplicate overloading so this is redundant
+                    raise ValueError("Can't have two default functions")
 
                 if len(variable_types) != len(args):
                     continue
@@ -314,7 +233,8 @@ def abstractmethod(func: Callable) -> Callable:
         func (Callable): the function to mark
 
     Raises:
-        NotImplementedError: the error that will rise when the marked function will be called if not overridden in a derived class
+        NotImplementedError: the error that will rise when the marked function
+        will be called if not overridden in a derived class
     """
     @ functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -323,7 +243,7 @@ def abstractmethod(func: Callable) -> Callable:
     return wrapper
 
 
-# __virtualization_tables = dict()
+# __virtualization_tables = {}
 
 
 # @NotImplemented
@@ -382,6 +302,15 @@ def abstractmethod(func: Callable) -> Callable:
 
 @validate
 def atomic(func: Callable) -> Callable:
+    """will make function thread safe by making it
+    accessible for only one thread at one time
+
+    Args:
+        func (Callable): function to make thread safe
+
+    Returns:
+        Callable: the thread safe function
+    """
     lock = threading.Lock()
 
     @ functools.wraps(func)
@@ -409,14 +338,15 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
         def wrapper(*args, **kwargs):
             depth = functools.reduce(
                 lambda count, line:
-                    count + 1 if re.search(f"{func.__name__}\(.*\)$", line)
+                    count + 1 if re.search(rf"{func.__name__}\(.*\)$", line)
                     else count,
                 traceback.format_stack(), 0
             )
             if depth >= max_depth:
                 if not quiet:
                     warning(
-                        f"limit_recursion has limited the number of calls for {func.__module__}.{func.__qualname__} to {max_depth}")
+                        "limit_recursion has limited the number of calls for "
+                        f"{func.__module__}.{func.__qualname__} to {max_depth}")
                 if return_value:
                     return return_value
                 return args, kwargs
@@ -426,11 +356,11 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
 
 
 @validate
-def timeout(timeout: int | float) -> Callable:
+def timeout(duration: int | float) -> Callable:
     """A decorator to limit runtime for a function
 
     Args:
-        timeout (int | float): allowed runtime duration
+        duration (int | float): allowed runtime duration
 
     Raises:
         thread_error: if there is a thread related error
@@ -447,7 +377,7 @@ def timeout(timeout: int | float) -> Callable:
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             res = [
-                TimeoutError(f'{func.__module__}.{func.__qualname__} timed out after {timeout} seconds!')]
+                TimeoutError(f'{func.__module__}.{func.__qualname__} timed out after {duration} seconds!')]
 
             def timeout_wrapper() -> None:
                 try:
@@ -458,7 +388,7 @@ def timeout(timeout: int | float) -> Callable:
             t = threading.Thread(target=timeout_wrapper, daemon=True)
             try:
                 t.start()
-                t.join(timeout)
+                t.join(duration)
             except Exception as thread_error:
                 raise thread_error
             if isinstance(res[0], BaseException):
@@ -470,6 +400,19 @@ def timeout(timeout: int | float) -> Callable:
 
 @validate
 def attach(before: Callable = None, after: Callable = None) -> Callable:
+    """attaching functions to a function
+
+    Args:
+        before (Callable, optional): function to call before. Defaults to None.
+        after (Callable, optional): function to call after. Defaults to None.
+
+    Raises:
+        ValueError: if both before and after are none
+        ValueError: if the decorated object is not a Callable
+
+    Returns:
+        Callable: the decorated result
+    """
     if before is None and after is None:
         raise ValueError("You must supply at least one function")
 
@@ -491,7 +434,7 @@ def attach(before: Callable = None, after: Callable = None) -> Callable:
 
 __all__ = [
     "validate",
-    "NotImplemented",
+    # "NotImplemented",
     "PartiallyImplemented",
     "memo",
     "overload",

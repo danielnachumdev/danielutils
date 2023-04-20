@@ -1,5 +1,5 @@
 from __future__ import annotations
-from ..Typing import Any, Union, Iterable
+from typing import Any, Iterable
 from ..Decorators import validate, overload
 from ..Functions import isoftype
 
@@ -12,47 +12,58 @@ class tlist(list):
         iterable (Iterable, optional): the value to create the tlist from. Defaults to None.
     """
 
-    def get_type_error_msg(self, v: Any):
-        return f"A value is of the wrong type:\n'{v}' is of type '{type(v)}' but should be of type '{self.type}'"
+    def _get_error_msg(self, v: Any) -> str:
+        """generates the generic error message
+
+        Args:
+            v (Any): value to include in the message
+
+        Returns:
+            str: the error message
+        """
+        return f"A value is of the wrong type:\n'{v}' is of type '{type(v)}' but should be of type '{self.T}'"
 
     @validate
-    def __init__(self: Any, type: type, iterable: Iterable = None):
+    def __init__(self, T: type, iterable: Iterable = None):
         """_summary_
 
         Args:
             type (type): the allowed type, can be nested type
-        ietrable (Iterable, optional): the value to create the tlist from. Defaults to None.
+        iterable (Iterable, optional): the value to create the tlist from. Defaults to None.
 
         Raises:
             TypeError: _description_
         """
-        self.type = type
+        self.T = T
         if iterable is not None:
             for v in iterable:
-                if not isoftype(v, type):
-                    raise TypeError(self.get_type_error_msg(v))
+                if not isoftype(v, T):
+                    raise TypeError(self._get_error_msg(v))
                 super().append(v)
 
     def __setitem__(self, index: int, value: Any) -> None:
-        if not isoftype(value, self.type):
-            raise TypeError(self.get_type_error_msg(value))
+        if not isoftype(value, self.T):
+            raise TypeError(self._get_error_msg(value))
         super()[index] = value
 
     def append(self, value: Any) -> None:
-        if not isoftype(value, self.type):
-            raise TypeError(self.get_type_error_msg(value))
+        if not isoftype(value, self.T):
+            raise TypeError(self._get_error_msg(value))
         super().append(value)
 
     @validate
-    def extend(self: Any, iterable: Iterable) -> None:
+    def extend(self, iterable: Iterable) -> None:
         for v in iterable:
             self.append(v)
 
-    def __add__(self, other) -> tlist:
-        pass
+    # TODO implement this function
+    def __add__(self, other: tlist | list) -> tlist:
+        raise NotImplementedError("Should be implemented")
 
 
 class tdict(dict):
+    """like builtin dict but only a specif type is allowed
+    """
     @overload(None, type, type)
     def __init__(self, key_t: type, val_t: type):
         self.key_t = key_t
@@ -66,7 +77,7 @@ class tdict(dict):
         super().__init__(iterable)
 
     @overload(None, type, type, dict)
-    def __init__(self, keyt: type, val_t: type, ** kwargs):
+    def __init__(self, key_t: type, val_t: type, ** kwargs):
         """dict(type,type) -> new empty dictionary dict(mapping) -> new dictionary initialized from a mapping object's
     (key, value) pairs
 dict(type,type,iterable) -> new dictionary initialized as if via:
@@ -75,17 +86,19 @@ dict(type,type,iterable) -> new dictionary initialized as if via:
 dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
     in the keyword argument list. For example: dict(one=1, two=2)
         """
-        self.key_t = keyt
+        self.key_t = key_t
         self.val_t = val_t
         super().__init__(**kwargs)
 
     def __setitem__(self, key, value) -> None:
         if not isoftype(key, self.key_t):
             raise TypeError(
-                f"In class 'tdict' error creating new key-value pair as key = '{key}' is not of type '{self.key_t}'")
+                f"In class 'tdict' error creating new key-value pair as"
+                f" key = '{key}' is not of type '{self.key_t}'")
         if not isoftype(value, self.val_t):
             raise TypeError(
-                f"In class 'tdict' error creating new key-value pair as value = '{value}' is not of type '{ self.val_t}'")
+                f"In class 'tdict' error creating new key-value pair"
+                f" as value = '{value}' is not of type '{ self.val_t}'")
         super().__setitem__(key, value)
 
     def __str__(self):
@@ -94,6 +107,9 @@ dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
 
 # TODO tset
 class tset(set):
+    """like builtin set but only allows specified type
+    """
+
     def __init__(self):
         pass
 

@@ -1,5 +1,5 @@
 from ...Decorators import overload
-from ..MainConversions import *
+from ..MainConversions import int_to_hex, char_to_hex
 
 
 @overload(int)

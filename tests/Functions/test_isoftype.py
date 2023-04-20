@@ -27,7 +27,7 @@ def test_primitives():
 
 
 def test_advanced_types():
-    d = dict()
+    d = {}
     d[int] = 0
     d["str"] = str
 
@@ -75,7 +75,7 @@ def test_callable():
     assert isoftype(lambda x: x+1, Callable, strict=False) == True
 
     def foo(a: int) -> int:
-        pass
+        a += 1
     assert isoftype(foo, Callable) == True
     assert isoftype(foo, Callable[[int], int]) == True
     assert isoftype(Callable, type(Callable)) == True

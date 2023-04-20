@@ -1,8 +1,13 @@
+"""frange class"""
 from typing import Iterable, Callable
 
 
 class frange:
-    def __init__(self, start: float, stop: float = None, step: float = 1, round_method: Callable[[float], float] = lambda f: round(f, 3)):
+    """this class is the same like builtin range but with float values
+    """
+
+    def __init__(self, start: float, stop: float = None,
+                 step: float = 1, round_method: Callable[[float], float] = lambda f: round(f, 3)):
         if stop is None:
             stop = start
             start = 0
@@ -22,6 +27,7 @@ class frange:
             return
         if self.stop < 0 and self.step > 0:
             return
+
         cur = self.start
         while cur < self.stop:
             yield self.method(cur)

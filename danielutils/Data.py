@@ -3,13 +3,29 @@ from .Decorators import validate
 
 
 @validate
-def dict_to_json(d: dict) -> str:
-    return json.dumps(d, indent=4)
+def dict_to_json(dct: dict) -> str:
+    """converts a python dict to a json object
+
+    Args:
+        d (dict): the dict to convert
+
+    Returns:
+        str: the json as string
+    """
+    return json.dumps(dct, indent=4)
 
 
 @validate
-def json_to_dict(j: str) -> dict:
-    return json.loads(j)
+def json_to_dict(json_str: str) -> dict:
+    """converts a json object from a string to a python dict
+
+    Args:
+        j (str): the json str to convert
+
+    Returns:
+        dict: a python dict from the json
+    """
+    return json.loads(json_str)
 
 
 __all__ = [

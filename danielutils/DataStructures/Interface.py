@@ -1,13 +1,24 @@
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Any, Generator
 import inspect
 import re
 import traceback
 
 
 class InterfaceHelper:
-    ORIGINAL_INIT = "__originalinit__"
+    """a helper class for Interface metaclass
+    """
+    ORIGINAL_INIT = "__original_init__"
 
+    @staticmethod
     def flatten_iterables(iterable: Iterable) -> list:
+        """will flatten and iterable recursively
+
+        Args:
+            iterable (Iterable): iterable to flatten
+
+        Returns:
+            list: the flattened result
+        """
         res = []
         for obj in iterable:
             if isinstance(obj, Iterable) and not isinstance(obj, str):
@@ -16,9 +27,20 @@ class InterfaceHelper:
                 res.append(obj)
         return res
 
-    def is_func_implemented(func) -> bool:
-        if hasattr(func, Interface.FUNCKEY):
-            return not func.__dict__[Interface.FUNCKEY]
+    @staticmethod
+    def is_func_implemented(func: Callable) -> bool:
+        """will check if a function is implemented
+
+        Args:
+            func (Callable): the function to check
+
+        Returns:
+            bool: will return true iff the function is not implemented according to Interface.IMPLICIT_ABSTRACT
+                or not decorated with Interface.abstractmethod 
+                or not an overridden instance of a default implementation of an Interface's function
+        """
+        if hasattr(func, Interface.FUNC_KEY):
+            return not func.__dict__[Interface.FUNC_KEY]
 
         src = inspect.getsource(func)
         if re.match(Interface.IMPLICIT_ABSTRACT, src):
@@ -28,33 +50,50 @@ class InterfaceHelper:
             func.__qualname__.startswith(InterfaceHelper.__name__))
         return not is_default_override
 
-    def unimplemented_functions(cls) -> list[str]:
-        res = []
+    @staticmethod
+    def unimplemented_functions(cls) -> Generator[str, None, None]:
+        """will yield all function that are unimplemented in a class according to InterfaceHelper.is_func_implemented
+
+        Yields:
+            Generator[str, None, None]: yields str which are function names
+        """
         for func_name in InterfaceHelper.get_declared_function_names(cls):
             func = cls.__dict__[func_name]
             if not InterfaceHelper.is_func_implemented(func):
-                res.append(func_name)
-        return res
+                yield func_name
 
-    def implemented_functions(cls) -> list[str]:
-        res = []
+    @staticmethod
+    def implemented_functions(cls) -> Generator[str, None, None]:
+        """will yield all function that are implemented in a class according to InterfaceHelper.is_func_implemented
+
+        Yields:
+            Generator[str, None, None]: yields str which are function names
+        """
         for func_name in InterfaceHelper.get_declared_function_names(cls):
             func = cls.__dict__[func_name]
             if InterfaceHelper.is_func_implemented(func):
-                res.append(func_name)
-        return res
+                yield func_name
 
-    def get_declared_function_names(cls) -> list[str]:
+    @staticmethod
+    def get_declared_function_names(cls) -> Generator[str, None, None]:
+        """will yield the names of all the functions declared inside a class
+
+        Yields:
+            Generator[str, None, None]: yields str values which are names of declared functions
+        """
         src = inspect.getsource(cls).splitlines()
         for line in src:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
                 yield func_name
-    __mro_dict = dict()
 
+    __mro_dict = {}
+
+    @staticmethod
     def create_init_handler(cls_name, missing: list[str] = None):
+        """this function will create the default interface __init__ function with the wanted behavior"""
 
-        def __interfaceinit__(*args, **kwargs):
+        def __interface_init__(*args, **kwargs):
             instance = args[0]
             if instance not in InterfaceHelper.__mro_dict:
                 InterfaceHelper.__mro_dict[instance] = 1
@@ -74,60 +113,67 @@ class InterfaceHelper:
                             del InterfaceHelper.__mro_dict[instance]
                         return result
                 raise NotImplementedError(
-                    f"Can't use super().__init__(...) in {cls_name}.__init__(...) if the __init__ function is not defined a parent interface")
+                    f"Can't use super().__init__(...) in {cls_name}.__init__(...) "
+                    "if the __init__ function is not defined a parent interface")
 
             del InterfaceHelper.__mro_dict[instance]
             if missing:
-                raise NotImplementedError(
-                    f"Can't instantiate '{cls_name}' because it is an interface. It is missing implementations for {missing}")
+                raise NotImplementedError(f"Can't instantiate '{cls_name}' because it is an interface."
+                                          f" It is missing implementations for {missing}")
             raise NotImplementedError(
                 f"'{cls_name}' is an interface, Can't create instances")
-        return __interfaceinit__
+        return __interface_init__
 
-    def create_generic_handler(cls_name, func_name):
-        def __interfacehandler__(*args, **kwargs):
+    @staticmethod
+    def create_generic_handler(cls: str):
+        """this function will create the generic function handler
+
+        Args:
+            func_name (_type_): the name of the interface
+        """
+        def __interface_handler__(*args, **kwargs):
             raise NotImplementedError(
-                f"Interface {func_name} must be implemented")
-        return __interfacehandler__
+                f"Interface {cls} must be implemented")
+        return __interface_handler__
 
 
 class Interface(type):
+    """This is a metaclass that will enable classes that inherit it directly (or indirectly)
+        to behave like interfaces in OOP languages like java
+    """
     IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*\w+)?:\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
-    KEY = "__isinterface__"
-    FUNCKEY = "__isabstractmethod__"
+    KEY = "__is_interface__"
+    FUNC_KEY = "__is_abstractmethod__"
 
     @staticmethod
     def abstractmethod(func):
-        setattr(func, Interface.FUNCKEY, True)
+        """will explicitly mark a method as an abstract method"""
+        setattr(func, Interface.FUNC_KEY, True)
         return func
 
-    def __new__(cls, name, bases, namespace):
+    def __new__(mcs, name: str, bases: tuple, namespace: dict):
         if len(bases) == 0:
-            return Interface.__handle_new_interface(cls, name, bases, namespace)
-        else:
-            return Interface.__handle_new_subclass(cls, name, bases, namespace)
+            return mcs._handle_new_interface(mcs, name, bases, namespace)
+        return mcs._handle_new_subclass(mcs, name, bases, namespace)
 
-    @staticmethod
-    def __handle_new_interface(cls, name, bases, namespace):
+    def _handle_new_interface(cls, name: str, bases: tuple, namespace: dict[str, Any]):
         if "__init__" in namespace:
             namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
         namespace["__init__"] = InterfaceHelper.create_init_handler(name)
         for k, v in namespace.items():
             if isinstance(v, Callable) and not k == "__init__":
                 if not InterfaceHelper.is_func_implemented(v):
-                    namespace[k] = InterfaceHelper.create_generic_handler(
-                        name, k)
+                    namespace[k] = InterfaceHelper.create_generic_handler(k)
         namespace[Interface.KEY] = True
         return super().__new__(cls, name, bases, namespace)
 
-    @staticmethod
-    def __handle_new_subclass(cls, name, bases, namespace):
+    def _handle_new_subclass(cls, name: str, bases: tuple, namespace: dict[str, Any]):
         need_to_be_implemented = set()
         ancestry = set()
         for base in bases:
-            clstree = inspect.getclasstree([base], unique=True)
-            ancestry.update(InterfaceHelper.flatten_iterables(clstree))
-            for item in clstree:
+            cls_tree = inspect.getclasstree([base], unique=True)
+            ancestry.update(InterfaceHelper.flatten_iterables(cls_tree))
+            for item in cls_tree:
                 if isinstance(item, tuple):
                     derived, parent = item
                 elif len(item) == 1:
@@ -135,7 +181,6 @@ class Interface(type):
                     derived, parent = item
                 else:
                     # multiple inheritance case - need to be implemented
-                    breakpoint()
                     continue
 
                 if derived is object:
@@ -143,7 +188,6 @@ class Interface(type):
 
                 if isinstance(parent, tuple):
                     if len(parent) != 1:
-                        breakpoint()
                         pass
                     parent = parent[0]
 
@@ -157,7 +201,7 @@ class Interface(type):
                     InterfaceHelper.unimplemented_functions(derived))
 
         # cleanup
-        del item, clstree, derived, parent, base
+        del cls_tree, derived, parent
 
         if object in ancestry:
             ancestry.remove(object)
@@ -202,9 +246,17 @@ class Interface(type):
         return super().__new__(cls, name, bases, namespace)
 
     @staticmethod
-    def is_cls_interface(cls: type):
-        if hasattr(cls, Interface.KEY):
-            return cls.__dict__[Interface.KEY]
+    def is_cls_interface(cls_to_check: type) -> bool:
+        """will check if a class is an interface
+
+        Args:
+            cls_to_check (type): the class to check
+
+        Returns:
+            bool: will return true iff a class is an interface
+        """
+        if hasattr(cls_to_check, Interface.KEY):
+            return cls_to_check.__dict__[Interface.KEY]
         return False
 
 

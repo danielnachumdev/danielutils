@@ -1,33 +1,10 @@
 # -*- coding: utf-8 -*-
-from typing import IO
+import subprocess
+from typing import IO, Iterator, Generator
 import shutil
+from pathlib import Path
 import os
 from .Decorators import validate
-from typing import Union
-from pathlib import Path
-
-
-@validate
-def write_to_file(path: str, lines: Union[list[str], list[bytes]], write_bytes: bool = False) -> None:
-    """clear and then write data to file
-
-    Args:
-        path (str): path of file
-        lines (list[str]): data to write
-    """
-
-    try:
-        if write_bytes:
-            with open(path, "wb") as f:
-                f.writelines(lines)
-        else:
-            with open(path, "w", encoding="utf-8") as f:
-                f.writelines(lines)
-    except Exception as e:
-        if isinstance(e, TypeError):
-            raise Exception(
-                "'lines' contains a 'bytes' object.\nTo use with bytes use: write_bytes = True ")
-        raise e
 
 
 @validate
@@ -99,8 +76,8 @@ def read_file(path: str, read_bytes: bool = False) -> list[str]:
                 return f.readlines()
     except Exception as e:
         if isinstance(e, UnicodeDecodeError):
-            raise Exception(
-                f"Can't read byte in file.\nTo use with bytes use: read_bytes = True ")
+            raise UnicodeDecodeError(
+                "Can't read byte in file.\nTo use with bytes use: read_bytes = True ") from e
         raise e
 
 
@@ -181,10 +158,15 @@ def delete_directory(path: str) -> None:
 
 @validate
 def clear_directory(path: str) -> None:
+    """clears the content of a directory
+
+    Args:
+        path (str): the path of the directory to clean
+    """
     for file in get_files(path):
         delete_file(f"{path}\\{file}")
-    for dir in get_directories(path):
-        delete_directory(f"{path}\\{dir}")
+    for subdir in get_directories(path):
+        delete_directory(f"{path}\\{subdir}")
 
 
 @validate
@@ -199,83 +181,163 @@ def create_directory(path: str) -> None:
 
 
 @validate
-def get_file_type_from_directory(path: str, file_type: str) -> list[str]:
-    return list(
-        filter(
-            lambda name: Path(f"{path}\\{name}").suffix == file_type,
-            get_files(path)
-        )
+def get_file_type_from_directory(path: str, file_type: str) -> Iterator[str]:
+    """returns all file with specific type from a directory
+
+    Args:
+        path (str): path of directory
+        file_type (str): the desired file type. eg: ".png"
+
+    Returns:
+        list[str]: result
+    """
+    return filter(
+        lambda name: Path(f"{path}\\{name}").suffix == file_type,
+        get_files(path)
     )
 
 
 @validate
-def get_file_type_from_directory_recursively(path: str, file_type: str):
-    res = []
-    for dir in get_directories(path):
-        res.extend(f"{dir}\\{v}" for v in get_file_type_from_directory_recursively(
-            f"{path}\\{dir}", file_type))
-    res.extend(list(
-        filter(
-            lambda name: Path(f"{path}\\{name}").suffix == file_type,
-            get_files(path)
-        )
-    ))
-    return res
+def get_file_type_from_directory_recursively(path: str, file_type: str) -> Generator[str, None, None]:
+    """_summary_
+
+    Args:
+        path (str): _description_
+        file_type (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    yield from filter(
+        lambda name: Path(f"{path}\\{name}").suffix == file_type,
+        get_files(path)
+    )
+    for subdir in get_directories(path):
+        for v in get_file_type_from_directory_recursively(f"{path}\\{subdir}", file_type):
+            yield f"{subdir}\\{v}"
 
 
 def rename_file(path: str, new_name: str) -> None:
+    """renames a file
+
+    Args:
+        path (str): file to rename
+        new_name (str): the desired new name
+    """
     new_path = "./" + \
         "/".join(Path(path).parts[:-1])+"/"+new_name+Path(path).suffix
     move_file(path, new_path)
 
 
 def move_file(old_path: str, new_path: str) -> None:
+    """moves a file
+
+    Args:
+        old_path (str): old path
+        new_path (str): new path
+    """
     os.rename(old_path, new_path)
 
 
-async def open_file(file_path: str, application_path: str):
-    import subprocess
-    p = subprocess.Popen([application_path, file_path])
-    return_code = p.wait()
+async def open_file(file_path: str, application_path: str) -> int:
+    """open a file with the specified application
+
+    Args:
+        file_path (str): the file to open
+        application_path (str): the application to open with
+    Returns:
+        int: return code
+    """
+    with subprocess.Popen([application_path, file_path]) as p:
+        return p.wait()
 
 
 def move_directory(old_path: str, new_path: str) -> None:
+    """moves a directory
+
+    Args:
+        old_path (str): old path
+        new_path (str): new path
+    """
     shutil.move(old_path, new_path)
 
 
 def copy_file(src: str, dest: str) -> None:
+    """copies file from src to dest
+
+    Args:
+        src (str): src
+        dest (str): dest
+    """
     shutil.copy(src, dest)
 
 
 def copy_directory(src: str, dest: str) -> None:
+    """copies a directory from src to dest
+
+    Args:
+        src (str): stc
+        dest (str): dest
+    """
     shutil.copy(src, dest)
 
 
 class IndentedWriter:
-    def __init__(self, output_stream: IO = None, indent_char: str = "\t"):
+    """every class that will inherit this class will have the following functions available
+        write() with the same arguments a builtin print()
+        indent()
+        undent()
+
+        also, it is expected in the __init__ function to call super().__init__()
+        also, the output_stream must be set whether by the first argument io super().__init__(...)
+        or by set_stream() explicitly somewhere else.
+
+        this class will not function properly is the output_stream is not set!
+
+    """
+
+    def __init__(self, output_stream: IO = None, indent_value: str = "\t"):
         self.indent_level = 0
         self.output_stream: IO = output_stream
-        self.indent_char = indent_char
+        self.indent_value = indent_value
 
     def write(self, *args, sep=" ", end="\n"):
+        """writes the supplied arguments to the output_stream
+
+        Args:
+            sep (str, optional): the str to use as a separator between arguments. Defaults to " ".
+            end (str, optional): the str to use as the final value. Defaults to "\n".
+
+        Raises:
+            ValueError: _description_
+        """
         if self.output_stream is None:
             raise ValueError(
                 "Can't write to an empty stream. the stream must not be None either by set_stream or by initialization")
         self.output_stream.write(
-            self.indent_level*self.indent_char + sep.join(args)+end)
+            self.indent_level*self.indent_value + sep.join(args)+end)
 
-    def set_stream(self, stream):
+    def set_stream(self, stream: IO):
+        """explicitly sets the stream
+
+        Args:
+            stream (IO): stream
+        """
         self.output_stream = stream
 
-    def indent(self):
+    def indent(self) -> None:
+        """indents the preceding output with write() by one quantity more
+        """
         self.indent_level += 1
 
-    def undent(self):
+    def undent(self) -> None:
+        """un-dents the preceding output with write() by one quantity less
+            has a minimum value of 0
+        """
         self.indent_level = max(0, self.indent_level-1)
 
 
 __all__ = [
-    "write_to_file",
     "path_exists",
     "file_exists",
     "directory_exists",

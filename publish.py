@@ -106,8 +106,14 @@ def run_tests() -> bool:
     return True
 
 
+def pylint():
+    print("running pylint...")
+    cm("pylint", "./danielutils", ">", "pylint_output.txt")
+
+
 if __name__ == "__main__":
     if run_tests():
+        pylint()
         print("Passed all tests!")
         version = input(
             f"Please supply a new version number (LATEST = {get_latest()}): ")

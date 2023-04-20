@@ -1,5 +1,4 @@
-from .Typing import Any, type, Sequence, Union, Iterable, Callable
-from typing import get_args, get_origin, get_type_hints
+from typing import get_args, get_origin, get_type_hints, Any, Sequence, Union, Callable
 
 
 def __isoftype_inquire(obj: Any) -> tuple[Any, Any, Any]:
@@ -41,7 +40,8 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
                 if not isoftype(sub_v, t_args[0]):
                     return False
             return True
-        elif t_origin is dict:
+
+        if t_origin is dict:
             key_t, value_t,  = t_args[0], t_args[1]
             for k, v in obj.items():
                 if not isoftype(v, value_t):
@@ -49,12 +49,14 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
                 if not isoftype(k, key_t):
                     return False
             return True
-        elif t_origin in {Union}:
+
+        if t_origin in {Union}:
             for sub_t in t_args:
                 if isoftype(obj, sub_t):
                     return True
             return False
-        elif t_origin in {Callable}:
+
+        if t_origin in {Callable}:
             if obj.__name__ == "<lambda>":
                 print("using lambda function with isoftype is ambiguous")
                 return not strict
@@ -70,60 +72,17 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
     else:
         if T is Any:
             return True
-        elif type(T) in {list}:
+
+        if type(T) in {list}:
             for sub_t in T:
                 if isoftype(obj, sub_t):
                     return True
             return False
-        elif obj_origin is not None:
+
+        if obj_origin is not None:
             if obj_origin is Union:
                 return T is type(Union)
     return isinstance(obj, T)
-
-
-# def isoftype(v: Any, t: Any):
-#     if isinstance(v, (list, tuple)):
-#         if hasattr(t, '__args__'):
-#             for sub_v in v:
-#                 if not isoftype(sub_v, t.__args__[0]):
-#                     return False
-#             return True
-#         else:
-#             if t in (list, tuple, Iterable):
-#                 return True
-#             return False
-#     elif isinstance(v, dict):
-#         if hasattr(t, '__args__'):
-#             key_t, value_t = t.__args__[0], t.__args__[1]
-#             for key, value in v.items():
-#                 if not isoftype(key, key_t) or not isoftype(value, value_t):
-#                     return False
-#             return True
-#         else:
-#             if t is dict:
-#                 return True
-#             return False
-#     else:  # for instances but also for Union
-#         if t.__module__ == "typing":
-#             if t == Any:
-#                 return True
-#             elif hasattr(v, '__origin__'):
-#                 if v.__origin__ == Union:
-#                     return type(Union) == t
-#         elif "Callable" in str(t):
-#             if v is not Callable and "Callable" in str(v):
-#                 # the case is Callable[[somethings],something]
-#                 if t is type(Callable):
-#                     return True
-#                 # v_args = v.__args__
-#                 # t_args = t.__args__
-#                 pass
-#         elif hasattr(t, '__origin__'):
-#             if isinstance(t.__origin__, list):
-#                 return False
-#         elif type(t) == list or type(t) == tuple:
-#             return isoneof(v, t)
-#         return isinstance(v, t)
 
 
 def isoneof(v: Any, types: Union[list[type], tuple[type]]) -> bool:
@@ -212,37 +171,10 @@ def check_foreach(values: Sequence[Any], condition: Callable[[Any], bool]) -> bo
     return True
 
 
-def get_source_code(obj: object) -> str:
-    if not isinstance(obj, object):
-        raise ValueError("obj must be an object")
-    import inspect
-    return inspect.getsource(obj)
-
-
 __all__ = [
     "isoneof",
     "isoneof_strict",
     "areoneof",
     "check_foreach",
     "isoftype",
-    "get_source_code"
 ]
-# def almost_equal(*args: Sequence[Any], func: Callable[[Any, Any, Any], bool] = math.isclose, diff: Any = 0.00000000001) -> bool:
-#     """checks whether all values are within absolute range of each other in O(n**2)
-
-#     Args:
-#         func (Callable[[Any, Any, Any], bool], optional): function to check. Defaults to math.isclose.
-#         diff (Any, optional): default absolute tolerance. Defaults to 0.00000000001.
-
-#     Returns:
-#         bool: return True if all values are within specified tolerance from all other values
-#     """
-#     for i in range(len(args)):
-#         for j in range(i+1, len(args)):
-#             if func is math.isclose:
-#                 if not func(args[i], args[j], abs_tol=diff):
-#                     return False
-#             else:
-#                 if not func(args[i], args[j], diff):
-#                     return False
-#     return True

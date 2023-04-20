@@ -1,14 +1,10 @@
 from typing import Generator
-import os
-from math import inf
-from .Decorators import overload, timeout, validate
-from .Typing import IO
-from .Exceptions import TimeoutError
-from .Conversions import str_to_bytes
-from .Functions import areoneof
+from typing import IO
 from pathlib import Path
 import subprocess
 import time
+from .Decorators import timeout, validate
+from .Conversions import str_to_bytes
 
 
 def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
@@ -32,7 +28,8 @@ def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
     for i, arg in enumerate(args):
         if Path(args[i]).is_file() or Path(args[i]).is_dir():
             args = (*args[:i], f"\"{arg}\"", *args[i+1:])
-    res = subprocess.run(" ".join(args), shell=shell, capture_output=True)
+    res = subprocess.run(" ".join(args), shell=shell,
+                         capture_output=True, check=False)
     return res.returncode, res.stdout, res.stderr
 
 
@@ -57,7 +54,9 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
 
 
 @validate
-def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, shell: bool = False, use_write_helper: bool = True, cwd: str = None, env: str = None) -> tuple[int, list[bytes] | None, list[bytes] | None]:
+def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01,
+        shell: bool = False, use_write_helper: bool = True, cwd: str = None,
+        env: str = None) -> tuple[int, list[bytes] | None, list[bytes] | None]:
     """Advanced command
 
     Args:
@@ -67,7 +66,8 @@ def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, shell: 
         cwd (?, optional): Current working directory. Defaults to None.\n
         env (?, optional): Environment variables. Defaults to None.\n
         shell (bool, optional): whether to execute the command through shell. Defaults to False.\n
-        use_write_helper (bool, optional): whether to parse each input as it would have been parse with builtin print() or to use raw text. Defaults to True.
+        use_write_helper (bool, optional): whether to parse each input as it
+        would have been parse with builtin print() or to use raw text. Defaults to True.
 
     Raises:
         If @timeout will raise something other than TimeoutError.\n
@@ -81,6 +81,7 @@ def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, shell: 
         inputs = []
     p = None
     try:
+        # TODO with ... as p:
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, env=env, shell=shell)
 
@@ -101,17 +102,17 @@ def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01, shell: 
 
         stdout: list[bytes] = []
         stderr: list[bytes] = []
-        for input in inputs:
+        for curr_input in inputs:
             if p.stdin.writable():
                 if use_write_helper:
-                    __acm_write(input, p=p)
+                    __acm_write(curr_input, p=p)
                 else:
-                    __acm_write(input, p=p, sep="", end="")
+                    __acm_write(curr_input, p=p, sep="", end="")
             extend_from_stream(p.stdout, stdout)
             extend_from_stream(p.stderr, stderr)
-        else:
-            extend_from_stream(p.stdout, stdout)
-            extend_from_stream(p.stderr, stderr)
+        # else:
+        #     extend_from_stream(p.stdout, stdout)
+        #     extend_from_stream(p.stderr, stderr)
         p.stdin.close()
         p.stdout.close()
         if p.stderr is not None:
@@ -153,13 +154,12 @@ def cmrt(*args, shell: bool = True) -> Generator[bytes, None, None]:
 
     # Join the arguments into a command string and execute the command.
     cmd = " ".join(args)
-    process = subprocess.Popen(
-        cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    # Yield stdout and stderr in real-time.
-    while process.poll() is None:
-        yield from process.stderr
-        yield from process.stdout
+    with subprocess.Popen(
+            cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        # Yield stdout and stderr in real-time.
+        while process.poll() is None:
+            yield from process.stderr
+            yield from process.stdout
 
 
 __all__ = [

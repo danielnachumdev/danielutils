@@ -81,16 +81,40 @@ def dec_to_hex(num: int) -> str:
 
 @validate
 def int_to_hex(num: int) -> str:
+    """converts an int to it's hex representation
+
+    Args:
+        num (int): int to convert
+
+    Returns:
+        str: the hex representation of the int
+    """
     return hex(num)
 
 
 @validate
 def bytes_to_str(b: bytes) -> str:
+    """decodes bytes to str
+
+    Args:
+        b (bytes): bytes to decode
+
+    Returns:
+        str: result
+    """
     return b.decode("utf-8")
 
 
 @validate
 def str_to_bytes(s: str) -> bytes:
+    """encodes a string to bytes
+
+    Args:
+        s (str): the string to encode
+
+    Returns:
+        bytes: result
+    """
     return bytes(s, encoding='utf-8')
 
 
