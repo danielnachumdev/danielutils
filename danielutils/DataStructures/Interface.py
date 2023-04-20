@@ -87,36 +87,31 @@ class InterfaceHelper:
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
                 yield func_name
 
-    __mro_dict = {}
-
     @staticmethod
     def create_init_handler(cls_name, missing: list[str] = None):
         """this function will create the default interface __init__ function with the wanted behavior"""
 
         def __interface_init__(*args, **kwargs):
             instance = args[0]
-            if instance not in InterfaceHelper.__mro_dict:
-                InterfaceHelper.__mro_dict[instance] = 1
-            else:
-                InterfaceHelper.__mro_dict[instance] += 1
-
             caller_frame = traceback.format_stack()[-2]
             is_super_call = bool(re.match(
                 r"\s+File \".*\", line \d+, in __init__\n\s+super\(\)\.__init__\(.*\)\n", caller_frame))
             if is_super_call:
                 mro = instance.__class__.mro()
-                for cls in mro[InterfaceHelper.__mro_dict[instance]:]:
+                i = 0
+                for i, cls in enumerate(mro):
+                    if cls.__name__ == cls_name:
+                        break
+                mro = mro[i:]
+                for cls in mro:
                     if hasattr(cls, InterfaceHelper.ORIGINAL_INIT):
                         result = getattr(cls, InterfaceHelper.ORIGINAL_INIT)(
                             *args, **kwargs)
-                        if instance in InterfaceHelper.__mro_dict:
-                            del InterfaceHelper.__mro_dict[instance]
                         return result
                 raise NotImplementedError(
                     f"Can't use super().__init__(...) in {cls_name}.__init__(...) "
                     "if the __init__ function is not defined a parent interface")
 
-            del InterfaceHelper.__mro_dict[instance]
             if missing:
                 raise NotImplementedError(f"Can't instantiate '{cls_name}' because it is an interface."
                                           f" It is missing implementations for {missing}")

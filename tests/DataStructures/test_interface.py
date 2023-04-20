@@ -258,3 +258,71 @@ def test_inheticane_with_dummy_class_and_init():
     Circle(4)
     Square(4)
     Square2(4)
+
+
+def test_deeper_inheritance():
+    class Shape(metaclass=Interface):
+
+        def __init__(self, name: str):
+            self.name = name
+
+        def area(self):
+            ...
+
+        def circumference(self):
+            ...
+
+        def angles(self):
+            ...
+
+        def __str__(self):
+            return f"{self.name}: {self.area()=}, {self.circumference()=}, {self.angles()=}"
+
+    class Circle(Shape):
+
+        def __init__(self, radius):
+            super().__init__("Circle")
+
+            self.radius = radius
+
+        def area(self):
+            return 2 * math.pi * self.radius
+
+        def circumference(self):
+            return math.pi * (self.radius ** 2)
+
+        def angles(self):
+            return -1
+
+    class Quadraleloped(Shape):
+
+        def __init__(self, name):
+            super().__init__(name)
+
+        def angles(self):
+            return 360
+
+    class Rectangle(Quadraleloped):
+
+        def __init__(self, a, b):
+            super().__init__("Rectangle")
+
+            self.a = a
+            self.b = b
+
+        def area(self):
+            return self.a * self.b
+
+        def circumference(self):
+            return 2 * self.a + 2 * self.b
+
+    class Square(Rectangle):
+
+        def __init__(self, size):
+            super().__init__(a=size, b=size)
+
+            self.name = "Square"
+
+    Rectangle(10, 20)
+    Square(10)
+    Circle(6.4)
