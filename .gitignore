@@ -1,3 +1,4 @@
+pylint_output.txt
 assets
 *.html
 tmp*.py
