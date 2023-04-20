@@ -18,7 +18,7 @@ class InterfaceHelper:
 
     def is_func_implemented(func) -> bool:
         if hasattr(func, Interface.FUNCKEY):
-            return func.__dict__[Interface.FUNCKEY]
+            return not func.__dict__[Interface.FUNCKEY]
 
         src = inspect.getsource(func)
         if re.match(Interface.IMPLICIT_ABSTRACT, src):
@@ -36,7 +36,7 @@ class InterfaceHelper:
                 res.append(func_name)
         return res
 
-    def implemented_functions(cls):
+    def implemented_functions(cls) -> list[str]:
         res = []
         for func_name in InterfaceHelper.get_declared_function_names(cls):
             func = cls.__dict__[func_name]
@@ -77,7 +77,9 @@ class InterfaceHelper:
                     f"Can't use super().__init__(...) in {cls_name}.__init__(...) if the __init__ function is not defined a parent interface")
 
             del InterfaceHelper.__mro_dict[instance]
-
+            if missing:
+                raise NotImplementedError(
+                    f"Can't instantiate '{cls_name}' because it is an interface. It is missing implementations for {missing}")
             raise NotImplementedError(
                 f"'{cls_name}' is an interface, Can't create instances")
         return __interfaceinit__
