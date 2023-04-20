@@ -1,3 +1,5 @@
+
+
 class OverloadException(Exception):
     """Base exception for overload decorator
     """
@@ -56,3 +58,14 @@ class InvalidDefaultValueException(ValidationException):
 
 class InvalidReturnValueException(ValidationException):
     pass
+
+
+class PrintCatch:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, cls, instance, traceback):
+        if instance:
+            from .Colors import error
+            error(str(instance))
+            return isinstance(instance, cls)
