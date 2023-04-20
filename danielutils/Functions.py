@@ -1,4 +1,5 @@
-from typing import get_args, get_origin, get_type_hints, Any, Sequence, Union, Callable
+from typing import get_args, get_origin, get_type_hints, Any, Sequence, Union
+from collections.abc import Callable
 
 
 def __isoftype_inquire(obj: Any) -> tuple[Any, Any, Any]:
