@@ -1,6 +1,6 @@
 import math
-from ...danielutils.DataStructures.Interface import Interface
 import pytest
+from ...danielutils.DataStructures.Interface import Interface
 
 
 def test_no_implementation():

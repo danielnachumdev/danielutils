@@ -1,4 +1,8 @@
 import inspect
+import traceback
+import platform
+import sys
+from enum import Enum
 
 
 def get_caller_name() -> str:
@@ -28,6 +32,36 @@ def get_caller_name() -> str:
     return inspect.currentframe().f_back.f_back.f_code.co_name
 
 
+def get_traceback() -> list[str]:
+    return traceback.format_stack()[8:-2]
+
+
+class OSType(Enum):
+    LINUX = "Linux"
+    WINDOWS = "Windows"
+    OSX = "OS X"
+    UNKNOWN = "Unknown"
+
+
+def get_os() -> OSType:
+    p = sys.platform
+    if p == "linux" or p == "linux2":
+        return OSType.LINUX
+    elif p == "darwin":
+        return OSType.OSX
+    elif p == "win32":
+        return OSType.WINDOWS
+    return OSType.UNKNOWN
+
+
+def get_python_version():
+    return platform.python_version()
+
+
 __all__ = [
-    "get_caller_name"
+    "get_caller_name",
+    "get_traceback",
+    "OSType",
+    "get_os",
+    "get_python_version"
 ]
