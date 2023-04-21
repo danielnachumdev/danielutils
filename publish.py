@@ -1,13 +1,21 @@
-from danielutils import cm, read_file, bytes_to_str, get_files, directory_exists
+from danielutils import cm, read_file, get_files, directory_exists
 import re
 VERSION_PATTERN = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 SETUP = "./setup.py"
 TOML = "./pyproject.toml"
 README = "./README.md"
+DIST = "./dist"
 
 
 def get_latest(version: str = '0.0.0') -> str:
-    DIST = "./dist"
+    """returns the latest version currently in the DIST fuller
+
+    Args:
+        version (str, optional): the version to compare against. Defaults to '0.0.0'.
+
+    Returns:
+        str: the biggest version number
+    """
     if not directory_exists(DIST):
         return version
     DIST_PATTERN = r"danielutils-(\d+)\.(\d+)\.(\d+)\.tar\.gz"
@@ -18,23 +26,33 @@ def get_latest(version: str = '0.0.0') -> str:
         if match:
             a2, b2, c2 = match.groups()
             other_version = f"{a2}.{b2}.{c2}"
-            if (int(a2) > int(a1)):
+            if int(a2) > int(a1):
                 best = other_version
             elif int(a2) == int(a1):
-                if (int(b2) > int(b1)):
+                if int(b2) > int(b1):
                     best = other_version
-                elif (int(b2) == int(b1)):
-                    if (int(c2) > int(c1)):
+                elif int(b2) == int(b1):
+                    if int(c2) > int(c1):
                         best = other_version
     return best
 
 
-def main(version):
+def main(version: str):
+    """main function, create a new release and update the files and call terminal to upload the release
 
-    def update_version(version):
+    Args:
+        version (str): the new version
+    """
+
+    def update_version(version: str):
+        """updates the new version number in the relevant files
+
+        Args:
+            version (_type_): _description_
+        """
         def update_setup():
             lines = read_file(SETUP)
-            with open(SETUP, "w") as f:
+            with open(SETUP, "w", encoding="utf8") as f:
                 for line in lines:
                     if line.startswith("VERSION"):
                         f.write(f"VERSION = \"{version}\"\n")
@@ -43,7 +61,7 @@ def main(version):
 
         def update_readme():
             lines = read_file(README)
-            with open(README, "w") as f:
+            with open(README, "w", encoding="utf8") as f:
                 for line in lines:
                     if line.startswith("# danielutils v="):
                         f.write(f"# danielutils v={version}\n")
@@ -52,7 +70,7 @@ def main(version):
 
         def update_toml():
             lines = read_file(TOML)
-            with open(TOML, "w") as f:
+            with open(TOML, "w", encoding="utf8") as f:
                 for line in lines:
                     if line.startswith("version = "):
                         f.write(f"version = \"{version}\"\n")
@@ -80,6 +98,11 @@ def main(version):
 
 
 def run_tests() -> bool:
+    """run pytest
+
+    Returns:
+        bool: success status
+    """
     def has_fails(pytest_out: str) -> bool:
         RE = r'=+ (?:(?P<FAIL>\d+ failed), )?(?P<PASS>\d+ passed) in [\d\.]+s =+'
         if not re.match(RE, pytest_out):
@@ -107,6 +130,8 @@ def run_tests() -> bool:
 
 
 def pylint():
+    """run pylint
+    """
     print("running pylint...")
     cm("pylint", "./danielutils", ">", "pylint_output.txt")
 
