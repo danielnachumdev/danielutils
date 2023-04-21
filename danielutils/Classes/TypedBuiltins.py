@@ -1,16 +1,12 @@
 from __future__ import annotations
-from typing import Any, Iterable
+from typing import Any, Iterable, TypeVar, Generator
 from ..Decorators import validate, overload
 from ..Functions import isoftype
 
 
-class tlist(list):
-    """tlist is same as builtin python list but with added type restriction
-
-    Args:
-        type (type): the allowed type, can be nested type
-        iterable (Iterable, optional): the value to create the tlist from. Defaults to None.
-    """
+class TypedClass:
+    def __init__(self, T: type):
+        self.T = T
 
     def _get_error_msg(self, v: Any) -> str:
         """generates the generic error message
@@ -23,6 +19,15 @@ class tlist(list):
         """
         return f"A value is of the wrong type:\n'{v}' is of type '{type(v)}' but should be of type '{self.T}'"
 
+
+class tlist(list, TypedClass):
+    """tlist is same as builtin python list but with added type restriction
+
+    Args:
+        type (type): the allowed type, can be nested type
+        iterable (Iterable, optional): the value to create the tlist from. Defaults to None.
+    """
+
     @validate
     def __init__(self, T: type, iterable: Iterable = None):
         """_summary_
@@ -34,12 +39,12 @@ class tlist(list):
         Raises:
             TypeError: _description_
         """
-        self.T = T
+        TypedClass.__init__(T)
         if iterable is not None:
             for v in iterable:
                 if not isoftype(v, T):
                     raise TypeError(self._get_error_msg(v))
-                super().append(v)
+                list.append(v)
 
     def __setitem__(self, index: int, value: Any) -> None:
         if not isoftype(value, self.T):
@@ -66,6 +71,7 @@ class tdict(dict):
     """
     @overload(None, type, type)
     def __init__(self, key_t: type, val_t: type):
+
         self.key_t = key_t
         self.val_t = val_t
         super().__init__()
@@ -79,12 +85,12 @@ class tdict(dict):
     @overload(None, type, type, dict)
     def __init__(self, key_t: type, val_t: type, ** kwargs):
         """dict(type,type) -> new empty dictionary dict(mapping) -> new dictionary initialized from a mapping object's
-    (key, value) pairs
-dict(type,type,iterable) -> new dictionary initialized as if via:
-    d = {} for k, v in iterable:
-        d[k] = v
-dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
-    in the keyword argument list. For example: dict(one=1, two=2)
+                (key, value) pairs
+            dict(type,type,iterable) -> new dictionary initialized as if via:
+                d = {} for k, v in iterable:
+                    d[k] = v
+            dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
+                in the keyword argument list. For example: dict(one=1, two=2)
         """
         self.key_t = key_t
         self.val_t = val_t
@@ -105,13 +111,35 @@ dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
         return f"dict[{self.key_t.__name__}, {self.val_t.__name__}]: {super().__str__()}"
 
 
-# TODO tset
-class tset(set):
+T = TypeVar("T")
+
+
+class tset(set, TypedClass):
     """like builtin set but only allows specified type
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, T: T):
+        TypedClass.__init__(T)
+        set.__init__()
+
+    def add(self, v: Any):
+        if isoftype(v, self.T):
+            set.add(v)
+
+    def clone(self) -> tset:
+        res = tset(self.T)
+        for v in self:
+            res.add(v)
+        return res
+
+    def __iter__(self) -> Generator[T, None, None]:
+        yield from set.__iter__()
+
+    def union(self, other: tset) -> tset:
+        res = self.clone()
+        for v in other:
+            res.add(v)
+        return res
 
 
 __all__ = [

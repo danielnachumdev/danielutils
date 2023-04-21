@@ -3,7 +3,8 @@ import traceback
 import functools
 import inspect
 import threading
-from typing import Callable, Any
+from typing import Callable, Any, get_type_hints
+import sys
 from .Functions import isoneof, isoneof_strict, isoftype
 from .Exceptions import *
 
@@ -29,13 +30,14 @@ def validate(func: Callable) -> Callable:
     Returns:
         Callable: A wrapper function that performs the validation and calls the original function.
     """
+    SKIP_SET = {"self", "cls"}
     if not isinstance(func, Callable):
         raise TypeError("The validate decorator must only decorate a function")
     func_name = f"{func.__module__}.{func.__qualname__}"
     # get the signature of the function
     signature = inspect.signature(func)
     for arg_name, arg_param in signature.parameters.items():
-        if arg_name not in {"self", "cls"}:
+        if arg_name not in SKIP_SET:
             arg_type = arg_param.annotation
             # check if an annotation is missing
             if arg_type == inspect.Parameter.empty:
@@ -58,15 +60,24 @@ def validate(func: Callable) -> Callable:
     def wrapper(*args, **kwargs):
         """wrapper function for the type validating - will run on each call independently
         """
+        hints = None
         # check all arguments
         bound = signature.bind(*args, **kwargs)
         for variable_name, variable_value in bound.arguments.items():
-            annotated_type = signature.parameters[variable_name].annotation
+            if variable_name in SKIP_SET:
+                continue
             expected_type = func.__annotations__[variable_name]
+
+            if isinstance(expected_type, str):
+                # why does this even happen?
+                if hints is None:
+                    hints = get_type_hints(func)
+                expected_type = hints[variable_name]
+
             if not isoftype(variable_value, expected_type):
                 raise ValidationException(
                     f"In {func_name}, argument '{variable_name}' is annotated as \
-                        {annotated_type} but got '{variable_value}' which is {type(variable_value)}")
+                        {expected_type} but got '{variable_value}' which is {type(variable_value)}")
 
         # call the function
         result = func(*args, **kwargs)
@@ -74,10 +85,13 @@ def validate(func: Callable) -> Callable:
         # check the return type
         return_type = type(None) if ("inspect._empty" in str(signature.return_annotation)
                                      or signature.return_annotation is None) else signature.return_annotation
-        if not isoftype(result, return_type):
+        if isinstance(return_type, str):
+            # why does this even happen?
+            return_type = get_type_hints(func)["return"]
+        if return_type is not type(None) and not isoftype(result, return_type):
             raise InvalidReturnValueException(
-                f"In function {func_name}, the return type is annotated as \
-                {return_type} but got '{result}' which is {type(result)}")
+                f"In function {func_name}, the return type is annotated as "
+                f"{return_type} but got '{result}' which is {type(result)}")
         return result
     return wrapper
 

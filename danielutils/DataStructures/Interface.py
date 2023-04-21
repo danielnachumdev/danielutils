@@ -95,7 +95,7 @@ class InterfaceHelper:
             instance = args[0]
             caller_frame = traceback.format_stack()[-2]
             is_super_call = bool(re.match(
-                r"\s+File \".*\", line \d+, in __init__\n\s+super\(\)\.__init__\(.*\)\n", caller_frame))
+                fr"\s+File \".*\", line \d+, in __init__\n\s+(?:super\(\)|{cls_name})\.__init__\(.*\)\n", caller_frame))
             if is_super_call:
                 mro = instance.__class__.mro()
                 i = 0

@@ -286,15 +286,15 @@ def test_deeper_inheritance():
             self.radius = radius
 
         def area(self):
-            return 2 * math.pi * self.radius
+            return math.pi * (self.radius ** 2)
 
         def circumference(self):
-            return math.pi * (self.radius ** 2)
+            return 2 * math.pi * self.radius
 
         def angles(self):
             return -1
 
-    class Quadraleloped(Shape):
+    class Quadrilateral(Shape):
 
         def __init__(self, name):
             super().__init__(name)
@@ -302,7 +302,7 @@ def test_deeper_inheritance():
         def angles(self):
             return 360
 
-    class Rectangle(Quadraleloped):
+    class Rectangle(Quadrilateral):
 
         def __init__(self, a, b):
             super().__init__("Rectangle")
