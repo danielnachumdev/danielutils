@@ -1,4 +1,5 @@
 wslvenv/
+.conda/
 *.txt
 !requirements.txt
 assets
