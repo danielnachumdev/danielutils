@@ -38,35 +38,37 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
     if t_origin is not None:
         if t_origin in {list}:
             for sub_v in obj:
-                if not isoftype(sub_v, t_args[0]):
+                if not isoftype(sub_v, t_args[0], strict=strict):
                     return False
             return True
 
         if t_origin is dict:
             key_t, value_t,  = t_args[0], t_args[1]
             for k, v in obj.items():
-                if not isoftype(v, value_t):
+                if not isoftype(v, value_t, strict=strict):
                     return False
-                if not isoftype(k, key_t):
+                if not isoftype(k, key_t, strict=strict):
                     return False
             return True
 
         if t_origin in {Union}:
             for sub_t in t_args:
-                if isoftype(obj, sub_t):
+                if isoftype(obj, sub_t, strict=strict):
                     return True
             return False
 
         if t_origin in {Callable}:
             if obj.__name__ == "<lambda>":
-                print("using lambda function with isoftype is ambiguous")
+                if strict:
+                    from .Colors import warning
+                    warning("using lambda function with isoftype is ambiguous")
                 return not strict
-            tmp = list(obj_hints.values())
-            obj_return_type = tmp[-1]
-            obj_param_types = tuple(tmp[:-1])
-            del tmp
             if len(t_args) == 0:
                 return True
+            tmp = list(obj_hints.values())
+            obj_return_type = tmp[-1] if tmp else None
+            obj_param_types = tuple(tmp[:-1]) if tmp else None
+            del tmp
             t_return_type = t_args[1]
             t_param_types = tuple(t_args[0])
             return obj_return_type is t_return_type and obj_param_types == t_param_types
@@ -76,7 +78,7 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
 
         if type(T) in {list}:
             for sub_t in T:
-                if isoftype(obj, sub_t):
+                if isoftype(obj, sub_t, strict=strict):
                     return True
             return False
 

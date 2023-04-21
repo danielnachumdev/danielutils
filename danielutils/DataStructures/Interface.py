@@ -2,6 +2,8 @@ from typing import Callable, Iterable, Any, Generator
 import inspect
 import re
 import traceback
+import functools
+from ..Decorators import decorate_conditionally
 
 
 class InterfaceHelper:
@@ -88,9 +90,9 @@ class InterfaceHelper:
                 yield func_name
 
     @staticmethod
-    def create_init_handler(cls_name, missing: list[str] = None):
+    def create_init_handler(cls_name, missing: list[str] = None, original: Callable = None):
         """this function will create the default interface __init__ function with the wanted behavior"""
-
+        # TODO @decorate_conditionally(functools.wraps, original is not None)
         def __interface_init__(*args, **kwargs):
             instance = args[0]
             caller_frame = traceback.format_stack()[-2]
@@ -120,12 +122,13 @@ class InterfaceHelper:
         return __interface_init__
 
     @staticmethod
-    def create_generic_handler(cls: str):
+    def create_generic_handler(cls: str, original: Callable):
         """this function will create the generic function handler
 
         Args:
             func_name (_type_): the name of the interface
         """
+        @functools.wraps(original)
         def __interface_handler__(*args, **kwargs):
             raise NotImplementedError(
                 f"Interface {cls} must be implemented")
@@ -152,13 +155,15 @@ class Interface(type):
         return mcs._handle_new_subclass(mcs, name, bases, namespace)
 
     def _handle_new_interface(cls, name: str, bases: tuple, namespace: dict[str, Any]):
+        namespace[InterfaceHelper.ORIGINAL_INIT] = None
         if "__init__" in namespace:
             namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
-        namespace["__init__"] = InterfaceHelper.create_init_handler(name)
+        namespace["__init__"] = InterfaceHelper.create_init_handler(
+            name, original=namespace[InterfaceHelper.ORIGINAL_INIT])
         for k, v in namespace.items():
             if isinstance(v, Callable) and not k == "__init__":
                 if not InterfaceHelper.is_func_implemented(v):
-                    namespace[k] = InterfaceHelper.create_generic_handler(k)
+                    namespace[k] = InterfaceHelper.create_generic_handler(k, v)
         namespace[Interface.KEY] = True
         return super().__new__(cls, name, bases, namespace)
 
@@ -230,9 +235,9 @@ class Interface(type):
 
         if missing:
             namespace[Interface.KEY] = True
-            if "__init__" in need_to_be_implemented:
-                namespace["__init__"] = InterfaceHelper.create_init_handler(
-                    name, missing)
+            # if "__init__" in need_to_be_implemented:
+            namespace["__init__"] = InterfaceHelper.create_init_handler(
+                name, missing)
         else:
             namespace[Interface.KEY] = False
             if "__init__" not in namespace:
