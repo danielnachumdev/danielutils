@@ -92,7 +92,7 @@ class InterfaceHelper:
     @staticmethod
     def create_init_handler(cls_name, missing: list[str] = None, original: Callable = None):
         """this function will create the default interface __init__ function with the wanted behavior"""
-        # @ decorate_conditionally(functools.wraps, original is not None, [original])
+        # @ decorate_conditionally(functools.wraps, original is not None, [original]) #TODO implement this decorator
         def __interface_init__(*args, **kwargs):
             instance = args[0]
             caller_frame = traceback.format_stack()[-2]

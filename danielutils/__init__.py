@@ -19,3 +19,4 @@ from .Windows import *
 from .Print import *
 from .Exceptions import PrintCatch
 from .Reflection import *
+from .DateTime import *
