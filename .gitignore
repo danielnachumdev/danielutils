@@ -1,4 +1,6 @@
-pylint_output.txt
+wslvenv/
+*.txt
+!requirements.txt
 assets
 *.html
 tmp*.py
