@@ -95,13 +95,7 @@ class InterfaceHelper:
         # @ decorate_conditionally(functools.wraps, original is not None, [original])
         def __interface_init__(*args, **kwargs):
             instance = args[0]
-            # trace = traceback.format_stack()[8:-1]
-            # if re.match(r"", trace[-1]):
-            #     pass
             caller_frame = traceback.format_stack()[-2]
-            # with open("a.txt", "w") as f:
-            #     print(*trace, sep="\n", file=f)
-            #     exit(0)
             is_super_call = bool(re.match(
                 fr"\s+File \".*\", line \d+, in __init__\n\s+(?:super\(\)|{cls_name})\.__init__\(.*\)\n", caller_frame))
             if is_super_call:
