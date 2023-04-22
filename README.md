@@ -6,3 +6,6 @@ A utils library for things that I find useful for my coding workflow.\
 Feel free to use and / or contribute / improve my code :)
 
 THIS PACKAGE IS IN DEVELOPMENT AND SUBJECT TO CHANGE, USE AT YOUR OWN RISK!
+
+## Further reading
+check out [READMES/readme.md](./READMES/readme.md) to check out some of the stuff this library can do
