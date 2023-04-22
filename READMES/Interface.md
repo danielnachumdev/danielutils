@@ -51,7 +51,7 @@ Given the following classic example code:
 from math import pi
 from danielutils import Interface
 
-
+# although here it's actually an abstract class
 class Shape(metaclass=Interface):
     def __init__(self, name):
         self.name = name
