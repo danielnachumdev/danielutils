@@ -6,5 +6,6 @@ build:
 	python ./publish.py
 test:
 	pytest
+	pylint ./danielutils/
 clean:
 	del *.txt *.json *.png *.csv
