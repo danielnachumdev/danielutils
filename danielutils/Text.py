@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Union, TypeGuard
-from .Decorators import validate
+from .Decorators.validate import validate
 from .Functions import check_foreach
 HEBREW_LETTERS = ['\u05D0', '\u2135', '\uFB21', '\uFB2E', '\uFB2F',
                   '\uFB30', '\uFB4F', '\u05D1', '\u2136', '\uFB31',

@@ -1,7 +1,6 @@
-# although it's related to threading, atomic decorator implemented at .Decorators
-import threading
-import functools
 from typing import Callable
+import functools
+import threading
 
 
 def threadify(func: Callable) -> Callable:
