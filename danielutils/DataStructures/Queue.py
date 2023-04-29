@@ -53,6 +53,15 @@ class Queue:
         while not self.is_empty():
             yield self.pop()
 
+    def push_many(self, arr: list):
+        """will push many objects to the Queue
+
+        Args:
+            arr (list): the objects to push
+        """
+        for v in arr:
+            self.push(v)
+
 
 class PriorityQueue(Queue):
     """
