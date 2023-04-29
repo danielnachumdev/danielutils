@@ -5,7 +5,7 @@ from .validate import validate
 
 
 @validate
-def timeout(duration: int | float, /, *, silent: bool = False) -> Callable:
+def timeout(duration: int | float, silent: bool = False) -> Callable:
     """A decorator to limit runtime for a function
 
     Args:
