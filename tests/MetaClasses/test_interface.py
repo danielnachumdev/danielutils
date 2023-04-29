@@ -1,6 +1,6 @@
 import math
 import pytest
-from ...danielutils.DataStructures.Interface import Interface
+from ...danielutils.MetaClasses.Interface import Interface
 
 
 def test_no_implementation():

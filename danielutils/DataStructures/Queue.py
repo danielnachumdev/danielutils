@@ -46,6 +46,9 @@ class Queue:
         """
         return len(self) == 0
 
+    def __str__(self) -> str:
+        return str(self.data)
+
 
 class PriorityQueue:
     """

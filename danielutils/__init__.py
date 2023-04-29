@@ -20,3 +20,4 @@ from .Print import *
 from .Exceptions import PrintCatch
 from .Reflection import *
 from .DateTime import *
+from .MetaClasses import *

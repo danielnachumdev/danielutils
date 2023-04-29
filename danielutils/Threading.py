@@ -5,7 +5,7 @@ from typing import Callable
 
 
 def threadify(func: Callable) -> Callable:
-    """will modify the function that when calling it a new thread will start to run it
+    """will modify the function that when calling it a new thread will start to run it with provided arguments.\nnote that no return value will be given
 
     Args:
         func (Callable): the function to make a thread

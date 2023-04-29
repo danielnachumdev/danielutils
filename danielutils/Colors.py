@@ -1,4 +1,4 @@
-from .Decorators import validate
+from .Decorators.validate import validate
 
 
 class ColoredText:

@@ -3,5 +3,5 @@ screeninfo
 Pillow
 pytest
 pytest-html
-bs4
+# bs4
 notebook

@@ -54,33 +54,33 @@ def dynamically_load(module_name: str, obj_name: str) -> Any:
     return getattr(importlib.import_module(module_name), obj_name)
 
 
-def get_class(module_name: str, class_name: str) -> type:
-    """dynammically loads the module and returns the class from this file
+# def get_class(module_name: str, class_name: str) -> type:
+#     """dynammically loads the module and returns the class from this file
 
-    Args:
-        module_name (str): name of python module, (typically a file name without extention)
-        class_name (str): the name of the wanted class
+#     Args:
+#         module_name (str): name of python module, (typically a file name without extention)
+#         class_name (str): the name of the wanted class
 
-    Returns:
-        type: the class
-    """
-    return dynamically_load(module_name, class_name)
-
-
-def get_function(module_name: str, func_name: str) -> Callable:
-    """dynammically loads the module and returns the function from this file
-
-    Args:
-        module_name (str): name of python module, (typically a file name without extention)
-        func_name (str): the name of the wanted function
-
-    Returns:
-        Callable: the function
-    """
-    return dynamically_load(module_name, func_name)
+#     Returns:
+#         type: The class
+#     """
+#     return dynamically_load(module_name, class_name)
 
 
-def get_current_function() -> Callable:
+# def get_function(module_name: str, func_name: str) -> Callable:
+#     """dynammically loads the module and returns the function from this file
+
+#     Args:
+#         module_name (str): name of python module, (typically a file name without extention)
+#         func_name (str): the name of the wanted function
+
+#     Returns:
+#         Callable: the function
+#     """
+#     return dynamically_load(module_name, func_name)
+
+
+# def get_current_function() -> Callable:
     """return the function that is calling this file
 
     Returns:
@@ -100,7 +100,7 @@ def get_caller_file() -> str:
     return frame.f_code.co_filename
 
 
-def get_caller() -> Callable:
+# def get_caller() -> Callable:
     """returns the caller of the function thats using this function
 
     Returns:
@@ -157,11 +157,11 @@ def get_python_version() -> str:
 __all__ = [
     "get_caller_name",
     "dynamically_load",
-    "get_class",
-    "get_function",
-    "get_current_function",
+    # "get_class",
+    # "get_function",
+    # "get_current_function",
     "get_caller_file",
-    "get_caller",
+    # "get_caller",
     "get_traceback",
     "OSType",
     "get_os",

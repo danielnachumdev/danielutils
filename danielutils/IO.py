@@ -313,9 +313,9 @@ class IndentedWriter:
         """
         if self.output_stream is None:
             raise ValueError(
-                "Can't write to an empty stream. the stream must not be None either by set_stream or by initialization")
+                "Can't write to an empty stream. the stream must not be None: either by set_stream or by initialization")
         self.output_stream.write(
-            self.indent_level*self.indent_value + sep.join(args)+end)
+            str(self.indent_level*self.indent_value + sep.join(args)+end))
 
     def set_stream(self, stream: IO):
         """explicitly sets the stream

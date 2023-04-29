@@ -1,7 +1,7 @@
+from typing import Any, Union
 import pytest
 from ...danielutils import validate
 from ...danielutils.Exceptions import *
-from typing import Any, Union
 
 
 def test_empty_annotation_exception():
