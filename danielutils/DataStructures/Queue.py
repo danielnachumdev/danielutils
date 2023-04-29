@@ -90,10 +90,10 @@ class PriorityQueue(Queue):
     Example:
         >>> pq = PriorityQueue()
         >>> pq.push(5)
-        >>> pq.push(3)
         >>> pq.push(10)
+        >>> pq.push(3)
         >>> pq.pop()
-        3
+        10
     """
 
     def __init__(self, weight_func: Callable[[Any], int | float] = default_weight_function,
