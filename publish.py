@@ -37,6 +37,12 @@ def get_latest(version: str = '0.0.0') -> str:
     return best
 
 
+def handle_git(version):
+    cm("git add .")
+    cm(f"git commit -m \"updated to version {version}\"")
+    cm("git push")
+
+
 def main(version: str):
     """main function, create a new release and update the files and call terminal to upload the release
 
@@ -95,6 +101,8 @@ def main(version: str):
     # # twine upload dist/...
     ret, stdout, stderr = cm("wt.exe",
                              "twine", "upload", f"dist/danielutils-{version}.tar.gz")
+
+    handle_git(version)
 
 
 def run_tests() -> bool:
