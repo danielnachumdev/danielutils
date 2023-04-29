@@ -15,21 +15,21 @@ def join_generators(*generators) -> Generator[Any, None, None]:
         Generator[Any, None, None]: resulting generator
     """
     q = AtomicQueue()
-    statuses = [False for _ in range(len(generators))]
+    threads_status = [False for _ in range(len(generators))]
 
     @threadify
     def yield_from_one(thread_id: int, gen):
-        nonlocal statuses
+        nonlocal threads_status
         try:
             while True:
                 q.push(next(gen))
         except StopIteration:
-            statuses[thread_id] = True
+            threads_status[thread_id] = True
 
     for i, gen in enumerate(generators):
         yield_from_one(i, gen)
 
-    while not all(statuses):
+    while not all(threads_status):
         while q.is_empty():
             pass
         yield q.pop()
