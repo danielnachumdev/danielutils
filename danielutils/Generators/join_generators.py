@@ -33,6 +33,8 @@ def join_generators(*generators) -> Generator[Any, None, None]:
         while q.is_empty():
             pass
         yield q.pop()
+    if not q.is_empty():
+        yield from q
 
 
 __all__ = [

@@ -49,8 +49,12 @@ class Queue:
     def __str__(self) -> str:
         return str(self.data)
 
+    def __iter__(self):
+        while not self.is_empty():
+            yield self.pop()
 
-class PriorityQueue:
+
+class PriorityQueue(Queue):
     """
     A priority queue implementation based on a binary heap.
 
@@ -85,7 +89,8 @@ class PriorityQueue:
 
     def __init__(self, weight_func: Callable[[Any], int | float] = default_weight_function,
                  comparer: Comparer = Comparer.GREATER):
-        self.heap = Heap(comparer)
+        super().__init__()
+        self.data = Heap(comparer)
         self.weight_func = weight_func
         self.dct = {}
 
@@ -99,7 +104,7 @@ class PriorityQueue:
         Raises:
             KeyError: Raised if the queue is empty.
         """
-        item_weight = self.heap.pop()
+        item_weight = self.data.pop()
         res = self.dct[item_weight]
         del self.dct[item_weight]
         return res
@@ -121,7 +126,7 @@ class PriorityQueue:
         if item_weight in self.dct:
             raise ValueError(
                 "Can't have same weight value more than once in current implementation")
-        self.heap.push(item_weight)
+        self.data.push(item_weight)
         self.dct[item_weight] = value
 
     def peek(self) -> Any:
@@ -134,7 +139,7 @@ class PriorityQueue:
         Raises:
             KeyError: Raised if the queue is empty.
         """
-        return self.dct[self.heap.peek()]
+        return self.dct[self.data.peek()]
 
     def __str__(self) -> str:
         """
@@ -143,7 +148,7 @@ class PriorityQueue:
         Returns:
             str: A string representation of the queue.
         """
-        return str([str(self.dct[w]) for w in [self.heap[i] for i in range(len(self.heap))]])
+        return str([str(self.dct[w]) for w in [self.data[i] for i in range(len(self.data))]])
 
 
 __all__ = [
