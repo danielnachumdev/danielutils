@@ -67,7 +67,7 @@ class InvalidReturnValueException(ValidationException):
     """
 
 
-class PrintCatch:
+class PrintCatchOne:
     """a utility class to be used with a "with" block to print 
     any exception that happens inside of it rather than exiting the program
     """

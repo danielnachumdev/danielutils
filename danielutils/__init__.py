@@ -17,7 +17,7 @@ from .Math import *
 from .Path import *
 from .Windows import *
 from .Print import *
-from .Exceptions import PrintCatch
+from .Exceptions import PrintCatchOne
 from .Reflection import *
 from .DateTime import *
 from .MetaClasses import *
