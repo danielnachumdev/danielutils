@@ -33,8 +33,9 @@ class MultiNode:
                 if child in seen:
                     tmp.append("...")
                 else:
-                    tmp.append(handle_node(child))
-            return f"MultiNode({node.data}, ["+", ".join(tmp)+"])"
+                    if child is not None:
+                        tmp.append(handle_node(child))
+            return f"{node.__class__.__name__}({node.data}, ["+", ".join(tmp)+"])"
 
         return handle_node(self)
 
