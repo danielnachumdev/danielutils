@@ -1,5 +1,5 @@
 import time
-from ...danielutils.Generators.join_generators import join_generators
+from ...danielutils.Generators.join_generators_busy_waiting import join_generators_busy_waiting
 
 
 def test_simple_case():
@@ -18,7 +18,7 @@ def test_simple_case():
             time.sleep(MAX_DURATION - (i/N)*MAX_DURATION)
             yield i
     res = []
-    for v in join_generators(gen1(), gen2()):
+    for v in join_generators_busy_waiting(gen1(), gen2()):
         res.append(v)
 
     assert res == [0, 1, 2, 3, 0, 4, 5, 1, 6, 2, 7, 3, 8, 4, 5, 9, 6, 7, 8, 9]

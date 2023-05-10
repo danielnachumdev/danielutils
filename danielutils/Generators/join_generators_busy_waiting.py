@@ -1,4 +1,3 @@
-import threading
 from typing import Generator, Any
 from ..Decorators import threadify
 from ..MetaClasses import AtomicClassMeta
