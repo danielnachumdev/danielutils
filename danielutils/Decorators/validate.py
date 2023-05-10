@@ -11,8 +11,8 @@ def validate(strict: Callable | bool = True) -> Callable:
     value of a function.
 
         * 'None' is allowed as default value for everything
-        * Because of their use in classes, the generally accepted keywords 'self' and 'cls'
-        are not validated to not break intellisense when using 'Any'
+        * Because of their wide known use, generally accepted keywords 'self', 'cls', 'args', 'kwargs'
+        are not validated.
 
     Args:
         func (Callable): The function to be decorated.
@@ -33,7 +33,7 @@ def validate(strict: Callable | bool = True) -> Callable:
 
     def deco(func):
         nonlocal strict
-        SKIP_SET = {"self", "cls"}
+        SKIP_SET = {"self", "cls", "args", "kwargs"}
         if not isinstance(func, Callable):
             raise TypeError(
                 "The validate decorator must only decorate a function")
