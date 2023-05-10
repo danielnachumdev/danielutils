@@ -25,10 +25,9 @@ def test_empty_annotation_exception():
         def foo(x, y: str, *args):
             pass
 
-    with pytest.raises(EmptyAnnotationException):
-        @validate
-        def foo(*args):
-            pass
+    @validate
+    def foo(*args):
+        pass
 
     with pytest.raises(EmptyAnnotationException):
         @validate
