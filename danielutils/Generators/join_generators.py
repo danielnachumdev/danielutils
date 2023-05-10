@@ -30,9 +30,8 @@ def join_generators(*generators) -> Generator[Any, None, None]:
         yield_from_one(i, gen)
 
     while not all(threads_status):
-        while q.is_empty():
-            pass
-        yield q.pop()
+        while not q.is_empty():
+            yield q.pop()
     if not q.is_empty():
         yield from q
 
