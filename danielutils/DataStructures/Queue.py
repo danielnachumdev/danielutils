@@ -2,6 +2,7 @@ from typing import Callable, Any
 from .Heap import Heap
 from .Comparer import Comparer
 from .functions import default_weight_function
+from ..MetaClasses import AtomicClassMeta
 
 
 class Queue:
@@ -61,6 +62,11 @@ class Queue:
         """
         for v in arr:
             self.push(v)
+
+
+class AtomicQueue(Queue, metaclass=AtomicClassMeta):
+    """Same as Queue but atomic
+    """
 
 
 class PriorityQueue(Queue):
@@ -162,5 +168,6 @@ class PriorityQueue(Queue):
 
 __all__ = [
     "Queue",
+    "AtomicQueue",
     "PriorityQueue"
 ]

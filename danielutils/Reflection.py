@@ -81,15 +81,19 @@ def dynamically_load(module_name: str, obj_name: str) -> Any:
 
 
 # def get_current_function() -> Callable:
-    """return the function that is calling this file
+#     """return the function that is calling this file
 
-    Returns:
-        Callable: function
-    """
-    return get_caller()
+#     Returns:
+#         Callable: function
+#     """
+#     return get_caller()
+
+def get_filename() -> str:
+    frame = inspect.currentframe().f_back
+    return frame.f_code.co_filename
 
 
-def get_caller_file() -> str:
+def get_caller_filename() -> str:
     """return the name of the file that the caller of the 
     function that's using this function is in
 
@@ -101,14 +105,14 @@ def get_caller_file() -> str:
 
 
 # def get_caller() -> Callable:
-    """returns the caller of the function thats using this function
+#     """returns the caller of the function thats using this function
 
-    Returns:
-        Callable: caller
-    """
-    name = get_caller_name(1)
-    module = get_caller_file().removesuffix(".py")
-    return get_function(module, name)
+#     Returns:
+#         Callable: caller
+#     """
+#     name = get_caller_name(1)
+#     module = get_caller_filename().removesuffix(".py")
+#     return get_function(module, name)
 
 
 def get_traceback() -> list[str]:
@@ -160,7 +164,8 @@ __all__ = [
     # "get_class",
     # "get_function",
     # "get_current_function",
-    "get_caller_file",
+    "get_filename",
+    "get_caller_filename",
     # "get_caller",
     "get_traceback",
     "OSType",

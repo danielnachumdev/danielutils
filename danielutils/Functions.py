@@ -42,7 +42,7 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
                     return False
             return True
 
-        if t_origin is dict:
+        elif t_origin is dict:
             key_t, value_t,  = t_args[0], t_args[1]
             for k, v in obj.items():
                 if not isoftype(v, value_t, strict=strict):
@@ -51,13 +51,20 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
                     return False
             return True
 
-        if t_origin in {Union}:
+        elif t_origin is set:
+            value_t = t_args[0]
+            for v in obj:
+                if not isoftype(v, value_t, strict=strict):
+                    return False
+            return True
+
+        elif t_origin in {Union}:
             for sub_t in t_args:
                 if isoftype(obj, sub_t, strict=strict):
                     return True
             return False
 
-        if t_origin in {Callable}:
+        elif t_origin in {Callable}:
             if obj.__name__ == "<lambda>":
                 if strict:
                     from .Colors import warning

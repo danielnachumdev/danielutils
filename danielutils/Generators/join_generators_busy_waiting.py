@@ -1,14 +1,11 @@
 from typing import Generator, Any
 from ..Decorators import threadify
-from ..MetaClasses import AtomicClassMeta
-from ..DataStructures import Queue
+from ..DataStructures import AtomicQueue, Queue
+from ..Classes import AtomicCounter
+from threading import Semaphore
 
 
-class AtomicQueue(Queue, metaclass=AtomicClassMeta):
-    pass
-
-
-def join_generators_busy_waiting(*generators) -> Generator[Any, None, None]:
+def join_generators_busy_waiting(*generators) -> Generator[Any, Any, None]:
     """joins an arbitrary amount of generators to yield objects as soon someone yield an object
 
     Yields:
@@ -35,6 +32,35 @@ def join_generators_busy_waiting(*generators) -> Generator[Any, None, None]:
         yield from q
 
 
+def join_generators(*generators) -> Generator[Any, None, None]:
+    """will join generators to yield from all of them simultaneously without busy waiting, using semaphores and multithreading 
+
+    Yields:
+        Generator[Any, None, None]: one generator that combines all of the given ones
+    """
+    queue = Queue()
+    edit_queue_semaphore = Semaphore(1)
+    queue_status_semaphore = Semaphore(0)
+    threads_finished_counter = AtomicCounter()
+
+    @threadify
+    def thread_entry_point(generator) -> None:
+        for value in generator:
+            with edit_queue_semaphore:
+                queue.push(value)
+            queue_status_semaphore.release()
+        threads_finished_counter.increment()
+
+    for generator in generators:
+        thread_entry_point(generator)
+
+    while threads_finished_counter.get() < len(generators):
+        queue_status_semaphore.acquire()
+        with edit_queue_semaphore:
+            yield queue.pop()
+
+
 __all__ = [
-    "join_generators_busy_waiting"
+    "join_generators_busy_waiting",
+    "join_generators"
 ]

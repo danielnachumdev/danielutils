@@ -1,3 +1,6 @@
+from ..MetaClasses import AtomicClassMeta
+
+
 class Counter:
     """A simple counter class
     """
@@ -33,6 +36,12 @@ class Counter:
         self.value = value
 
 
+class AtomicCounter(Counter, metaclass=AtomicClassMeta):
+    """A Counter Class which is Atomic
+    """
+
+
 __all__ = [
-    "Counter"
+    "Counter",
+    "AtomicCounter"
 ]

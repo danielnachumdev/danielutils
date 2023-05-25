@@ -77,6 +77,18 @@ class ColoredText:
         return ColoredText.from_rgb(255, 255, 0, text)
 
     @staticmethod
+    def orange(text: str):
+        """Applies yellow color to the given text.
+
+        Args:
+            text (str): The text to apply the yellow color to.
+
+        Returns:
+            str: The given text with yellow color applied to it.
+        """
+        return ColoredText.from_rgb(255, 165, 0, text)
+
+    @staticmethod
     def white(text: str):
         """Applies white color to the given text.
 
@@ -123,7 +135,7 @@ def warning(*args, sep=" ", end="\n"):
     """
 
     __special_print(*args, sep=sep, end=end,
-                    start_with=ColoredText.yellow("WARNING"))
+                    start_with=ColoredText.orange("WARNING"))
 
 
 def error(*args, sep=" ", end="\n"):
@@ -135,6 +147,17 @@ def error(*args, sep=" ", end="\n"):
     """
     __special_print(*args, sep=sep, end=end,
                     start_with=ColoredText.red("ERROR"))
+
+
+def info(*args, sep=" ", end="\n"):
+    """print an error message
+
+    Args:
+        sep (str, optional): print separator. Defaults to " ".
+        end (str, optional): print endline. Defaults to "\\n".
+    """
+    __special_print(*args, sep=sep, end=end,
+                    start_with=ColoredText.red("INFO"))
 
 
 __all__ = [
