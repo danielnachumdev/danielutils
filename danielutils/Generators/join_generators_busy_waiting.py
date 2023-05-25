@@ -41,7 +41,7 @@ def join_generators(*generators) -> Generator[Any, None, None]:
     queue = Queue()
     edit_queue_semaphore = Semaphore(1)
     queue_status_semaphore = Semaphore(0)
-    threads_finished_counter = AtomicCounter()
+    finished_threads_counter = AtomicCounter()
 
     @threadify
     def thread_entry_point(generator) -> None:
@@ -49,12 +49,12 @@ def join_generators(*generators) -> Generator[Any, None, None]:
             with edit_queue_semaphore:
                 queue.push(value)
             queue_status_semaphore.release()
-        threads_finished_counter.increment()
+        finished_threads_counter.increment()
 
     for generator in generators:
         thread_entry_point(generator)
 
-    while threads_finished_counter.get() < len(generators):
+    while finished_threads_counter.get() < len(generators):
         queue_status_semaphore.acquire()
         with edit_queue_semaphore:
             yield queue.pop()
