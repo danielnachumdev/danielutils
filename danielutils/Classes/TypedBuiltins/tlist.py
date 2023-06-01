@@ -48,11 +48,12 @@ class tlist(list, tbase):
         else:
             for v in other:
                 self.append(v)
+        return self
 
-    def _append(self, value):
+    def _append(self, value: Any):
         list.append(self, value)
 
-    def _extend(self, iterable):
+    def _extend(self, iterable: Iterable):
         list.extend(self, iterable)
 
 

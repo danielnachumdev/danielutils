@@ -7,11 +7,11 @@ class AtomicClassMeta(type):
     """
     def __new__(mcs, name, bases, namespace):
         for k, v in namespace.items():
-            if isinstance(v, Callable):
+            if callable(v):
                 namespace[k] = atomic(v)
         for base in bases:
             for k, v in base.__dict__.items():
-                if isinstance(v, Callable):
+                if callable(v):
                     if k not in namespace:
                         namespace[k] = atomic(v)
                     # else:

@@ -17,7 +17,7 @@ def decorate_conditionally(decorator: Callable, predicate: bool | Callable[[], b
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
 
-        if (predicate() if isinstance(predicate, Callable) else predicate):
+        if (predicate() if callable(predicate) else predicate):
             if args is None:
                 return decorator(func)
             return decorator(*args)(func)

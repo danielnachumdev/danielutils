@@ -19,5 +19,6 @@
         "editor.defaultFormatter": "vscode.json-language-features"
     },
     "mypy.dmypyExecutable": "${workspaceFolder}/.conda/Scripts/dmypy.exe",
-    "mypy.configFile": "mypy.ini"
+    "mypy.configFile": "mypy.ini",
+    "mypy.targets": []
 }

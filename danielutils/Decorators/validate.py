@@ -1,6 +1,6 @@
 import functools
 import inspect
-from typing import Callable,  get_type_hints
+from typing import Callable, get_type_hints, cast
 from ..Functions import isoftype, get_function_return_type
 from ..Exceptions import EmptyAnnotationException,\
     InvalidDefaultValueException, ValidationException, InvalidReturnValueException
@@ -31,10 +31,11 @@ def validate(strict: Callable | bool = True) -> Callable:
         raise TypeError(
             "the argument for validate must be a Callable or a boolean to mark strict use")
 
-    def deco(func):
+    def deco(func: Callable):
         nonlocal strict
+        strict = cast(bool, strict)
         SKIP_SET = {"self", "cls", "args", "kwargs"}
-        if not isinstance(func, Callable):
+        if not callable(func):
             raise TypeError(
                 "The validate decorator must only decorate a function")
         func_name = f"{func.__module__}.{func.__qualname__}"

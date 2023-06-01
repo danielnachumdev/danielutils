@@ -1,11 +1,11 @@
-from typing import Callable
+from typing import Optional
 
 
 class DeletedException(AttributeError):
     pass
 
 
-def deleted(func, cls_name=None):
+def deleted(func, cls_name: Optional[str] = None):
     msg = f"'{func.__qualname__}' has been marked as deleted"
     if cls_name:
         msg = f"'{cls_name}.{func.__name__}' has been marked as deleted"
@@ -20,7 +20,7 @@ class ImplicitDataDeleterMeta(type):
     def __new__(mcs, name, bases, namespace):
         cls_functions = set()
         for k, v in namespace.items():
-            if isinstance(v, Callable):
+            if callable(v):
                 if hasattr(v, "__objclass__"):
                     if v.__objclass__ in {object}:
                         continue
@@ -34,7 +34,7 @@ class ImplicitDataDeleterMeta(type):
         parent_functions = set()
         for base in bases:
             for k, v in base.__dict__.items():
-                if isinstance(v, Callable):
+                if callable(v):
                     parent_functions.add(v)
 
         parent_dct = {func.__name__: func for func in parent_functions}

@@ -26,7 +26,7 @@ def timeout(duration: int | float, silent: bool = False) -> Callable:
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            res = [
+            res: list = [
                 TimeoutError(f'{func.__module__}.{func.__qualname__} timed out after {duration} seconds!')]
 
             def timeout_wrapper() -> None:

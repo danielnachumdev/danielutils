@@ -1,3 +1,4 @@
+from typing import Optional
 from .Decorators.validate import validate
 
 
@@ -29,7 +30,7 @@ class ColoredText:
         return f"\033[38;2;{red};{green};{blue}m{text}\033[38;2;255;255;255m"
 
     @staticmethod
-    def green(text: str):
+    def green(text: str) -> str:
         """Applies green color to the given text.
 
         Args:
@@ -113,7 +114,7 @@ class ColoredText:
         return ColoredText.from_rgb(0, 0, 0, text)
 
 
-def __special_print(*args, sep=" ", end="\n", start_with=None):
+def __special_print(*args, sep: str = " ", end: str = "\n", start_with: Optional[str] = None):
     """inner helper function"""
     if start_with:
         if "\n" not in sep:
@@ -126,7 +127,7 @@ def __special_print(*args, sep=" ", end="\n", start_with=None):
         print(*args, sep=sep, end=end)
 
 
-def warning(*args, sep=" ", end="\n"):
+def warning(*args, sep: str = " ", end: str = "\n"):
     """print a warning message
 
     Args:
@@ -138,7 +139,7 @@ def warning(*args, sep=" ", end="\n"):
                     start_with=ColoredText.orange("WARNING"))
 
 
-def error(*args, sep=" ", end="\n"):
+def error(*args, sep: str = " ", end: str = "\n"):
     """print an error message
 
     Args:
@@ -149,7 +150,7 @@ def error(*args, sep=" ", end="\n"):
                     start_with=ColoredText.red("ERROR"))
 
 
-def info(*args, sep=" ", end="\n"):
+def info(*args, sep: str = " ", end: str = "\n"):
     """print an error message
 
     Args:

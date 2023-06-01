@@ -150,7 +150,7 @@ class overload2:
 
     SKIP_SET = {"self", "cls", "args", "kwargs"}
 
-    def __init__(self, func):
+    def __init__(self, func: Callable):
         overload2._validate(func)
         self.qualname = func.__qualname__
         self.moudle = func.__module__
@@ -158,18 +158,18 @@ class overload2:
         self.functions[overload2._get_key(func)] = [func]
 
     @staticmethod
-    def _get_key(func):
+    def _get_key(func: Callable):
         return len(inspect.signature(func).parameters)
 
     @staticmethod
-    def _validate(func):
-        if not isinstance(func, Callable):
+    def _validate(func: Callable):
+        if not callable(func):
             raise ValueError("Can only overload functions")
         if not is_function_annotated_properly(func):
             raise ValueError(
                 "Function must be fully annotated to be overloaded")
 
-    def prepare_for_wraps(self):
+    def prepare_for_wraps(self) -> Callable:
         return next(iter(self.functions.values()))[0]
 
     def overload(self, func: Callable) -> overload2:
