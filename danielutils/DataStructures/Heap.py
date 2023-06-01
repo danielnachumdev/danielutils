@@ -6,7 +6,7 @@ class Heap:
     """a Heap class which will do the sorting according to the supplied comparer object
     """
 
-    def __init__(self, comparer: Comparer):
+    def __init__(self, comparer: Comparer) -> None:
         self.arr: list = []
         self.comparer = comparer
 

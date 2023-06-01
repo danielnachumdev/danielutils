@@ -11,7 +11,7 @@ def mprint_parse_one(s: str) -> str:
         str: the result
     """
 
-    def inner(res, index, dct):
+    def inner(res: str, index: int, dct: dict):
         start = index
         while index < len(s) and s[index] not in {' ', '*', '+', '-', '/', '_', '^'}:
             index += 1

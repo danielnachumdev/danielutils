@@ -1,12 +1,16 @@
+from typing import Optional, Generator, Any, cast
 from .Node import Node
 
 
 class Stack:
-    def __init__(self):
-        self.head = None
+    """A classic Stack class
+    """
+
+    def __init__(self) -> None:
+        self.head: Optional[Node] = None
         self.size = 0
 
-    def push(self, value):
+    def push(self, value: Any):
         if self.head is None:
             self.head = Node(value)
         else:
@@ -14,33 +18,35 @@ class Stack:
             self.head = new_head
         self.size += 1
 
-    def pop(self):
-        res = self.head.data
-        self.size -= 1
-        self.head = self.head.next
-        return res
+    def pop(self) -> Any:
+        if not self.is_empty():
+            self.head = cast(Node, self.head)
+            res = self.head.data
+            self.size -= 1
+            self.head = self.head.next
+            return res
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.size
 
-    def __iter__(self):
+    def __iter__(self) -> Generator:
         while self:
             yield self.pop()
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return len(self) == 0
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return not self.is_empty()
 
-    def __contains__(self, value):
+    def __contains__(self, value) -> bool:
         curr = self.head
         while curr is not None:
             if curr.data == value:
                 return True
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         values = []
         curr = self.head
         while curr:
@@ -49,7 +55,7 @@ class Stack:
         inside = ", ".join(values)
         return f"Stack({inside})"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self)
 
 

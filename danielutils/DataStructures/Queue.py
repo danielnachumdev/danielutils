@@ -8,8 +8,8 @@ from ..MetaClasses import AtomicClassMeta
 class Queue:
     """classic Queue data structure"""
 
-    def __init__(self):
-        self.data = []
+    def __init__(self) -> None:
+        self.data: list = []
 
     def pop(self) -> Any:
         """return the oldest element while removing it from the queue

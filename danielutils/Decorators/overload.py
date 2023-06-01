@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, cast
 import inspect
 import functools
 from ..Functions import isoneof, isoneof_strict, isoftype
@@ -36,17 +36,18 @@ def overload(*types) -> Callable:
     if len(types) == 1 and type(types[0]).__name__ == "function":
         raise ValueError("can't create an overload without defining types")
     global __overload_dict
+    types = cast(tuple, types)
     # allow input of both tuples and lists for flexibly
     if len(types) > 0:
-        types = list(types)
+        types_as_list = list(types)
         for i, maybe_list_of_types in enumerate(types):
             if isoneof(maybe_list_of_types, [list, tuple]):
-                types[i] = tuple(sorted(list(maybe_list_of_types),
-                                        key=lambda sub_type: sub_type.__name__))
-        types = tuple(types)
+                types_as_list[i] = tuple(sorted(list(maybe_list_of_types),
+                                                key=lambda sub_type: sub_type.__name__))
+        types = tuple(types_as_list)
 
     def deco(func: Callable) -> Callable:
-        if not isinstance(func, Callable):
+        if not callable(func):
             raise TypeError("overload decorator must be used on a callable")
 
         # assign current overload to overload dictionary

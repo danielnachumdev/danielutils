@@ -32,8 +32,7 @@ def validate(strict: Callable | bool = True) -> Callable:
             "the argument for validate must be a Callable or a boolean to mark strict use")
 
     def deco(func: Callable):
-        nonlocal strict
-        strict = cast(bool, strict)
+
         SKIP_SET = {"self", "cls", "args", "kwargs"}
         if not callable(func):
             raise TypeError(
@@ -65,6 +64,8 @@ def validate(strict: Callable | bool = True) -> Callable:
         def wrapper(*args, **kwargs):
             """wrapper function for the type validating - will run on each call independently
             """
+            nonlocal strict
+            strict = cast(bool, strict)
             hints = None
             # check all arguments
             bound = signature.bind(*args, **kwargs)

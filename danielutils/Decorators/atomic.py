@@ -1,5 +1,5 @@
 import functools
-from typing import Callable
+from typing import Callable, Any
 import threading
 from .validate import validate
 
@@ -18,7 +18,7 @@ def atomic(func: Callable) -> Callable:
     lock = threading.Lock()
 
     @ functools.wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> Any:
         with lock:
             return func(*args, **kwargs)
     return wrapper

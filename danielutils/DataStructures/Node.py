@@ -6,8 +6,7 @@ from ..MetaClasses import ImplicitDataDeleterMeta
 class MultiNode:
     def __init__(self, data: Any, children: Optional[list[Optional[MultiNode]]] = None):
         self.data = data
-        self._children = children if children is not None else [
-        ]
+        self._children = children if children is not None else []
 
     def __getitem__(self, idnex):
         return self._children[idnex]

@@ -5,16 +5,16 @@ class Counter:
     """A simple counter class
     """
 
-    def __init__(self, initial_value: int | float = 0, increment_amount: int | float = 1):
+    def __init__(self, initial_value: int | float = 0, increment_amount: int | float = 1) -> None:
         self.value = initial_value
         self.increment_value = increment_amount
 
-    def increment(self):
+    def increment(self) -> None:
         """increments the stored value by the increment amount
         """
         self.value += self.increment_value
 
-    def decrement(self):
+    def decrement(self) -> None:
         """decrements the stored value by the increment amount
         """
         self.value -= self.increment_value
