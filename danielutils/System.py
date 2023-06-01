@@ -5,6 +5,7 @@ import subprocess
 import time
 from .Decorators import timeout, validate
 from .Conversions import str_to_bytes
+from .Generators import join_generators, generator_from_stream
 
 
 def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
@@ -26,7 +27,8 @@ def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
         raise TypeError(
             "In function 'cm' param 'shell' must be of type bool")
     for i, arg in enumerate(args):
-        if Path(args[i]).is_file() or Path(args[i]).is_dir():
+        path_obj = Path(args[i])
+        if path_obj.is_file() or path_obj.is_dir():
             args = (*args[:i], f"\"{arg}\"", *args[i+1:])
     res = subprocess.run(" ".join(args), shell=shell,
                          capture_output=True, check=False)
@@ -131,35 +133,40 @@ def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01,
                 p.stdout.close()
 
 
-def cmrt(*args, shell: bool = True) -> Generator[bytes, None, None]:
+def cmrt(*args, shell: bool = True) -> Generator[tuple[int, bytes], None, None]:
     """Executes a command and yields stdout and stderr in real-time.
 
     Args:
-        *args: A sequence of strings representing the command and its arguments.
         shell (bool, optional): If True, the command is executed through the shell. Defaults to True.
 
     Raises:
-        TypeError: If `shell` argument is not a boolean.
+        TypeError: if 'shell' is not boolean
 
     Yields:
-        An iterator that yields bytes for stdout and stderr lines in real-time.
+        Generator[tuple[int, bytes], None, None]: the tuple yielded will contain the 'stream identifier'
+            0 - stdout,
+            1 - stderr
+        and the actual value from the stream
     """
     if not isinstance(shell, bool):
         raise TypeError("The 'shell' parameter must be of type bool.")
 
     # Quote the arguments that represent file or directory paths.
     for i, arg in enumerate(args):
-        if Path(args[i]).is_file() or Path(args[i]).is_dir():
+        path_obj = Path(args[i])
+        if path_obj.is_file() or path_obj.is_dir():
             args = (*args[:i], f"\"{arg}\"", *args[i+1:])
 
     # Join the arguments into a command string and execute the command.
     cmd = " ".join(args)
-    with subprocess.Popen(
-            cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-        # Yield stdout and stderr in real-time.
-        while process.poll() is None:
-            yield from process.stderr
-            yield from process.stdout
+
+    with subprocess.Popen(cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        combined = join_generators(
+            generator_from_stream(process.stdout),
+            generator_from_stream(process.stderr)
+        )
+        for tup in combined:
+            yield tup
 
 
 __all__ = [

@@ -3,6 +3,7 @@ from threading import Semaphore, Condition
 from ..Decorators import threadify
 from ..DataStructures import AtomicQueue, Queue
 from ..Classes import AtomicCounter
+from ..Print import aprint
 
 
 def join_generators_busy_waiting(*generators) -> Generator[tuple[int, Any], None, None]:
@@ -51,13 +52,19 @@ def join_generators(*generators) -> Generator[tuple[int, Any], None, None]:
             queue_status_semaphore.release()
         finished_threads_counter.increment()
 
+        if finished_threads_counter.get() == len(generators):
+            # re-release the lock once from the last thread because it gets stuck in the main loop after the generation has stopped
+            queue_status_semaphore.release()
+
     for i, generator in enumerate(generators):
         thread_entry_point(i, generator)
 
     while finished_threads_counter.get() < len(generators):
         queue_status_semaphore.acquire()
         with edit_queue_semaphore:
-            yield queue.pop()
+            # needed for the very last iteration of the "while" loop. see above comment
+            if not queue.is_empty():
+                yield queue.pop()
     with edit_queue_semaphore:
         for value in queue:
             yield value
