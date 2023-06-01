@@ -21,3 +21,5 @@ from .Reflection import *
 from .DateTime import *
 from .MetaClasses import *
 from .Generators import *
+from .Snippets import *
+from .Aliases import *

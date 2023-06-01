@@ -1,7 +1,9 @@
-from typing import IO, Generator, Any
+from typing import IO, Generator, Any, Iterable
+from ..Decorators import validate
 
 
-def generator_from_stream(stream: IO) -> Generator[Any, None, None]:
+@validate
+def generator_from_stream(stream: IO | Iterable[Any]) -> Generator[Any, None, None]:
     """will yield values from a given stream
 
     Args:

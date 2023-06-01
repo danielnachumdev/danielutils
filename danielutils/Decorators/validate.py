@@ -1,7 +1,7 @@
 import functools
 import inspect
 from typing import Callable,  get_type_hints
-from ..Functions import isoftype
+from ..Functions import isoftype, get_function_return_type
 from ..Exceptions import EmptyAnnotationException,\
     InvalidDefaultValueException, ValidationException, InvalidReturnValueException
 
@@ -87,8 +87,7 @@ def validate(strict: Callable | bool = True) -> Callable:
             result = func(*args, **kwargs)
 
             # check the return type
-            return_type = type(None) if ("inspect._empty" in str(signature.return_annotation)
-                                         or signature.return_annotation is None) else signature.return_annotation
+            return_type = get_function_return_type(func, signature)
             if isinstance(return_type, str):
                 # why does this even happen?
                 return_type = get_type_hints(func)["return"]

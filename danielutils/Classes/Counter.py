@@ -1,5 +1,3 @@
-from typing import Callable
-import threading
 from ..MetaClasses import AtomicClassMeta
 
 

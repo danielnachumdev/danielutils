@@ -1,4 +1,5 @@
 from __future__ import annotations
+# from types import GenericAlias
 from typing import Iterable, Any
 from .tbase import tbase
 from ...Decorators import validate
@@ -12,6 +13,9 @@ class tlist(list, tbase):
         type (type): the allowed type, can be nested type
         iterable (Iterable, optional): the value to create the tlist from. Defaults to None.
     """
+    # @classmethod
+    # def __class_getitem__(cls, __item: Any) -> GenericAlias:
+    #     return super().__class_getitem__(__item)
 
     @validate
     def __init__(self, T: type, *args, **kwargs):
