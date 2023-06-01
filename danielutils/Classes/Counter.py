@@ -1,3 +1,5 @@
+from typing import Callable
+import threading
 from ..MetaClasses import AtomicClassMeta
 
 
@@ -39,6 +41,9 @@ class Counter:
 class AtomicCounter(Counter, metaclass=AtomicClassMeta):
     """A Counter Class which is Atomic
     """
+
+    def wait_for(self, predicate: Callable[[], bool]):
+        threading.Condition().wait_for(predicate=predicate)
 
 
 __all__ = [

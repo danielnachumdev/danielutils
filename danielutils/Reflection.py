@@ -62,7 +62,7 @@ def dynamically_load(module_name: str, obj_name: str) -> Any:
 #         class_name (str): the name of the wanted class
 
 #     Returns:
-#         type: The class
+#         type (type): The class
 #     """
 #     return dynamically_load(module_name, class_name)
 

@@ -1,24 +1,24 @@
 from typing import Generator, Any
+from threading import Semaphore, Condition
 from ..Decorators import threadify
 from ..DataStructures import AtomicQueue, Queue
 from ..Classes import AtomicCounter
-from threading import Semaphore
 
 
-def join_generators_busy_waiting(*generators) -> Generator[Any, Any, None]:
+def join_generators_busy_waiting(*generators) -> Generator[tuple[int, Any], None, None]:
     """joins an arbitrary amount of generators to yield objects as soon someone yield an object
 
     Yields:
-        Generator[Any, None, None]: resulting generator
+        Generator[tuple[int, Any], None, None]: resulting generator
     """
     q = AtomicQueue()
     threads_status = [False for _ in range(len(generators))]
 
     @threadify
-    def yield_from_one(thread_id: int, gen):
+    def yield_from_one(thread_id: int, generator: Generator):
         nonlocal threads_status
-        for v in gen:
-            q.push(v)
+        for v in generator:
+            q.push((thread_id, v))
         threads_status[thread_id] = True
 
     for i, gen in enumerate(generators):
@@ -32,7 +32,7 @@ def join_generators_busy_waiting(*generators) -> Generator[Any, Any, None]:
         yield from q
 
 
-def join_generators(*generators) -> Generator[Any, None, None]:
+def join_generators(*generators) -> Generator[tuple[int, Any], None, None]:
     """will join generators to yield from all of them simultaneously without busy waiting, using semaphores and multithreading 
 
     Yields:
@@ -44,20 +44,23 @@ def join_generators(*generators) -> Generator[Any, None, None]:
     finished_threads_counter = AtomicCounter()
 
     @threadify
-    def thread_entry_point(generator) -> None:
+    def thread_entry_point(index: int, generator: Generator) -> None:
         for value in generator:
             with edit_queue_semaphore:
-                queue.push(value)
+                queue.push((index, value))
             queue_status_semaphore.release()
         finished_threads_counter.increment()
 
-    for generator in generators:
-        thread_entry_point(generator)
+    for i, generator in enumerate(generators):
+        thread_entry_point(i, generator)
 
     while finished_threads_counter.get() < len(generators):
         queue_status_semaphore.acquire()
         with edit_queue_semaphore:
             yield queue.pop()
+    with edit_queue_semaphore:
+        for value in queue:
+            yield value
 
 
 __all__ = [

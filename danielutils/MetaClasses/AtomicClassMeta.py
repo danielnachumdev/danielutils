@@ -14,9 +14,9 @@ class AtomicClassMeta(type):
                 if isinstance(v, Callable):
                     if k not in namespace:
                         namespace[k] = atomic(v)
-                    else:
-                        breakpoint()
-                        pass
+                    # else:
+                    #     breakpoint()
+                    #     pass
         return super().__new__(mcs, name, bases, namespace)
 
 

@@ -1,5 +1,5 @@
 import time
-from ...danielutils.Generators.join_generators_busy_waiting import *
+from ...danielutils.Generators.join_generators import *
 
 
 def test_simple_case():
