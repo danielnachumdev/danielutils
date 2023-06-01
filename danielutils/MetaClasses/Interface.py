@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Any, Generator
+from typing import Callable, Iterable, Any, Generator, Optional, cast
 import inspect
 import re
 import traceback
@@ -90,7 +90,7 @@ class InterfaceHelper:
                 yield func_name
 
     @staticmethod
-    def create_init_handler(cls_name, missing: list[str] = None, original: Callable = None):
+    def create_init_handler(cls_name, missing: Optional[list[str] | set[str]] = None, original: Optional[Callable] = None):
         """this function will create the default interface __init__ function with the wanted behavior"""
         # @decorate_conditionally(functools.wraps, original is not None, [original])  # TODO implement this decorator
         def __interface_init__(*args, **kwargs):
@@ -154,7 +154,7 @@ class Interface(type):
             return mcs._handle_new_interface(mcs, name, bases, namespace)
         return mcs._handle_new_subclass(mcs, name, bases, namespace)
 
-    def _handle_new_interface(cls, name: str, bases: tuple, namespace: dict[str, Any]):
+    def _handle_new_interface(mcs, name: str, bases: tuple, namespace: dict[str, Any]) -> type:
         namespace[InterfaceHelper.ORIGINAL_INIT] = None
         if "__init__" in namespace:
             namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
@@ -165,10 +165,10 @@ class Interface(type):
                 if not InterfaceHelper.is_func_implemented(v):
                     namespace[k] = InterfaceHelper.create_generic_handler(k, v)
         namespace[Interface.KEY] = True
-        return super().__new__(cls, name, bases, namespace)
+        return super().__new__(mcs, name, bases, namespace)
 
-    def _handle_new_subclass(cls, name: str, bases: tuple, namespace: dict[str, Any]):
-        need_to_be_implemented = set()
+    def _handle_new_subclass(mcs, name: str, bases: tuple, namespace: dict[str, Any]) -> type:
+        need_to_be_implemented: set = set()
         ancestry = set()
         for base in bases:
             cls_tree = inspect.getclasstree([base], unique=True)
@@ -243,7 +243,7 @@ class Interface(type):
             if "__init__" not in namespace:
                 namespace["__init__"] = object.__init__
 
-        return super().__new__(cls, name, bases, namespace)
+        return super().__new__(mcs, name, bases, namespace)
 
     @staticmethod
     def is_cls_interface(cls_to_check: type) -> bool:

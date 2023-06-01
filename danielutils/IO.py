@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import subprocess
-from typing import IO, Iterator, Generator
+from typing import IO, Iterator, Generator, Optional, cast
 import shutil
 from pathlib import Path
 import os
@@ -58,7 +58,7 @@ def delete_file(path: str) -> None:
 
 
 @validate
-def read_file(path: str, read_bytes: bool = False) -> list[str]:
+def read_file(path: str, read_bytes: bool = False) -> list[str] | list[bytes]:
     """read all lines from a file
 
     Args:
@@ -76,8 +76,8 @@ def read_file(path: str, read_bytes: bool = False) -> list[str]:
                 return f.readlines()
     except Exception as e:
         if isinstance(e, UnicodeDecodeError):
-            raise UnicodeDecodeError(
-                "Can't read byte in file.\nTo use with bytes use: read_bytes = True ") from e
+            raise UnicodeDecodeError(e.encoding, e.object, e.start, e.end,
+                                     "Can't read byte in file.\nTo use with bytes use: read_bytes = True ") from e
         raise e
 
 
@@ -296,9 +296,9 @@ class IndentedWriter:
 
     """
 
-    def __init__(self, output_stream: IO = None, indent_value: str = "\t"):
+    def __init__(self, output_stream: Optional[IO] = None, indent_value: str = "\t"):
         self.indent_level = 0
-        self.output_stream: IO = output_stream
+        self.output_stream: Optional[IO] = output_stream
         self.indent_value = indent_value
 
     def write(self, *args, sep=" ", end="\n"):
@@ -324,6 +324,7 @@ class IndentedWriter:
             stream (IO): stream
         """
         self.output_stream = stream
+        self.output_stream = cast(IO, self.output_stream)
 
     def indent(self) -> None:
         """indents the preceding output with write() by one quantity more

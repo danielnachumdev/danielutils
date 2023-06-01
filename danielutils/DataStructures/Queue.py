@@ -107,7 +107,7 @@ class PriorityQueue(Queue):
         super().__init__()
         self.data = Heap(comparer)
         self.weight_func = weight_func
-        self.dct = {}
+        self.dct: dict = {}
 
     def pop(self) -> Any:
         """

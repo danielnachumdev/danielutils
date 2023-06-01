@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 import inspect
 import functools
 from ..Functions import isoneof, isoneof_strict, isoftype
@@ -98,7 +98,7 @@ def overload(*types) -> Callable:
     return deco
 
 
-def is_function_annotated_properly(func: Callable, ignore: set = None, check_return: bool = True) -> bool:
+def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None, check_return: bool = True) -> bool:
     """checks wheter a function is annotated properly
 
     Args:

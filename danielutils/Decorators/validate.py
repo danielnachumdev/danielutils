@@ -97,7 +97,7 @@ def validate(strict: Callable | bool = True) -> Callable:
                     f"{return_type} but got '{result}' which is {type(result)}")
             return result
         return wrapper
-    if isinstance(strict, Callable):
+    if callable(strict):
         func = strict
         strict = True
         return deco(func)

@@ -1,4 +1,4 @@
-from typing import get_args, get_origin, get_type_hints, Any, Sequence, Union, TypeVar, ForwardRef, Literal, Optional
+from typing import get_args, get_origin, get_type_hints, Any, Sequence, Union, TypeVar, ForwardRef, Literal, Optional, cast
 from collections.abc import Callable, Generator, Iterable
 import inspect
 
@@ -19,7 +19,7 @@ def get_function_return_type(func: Callable, signature: Optional[inspect.Signatu
     return signature.return_annotation
 
 
-def __isoftype_inquire(obj: Any) -> tuple[Any, Any, Any]:
+def __isoftype_inquire(obj: Any) -> tuple[Optional[type], Optional[tuple], Optional[dict]]:
     origin = None
     args = None
     type_hints = None
@@ -62,11 +62,13 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
             "using an ellipsis (as in '...') with isoftype is ambiguous returning False")
         return False
     if t_origin is not None:
+        t_args = cast(tuple, t_args)
         if t_origin in {list, tuple, dict, dict, Iterable}:
             if not isinstance(obj, t_origin):
                 return False
 
             if t_origin in {list, set, Iterable}:
+                obj = cast(Iterable, obj)
                 value_t = t_args[0]
                 for value in obj:
                     if not isoftype(value, value_t, strict=strict):
@@ -74,6 +76,7 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
                 return True
 
             elif t_origin is tuple:
+                obj = cast(tuple, obj)
                 if len(obj) != len(t_args):
                     return False
                 for sub_obj, sub_t in zip(obj, t_args):
@@ -82,6 +85,7 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
                 return True
 
             elif t_origin is dict:
+                obj = cast(dict, obj)
                 key_t, value_t,  = t_args[0], t_args[1]
                 for k, v in obj.items():
                     if not isoftype(k, key_t, strict=strict):
@@ -107,7 +111,9 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
             return False
 
         elif t_origin is Callable:
-            if not isinstance(obj, Callable):
+            obj_hints = cast(dict, obj_hints)
+
+            if not callable(obj):
                 return False
             if obj.__name__ == "<lambda>":
                 if strict:
@@ -185,7 +191,7 @@ def isoneof(v: Any, types: Union[list[type], tuple[type]]) -> bool:
     return False
 
 
-def isoneof_strict(v: Any, types: Sequence[type]) -> bool:
+def isoneof_strict(v: Any, types: Union[list[type], tuple[type]]) -> bool:
     """performs 'type(v) in types' efficiently
 
     Args:
@@ -201,12 +207,12 @@ def isoneof_strict(v: Any, types: Sequence[type]) -> bool:
     if not isinstance(types, Sequence):
         raise TypeError("lst must be of type Sequence")
     for T in types:
-        if type(v) == T:
+        if type(v) in {T}:
             return True
     return False
 
 
-def areoneof(values: Sequence[Any], types: Sequence[type]) -> bool:
+def areoneof(values: Sequence[Any], types: Union[list[type], tuple[type]]) -> bool:
     """performs 'isoneof(values[0],types) and ... and isoneof(values[...],types)'
 
     Args:
@@ -242,7 +248,7 @@ def check_foreach(values: Sequence[Any], condition: Callable[[Any], bool]) -> bo
     """
     if not isinstance(values, Sequence):
         pass
-    if not isinstance(condition, Callable):
+    if not callable(condition):
         pass
     for v in values:
         if not condition(v):

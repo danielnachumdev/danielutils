@@ -1,9 +1,10 @@
+from typing import Optional
 from .Queue import Queue
 from .Node import MultiNode
 
 
 class Graph:
-    def __init__(self, nodes: list[MultiNode] = None):
+    def __init__(self, nodes: Optional[list[MultiNode]] = None):
         self.nodes: list[MultiNode] = nodes if nodes is not None else []
 
     def add_node(self, node):

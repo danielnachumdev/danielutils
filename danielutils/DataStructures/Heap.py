@@ -7,7 +7,7 @@ class Heap:
     """
 
     def __init__(self, comparer: Comparer):
-        self.arr = []
+        self.arr: list = []
         self.comparer = comparer
 
     def push(self, val: Any) -> None:
@@ -16,12 +16,13 @@ class Heap:
         Args:
             val (Any): the object to add to the heap
         """
-        res = -1
+        res: int | float = -1
         curr_index = len(self)
         self.arr.append(val)
         parent_index = curr_index//2 - (1 - curr_index % 2)
         while res < 0 and parent_index >= 0:
-            res = self.comparer.compare(self[parent_index], self[curr_index])
+            res = self.comparer.compare(
+                self[parent_index], self[curr_index])
             if res < 0:
                 self.arr[parent_index], self.arr[curr_index] = self[curr_index], self[parent_index]
                 curr_index = parent_index

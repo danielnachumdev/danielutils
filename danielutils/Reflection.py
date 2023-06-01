@@ -4,10 +4,20 @@ import platform
 import sys
 import importlib
 from enum import Enum
-from typing import Any, Callable
+from typing import Any, cast, Optional
+from types import FrameType
 
 
-def get_caller_name(steps_back: int = 0) -> str:
+def __get_prev_frame(frame: Optional[FrameType]) -> Optional[FrameType]:
+    if frame is None:
+        return None
+    if not isinstance(frame, FrameType):
+        return None
+    frame = cast(FrameType, frame)
+    return frame.f_back
+
+
+def get_caller_name(steps_back: int = 0) -> Optional[str]:
     """returns the name caller of the function
 
     Returns:
@@ -34,9 +44,15 @@ def get_caller_name(steps_back: int = 0) -> str:
     # caller_frame = callee_frame.f_back
     # caller_name = caller_frame.f_code.co_name
     # return caller_name
-    frame = inspect.currentframe().f_back.f_back
+    frame = __get_prev_frame(__get_prev_frame(inspect.currentframe()))
+    if frame is None:
+        return None
+    frame = cast(FrameType, frame)
     while steps_back > 0:
-        frame = frame.f_back
+        frame = __get_prev_frame(frame)
+        if frame is None:
+            return None
+        frame = cast(FrameType, frame)
         steps_back -= 1
     return frame.f_code.co_name
 
@@ -88,19 +104,25 @@ def dynamically_load(module_name: str, obj_name: str) -> Any:
 #     """
 #     return get_caller()
 
-def get_filename() -> str:
-    frame = inspect.currentframe().f_back
+def get_filename() -> Optional[str]:
+    frame = __get_prev_frame(inspect.currentframe())
+    if frame is None:
+        return None
+    frame = cast(FrameType, frame)
     return frame.f_code.co_filename
 
 
-def get_caller_filename() -> str:
+def get_caller_filename() -> Optional[str]:
     """return the name of the file that the caller of the 
     function that's using this function is in
 
     Returns:
         str: name of file
     """
-    frame = inspect.currentframe().f_back.f_back
+    frame = __get_prev_frame(__get_prev_frame(inspect.currentframe()))
+    if frame is None:
+        return None
+    frame = cast(FrameType, frame)
     return frame.f_code.co_filename
 
 

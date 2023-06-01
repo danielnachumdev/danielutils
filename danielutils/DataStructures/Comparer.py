@@ -10,10 +10,10 @@ class Comparer():
         """inner implementation
         """
 
-        def __init__(self, func: Callable[[Any, Any], int]):
+        def __init__(self, func: Callable[[Any, Any], int | float]):
             self.func = func
 
-        def compare(self, v1: Any, v2: Any) -> int:
+        def compare(self, v1: Any, v2: Any) -> int | float:
             """compares two objects
 
             Args:
@@ -25,7 +25,7 @@ class Comparer():
             """
             return self.func(v1, v2)
 
-        def __call__(self, v1: Any, v2: Any) -> int:
+        def __call__(self, v1: Any, v2: Any) -> int | float:
             return self.compare(v1, v2)
 
     GREATER = _Comparer(lambda a, b: default_weight_function(
@@ -36,7 +36,7 @@ class Comparer():
     def __init__(self, func: Callable[[Any, Any], int]):
         self.__comp = Comparer._Comparer(func)
 
-    def compare(self, v1: Any, v2: Any) -> int:
+    def compare(self, v1: Any, v2: Any) -> int | float:
         """compares two objects
 
             Args:
@@ -48,7 +48,7 @@ class Comparer():
             """
         return self.__comp(v1, v2)
 
-    def __call__(self, v1: Any, v2: Any) -> int:
+    def __call__(self, v1: Any, v2: Any) -> int | float:
         return self.compare(v1, v2)
 
 

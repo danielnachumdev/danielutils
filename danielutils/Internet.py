@@ -28,7 +28,7 @@ def get_html(url: str) -> str:
 
 
 @validate
-def get_url_details(url: str) -> tuple[str, str, str, str, str]:
+def get_url_details(url: str) -> tuple[str, str, str, str, str, str]:
     """returns details about a url
 
     Args:

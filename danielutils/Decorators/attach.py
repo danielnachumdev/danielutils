@@ -1,10 +1,10 @@
 import functools
-from typing import Callable
+from typing import Callable, Optional
 from .validate import validate
 
 
 @validate(strict=False)
-def attach(before: Callable = None, after: Callable = None) -> Callable:
+def attach(before: Optional[Callable] = None, after: Optional[Callable] = None) -> Callable:
     """attaching functions to a function
 
     Args:
@@ -22,7 +22,7 @@ def attach(before: Callable = None, after: Callable = None) -> Callable:
         raise ValueError("You must supply at least one function")
 
     def attach_deco(func: Callable):
-        if not isinstance(func, Callable):
+        if not callable(func):
             raise ValueError("attach must decorate a function")
 
         @functools.wraps(func)

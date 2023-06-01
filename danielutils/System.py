@@ -1,5 +1,5 @@
 from typing import Generator
-from typing import IO
+from typing import IO, Optional, cast
 from pathlib import Path
 import subprocess
 import time
@@ -49,6 +49,7 @@ def sleep(seconds: int | float) -> None:
 
 
 def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
+    p.stdin = cast(IO[bytes], p.stdin)
     b_args = str_to_bytes(sep).join(str_to_bytes(v) for v in args)
     b_end = str_to_bytes(end)
     p.stdin.write(b_args+b_end)
@@ -56,9 +57,8 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
 
 
 @validate
-def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01,
-        shell: bool = False, use_write_helper: bool = True, cwd: str = None,
-        env: str = None) -> tuple[int, list[bytes] | None, list[bytes] | None]:
+def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.01,
+        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) -> tuple[int, list[bytes] | None, list[bytes] | None]:
     """Advanced command
 
     Args:
@@ -81,11 +81,15 @@ def acm(command: str, inputs: list[str] = None, i_timeout: float = 0.01,
 
     if inputs is None:
         inputs = []
+
     p = None
     try:
         # TODO with ... as p:
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
-                             stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, env=env, shell=shell)
+                             stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, shell=shell)
+        p.stdin = cast(IO[bytes], p.stdin)
+        p.stdout = cast(IO[bytes], p.stdout)
+        p.stderr = cast(IO[bytes], p.stderr)
 
         @timeout(i_timeout)
         def readlines(s: IO, l: list):

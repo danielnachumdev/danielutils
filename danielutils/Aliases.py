@@ -1,12 +1,16 @@
 import inspect
-from abc import ABC
-from typing import cast
+from abc import ABC, abstractmethod
+from typing import cast, TypeAlias, Union
 from .Functions import get_function_return_type, isoftype
 from .Reflection import get_caller_name
 
 
 class SubscribableBase(ABC):
-    __slots__ = "params"
+    """An abstract class that need __instanceCheck__ to be implemented
+        will create default functions such that isinstance will work with the new type
+        while it is used as all of the python's generic types
+    """
+    __slots__ = ("params",)
 
     def __init__(self, *params):
         if get_caller_name() != "__class_getitem__":
@@ -19,10 +23,14 @@ class SubscribableBase(ABC):
         res: type = cast(type, cls(*params))
         return res
 
+    @abstractmethod
     def __instancecheck__(self, value) -> bool: ...
 
 
 class Supplier(SubscribableBase):
+    """create a type for functions to be a supplier function
+    """
+
     def __instancecheck__(self, func) -> bool:
         if not callable(func):
             return False
@@ -31,13 +39,18 @@ class Supplier(SubscribableBase):
             return False
 
         return_type = get_function_return_type(func)
-        try:
-            return isoftype(return_type(), self.params)
-        except:
-            return False
+        if return_type is not None:
+            try:
+                return isoftype(return_type(), self.params)
+            except:
+                return False
+        return self.params is None
 
 
 class Consumer(SubscribableBase):
+    """create a type for functions to be a consumer function
+    """
+
     def __instancecheck__(self, func) -> bool:
         if not callable(func):
             return False
@@ -54,6 +67,9 @@ class Consumer(SubscribableBase):
 
 
 class BinaryConsumer(SubscribableBase):
+    """create a type for functions to be a binary consumer function
+    """
+
     def __instancecheck__(self, func) -> bool:
         if self.params[-1] is not None:
             return False
@@ -90,9 +106,11 @@ class BinaryConsumer(SubscribableBase):
 #         return False
 
 
+# ListTupleType: TypeAlias = Union[list, tuple]
 __all__ = [
     "SubscribableBase",
     "Supplier",
     "Consumer",
     "BinaryConsumer",
+    # "ListTupleType"
 ]

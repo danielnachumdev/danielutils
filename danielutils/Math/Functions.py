@@ -12,9 +12,9 @@ def sign(v: Union[int, float]) -> int:
     Returns:
         int: either 1 or -1
     """
-    if v == 0:
+    if v >= 0:
         return 1
-    return abs(v)/v
+    return -1
 
 
 __all__ = [

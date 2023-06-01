@@ -10,15 +10,14 @@ class tdict(dict):
     """
     @overload(None, type, type)
     def __init__(self, key_t: type, val_t: type):
-
-        self.key_t = key_t
-        self.val_t = val_t
+        self.key_t: type = key_t
+        self.val_t: type = val_t
         super().__init__()
 
     @overload(None, type, type, Iterable)
-    def __init__(self, keyt: type, val_t: type, iterable: Iterable[tuple]):
-        self.key_t = keyt
-        self.val_t = val_t
+    def __init__(self, key_t: type, val_t: type, iterable: Iterable[tuple]):
+        self.key_t: type = key_t
+        self.val_t: type = val_t
         super().__init__(iterable)
 
     @overload(None, type, type, dict)
@@ -31,9 +30,9 @@ class tdict(dict):
             dict(type,type,**kwargs) -> new dictionary initialized with the name=value pairs
                 in the keyword argument list. For example: dict(one=1, two=2)
         """
-        self.key_t = key_t
-        self.val_t = val_t
         super().__init__(**kwargs)
+        self.key_t: type = key_t
+        self.val_t: type = val_t
 
     def __setitem__(self, key, value) -> None:
         if not isoftype(key, self.key_t):

@@ -21,7 +21,7 @@ def timeout(duration: int | float, silent: bool = False) -> Callable:
     """
     # https://stackoverflow.com/a/21861599/6416556
     def timeout_deco(func: Callable) -> Callable:
-        if not isinstance(func, Callable):
+        if not callable(func):
             raise ValueError("timeout must decorate a function")
 
         @functools.wraps(func)

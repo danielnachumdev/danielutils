@@ -1,12 +1,13 @@
 from __future__ import annotations
-from typing import Any
+from typing import Any, Optional
 from ..MetaClasses import ImplicitDataDeleterMeta
 
 
 class MultiNode:
-    def __init__(self, data: Any, children: list[MultiNode] = None):
+    def __init__(self, data: Any, children: Optional[list[Optional[MultiNode]]] = None):
         self.data = data
-        self._children = children if children is not None else []
+        self._children = children if children is not None else [
+        ]
 
     def __getitem__(self, idnex):
         return self._children[idnex]
@@ -47,7 +48,7 @@ class MultiNode:
 
 
 class Node(MultiNode, metaclass=ImplicitDataDeleterMeta):
-    def __init__(self, data, next: Node = None):
+    def __init__(self, data, next: Optional[Node] = None):
         super().__init__(data, [next])
 
     @property

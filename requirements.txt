@@ -6,3 +6,4 @@ pytest-html
 # bs4
 notebook
 pylint
+mypy

@@ -52,7 +52,7 @@ SUPERSCRIPT_SMALL_LETTERS = ['ᵃ','ᵇ','ᶜ','ᵈ','ᵉ','ᶠ','ᵍ','ʰ','ⁱ
 # superscript_big_case_z = 'ⁱ'
 
 
-superscript_dict = {}
+superscript_dict :dict[str|int,str]= {}
 superscript_dict.update(
     {chr(i+ord('a')): SUPERSCRIPT_SMALL_LETTERS[i] for i in range(26)}
 )
@@ -97,7 +97,7 @@ SUBSCRIPT_SMALL_LETTERS = ['ₐ','','','','ₑ','','','ₕ','ᵢ','ⱼ','ₖ','�
 # subscript_big_case_x = 'ⁱ'
 # subscript_big_case_y = 'ⁱ'
 # subscript_big_case_z = 'ⁱ'
-subscript_dict = {}
+subscript_dict:dict[str|int,str] = {}
 subscript_dict.update(
     {chr(i+ord('a')): SUBSCRIPT_SMALL_LETTERS[i]
      for i in range(len(SUBSCRIPT_SMALL_LETTERS))}

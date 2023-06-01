@@ -1,12 +1,12 @@
 """frange class"""
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Optional
 
 
 class frange:
     """this class is the same like builtin range but with float values
     """
 
-    def __init__(self, start: float, stop: float = None,
+    def __init__(self, start: float, stop: Optional[float] = None,
                  step: float = 1, round_method: Callable[[float], float] = lambda f: round(f, 3)):
         if stop is None:
             stop = start

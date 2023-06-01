@@ -1,10 +1,10 @@
 import functools
-from typing import Callable
+from typing import Callable, Optional
 from .validate import validate
 
 
 @validate(strict=False)
-def decorate_conditionally(decorator: Callable, predicate: bool | Callable[[], bool], args: list = None):
+def decorate_conditionally(decorator: Callable, predicate: bool | Callable[[], bool], args: Optional[list] = None):
     """will decorate a function iff the predicate is True or returns True
 
     Args:
