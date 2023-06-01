@@ -42,14 +42,6 @@ class AtomicCounter(Counter, metaclass=AtomicClassMeta):
     """A Counter Class which is Atomic
     """
 
-    def __init__(self, initial_value: int | float = 0, increment_amount: int | float = 1):
-        self.cond = threading.Condition()
-        Counter.__init__(self, initial_value, increment_amount)
-
-    def wait_for(self, predicate: Callable[[], bool]):
-        while not predicate():
-            pass
-
 
 __all__ = [
     "Counter",
