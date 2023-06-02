@@ -1,2 +1,11 @@
+from typing import Generic, TypeVar
+T = TypeVar("T")
 
-__all__ = []
+
+class ttuple(tuple, Generic[T]):
+    pass
+
+
+__all__ = [
+    "ttuple"
+]

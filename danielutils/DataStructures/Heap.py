@@ -1,5 +1,5 @@
 from typing import Any
-from .Comparer import Comparer
+from .Comparer import Comparer, CompareGreater, CompareSmaller
 
 
 class Heap:
@@ -93,7 +93,7 @@ class MaxHeap(Heap):
     """
 
     def __init__(self):
-        super().__init__(Comparer.GREATER)
+        super().__init__(CompareGreater)
 
 
 class MinHeap(Heap):
@@ -101,7 +101,7 @@ class MinHeap(Heap):
     """
 
     def __init__(self):
-        super().__init__(Comparer.SMALLER)
+        super().__init__(CompareSmaller)
 
 
 __all__ = [

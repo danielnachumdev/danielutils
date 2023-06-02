@@ -149,14 +149,15 @@ class overload2:
     will only match a specific resolution and won't infer best guess for types
     """
 
-    SKIP_SET = {"self", "cls", "args", "kwargs"}
+    __SKIP_SET = {"self", "cls", "args", "kwargs"}
 
     def __init__(self, func: Callable):
         overload2._validate(func)
-        self.qualname = func.__qualname__
-        self.moudle = func.__module__
-        self.functions: dict[int, list[Callable]] = dict()
-        self.functions[overload2._get_key(func)] = [func]
+        self._qualname = func.__qualname__
+        self._moudle = func.__module__
+        self._functions: dict[int, list[Callable]] = dict()
+        self._functions[overload2._get_key(func)] = [func]
+        functools.wraps(func)(self)
 
     @staticmethod
     def _get_key(func: Callable):
@@ -171,7 +172,7 @@ class overload2:
                 "Function must be fully annotated to be overloaded")
 
     def prepare_for_wraps(self) -> Callable:
-        return next(iter(self.functions.values()))[0]
+        return next(iter(self._functions.values()))[0]
 
     def overload(self, func: Callable) -> overload2:
         """will add another function to the list of available options
@@ -184,25 +185,34 @@ class overload2:
         """
         self._validate(func)
         k = overload2._get_key(func)
-        if k not in self.functions:
-            self.functions[k] = []
-        self.functions[k].append(func)
+        if k not in self._functions:
+            self._functions[k] = []
+        self._functions[k].append(func)
         return self
 
     def __call__(self, *args, **kwargs):
+        """_summary_
+
+        Raises:
+            AttributeError: _description_
+            AttributeError: _description_
+
+        Returns:
+            _type_: _description_
+        """
         num_args = len(args)+len(kwargs.keys())
-        if num_args not in self.functions:
+        if num_args not in self._functions:
             raise AttributeError(
-                f"No overload with {num_args} argument found for {self.moudle}.{self.qualname}")
+                f"No overload with {num_args} argument found for {self._moudle}.{self._qualname}")
         selected_func = None
-        if len(self.functions[num_args]) == 1:
-            selected_func = self.functions[num_args][0]
+        if len(self._functions[num_args]) == 1:
+            selected_func = self._functions[num_args][0]
         else:
-            for func in self.functions[num_args]:
+            for func in self._functions[num_args]:
                 signature = inspect.signature(func)
                 for i, tup in enumerate(signature.parameters.items()):
                     param_name, param_type = tup
-                    if param_name in overload2.SKIP_SET:
+                    if param_name in overload2.__SKIP_SET:
                         continue
 
                     if not isoftype(args[i], param_type.annotation):

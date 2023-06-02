@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Optional
+from typing import Any, Optional, Generator
 from ..MetaClasses import ImplicitDataDeleterMeta
 
 
@@ -8,19 +8,19 @@ class MultiNode:
         self.data = data
         self._children = children if children is not None else []
 
-    def __getitem__(self, idnex):
-        return self._children[idnex]
+    def __getitem__(self, index) -> Any:
+        return self._children[index]
 
-    def __setitem__(self, value, index):
+    def __setitem__(self, value, index) -> None:
         self._children[index] = value
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self._children)
 
-    def __iter__(self):
+    def __iter__(self) -> Generator:
         yield from self._children
 
-    def __str__(self):
+    def __str__(self) -> str:
         res = ""
         seen = set()
 
@@ -81,7 +81,7 @@ class Node(MultiNode, metaclass=ImplicitDataDeleterMeta):
         #     if curr in seen:
         #         break
         # return res+")"
-        return super().__str__().replace(self.__class__.__mro__[1].__name__, self.__class__.__name__).replace("[", "").replace("]", "")
+        return MultiNode.__str__(self).replace(self.__class__.__mro__[1].__name__, self.__class__.__name__).replace("[", "").replace("]", "")
 
     def __repr__(self):
         return str(self)

@@ -1,6 +1,6 @@
 from typing import Callable, Any
 from .Heap import Heap
-from .Comparer import Comparer
+from .Comparer import Comparer, CompareGreater
 from .functions import default_weight_function
 from ..MetaClasses import AtomicClassMeta
 
@@ -102,10 +102,11 @@ class PriorityQueue(Queue):
         10
     """
 
-    def __init__(self, weight_func: Callable[[Any], int | float] = default_weight_function,
-                 comparer: Comparer = Comparer.GREATER):
+    def __init__(self, weight_func: Callable[[Any], int | float] = default_weight_function):
         super().__init__()
-        self.data = Heap(comparer)
+        comparer = CompareGreater if weight_func is default_weight_function else Comparer(
+            lambda a, b: weight_func(a)-weight_func(b))
+        self.data: Heap = Heap(comparer)
         self.weight_func = weight_func
         self.dct: dict = {}
 

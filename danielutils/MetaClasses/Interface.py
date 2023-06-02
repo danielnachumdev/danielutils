@@ -149,11 +149,12 @@ class Interface(type):
         setattr(func, Interface.FUNC_KEY, True)
         return func
 
-    def __new__(mcs, name: str, bases: tuple, namespace: dict):
+    def __new__(mcs: type['Interface'], name: str, bases: tuple, namespace: dict):
         if len(bases) == 0:
             return mcs._handle_new_interface(mcs, name, bases, namespace)
         return mcs._handle_new_subclass(mcs, name, bases, namespace)
 
+    @staticmethod
     def _handle_new_interface(mcs, name: str, bases: tuple, namespace: dict[str, Any]) -> type:
         namespace[InterfaceHelper.ORIGINAL_INIT] = None
         if "__init__" in namespace:
@@ -161,13 +162,14 @@ class Interface(type):
         namespace["__init__"] = InterfaceHelper.create_init_handler(
             name, original=namespace[InterfaceHelper.ORIGINAL_INIT])
         for k, v in namespace.items():
-            if isinstance(v, Callable) and not k == "__init__":
+            if callable(v) and not k == "__init__":
                 if not InterfaceHelper.is_func_implemented(v):
                     namespace[k] = InterfaceHelper.create_generic_handler(k, v)
         namespace[Interface.KEY] = True
-        return super().__new__(mcs, name, bases, namespace)
+        return type.__new__(mcs, name, bases, namespace)
 
-    def _handle_new_subclass(mcs, name: str, bases: tuple, namespace: dict[str, Any]) -> type:
+    @staticmethod
+    def _handle_new_subclass(mcs: type['Interface'], name: str, bases: tuple, namespace: dict[str, Any]) -> type:
         need_to_be_implemented: set = set()
         ancestry = set()
         for base in bases:
@@ -243,7 +245,7 @@ class Interface(type):
             if "__init__" not in namespace:
                 namespace["__init__"] = object.__init__
 
-        return super().__new__(mcs, name, bases, namespace)
+        return type.__new__(mcs, name, bases, namespace)
 
     @staticmethod
     def is_cls_interface(cls_to_check: type) -> bool:

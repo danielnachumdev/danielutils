@@ -63,7 +63,7 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
         return False
     if t_origin is not None:
         t_args = cast(tuple, t_args)
-        if t_origin in {list, tuple, dict, dict, Iterable}:
+        if t_origin in {list, tuple, dict, set, dict, Iterable}:
             if not isinstance(obj, t_origin):
                 return False
 

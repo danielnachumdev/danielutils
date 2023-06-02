@@ -92,6 +92,24 @@ class BinaryConsumer(SubscribableBase):
         except:
             return False
 
+
+# class Comparer(SubscribableBase):
+#     def __instancecheck__(self, func) -> bool:
+#         if not callable(func):
+#             return False
+#         if get_function_return_type(func) not in {int, float, int | float}:
+#             return False
+#         signature = inspect.signature(func)
+#         if len(signature.parameters) != 2:
+#             return False
+#         param_iter = iter(signature.parameters.values())
+#         param1_type = next(param_iter).annotation
+#         param2_type = next(param_iter).annotation
+#         try:
+#             return param1_type == param2_type == self.params[0] == self.params[1]
+#         except:
+#             return False
+
 # def predicate(func,self):
 #     if not callable(func):
 #             return False

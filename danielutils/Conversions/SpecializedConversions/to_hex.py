@@ -1,15 +1,15 @@
-from ...Decorators import overload
+from ...Decorators import OverloadMeta
 from ..MainConversions import int_to_hex, char_to_hex
 
 
-@overload(int)
+@OverloadMeta.overload
 def to_hex(v: int) -> str:
     # docstring at last implementation
     return int_to_hex(v)
 
 
-@overload(str)
-def to_hex(v: str) -> str:
+@to_hex.overload
+def to_hex2(v: str) -> str:
     """to_hex has several options:\n
     1. type(v) == int\n
     2. type(v) == str and len(v) == 1

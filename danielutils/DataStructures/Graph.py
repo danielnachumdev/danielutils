@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Generator
 from .Queue import Queue
 from .Node import MultiNode
 
@@ -10,7 +10,7 @@ class Graph:
     def add_node(self, node):
         self.nodes.append(node)
 
-    def _extended_dfs(self):
+    def _extended_dfs(self) -> Generator:
         seen = set()
         enter_times = dict()
         exit_times = dict()
@@ -42,10 +42,10 @@ class Graph:
             all_nodes, key=lambda v: exit_times[v], reverse=True)
         return topological_order
 
-    def dfs(self):
+    def dfs(self) -> Generator:
         yield from self._extended_dfs()
 
-    def topological_sort(self):
+    def topological_sort(self) -> list:
         g = self._extended_dfs()
         try:
             while True:
@@ -53,7 +53,7 @@ class Graph:
         except StopIteration as e:
             return e.value
 
-    def bfs(self):
+    def bfs(self) -> Generator:
         q = Queue()
         for node in self.nodes:
             q.push(node)
