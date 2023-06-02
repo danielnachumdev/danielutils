@@ -17,26 +17,21 @@ setup(
     author="danielnachumdev",
     author_email="<danielnachumdev@gmail.com>",
     description=DESCRIPTION,
-    long_description=open('README.md').read(),
+    long_description=open('README.md', "r", encoding="utf8").read(),
     long_description_content_type='text/markdown',
     url='https://github.com/danielnachumdev/danielutils',
     license="MIT License",
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "archive/"]),
-    install_requires=[
-        # "bs4",
-        #   "pyautogui",
-        "screeninfo",
-        "Pillow"
-    ],
+    install_requires=[],
     platforms=["All"],
-    keywords=['functions', 'decorators', 'methods'],
+    keywords=['functions', 'decorators', 'methods', 'classes', 'metaclasses'],
     classifiers=[
-        # "Development Status :: In development",
+        "Development Status :: 3 - Alpha.",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
-        "Operating System :: Unix",
-        "Operating System :: MacOS :: MacOS X",
+        # "Operating System :: Unix",
+        # "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
     ]
 )

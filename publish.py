@@ -1,13 +1,14 @@
-from danielutils import cm, read_file, get_files, directory_exists
 import re
+from danielutils import cm, read_file, get_files, directory_exists, create_directory
 VERSION_PATTERN = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 SETUP = "./setup.py"
 TOML = "./pyproject.toml"
 README = "./README.md"
 DIST = "./dist"
+REPORTS = "./reports"
 
 
-def get_latest(version: str = '0.0.0') -> str:
+def get_latest(ver: str = '0.0.0') -> str:
     """returns the latest version currently in the DIST fuller
 
     Args:
@@ -17,9 +18,9 @@ def get_latest(version: str = '0.0.0') -> str:
         str: the biggest version number
     """
     if not directory_exists(DIST):
-        return version
+        return ver
     DIST_PATTERN = r"danielutils-(\d+)\.(\d+)\.(\d+)\.tar\.gz"
-    best = version
+    best = ver
     for filename in get_files(DIST):
         a1, b1, c1 = best.split(".")
         match = re.match(DIST_PATTERN, filename)
@@ -37,20 +38,14 @@ def get_latest(version: str = '0.0.0') -> str:
     return best
 
 
-def handle_git(version):
-    cm("git add .")
-    cm(f"git commit -m \"updated to version {version}\"")
-    cm("git push")
-
-
-def main(version: str):
+def main(ver: str):
     """main function, create a new release and update the files and call terminal to upload the release
 
     Args:
         version (str): the new version
     """
 
-    def update_version(version: str):
+    def update_version(ver: str):
         """updates the new version number in the relevant files
 
         Args:
@@ -61,7 +56,7 @@ def main(version: str):
             with open(SETUP, "w", encoding="utf8") as f:
                 for line in lines:
                     if line.startswith("VERSION"):
-                        f.write(f"VERSION = \"{version}\"\n")
+                        f.write(f"VERSION = \"{ver}\"\n")
                     else:
                         f.write(line)
 
@@ -70,7 +65,7 @@ def main(version: str):
             with open(README, "w", encoding="utf8") as f:
                 for line in lines:
                     if line.startswith("# danielutils v="):
-                        f.write(f"# danielutils v={version}\n")
+                        f.write(f"# danielutils v={ver}\n")
                     else:
                         f.write(line)
 
@@ -79,19 +74,19 @@ def main(version: str):
             with open(TOML, "w", encoding="utf8") as f:
                 for line in lines:
                     if line.startswith("version = "):
-                        f.write(f"version = \"{version}\"\n")
+                        f.write(f"version = \"{ver}\"\n")
                     else:
                         f.write(line)
         update_readme()
         update_toml()
         update_setup()
 
-    latest = get_latest(version)
-    if latest != version:
-        print(f"{version} is not the latest version, found {latest}, cancelling...")
+    latest = get_latest(ver)
+    if latest != ver:
+        print(f"{ver} is not the latest version, found {latest}, cancelling...")
         exit()
     print("updating version in files...")
-    update_version(version)
+    update_version(ver)
     print("Creating new distribution...")
     ret, stdout, stderr = cm("python", "setup.py", "sdist")
     if ret != 0:
@@ -100,12 +95,10 @@ def main(version: str):
     print("Created dist successfully")
     # # twine upload dist/...
     ret, stdout, stderr = cm("wt.exe",
-                             "twine", "upload", f"dist/danielutils-{version}.tar.gz")
-
-    handle_git(version)
+                             "twine", "upload", "--config-file", ".pypirc", f"dist/danielutils-{ver}.tar.gz")
 
 
-def run_tests() -> bool:
+def pytest() -> bool:
     """run pytest
 
     Returns:
@@ -124,34 +117,63 @@ def run_tests() -> bool:
     COMMAND = "pytest"
     if input("Do you want to generate a report as well? <y|n>: ") == "y":
         COMMAND += " --html=pytest_report.html"
+    COMMAND += f" > {REPORTS}/pytest.txt"
+    print("running pytest")
     code, stdout, stderr = cm(COMMAND)
     if code != 0:
         err = stderr.decode()
         if err != "":
             print(err)
             return False
-    summary = stdout.decode().splitlines()[-1]
+    with open(f"{REPORTS}/pytest.txt", "r", encoding="utf8") as f:
+        summary = f.readlines()[-1]
     if has_fails(summary):
         print(summary)
         return False
     return True
 
 
-def pylint():
+def pylint(config_file_path: str = "./.pylintrc") -> None:
     """run pylint
     """
     print("running pylint...")
-    cm("pylint", "./danielutils", ">", "pylint_output.txt")
+    cm("pylint", "--rcfile", config_file_path,
+       "./danielutils", ">", f"{REPORTS}/pylint.txt")
+
+
+def git(ver: str) -> None:
+    """will add recent changes and automatically commit to git after the publication
+    """
+    print("updating git")
+    cm("git add .")
+    print("committing")
+    cm(f"git commit -m \"updated to version {ver}\"")
+    print("pushing")
+    cm("git push")
+
+
+def mypy(config_file_path: str = "mypy.ini") -> None:
+    """run mypy
+    """
+    print("running mypy")
+    cm("mypy", "--config-file", config_file_path,
+       "./danielutils", ">", f"{REPORTS}/mypy.txt")
 
 
 if __name__ == "__main__":
-    if run_tests():
-        pylint()
+    if not directory_exists(REPORTS):
+        create_directory(REPORTS)
+    has_passed_tests = pytest()
+    if has_passed_tests:
         print("Passed all tests!")
+        pylint()
+        mypy()
         version = input(
             f"Please supply a new version number (LATEST = {get_latest()}): ")
         if re.match(VERSION_PATTERN, version):
             main(version)
+            git(version)
+            print("DONE")
         else:
             print("invalid version. example 1.0.5.20")
-__all__ = []
+__all__: list = []

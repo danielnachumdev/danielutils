@@ -1,6 +1,6 @@
 # pyautogui
-screeninfo
-Pillow
+# screeninfo
+# Pillow
 pytest
 pytest-html
 # bs4
