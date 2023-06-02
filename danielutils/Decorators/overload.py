@@ -169,7 +169,7 @@ class overload2:
             raise ValueError("Can only overload functions")
         if not is_function_annotated_properly(func):
             raise ValueError(
-                "Function must be fully annotated to be overloaded")
+                f"{func.__module__}.{func.__qualname__} is not properly annotated.\nFunction must be fully annotated to be overloaded")
 
     def prepare_for_wraps(self) -> Callable:
         return next(iter(self._functions.values()))[0]

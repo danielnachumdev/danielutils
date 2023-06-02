@@ -58,7 +58,7 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
 
 @validate
 def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.01,
-        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) -> tuple[int, list[bytes] | None, list[bytes] | None]:
+        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) -> tuple[int, Optional[list[bytes]], Optional[list[bytes]]]:
     """Advanced command
 
     Args:
@@ -76,7 +76,7 @@ def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.0
         If the subprocess input and output handling will raise an exception.
 
     Returns:
-        tuple[int, list[bytes] | None, list[bytes] | None]: return code, stdout, stderr
+        tuple[int, Optional[list[bytes]], Optional[list[bytes]]]: return code, stdout, stderr
     """
 
     if inputs is None:

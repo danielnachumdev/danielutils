@@ -11,7 +11,7 @@ from .Decorators import validate
 
 @validate
 def get_html(url: str) -> str:
-    """retuns the html for a given url
+    """returns the html for a given url
 
     Args:
         url (str): url

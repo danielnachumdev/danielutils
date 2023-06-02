@@ -46,5 +46,6 @@ def get_relative_path(path: str) -> str:
 __all__ = [
     "get_current_working_directory",
     "set_current_working_directory",
-    "get_absolute_path"
+    "get_absolute_path",
+    "get_relative_path"
 ]

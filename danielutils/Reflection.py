@@ -22,10 +22,12 @@ def get_caller_name(steps_back: int = 0) -> Optional[str]:
 
     Returns:
         str: name of caller
+
+    USING THIS FUNCTION WHILE DEBUGGING WILL ADD ADDITIONAL FRAMES TO THE TRACEBACK
     """
     if not isinstance(steps_back, int):
         raise TypeError("steps_back must be an int")
-    if not steps_back >= 0:
+    if not (steps_back >= 0):
         raise ValueError("steps_back must be a non-negative integer")
     # different implementation:
 
@@ -58,10 +60,10 @@ def get_caller_name(steps_back: int = 0) -> Optional[str]:
 
 
 def dynamically_load(module_name: str, obj_name: str) -> Any:
-    """dynammically loads the module and returns the object from this file
+    """dynamically loads the module and returns the object from this file
 
     Args:
-        module_name (str): name of python module, (typically a file name without extention)
+        module_name (str): name of python module, (typically a file name without extension)
         obj_name (str): the name of the wanted object
 
     Returns:
@@ -105,6 +107,11 @@ def dynamically_load(module_name: str, obj_name: str) -> Any:
 #     return get_caller()
 
 def get_filename() -> Optional[str]:
+    """returns the name of the file that this functions is called from
+
+    Returns:
+        Optional[str]: name of file
+    """
     frame = __get_prev_frame(inspect.currentframe())
     if frame is None:
         return None
@@ -117,7 +124,7 @@ def get_caller_filename() -> Optional[str]:
     function that's using this function is in
 
     Returns:
-        str: name of file
+        Optional[str]: name of file
     """
     frame = __get_prev_frame(__get_prev_frame(inspect.currentframe()))
     if frame is None:

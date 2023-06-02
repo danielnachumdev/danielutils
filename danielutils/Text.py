@@ -95,7 +95,7 @@ def is_hebrew(s: str) -> TypeGuard[str]:
         text (str): string to check
 
     Returns:
-        TypeGuard[str]: true iff all chars are in hebrew
+        TypeGuard[str]: true iff all chars are hebrew
     """
     return check_foreach(s, lambda c: c in HEBREW_LETTERS)
 

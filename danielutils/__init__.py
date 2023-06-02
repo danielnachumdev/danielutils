@@ -23,3 +23,4 @@ from .MetaClasses import *
 from .Generators import *
 from .Snippets import *
 from .Aliases import *
+from .Signals import *

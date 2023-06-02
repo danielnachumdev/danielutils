@@ -1,5 +1,8 @@
-from typing import Optional
+from typing import Optional, IO
 from .Decorators.validate import validate
+
+
+RESET = "\033[0m"
 
 
 class ColoredText:
@@ -27,7 +30,7 @@ class ColoredText:
         Returns:
             str: The given text with an RGB color applied to it.
         """
-        return f"\033[38;2;{red};{green};{blue}m{text}\033[38;2;255;255;255m"
+        return f"\033[38;2;{red};{green};{blue}m{text}{RESET}"
 
     @staticmethod
     def green(text: str) -> str:
@@ -113,6 +116,18 @@ class ColoredText:
         """
         return ColoredText.from_rgb(0, 0, 0, text)
 
+    @staticmethod
+    def supports_color(stream: IO) -> bool:
+        """return whether a stream will support colored text
+
+        Args:
+            stream (IO): stream to check
+
+        Returns:
+            bool: boolean result
+        """
+        return stream.isatty()
+
 
 def __special_print(*args, sep: str = " ", end: str = "\n", start_with: Optional[str] = None):
     """inner helper function"""
@@ -125,6 +140,18 @@ def __special_print(*args, sep: str = " ", end: str = "\n", start_with: Optional
                 sep.join([f"{start_with}: {str(arg)}" for arg in args]), sep="", end=end)
     else:
         print(*args, sep=sep, end=end)
+
+
+def success(*args, sep: str = " ", end: str = "\n"):
+    """print a success message
+
+    Args:
+        sep (str, optional): print separator. Defaults to " ".
+        end (str, optional): print endline. Defaults to "\\n".
+    """
+
+    __special_print(*args, sep=sep, end=end,
+                    start_with=ColoredText.green("SUCCESS"))
 
 
 def warning(*args, sep: str = " ", end: str = "\n"):
@@ -163,6 +190,8 @@ def info(*args, sep: str = " ", end: str = "\n"):
 
 __all__ = [
     "ColoredText",
+    "success",
     "warning",
-    "error"
+    "error",
+    "info"
 ]

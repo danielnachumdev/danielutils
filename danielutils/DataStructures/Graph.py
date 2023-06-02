@@ -22,14 +22,14 @@ class Graph:
             seen.add(node)
             all_nodes.append(node)
             yield node
-            for node in node._children:
-                if node not in seen:
+            for subnode in node._children:
+                if subnode not in seen:
                     travel_index += 1
-                    enter_times[node] = travel_index
-                    if node is not None:
-                        yield from handle_node(node)
+                    enter_times[subnode] = travel_index
+                    if subnode is not None:
+                        yield from handle_node(subnode)
                     travel_index += 1
-                    exit_times[node] = travel_index
+                    exit_times[subnode] = travel_index
 
         for node in self.nodes:
             if node not in seen:

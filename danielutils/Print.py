@@ -1,7 +1,7 @@
 import sys
 from .Functions import areoneof
 from .Math.MathPrint import mprint_parse_one
-from .Decorators import atomic
+from .Decorators import atomic, deprecate
 
 
 def mprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
@@ -24,6 +24,7 @@ def mprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
     stream.write(sep.join([mprint_parse_one(s) for s in args])+end)
 
 
+@deprecate("The built-in 'print' function has an argument called 'file', use this instead")
 def sprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
     """Writes a string representation of the given arguments to the specified stream.
 

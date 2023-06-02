@@ -109,19 +109,22 @@ class BinaryConsumer(SubscribableBase):
 #             return param1_type == param2_type == self.params[0] == self.params[1]
 #         except:
 #             return False
+# class Predicate(SubscribableBase):
+#     """create a type for functions to be a consumer function
+#     """
 
-# def predicate(func,self):
-#     if not callable(func):
+#     def __instancecheck__(self, func) -> bool:
+#         if not callable(func):
 #             return False
-#     signature = inspect.signature(func)
-#     if len(signature.parameters) != 0:
-#         return False
+#         signature = inspect.signature(func)
+#         if len(signature.parameters) != 0:
+#             return False
 
-#     return_type = get_function_return_type(func)
-#     try:
-#         return isoftype(return_type(), self.params)
-#     except:
-#         return False
+#         return_type = get_function_return_type(func)
+#         try:
+#             return isoftype(return_type(), self.params)
+#         except:
+#             return False
 
 
 # ListTupleType: TypeAlias = Union[list, tuple]
@@ -130,5 +133,6 @@ __all__ = [
     "Supplier",
     "Consumer",
     "BinaryConsumer",
+    # "Predicate"
     # "ListTupleType"
 ]

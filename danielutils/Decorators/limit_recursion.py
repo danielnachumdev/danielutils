@@ -1,25 +1,25 @@
 import functools
 import re
 import traceback
-from typing import Any
+from typing import Any, Callable
 from .validate import validate
 from ..Colors import warning
 
 
 @validate
-def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True):
+def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True) -> Callable:
     """decorator to limit recursion of functions
 
     Args:
         max_depth (int): max recursion depth which is allowed for this function
-        return_value (_type_, optional): The value to return when the limit is reached. Defaults to None.
-            if is None, will return the last (args, kwargs)
+        return_value (Any, optional): The value to return when the limit is reached. Defaults to None.
+            if is None, will return the last a tuple for the last args, kwargs given
         quiet (bool, optional): whether to print a warning message. Defaults to True.
     """
 
-    def deco(func):
+    def deco(func: Callable) -> Callable:
         @ functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             depth = functools.reduce(
                 lambda count, line:
                     count + 1 if re.search(rf"{func.__name__}\(.*\)$", line)

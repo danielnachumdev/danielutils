@@ -217,6 +217,7 @@ def get_file_type_from_directory_recursively(path: str, file_type: str) -> Gener
             yield f"{subdir}\\{v}"
 
 
+@validate
 def rename_file(path: str, new_name: str) -> None:
     """renames a file
 
@@ -229,6 +230,7 @@ def rename_file(path: str, new_name: str) -> None:
     move_file(path, new_path)
 
 
+@validate
 def move_file(old_path: str, new_path: str) -> None:
     """moves a file
 
@@ -239,6 +241,7 @@ def move_file(old_path: str, new_path: str) -> None:
     os.rename(old_path, new_path)
 
 
+@validate
 async def open_file(file_path: str, application_path: str) -> int:
     """open a file with the specified application
 
@@ -252,6 +255,7 @@ async def open_file(file_path: str, application_path: str) -> int:
         return p.wait()
 
 
+@validate
 def move_directory(old_path: str, new_path: str) -> None:
     """moves a directory
 
@@ -262,6 +266,7 @@ def move_directory(old_path: str, new_path: str) -> None:
     shutil.move(old_path, new_path)
 
 
+@validate
 def copy_file(src: str, dest: str) -> None:
     """copies file from src to dest
 
@@ -272,6 +277,7 @@ def copy_file(src: str, dest: str) -> None:
     shutil.copy(src, dest)
 
 
+@validate
 def copy_directory(src: str, dest: str) -> None:
     """copies a directory from src to dest
 
