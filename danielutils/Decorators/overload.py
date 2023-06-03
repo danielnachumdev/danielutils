@@ -2,7 +2,8 @@ from __future__ import annotations
 from typing import Callable, Any, Optional, cast
 import inspect
 import functools
-from ..Functions import isoneof, isoneof_strict, isoftype
+from ..Functions.isoftype import isoftype
+from ..Functions.isoneof import isoneof, isoneof_strict
 from ..Exceptions import OverloadDuplication, OverloadNotFound
 __overload_dict: dict[str, dict[tuple, Callable]] = {}
 
@@ -171,9 +172,6 @@ class overload2:
             raise ValueError(
                 f"{func.__module__}.{func.__qualname__} is not properly annotated.\nFunction must be fully annotated to be overloaded")
 
-    def prepare_for_wraps(self) -> Callable:
-        return next(iter(self._functions.values()))[0]
-
     def overload(self, func: Callable) -> overload2:
         """will add another function to the list of available options
 
@@ -253,7 +251,7 @@ class OverloadMeta(type):
         #     return wrapper
 
         def create_wrapper(v: overload2):
-            @functools.wraps(v.prepare_for_wraps())
+            @functools.wraps(next(iter(v._functions.values()))[0])
             def wrapper(*args, **kwargs):
                 return v(*args, **kwargs)
             return wrapper

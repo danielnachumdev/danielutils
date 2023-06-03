@@ -1,5 +1,5 @@
 from typing import Any
-from ..Functions import isoftype
+from ..Functions.isoftype import isoftype
 
 
 def default_weight_function(v: Any) -> int | float:

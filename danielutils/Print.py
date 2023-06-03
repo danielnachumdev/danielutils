@@ -1,5 +1,5 @@
 import sys
-from .Functions import areoneof
+from .Functions.areoneof import areoneof
 from .Math.MathPrint import mprint_parse_one
 from .Decorators import atomic, deprecate
 

@@ -51,7 +51,7 @@ def main(ver: str):
         Args:
             version (_type_): _description_
         """
-        def update_setup():
+        def update_setup() -> None:
             lines = read_file(SETUP)
             with open(SETUP, "w", encoding="utf8") as f:
                 for line in lines:
@@ -60,7 +60,7 @@ def main(ver: str):
                     else:
                         f.write(line)
 
-        def update_readme():
+        def update_readme() -> None:
             lines = read_file(README)
             with open(README, "w", encoding="utf8") as f:
                 for line in lines:
@@ -69,7 +69,7 @@ def main(ver: str):
                     else:
                         f.write(line)
 
-        def update_toml():
+        def update_toml() -> None:
             lines = read_file(TOML)
             with open(TOML, "w", encoding="utf8") as f:
                 for line in lines:

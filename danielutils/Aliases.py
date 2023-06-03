@@ -1,8 +1,8 @@
 import inspect
 from abc import ABC, abstractmethod
-from typing import cast, TypeAlias, Union
-from .Functions import get_function_return_type, isoftype
-from .Reflection import get_caller_name
+from typing import cast
+from .Functions.isoftype import isoftype
+from .Reflection.Function import get_caller_name, get_function_return_type
 
 
 class SubscribableBase(ABC):
