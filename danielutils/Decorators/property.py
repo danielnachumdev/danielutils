@@ -16,13 +16,19 @@ class property2:
         return self
 
     def __get__(self, instance: Any, owner: type | None = None) -> Any:
-        return self.gfunc(instance)
+        if callable(self.gfunc):
+            return self.gfunc(instance)
+        raise ValueError("Can't use unset getter function")
 
     def __set__(self,  instance: Any, value: Any) -> None:
-        return self.sfunc(instance, value)
+        if callable(self.sfunc):
+            return self.sfunc(instance)
+        raise ValueError("Can't use unset getter function")
 
     def __delete__(self, instance: Any) -> None:
-        return self.dfunc(instance)
+        if callable(self.dfunc):
+            return self.dfunc(instance)
+        raise ValueError("Can't use unset getter function")
 
 
 __all__ = [

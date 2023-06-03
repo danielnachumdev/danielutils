@@ -106,7 +106,7 @@ class PriorityQueue(Queue):
         super().__init__()
         comparer = CompareGreater if weight_func is default_weight_function else Comparer(
             lambda a, b: weight_func(a)-weight_func(b))
-        self.data: Heap = Heap(comparer)
+        self.data: Heap = Heap(comparer)  # type:ignore
         self.weight_func = weight_func
         self.dct: dict = {}
 

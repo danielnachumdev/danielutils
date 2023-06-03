@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, cast, Any
 import inspect
 import functools
 from ..Reflection.Function import is_function_annotated_properly

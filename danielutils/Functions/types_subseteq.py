@@ -13,10 +13,17 @@ def types_subseteq(a: type | Iterable[type], b: type | Iterable[type]) -> bool:
         bool: result of containment
     """
     def to_set(x) -> set[int]:
+        res: set[int] = set()
         if type(x) in {types.UnionType}:
-            return set(id(xi) for xi in get_args(x))
-
-        return set([id(x)])
+            for xi in get_args(x):
+                res.update(to_set(xi))
+        elif isinstance(x, Iterable):
+            for v in x:
+                res.update(to_set(v))
+            return res
+        else:
+            res.update(set([id(x)]))
+        return res
 
     return to_set(a).issubset(to_set(b))
 

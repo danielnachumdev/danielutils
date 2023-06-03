@@ -31,21 +31,18 @@ class InstanceCacheMeta(type):
             if original_init:
                 original_init(*args, **kwargs)
 
-        @staticmethod
         def get_id(instance):
-            yield from instance_2_id[instance]
+            return instance_2_id[instance]
 
-        @staticmethod
-        def get_instance(id):
-            return id_2_instance[id]
+        def get_instance(id_: int):
+            return id_2_instance[id_]
 
-        @staticmethod
         def instances():
             return instance_2_id.keys()
 
-        namespace["instances"] = instances
-        namespace["get_id"] = get_id
-        namespace["get_instance"] = get_instance
+        namespace["instances"] = staticmethod(instances)
+        namespace["get_id"] = staticmethod(get_id)
+        namespace["get_instance"] = staticmethod(get_instance)
         namespace[INIT] = new_init
 
         return super().__new__(mcs, name, bases, namespace)

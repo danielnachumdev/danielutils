@@ -1,5 +1,5 @@
 import inspect
-from typing import cast, Optional, Callable
+from typing import cast, Optional, Callable, Any
 from types import FrameType
 from ._get_prev_frame import _get_prev_frame
 from ..Functions.isoftype import isoftype
@@ -108,8 +108,23 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     return True
 
 
+def get_mro(obj: Any) -> list[type]:
+    """returns the mro of an object
+
+    Args:
+        obj (Any): any object, instance or class
+
+    Returns:
+        list[type]: the resulting mro for the object
+    """
+    if isinstance(obj, type):
+        return obj.mro()
+    return get_mro(obj.__class__)
+
+
 __all__ = [
     "get_caller_name",
     "get_function_return_type",
-    "is_function_annotated_properly"
+    "is_function_annotated_properly",
+    "get_mro"
 ]

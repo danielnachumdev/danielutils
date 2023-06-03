@@ -17,6 +17,9 @@ def deleted(func, cls_name: Optional[str] = None):
 
 
 class ImplicitDataDeleterMeta(type):
+    """Inheriting from this metaclass will 'delete' all non builtin function 
+    and will replace them with a new function which will raise and error
+    """
     def __new__(mcs, name, bases, namespace):
         cls_functions = set()
         for k, v in namespace.items():

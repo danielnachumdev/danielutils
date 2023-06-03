@@ -1,5 +1,6 @@
 from typing import Callable
 from ..Decorators import overload
+import functools
 
 
 class OverloadMeta(type):
@@ -39,3 +40,8 @@ class OverloadMeta(type):
         # namespace["__getattribute__"] = __getattribute__
 
         return super().__new__(mcs, name, bases, namespace)
+
+
+__all__ = [
+    "OverloadMeta"
+]
