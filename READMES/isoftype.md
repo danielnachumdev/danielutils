@@ -7,6 +7,7 @@ Browse code [here](../danielutils/Functions/isoftype.py)
 The purpose of the `isoftype` function is to determine whether an object is of a specific type or any of its subtypes. It provides a flexible type checking mechanism that accounts for various scenarios, including nested structures, unions, generics, and callable types. The function allows for both strict and non-strict type checking, providing different levels of accuracy based on the requirements.
 
 ## Features
+* **Support for Parametrized Generics which the builtin `isinstance` doesn't support!**
 * Check if an object is of a specific type or any of its subtypes.
 * Handle nested structures, including lists, tuples, dictionaries, and sets.
 * Support unions and optional types.
@@ -94,7 +95,7 @@ Here are some examples demonstrating the usage of the isoftype function:
         print(result)  # Output: True
 
         # Check if an object is a set of floats
-        result = isoftype({3.14, 2.718, 1.618}, Set[float])
+        result = isoftype({3.14, 2.718, 1.618}, set[float])
         print(result)  # Output: True
         ```
 These examples demonstrate the versatility of the isoftype function in handling different type checking scenarios. You can use it to check basic types, subtypes, union types, and even **complex data structures**.

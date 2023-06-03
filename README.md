@@ -15,13 +15,21 @@ In [this](./READMES/) folder you can check out some more in depth showcase of so
 
 ### [`isoftype`](./READMES/isoftype.md)
 -- _"Boost your type checking game with `isoftype`: Effortlessly verify object types and subtypes, handle complex data structures, and tackle union types in Python!"_
+
+**Support for Parametrized Generics**
 ### [`@overload`](./READMES/overload.md)
 -- _"Manage function overloads with ease: Introducing `@overload` to handle specific resolutions and simplify function overloading in Python!"_
+
+**Support for function overloading**
 ### [`@validate`](./READMES/validate.md)
 -- _"Safeguard your code with `@validate`: Protecting against type-related disasters and ensuring type safety in Python functions!"_
+
+**Runtime argument type validation for functions**
 ### [`tlist`](./READMES/tlist.md)
 -- _"Elevate your list safety with `tlist`: Empower your code with runtime type safety, seamless list operations, and enhanced control over list elements!"_
+
+**Like `list` but with runtime type validation**
 ### [`Interface`](./READMES/Interface.md)
 -- _"Unlock the Power of Interfaces in Python: Create Your Own Metaclass for Interface-Like Behavior and Enhance Your Object-Oriented Programming Skills!"_
 
-Java's (or similar OOP languages) Interface (and abstract class) implementation in python.
+**Learning `metaclasses` by implementing an `Interface` (and `Abstract Classes`) for python in python**
