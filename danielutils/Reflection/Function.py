@@ -2,6 +2,7 @@ import inspect
 from typing import cast, Optional, Callable
 from types import FrameType
 from ._get_prev_frame import _get_prev_frame
+from ..Functions.isoftype import isoftype
 
 
 def get_caller_name(steps_back: int = 0) -> Optional[str]:
@@ -62,7 +63,53 @@ def get_function_return_type(func: Callable, signature: Optional[inspect.Signatu
     return signature.return_annotation
 
 
+def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None, check_return: bool = True) -> bool:
+    """checks wheter a function is annotated properly
+
+    Args:
+        func (Callable): the function to check
+        ignore (set, optional): arguments to ignore when validating. when 'None' Defaults to {"self", "cls", "args", "kwargs"}.
+        check_return (bool, optional): whether to also check that the return value is annotated. Defaults to True
+    Raises:
+        ValueError: if any of the parameters is of the wrong type
+
+    Returns:
+        bool: result of validation
+    """
+
+    if not inspect.isfunction(func):
+        raise ValueError("param should be a function")
+
+    if ignore is None:
+        ignore = {"self", "cls", "args", "kwargs"}
+    if not isoftype(ignore, set[str]):
+        raise ValueError("ignore must be a set of str")
+
+    # get the signature of the function
+    signature = inspect.signature(func)
+    for arg_name, arg_param in signature.parameters.items():
+        if arg_name not in ignore:
+            arg_type = arg_param.annotation
+            # check if an annotation is missing
+            if arg_type == inspect.Parameter.empty:
+                return False
+        # check if the argument has a default value
+        default_value = signature.parameters[arg_name].default
+        if default_value != inspect.Parameter.empty:
+            # allow everything to be set to None as default
+            if default_value is None:
+                continue
+            # if it does, check the type of the default value
+            if not isoftype(default_value, arg_type):
+                return False
+
+    if check_return:
+        pass
+    return True
+
+
 __all__ = [
     "get_caller_name",
-    "get_function_return_type"
+    "get_function_return_type",
+    "is_function_annotated_properly"
 ]

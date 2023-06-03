@@ -1,14 +1,16 @@
-from __future__ import annotations
-from typing import Callable, Any, Optional, cast
+from typing import Callable
 import inspect
 import functools
+from ..Reflection.Function import is_function_annotated_properly
 from ..Functions.isoftype import isoftype
 from ..Functions.isoneof import isoneof, isoneof_strict
 from ..Exceptions import OverloadDuplication, OverloadNotFound
+from .deprecate import deprecate
 __overload_dict: dict[str, dict[tuple, Callable]] = {}
 
 
-def overload(*types) -> Callable:
+@deprecate("'explicit_global_overload' is a legacy decorator please use 'overload' instead")
+def explicit_global_overload(*types) -> Callable:
     """decorator for overloading functions\n
     Usage\n-------\n
     @overload(str,str)\n
@@ -20,14 +22,14 @@ def overload(*types) -> Callable:
 
     * use None to skip argument
     * use no arguments to mark as default function
-    * you should overload in decreasing order of specificity! e.g 
+    * you should overload in decreasing order of specificity! e.g
     @overload(int) should appear in the code before @overload(Any)
 
     \n\n\n
     \nRaises:
         OverloadDuplication: if a functions is overloaded twice (or more)
         with same argument types
-        OverloadNotFound: if an overloaded function is called with 
+        OverloadNotFound: if an overloaded function is called with
         types that has no variant of the function
 
     \nNotice:
@@ -100,52 +102,7 @@ def overload(*types) -> Callable:
     return deco
 
 
-def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None, check_return: bool = True) -> bool:
-    """checks wheter a function is annotated properly
-
-    Args:
-        func (Callable): the function to check
-        ignore (set, optional): arguments to ignore when validating. when 'None' Defaults to {"self", "cls", "args", "kwargs"}.
-        check_return (bool, optional): whether to also check that the return value is annotated. Defaults to True
-    Raises:
-        ValueError: if any of the parameters is of the wrong type
-
-    Returns:
-        bool: result of validation
-    """
-
-    if not inspect.isfunction(func):
-        raise ValueError("param should be a function")
-
-    if ignore is None:
-        ignore = {"self", "cls", "args", "kwargs"}
-    if not isoftype(ignore, set[str]):
-        raise ValueError("ignore must be a set of str")
-
-    # get the signature of the function
-    signature = inspect.signature(func)
-    for arg_name, arg_param in signature.parameters.items():
-        if arg_name not in ignore:
-            arg_type = arg_param.annotation
-            # check if an annotation is missing
-            if arg_type == inspect.Parameter.empty:
-                return False
-        # check if the argument has a default value
-        default_value = signature.parameters[arg_name].default
-        if default_value != inspect.Parameter.empty:
-            # allow everything to be set to None as default
-            if default_value is None:
-                continue
-            # if it does, check the type of the default value
-            if not isoftype(default_value, arg_type):
-                return False
-
-    if check_return:
-        pass
-    return True
-
-
-class overload2:
+class overload:
     """this class create an object to manage the overloads for a given function.\n
     will only match a specific resolution and won't infer best guess for types
     """
@@ -153,11 +110,11 @@ class overload2:
     __SKIP_SET = {"self", "cls", "args", "kwargs"}
 
     def __init__(self, func: Callable):
-        overload2._validate(func)
+        overload._validate(func)
         self._qualname = func.__qualname__
         self._moudle = func.__module__
         self._functions: dict[int, list[Callable]] = dict()
-        self._functions[overload2._get_key(func)] = [func]
+        self._functions[overload._get_key(func)] = [func]
         functools.wraps(func)(self)
 
     @staticmethod
@@ -172,7 +129,7 @@ class overload2:
             raise ValueError(
                 f"{func.__module__}.{func.__qualname__} is not properly annotated.\nFunction must be fully annotated to be overloaded")
 
-    def overload(self, func: Callable) -> overload2:
+    def overload(self, func: Callable) -> "overload":
         """will add another function to the list of available options
 
         Args:
@@ -182,7 +139,7 @@ class overload2:
             overload2: returns the overload object
         """
         self._validate(func)
-        k = overload2._get_key(func)
+        k = overload._get_key(func)
         if k not in self._functions:
             self._functions[k] = []
         self._functions[k].append(func)
@@ -210,7 +167,7 @@ class overload2:
                 signature = inspect.signature(func)
                 for i, tup in enumerate(signature.parameters.items()):
                     param_name, param_type = tup
-                    if param_name in overload2.__SKIP_SET:
+                    if param_name in overload.__SKIP_SET:
                         continue
 
                     if not isoftype(args[i], param_type.annotation):
@@ -225,46 +182,7 @@ class overload2:
         return selected_func(*args, **kwargs)
 
 
-class OverloadMeta(type):
-    @staticmethod
-    def overload(func: Callable) -> overload2:
-        return overload2(func)
-
-    def __new__(mcs, name, bases, namespace):
-        # og_getattribute = None
-        # if "__getattribute__" in namespace:
-        #     og_getattribute = namespace["__getattribute__"]
-
-        # def __getattribute__(self, name: str) -> Any:
-        #     if not hasattr(type(self), name):
-        #         if og_getattribute:
-        #             return og_getattribute(self, name)
-        #         return object.__getattribute__(self, name)
-
-        #     function_obj: OverloadMeta.overload = getattr(
-        #         type(self), name)
-
-        #     @functools.wraps(function_obj)
-        #     def wrapper(*args, **kwargs):
-        #         return function_obj(self, *args, **kwargs)
-
-        #     return wrapper
-
-        def create_wrapper(v: overload2):
-            @functools.wraps(next(iter(v._functions.values()))[0])
-            def wrapper(*args, **kwargs):
-                return v(*args, **kwargs)
-            return wrapper
-
-        for k, v in namespace.items():
-            if isinstance(v, overload2):
-                namespace[k] = create_wrapper(v)
-        # namespace["__getattribute__"] = __getattribute__
-
-        return super().__new__(mcs, name, bases, namespace)
-
-
 __all__ = [
-    "overload",
-    "OverloadMeta"
+    "explicit_global_overload",
+    "overload"
 ]

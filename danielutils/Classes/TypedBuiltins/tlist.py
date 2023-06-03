@@ -1,5 +1,5 @@
 from typing import Generic, TypeVar, Any, Union, Iterable, SupportsIndex
-from ...Decorators import OverloadMeta
+from ...MetaClasses.OverloadMeta import OverloadMeta
 from ...Functions.isoftype import isoftype
 from ...Functions.types_subseteq import types_subseteq
 from ...Reflection.Function import get_caller_name
