@@ -27,7 +27,7 @@ setup(
     platforms=["All"],
     keywords=['functions', 'decorators', 'methods', 'classes', 'metaclasses'],
     classifiers=[
-        "Development Status :: 3 - Alpha.",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
         # "Operating System :: Unix",
