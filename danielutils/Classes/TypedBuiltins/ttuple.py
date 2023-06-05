@@ -1,11 +1,14 @@
-# from typing import Generic, TypeVar
-# T = TypeVar("T")
+
+from typing import Generic, TypeVar
+from .factory import create_typed_class
+T = TypeVar("T")
+parent_ttuple: type = create_typed_class("ttuple", tuple)
 
 
-# class ttuple(tuple, Generic[T]):
-#     pass
+class ttuple(parent_ttuple, Generic[T]):
+    ...
 
 
-# __all__ = [
-#     "ttuple"
-# ]
+__all__ = [
+    "ttuple"
+]
