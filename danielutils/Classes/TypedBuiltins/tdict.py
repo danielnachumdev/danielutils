@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar
 from .factory import create_typed_class
-from ...Functions import isoftype
-parent = create_typed_class("tdict", dict)
+from ...Functions.isoftype import isoftype
+parent: type = create_typed_class("tdict", dict)
 K = TypeVar("K")
 V = TypeVar("V")
 

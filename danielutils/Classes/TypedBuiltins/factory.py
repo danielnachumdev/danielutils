@@ -30,8 +30,16 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
 
     def __instancecheck__(self, instance: Any) -> bool:
         if isinstance(instance, cls):
-            return types_subseteq(instance.get_params(), self.get_params())
-        return isoftype(instance, fallback_class[self.get_params()])
+
+            return types_subseteq(
+                instance.get_params(),  # type:ignore
+                self.get_params()
+            )
+
+        return isoftype(
+            instance,
+            fallback_class[self.get_params()]  # type:ignore
+        )
 
     def __init__(self, item) -> None:
         if not get_caller_name(0) == "__class_getitem__":
@@ -62,13 +70,13 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
         return self.on_call(self, *args, **kwargs)
 
     def __str__(self) -> str:
-        res: str = fallback_class.__str__(self)
+        res: str = fallback_class.__str__(self)  # type:ignore
         if not res.startswith(name):
             return f"{name} {res}"
         return res
 
     def __repr__(self) -> str:
-        res: str = fallback_class.__repr__(self)
+        res: str = fallback_class.__repr__(self)  # type:ignore
         if not res.startswith(name):
             return f"{name} {res}"
         return res
