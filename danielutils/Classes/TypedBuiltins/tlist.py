@@ -129,7 +129,7 @@ class ptlist(list[T], Generic[T]):
         return res
 
 
-parent: type = create_typed_class("tlist2", list)
+parent: type = create_typed_class("tlist", list)
 
 
 class tlist(parent, Generic[T]):

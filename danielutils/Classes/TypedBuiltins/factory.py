@@ -70,16 +70,10 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
         return self.on_call(self, *args, **kwargs)
 
     def __str__(self) -> str:
-        res: str = fallback_class.__str__(self)  # type:ignore
-        if not res.startswith(name):
-            return f"{name} {res}"
-        return res
+        return repr(self)
 
     def __repr__(self) -> str:
-        res: str = fallback_class.__repr__(self)  # type:ignore
-        if not res.startswith(name):
-            return f"{name} {res}"
-        return res
+        return f"{name} {fallback_class.__repr__(self)}"  # type:ignore
 
     def get_params(self) -> tuple:
         # pylint: disable=protected-access
