@@ -24,3 +24,4 @@ from .Generators import *
 from .Snippets import *
 from .Aliases import *
 from .Signals import *
+from .University import *

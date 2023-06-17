@@ -146,15 +146,6 @@ class overload:
         return self
 
     def __call__(self, *args, **kwargs):
-        """_summary_
-
-        Raises:
-            AttributeError: _description_
-            AttributeError: _description_
-
-        Returns:
-            _type_: _description_
-        """
         num_args = len(args)+len(kwargs.keys())
         if num_args not in self._functions:
             raise AttributeError(

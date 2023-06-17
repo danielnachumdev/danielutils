@@ -25,7 +25,7 @@ class Queue:
         Args:
             value (Any): the value to add
         """
-        self.data.append(value)
+        self.data.insert(0, value)
 
     def peek(self) -> Any:
         """returns the oldest element in the queue 
@@ -48,11 +48,13 @@ class Queue:
         return len(self) == 0
 
     def __str__(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
         return str(self.data)
 
     def __iter__(self):
-        while not self.is_empty():
-            yield self.pop()
+        return iter(self.data)
 
     def push_many(self, arr: list):
         """will push many objects to the Queue

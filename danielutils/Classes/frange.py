@@ -1,4 +1,3 @@
-"""frange class"""
 from typing import Iterable, Callable, Optional
 
 
@@ -33,7 +32,27 @@ class frange:
             yield self.method(cur)
             cur += self.step
 
+    def __len__(self) -> int:
+        return int((self.stop-self.start)//self.step)
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.start}, {self.stop}, {self.step})"
+
+
+class brange(frange):
+    def __iter__(self):
+        itr = super().__iter__()
+        try:
+            from tqdm import tqdm
+            return iter(tqdm(itr, desc=f"{self}", total=len(self)))
+        except:
+            return itr
+
 
 __all__ = [
-    "frange"
+    "frange",
+    "brange"
 ]
