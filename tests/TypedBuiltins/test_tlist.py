@@ -1,8 +1,8 @@
 import random
 from typing import Union, Any
 import pytest
-from ...danielutils.Classes.TypedBuiltins import tlist
-from ...danielutils.Functions import isoftype
+from ...danielutils.Classes.TypedBuiltins import tlist  # type:ignore
+from ...danielutils import isoftype  # type:ignore
 
 
 def test_basic():

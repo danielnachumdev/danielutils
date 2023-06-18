@@ -1,11 +1,11 @@
-from ...danielutils.MetaClasses.AtomicClassMeta import AtomicClassMeta
-from ...danielutils import threadify
+from ...danielutils.MetaClasses.AtomicClassMeta import AtomicClassMeta  # type:ignore
+from ...danielutils import threadify  # type:ignore
 import time
 
 
 class A():
     @staticmethod
-    def my_print(*args):
+    def my_print(*args) -> None:
         print(*args)
 
 
@@ -25,7 +25,7 @@ def thread_main2(thread_id: int):
         B.my_print(thread_id)
 
 
-def main():
+def main() -> None:
     for i in range(2):
         thread_main1(i)
 

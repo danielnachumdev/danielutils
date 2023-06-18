@@ -151,3 +151,8 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
             return type(obj).__name__ == name_of_type
 
     return isinstance(obj, T)
+
+
+__all__ = [
+    "isoftype"
+]

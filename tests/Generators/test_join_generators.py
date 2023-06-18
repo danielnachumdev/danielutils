@@ -1,18 +1,19 @@
+from typing import Generator
 import time
-from ...danielutils.Generators.join_generators import *
+from ...danielutils.Generators.join_generators import join_generators, join_generators_busy_waiting  # type:ignore
 
 
 def test_simple_case():
     # if this value is too low the result is not deterministic
     MAX_DURATION = 0.5
 
-    def gen1():
+    def gen1() -> Generator:
         N = 10
         for i in range(N):
             time.sleep((i/N)*MAX_DURATION)
             yield i
 
-    def gen2():
+    def gen2() -> Generator:
         N = 10
         for i in range(N):
             time.sleep(MAX_DURATION - (i/N)*MAX_DURATION)
@@ -28,13 +29,13 @@ def test_simple_case():
 def test_simple_case2():
     MAX_DURATION = 0.5
 
-    def gen1():
+    def gen1() -> Generator:
         N = 10
         for i in range(N):
             time.sleep((i/N)*MAX_DURATION)
             yield i
 
-    def gen2():
+    def gen2() -> Generator:
         N = 10
         for i in range(N):
             time.sleep(MAX_DURATION - (i/N)*MAX_DURATION)

@@ -1,6 +1,8 @@
+
 import math
 import pytest
-from ...danielutils.MetaClasses.Interface import Interface
+from ...danielutils.MetaClasses.Interface import Interface  # type:ignore
+Number = int | float
 
 
 def test_no_implementation():
@@ -74,20 +76,20 @@ def test_inheritance_with_more_interfaces():
 def test_classic_use_case():
 
     class Shape(metaclass=Interface):
-        def get_name(self) -> str:
+        def get_name(self) -> str:  # type:ignore
             pass
 
-        def get_area(self) -> float:
+        def get_area(self) -> float:  # type:ignore
             pass
 
-        def get_circumfarence(self) -> float:
+        def get_circumfarence(self) -> float:  # type:ignore
             pass
 
         def __str__(self) -> str:
             return f"{self.get_name()}: area-{self.get_area()}, circumfarence-{self.get_circumfarence()}"
 
     class Rectangel(Shape):
-        def __init__(self, a, b):
+        def __init__(self, a: Number, b: Number):
             self.a, self.b = a, b
 
         def get_name(self) -> str:
@@ -100,14 +102,14 @@ def test_classic_use_case():
             return (self.a+self.b)*2
 
     class Square(Rectangel):
-        def __init__(self, size):
+        def __init__(self, size: Number):
             super().__init__(size, size)
 
         def get_name(self) -> str:
             return "Square"
 
     class Circle(Shape):
-        def __init__(self, radius):
+        def __init__(self, radius: Number):
             self.radius = radius
 
         def get_name(self) -> str:
@@ -120,11 +122,11 @@ def test_classic_use_case():
             return 2*math.pi*self.radius
 
     class ColoredObject(metaclass=Interface):
-        def get_color(self) -> str:
+        def get_color(self) -> str:  # type:ignore
             pass
 
     class ColoredCircle(Circle, ColoredObject):
-        def __init__(self, radius, color):
+        def __init__(self, radius: Number, color):
             super().__init__(radius)
             self.color = color
 
@@ -147,13 +149,13 @@ def test_classic_use_case():
 
 def test_advanced_case():
     class Interface1(metaclass=Interface):
-        def __init__(self):
+        def __init__(self) -> None:
             self.x = 5
 
         def foo(self):
             ...
 
-        def foofoo(self):
+        def foofoo(self) -> None:
             print("foofoo")
 
     class Interface2(metaclass=Interface):
@@ -163,13 +165,13 @@ def test_advanced_case():
             ...
 
     class MyClass(Interface1, Interface2):
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__()
 
-        def foo(self):
+        def foo(self) -> None:
             print("foo")
 
-        def bar(self):
+        def bar(self) -> None:
             print(self.x)
             print("bar")
 
@@ -194,13 +196,13 @@ def test_inheticane_with_dummy_class_and_init():
         def __str__(self) -> str:
             return f"{self.name}: {self.area()=}, {self.circumfarence()=}, {self.sum_inner_angle()=}"
 
-        def area(self) -> float:
+        def area(self) -> float:  # type:ignore
             ...
 
-        def circumfarence(self) -> float:
+        def circumfarence(self) -> float:  # type:ignore
             ...
 
-        def sum_inner_angle(self) -> float:
+        def sum_inner_angle(self) -> float:  # type:ignore
             ...
 
     class Circle(Shape):
@@ -218,7 +220,7 @@ def test_inheticane_with_dummy_class_and_init():
             return math.inf
 
     class Quadrilateral(Shape):
-        def __init__(self, name):
+        def __init__(self, name: str):
             super().__init__(name)
 
         def sum_inner_angle(self) -> float:
@@ -250,10 +252,10 @@ def test_inheticane_with_dummy_class_and_init():
         def circumfarence(self) -> float:
             return 4*self.size
     with pytest.raises(NotImplementedError):
-        Shape()
+        Shape()  # type:ignore
 
     with pytest.raises(NotImplementedError):
-        Quadrilateral()
+        Quadrilateral()  # type:ignore
 
     Circle(4)
     Square(4)
@@ -266,13 +268,13 @@ def test_deeper_inheritance():
         def __init__(self, name: str):
             self.name = name
 
-        def area(self):
+        def area(self) -> float:  # type:ignore
             ...
 
-        def circumference(self):
+        def circumference(self) -> float:  # type:ignore
             ...
 
-        def angles(self):
+        def angles(self) -> int:  # type:ignore
             ...
 
         def __str__(self):
@@ -280,7 +282,7 @@ def test_deeper_inheritance():
 
     class Circle(Shape):
 
-        def __init__(self, radius):
+        def __init__(self, radius: Number):
             super().__init__("Circle")
 
             self.radius = radius
@@ -296,7 +298,7 @@ def test_deeper_inheritance():
 
     class Quadrilateral(Shape):
 
-        def __init__(self, name):
+        def __init__(self, name: str):
             super().__init__(name)
 
         def angles(self):
@@ -304,7 +306,7 @@ def test_deeper_inheritance():
 
     class Rectangle(Quadrilateral):
 
-        def __init__(self, a, b):
+        def __init__(self, a: Number, b):
             super().__init__("Rectangle")
 
             self.a = a
@@ -318,7 +320,7 @@ def test_deeper_inheritance():
 
     class Square(Rectangle):
 
-        def __init__(self, size):
+        def __init__(self, size: Number):
             super().__init__(a=size, b=size)
 
             self.name = "Square"

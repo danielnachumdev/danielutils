@@ -1,7 +1,8 @@
+# type:ignore
 from typing import Any, Union
 import pytest
 from ...danielutils import validate
-from ...danielutils.Exceptions import *
+from ...danielutils.Exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, InvalidReturnValueException
 
 
 def test_empty_annotation_exception():
@@ -12,26 +13,26 @@ def test_empty_annotation_exception():
 
     with pytest.raises(EmptyAnnotationException):
         @validate
-        def foo(x) -> Any:
+        def foo1(x) -> Any:
             pass
 
     with pytest.raises(EmptyAnnotationException):
         @validate
-        def foo(x, y: str):
+        def foo2(x, y: str):
             pass
 
     with pytest.raises(EmptyAnnotationException):
         @validate
-        def foo(x, y: str, *args):
+        def foo3(x, y: str, *args):
             pass
 
     @validate
-    def foo(*args):
+    def foo4(*args):
         pass
 
     with pytest.raises(EmptyAnnotationException):
         @validate
-        def foo(a: str, /, k=1):
+        def foo5(a: str, /, k=1):
             pass
 
 
@@ -43,7 +44,7 @@ def test_invalid_default_value_exception():
             pass
 
     @validate
-    def foo(x: int = 1):
+    def foo2(x: int = 1):
         pass
 
 
@@ -65,7 +66,7 @@ def test_invalid_return_value_exception():
         foo()
 
     @validate
-    def foo() -> str:
+    def foo2() -> str:
         return "str"
 
-    foo()
+    foo2()

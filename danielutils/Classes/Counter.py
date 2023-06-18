@@ -36,7 +36,7 @@ class Counter:
         self.value = value
 
 
-class AtomicCounter(Counter, metaclass=AtomicClassMeta):
+class AtomicCounter(Counter, metaclass=AtomicClassMeta):  # type:ignore
     """A Counter Class which is Atomic
     """
 

@@ -1,7 +1,7 @@
 import functools
 import inspect
 from typing import Callable, get_type_hints, cast
-from ..Functions import isoftype
+from ..Functions.isoftype import isoftype
 from ..Reflection import get_function_return_type
 from ..Exceptions import EmptyAnnotationException,\
     InvalidDefaultValueException, ValidationException, InvalidReturnValueException

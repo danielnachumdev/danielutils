@@ -1,5 +1,5 @@
 from typing import *
-from ...danielutils.Functions import isoftype
+from ...danielutils.Functions import isoftype  # type:ignore
 
 
 def test_primitives():
@@ -27,7 +27,7 @@ def test_primitives():
 
 
 def test_advanced_types():
-    d = {}
+    d: dict[Any, Any] = {}
     d[int] = 0
     d["str"] = str
 
@@ -76,6 +76,8 @@ def test_callable():
 
     def foo(a: int) -> int:
         a += 1
+        return a
+
     assert isoftype(foo, Callable) is True
     assert isoftype(foo, Callable[[int], int]) is True
     assert isoftype(Callable, type(Callable)) is True
