@@ -219,6 +219,7 @@ class Relation:
         return Keys
 
     def find_3NF_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
+        # TODO add backtracking so this will be deterministic with the correct result
         res = []
         # 1
         G = F.minimal_cover()
@@ -236,7 +237,7 @@ class Relation:
             res.append(self.find_key(F))
 
         # 4
-
+        # TODO
         return [Relation.from_string(attr.symbol) for attr in res]
 
     def find_BCND_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
