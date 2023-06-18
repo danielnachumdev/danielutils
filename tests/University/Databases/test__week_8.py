@@ -1,7 +1,8 @@
 from ....danielutils import Attribute as AT, FunctionalDependencyGroup as FDG, Relation as RE, FunctionDependency as FD  # type:ignore
 
 
-A, B, C, D = AT.create_many(4)
+A, B, C, D, E = AT.create_many(5)
+S, D, H = AT("S"), AT("D"), AT("H")
 
 
 def test_follows_from():
@@ -26,6 +27,42 @@ def test_trivial():
 
 
 def test_closure():
+    """page 18 slide 3
+    """
     F = FDG([FD(A+B, C), FD(A, B), FD(C, D), FD(D, B)])
     assert A.closure(F) == AT("ABCD")
     assert C.closure(F) == AT("BCD")
+
+
+def test_superkey():
+    """page 21 slide 2
+    """
+    R = RE([S, D, H])
+    F = FDG([
+        FD(S, D)
+    ])
+    assert R.is_superkey(S+H, F)
+
+
+def test_key():
+    """page 21 slide 3
+    """
+    R = RE([S, D, H])
+    F = FDG([
+        FD(D, H),
+        FD(H, D),
+    ])
+    assert R.is_key(S+D, F)
+    assert R.is_key(S+H, F)
+
+
+def test_find_key():
+    """page 21 slide 6
+    """
+    R = RE([A, B, C, D, E])
+    F = FDG([
+        FD(A, B),
+        FD(B+C, E),
+        FD(E+D, A)
+    ])
+    assert R.find_key(F) == C+D+E

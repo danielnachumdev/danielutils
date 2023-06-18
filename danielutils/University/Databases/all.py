@@ -1,7 +1,8 @@
-from typing import Generator, Iterable, ForwardRef, Optional
+from typing import Generator, Iterable, Optional
 from ...Functions import powerset
 from ...Generators import generate_except
 from ...Decorators import PartiallyImplemented
+from ...DataStructures import Queue
 
 
 class Attribute:
@@ -68,7 +69,7 @@ class Attribute:
         while True:
             V_ = V.clone()
             for dep in F:
-                Y, Z = dep.key, dep.value
+                Y, Z = dep.X, dep.Y
                 if Y in V:
                     if Z not in V:
                         V += Z
@@ -97,6 +98,9 @@ class Attribute:
 
     def clone(self) -> "Attribute":
         return Attribute("".join(self.symbol[:]))
+
+    def is_empty(self) -> bool:
+        return len(self) == 0
 
 
 class Relation:
@@ -128,10 +132,12 @@ class Relation:
         yield from self.attributes
 
     def is_preserved_by(self, relations: list["Relation"], functional_dependencies: "FunctionalDependencyGroup"):
-        for dep in functional_dependencies:
-            if not dep.is_preserved_by(relations, functional_dependencies):
-                return False
-        return True
+        # week 10 page 2 slide 3
+        raise NotImplementedError()
+        # for dep in functional_dependencies:
+        #     if not dep.is_preserved_by(relations, functional_dependencies):
+        #         return False
+        # return True
 
     def __len__(self) -> int:
         return len(self.attributes)
@@ -145,14 +151,28 @@ class Relation:
 
     def is_BCNF(self, F: "FunctionalDependencyGroup") -> bool:
         for f in F:
-            X, Y = f.key, f.value
-            if not (Y in X or self.is_superkey(X, F)):
+            X, Y = f.tuple()
+            if not (f.is_trivial() or self.is_superkey(X, F)):
                 return False
         return True
 
     def is_3NF(self, F: "FunctionalDependencyGroup") -> bool:
-        BCNF = True
-        return False
+        def second_condition(X: Attribute, Y: Attribute) -> bool:
+            keys = self.find_all_keys(F)
+
+            def is_in_any_key(A: Attribute) -> bool:
+                for key in keys:
+                    if A in key:
+                        return True
+                return False
+            for A in Y:
+                if not (A in X or is_in_any_key(A)):
+                    return False
+            return True
+        for X, Y in F.tuples():
+            if not (self.is_superkey(X, F) or second_condition(X, Y)):
+                return False
+        return True
 
     def is_key(self, X: Attribute, F: "FunctionalDependencyGroup") -> bool:
         if not self.is_superkey(X, F):
@@ -177,6 +197,27 @@ class Relation:
     def find_key(self, F: "FunctionalDependencyGroup") -> Attribute:
         return self.to_attribute().minimize(F)
 
+    def find_all_keys(self, F: "FunctionalDependencyGroup") -> set[Attribute]:
+        # week 9 slide 3
+        K = self.find_key(F)
+        KeyQueue = Queue()
+        KeyQueue.push(K)
+        Keys = set([K])
+        while not KeyQueue.is_empty():
+            K = KeyQueue.pop()
+            for X, Y in F.tuples():
+                if not Y.intersection(K).is_empty():
+                    S = (K-Y).union(X)
+
+                    for k in Keys:
+                        if k in S:
+                            break
+                    else:
+                        S_ = S.minimize(F)
+                        KeyQueue.push(S_)
+                        Keys.add(S_)
+        return Keys
+
     def find_3NF_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
         res = []
         # 1
@@ -199,7 +240,26 @@ class Relation:
         return [Relation.from_string(attr.symbol) for attr in res]
 
     def find_BCND_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
-        return []
+        """week 10 page 16 slide 2
+        """
+        def get_violation() -> tuple[Attribute, Attribute]:
+            for f in F:
+                X, Y = f.tuple()
+                if not (f.is_trivial() or self.is_superkey(X, F)):
+                    break
+            return X, Y
+
+        if self.is_BCNF(F):
+            return [self]
+
+        X, Y = get_violation()
+        closure = X.closure(F)
+        R1 = Relation([A for A in closure])
+        R2 = Relation([A for A in X.union(self.to_attribute()-closure)])
+
+        F_R1 = F.project_on(R1)
+        F_R2 = F.project_on(R2)
+        return R1.find_BCND_decomposition(F_R1) + R2.find_BCND_decomposition(F_R2)
 
     @classmethod
     def from_string(self, s: str) -> "Relation":
@@ -207,33 +267,34 @@ class Relation:
 
 
 class FunctionDependency:
+
     @classmethod
     def from_string(cls, s: str) -> "FunctionDependency":
         key, value = s.split("->")
         return cls(key, value)
 
-    def is_preserved_by(self, potential_decomposition: list[Relation], functional_dependencies: "FunctionalDependencyGroup") -> bool:
-        for dependency in functional_dependencies:
-            X, Y = dependency.key, dependency.value
-            Z = X.clone()
-            predicate = True
-            Z_ = Z.clone()
-            while predicate:
-                for R in (r.to_attribute() for r in potential_decomposition):
-                    Z = Z.union(
-                        Z.intersection(R)
-                        .closure(functional_dependencies)
-                        .intersection(R)
-                    )
+    # def is_preserved_by(self, potential_decomposition: list[Relation], functional_dependencies: "FunctionalDependencyGroup") -> bool:
+    #     for dependency in functional_dependencies:
+    #         X, Y = dependency.X, dependency.Y
+    #         Z = X.clone()
+    #         predicate = True
+    #         Z_ = Z.clone()
+    #         while predicate:
+    #             for R in (r.to_attribute() for r in potential_decomposition):
+    #                 Z = Z.union(
+    #                     Z.intersection(R)
+    #                     .closure(functional_dependencies)
+    #                     .intersection(R)
+    #                 )
 
-                if Z_ == Z:
-                    predicate = False
-            if Y not in Z:
-                return False
-        return True
+    #             if Z_ == Z:
+    #                 predicate = False
+    #         if Y not in Z:
+    #             return False
+    #     return True
 
     def is_trivial(self) -> bool:
-        return self.value in self.key
+        return self.Y in self.X
 
     @classmethod
     def from_attributes(cls, key: Attribute, value: Attribute) -> "FunctionDependency":
@@ -244,47 +305,54 @@ class FunctionDependency:
             key = Attribute(key)
         if isinstance(value, str):
             value = Attribute(value)
-        self.key: Attribute = key.clone()
-        self.value: Attribute = value.clone()
+        self.X: Attribute = key.clone()
+        self.Y: Attribute = value.clone()
 
     def __eq__(self, other) -> bool:
         if isinstance(other, FunctionDependency):
-            return self.key == other.key and self.value == other.value
+            return self.X == other.X and self.Y == other.Y
         return False
 
     def __str__(self) -> str:
         return repr(self)
 
     def __repr__(self) -> str:
-        return f"{self.key}->{self.value}"
+        return f"{self.X}->{self.Y}"
 
     def tuple(self) -> tuple[Attribute, Attribute]:
-        return self.key, self.value
+        return self.X, self.Y
 
     def __hash__(self) -> int:
-        return -hash(self.key) + hash(self.value)
+        return -hash(self.X) + hash(self.Y)
 
     def follows_from(self, s: set["FunctionDependency"]) -> bool:
         if self in s:
             s.remove(self)
 
-        return self.value in self.key.closure(s)
+        return self.Y in self.X.closure(s)
 
-    def __lt__(self, other) -> int:
-        a = self.key < other.key
+    def __lt__(self, other: "FunctionDependency") -> int:
+        a = self.X < other.X
         if a != 0:
             return a
-        return self.value < other.value
+        return self.Y < other.Y
 
 
 class FunctionalDependencyGroup:
+    def project_on(self, R: Relation) -> "FunctionalDependencyGroup":
+        raise NotImplementedError()
+
     @classmethod
     def from_dict(cls, dct: dict[str, str]) -> "FunctionalDependencyGroup":
         return cls([FunctionDependency(k, v) for k, v in dct.items()])
 
     def __init__(self, dependencies: Iterable[FunctionDependency]):
-        self.dct: dict[Attribute, Attribute] = {
-            dependency.key: dependency.value for dependency in dependencies}
+        self.dct: dict[Attribute, Attribute] = {}
+        for dep in dependencies:
+            X, Y = dep.tuple()
+            if X not in self.dct:
+                self.dct[X] = Y
+            self.dct[X] += Y
 
     def add(self, f: FunctionDependency) -> "FunctionalDependencyGroup":
         X, Y = f.tuple()
@@ -297,16 +365,16 @@ class FunctionalDependencyGroup:
         for X, Y in self.tuples():
             for A in Y:
                 G.add(FunctionDependency.from_attributes(X, A))
-
-        G_: set[FunctionDependency] = set()
+        G_ = set()
         for f in set(G):
             X, A = f.tuple()
             if len(X) > 1:
                 for B in X:
                     if A in (X-B).closure(self):
                         X -= B
-            G.add(FunctionDependency.from_attributes(X, A))
-
+            G_.add(FunctionDependency.from_attributes(X, A))
+        G = set(G_)
+        del G_
         for f in set(G):
             X, A = f.tuple()
             if f.follows_from(set(G)):
