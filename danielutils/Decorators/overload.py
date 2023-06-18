@@ -1,9 +1,8 @@
 from typing import Callable, cast, Any
 import inspect
 import functools
-from ..Reflection.Function import is_function_annotated_properly
-from ..Functions.isoftype import isoftype
-from ..Functions.isoneof import isoneof, isoneof_strict
+from ..Reflection import is_function_annotated_properly
+from ..Functions import isoftype, isoneof, isoneof_strict
 from ..Exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
 __overload_dict: dict[str, dict[tuple, Callable]] = {}

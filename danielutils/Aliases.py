@@ -1,7 +1,7 @@
 import inspect
 from abc import ABC, abstractmethod
 from typing import cast
-from .Functions.isoftype import isoftype
+from .Functions import isoftype
 from .Reflection.Function import get_caller_name, get_function_return_type
 
 

@@ -1,9 +1,8 @@
 import types
 from abc import abstractmethod
 from typing import Any, Iterable
-from ...Functions.types_subseteq import types_subseteq
-from ...Functions.isoftype import isoftype
-from ...Reflection.Function import get_caller_name
+from ...Functions import types_subseteq, isoftype
+from ...Reflection import get_caller_name
 
 
 def create_typed_class(name: str, fallback_class: type = object) -> type:

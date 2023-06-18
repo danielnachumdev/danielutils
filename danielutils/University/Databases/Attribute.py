@@ -1,28 +1,53 @@
-from typing import Generator, ForwardRef
-# from ..Databases import FunctionalDependencyGroup
-ForwardRef("FunctionalDependencyGroup")
+from typing import Generator, ForwardRef, Iterable
+
+F_t = ForwardRef("FunctionalDependencyGroup")
 
 
 class Attribute:
     def __init__(self, symbol: str):
         self.symbol = symbol
 
-    def closure(self, relations: ForwardRef("FunctionalDependencyGroup")) -> "Attribute":
-        queue: list[Attribute] = [self]
-        res = self.clone()
-        while len(queue) > 0:
-            item = queue.pop()
-            if item in relations:
-                res = res.union(item)
-                value = relations[item]
-                if value not in res:
-                    queue.append(value)
-                for v in res:
-                    candidate = value.union(v)
-                    if candidate not in res:
-                        queue.append(candidate)
-                res = res.union(item)
-        return res
+    def __len__(self) -> int:
+        return len(self.symbol)
+
+    def __add__(self, other: "Attribute") -> "Attribute":
+        return self.union(other)
+
+    def __sub__(self, other: "Attribute") -> "Attribute":
+        return Attribute(self.symbol.replace(other.symbol, ""))
+
+    def minimize(self, F: F_t) -> "Attribute":
+        X = self.clone()
+        for A in X:
+            if A in (X-A).closure(F):
+                X -= A
+        return X
+
+    def closure(self, F: Iterable["FunctionalDependency"]) -> "Attribute":
+        X = self
+
+        # modified: algorithm from week 8
+        V = X.clone()
+        while True:
+            V_ = V.clone()
+            for dep in F:
+                Y, Z = dep.key, dep.value
+                if Y in V:
+                    if Z not in V:
+                        V += Z
+            if V == V_:
+                break
+        return V
+
+    def __lt__(self, other) -> int:
+        return self.symbol < other.symbol
+
+    def update(self, other: "Attribute") -> "Attribute":
+        self.symbol = str(''.join(
+            sorted(str("".join(list(
+                set(self.symbol).union(set(other.symbol))
+            ))).upper())))
+        return self
 
     def __contains__(self, other) -> bool:
         if isinstance(other, Attribute):

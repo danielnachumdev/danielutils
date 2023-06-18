@@ -2,7 +2,7 @@ import inspect
 from typing import cast, Optional, Callable, Any
 from types import FrameType
 from ._get_prev_frame import _get_prev_frame
-from ..Functions.isoftype import isoftype
+from ..Functions import isoftype
 
 
 def get_caller_name(steps_back: int = 0) -> Optional[str]:

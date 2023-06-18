@@ -1,6 +1,6 @@
 from typing import Generic, TypeVar, Iterable
 from .factory import create_typed_class
-from ...Functions.isoftype import isoftype
+from ...Functions import isoftype
 T = TypeVar("T")
 parent: type = create_typed_class("tset", set)
 
