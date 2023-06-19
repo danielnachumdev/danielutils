@@ -1,7 +1,8 @@
+from typing import Callable
 import time
 
 
-def measure(func, *args, **kwargs) -> float:
+def measure(func: Callable) -> Callable:
     """A function to measure the execution time of a function.
 
     Args:
@@ -10,10 +11,12 @@ def measure(func, *args, **kwargs) -> float:
     Returns:
         float: The time taken in seconds to execute the given function.
     """
-    start = time.time()
-    func(*args, **kwargs)
-    end = time.time()
-    return end-start
+    def wrapper(*args, **kwargs) -> float:
+        start = time.time()
+        func(*args, **kwargs)
+        end = time.time()
+        return end-start
+    return wrapper
 
 
 __all__ = [

@@ -23,10 +23,13 @@ class Attribute:
         return len(self.symbol)
 
     def __add__(self, other: "Attribute") -> "Attribute":
-        return self.union(other)
+        return Attribute(''.join(sorted(str("".join(list(set(self.symbol).union(set(other.symbol))))).upper())))
 
     def __sub__(self, other: "Attribute") -> "Attribute":
-        return Attribute(self.symbol.replace(other.symbol, ""))
+        res = self.symbol[:]
+        for s in other.symbol:
+            res = res.replace(s, "")
+        return Attribute(res)
 
     def __lt__(self, other) -> int:
         return self.symbol < other.symbol
@@ -54,11 +57,30 @@ class Attribute:
     def __repr__(self) -> str:
         return self.symbol
 
+    def __and__(self, other: "Attribute") -> "Attribute":
+        lst = list(
+            set(str(self)).intersection(set(str(other)))
+        )
+        return Attribute(''.join(lst))
+
     def minimize(self, F: "FunctionalDependencyGroup") -> "Attribute":
+        """week 8 page 22 slide 1
+
+        Args:
+            F (FunctionalDependencyGroup): Dependency Group
+
+        Returns:
+            Attribute: the minimization of the Attribute
+        """
+        for X, Y in F.tuples():
+            if X.closure(F) == self:
+                return X
+
         X = self.clone()
-        for A in X:
+        for A in self:
             if A in (X-A).closure(F):
                 X -= A
+
         return X
 
     def closure(self, F: Iterable["FunctionDependency"]) -> "Attribute":
@@ -85,13 +107,10 @@ class Attribute:
         return self
 
     def union(self, other: "Attribute") -> "Attribute":
-        return Attribute(''.join(sorted(str("".join(list(set(self.symbol).union(set(other.symbol))))).upper())))
+        return self+other
 
     def intersection(self, other: "Attribute") -> "Attribute":
-        lst = list(
-            set(str(self)).intersection(set(str(other)))
-        )
-        return Attribute(''.join(lst))
+        return self & other
 
     def to_set(self) -> set["Attribute"]:
         return set([Attribute(v) for v in self.symbol])
@@ -104,9 +123,14 @@ class Attribute:
 
 
 class Relation:
+
     @classmethod
     def from_strings(cls, lst: Iterable[str]) -> "Relation":
         return cls([Attribute(s) for s in lst])
+
+    @classmethod
+    def from_string(self, s: str) -> "Relation":
+        return Relation.from_strings(s.split())
 
     def __init__(self, attributes: list[Attribute]):
         self.attributes = attributes
@@ -116,31 +140,63 @@ class Relation:
             return attribute in self.attributes
         return False
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Relation):
+            return self.to_attribute() == other.to_attribute()
+        return False
+
+    def __hash__(self) -> int:
+        res = 0
+        for A in self.to_attribute():
+            res += hash(A)
+        return res
+
     def __str__(self) -> str:
         return repr(self)
 
     def __repr__(self) -> str:
         return self.__class__.__name__+str(self.attributes)
 
-    def to_attribute(self) -> Attribute:
-        res = self.attributes[0].clone()
-        for i in range(1, len(self.attributes)):
-            res.update(self.attributes[i])
-        return res
-
     def __iter__(self) -> Generator[Attribute, None, None]:
         yield from self.attributes
 
-    def is_preserved_by(self, relations: list["Relation"], functional_dependencies: "FunctionalDependencyGroup"):
-        # week 10 page 2 slide 3
-        raise NotImplementedError()
-        # for dep in functional_dependencies:
-        #     if not dep.is_preserved_by(relations, functional_dependencies):
-        #         return False
-        # return True
-
     def __len__(self) -> int:
         return len(self.attributes)
+
+    def to_attribute(self) -> Attribute:
+        res = self.attributes[0].clone()
+        for i in range(1, len(self.attributes)):
+            res += self.attributes[i]
+            # res.update(self.attributes[i])
+        return res
+
+    def is_decomposition_lossless(self, R: list["Relation"], F: "FunctionalDependencyGroup") -> bool:
+        if len(R) == 2:
+            R1 = R[0].to_attribute()
+            R2 = R[1].to_attribute()
+            closure = (R1 & R2).closure(F)
+            if R1 in closure or R2 in closure:
+                return True
+            return False
+        raise NotImplementedError()
+
+    def is_decomposition_dependency_preserving(self, R: list["Relation"], F: "FunctionalDependencyGroup"):
+        # week 10 page 2 slide 3
+        n = len(R)
+        for X, Y in F.tuples():
+            Z = X.clone()
+            Z_ = None
+            # TODO unclear what is supposed to happen
+            # while Z != Z_:
+            for _ in range(n):
+                for i in range(n):
+                    Z = Z.union(
+                        Z.intersection(R[i].to_attribute()).closure(F)
+                        .intersection(R[i].to_attribute())
+                    )
+            if Y not in Z:
+                return False
+        return True
 
     def subsets(self) -> Generator[Attribute, None, None]:
         for tup in generate_except(powerset(self), lambda index, _: index == 0):
@@ -165,10 +221,12 @@ class Relation:
                     if A in key:
                         return True
                 return False
+
             for A in Y:
                 if not (A in X or is_in_any_key(A)):
                     return False
             return True
+
         for X, Y in F.tuples():
             if not (self.is_superkey(X, F) or second_condition(X, Y)):
                 return False
@@ -198,7 +256,7 @@ class Relation:
         return self.to_attribute().minimize(F)
 
     def find_all_keys(self, F: "FunctionalDependencyGroup") -> set[Attribute]:
-        # week 9 slide 3
+        # week 9 page 1 slide 3
         K = self.find_key(F)
         KeyQueue = Queue()
         KeyQueue.push(K)
@@ -240,7 +298,7 @@ class Relation:
         # TODO
         return [Relation.from_string(attr.symbol) for attr in res]
 
-    def find_BCND_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
+    def find_BCNF_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
         """week 10 page 16 slide 2
         """
         def get_violation() -> tuple[Attribute, Attribute]:
@@ -260,42 +318,14 @@ class Relation:
 
         F_R1 = F.project_on(R1)
         F_R2 = F.project_on(R2)
-        return R1.find_BCND_decomposition(F_R1) + R2.find_BCND_decomposition(F_R2)
-
-    @classmethod
-    def from_string(self, s: str) -> "Relation":
-        return Relation.from_strings(s.split())
+        return R1.find_BCNF_decomposition(F_R1) + R2.find_BCNF_decomposition(F_R2)
 
 
 class FunctionDependency:
-
     @classmethod
     def from_string(cls, s: str) -> "FunctionDependency":
         key, value = s.split("->")
         return cls(key, value)
-
-    # def is_preserved_by(self, potential_decomposition: list[Relation], functional_dependencies: "FunctionalDependencyGroup") -> bool:
-    #     for dependency in functional_dependencies:
-    #         X, Y = dependency.X, dependency.Y
-    #         Z = X.clone()
-    #         predicate = True
-    #         Z_ = Z.clone()
-    #         while predicate:
-    #             for R in (r.to_attribute() for r in potential_decomposition):
-    #                 Z = Z.union(
-    #                     Z.intersection(R)
-    #                     .closure(functional_dependencies)
-    #                     .intersection(R)
-    #                 )
-
-    #             if Z_ == Z:
-    #                 predicate = False
-    #         if Y not in Z:
-    #             return False
-    #     return True
-
-    def is_trivial(self) -> bool:
-        return self.Y in self.X
 
     @classmethod
     def from_attributes(cls, key: Attribute, value: Attribute) -> "FunctionDependency":
@@ -320,17 +350,8 @@ class FunctionDependency:
     def __repr__(self) -> str:
         return f"{self.X}->{self.Y}"
 
-    def tuple(self) -> tuple[Attribute, Attribute]:
-        return self.X, self.Y
-
     def __hash__(self) -> int:
         return -hash(self.X) + hash(self.Y)
-
-    def follows_from(self, s: set["FunctionDependency"]) -> bool:
-        if self in s:
-            s.remove(self)
-
-        return self.Y in self.X.closure(s)
 
     def __lt__(self, other: "FunctionDependency") -> int:
         a = self.X < other.X
@@ -338,10 +359,23 @@ class FunctionDependency:
             return a
         return self.Y < other.Y
 
+    def __gt__(self, other) -> bool:
+        return not (self < other or self == other)
+
+    def is_trivial(self) -> bool:
+        return self.Y in self.X
+
+    def tuple(self) -> tuple[Attribute, Attribute]:
+        return self.X, self.Y
+
+    def follows_from(self, s: set["FunctionDependency"]) -> bool:
+        if self in s:
+            s.remove(self)
+
+        return self.Y in self.X.closure(s)
+
 
 class FunctionalDependencyGroup:
-    def project_on(self, R: Relation) -> "FunctionalDependencyGroup":
-        raise NotImplementedError()
 
     @classmethod
     def from_dict(cls, dct: dict[str, str]) -> "FunctionalDependencyGroup":
@@ -354,52 +388,6 @@ class FunctionalDependencyGroup:
             if X not in self.dct:
                 self.dct[X] = Y
             self.dct[X] += Y
-
-    def add(self, f: FunctionDependency) -> "FunctionalDependencyGroup":
-        X, Y = f.tuple()
-        self.dct[X] = Y
-        return self
-
-    @PartiallyImplemented
-    def minimal_cover(self) -> list[FunctionDependency]:
-        G: set[FunctionDependency] = set()
-        for X, Y in self.tuples():
-            for A in Y:
-                G.add(FunctionDependency.from_attributes(X, A))
-        G_ = set()
-        for f in set(G):
-            X, A = f.tuple()
-            if len(X) > 1:
-                for B in X:
-                    if A in (X-B).closure(self):
-                        X -= B
-            G_.add(FunctionDependency.from_attributes(X, A))
-        G = set(G_)
-        del G_
-        for f in set(G):
-            X, A = f.tuple()
-            if f.follows_from(set(G)):
-                G.remove(f)
-
-        return list(sorted(G))  # type:ignore
-
-    def tuples(self) -> Generator[tuple[Attribute, Attribute], None, None]:
-        for dep in self:
-            yield dep.tuple()
-    # def minimize(self) -> set[Attribute]::
-    #     # q: Queue = Queue()
-    #     # q.push_many(list(self.to_set()))
-    #     # for _ in range(len(q)):
-    #     #     excluded = q.pop()
-    #     #     closure = set()
-    #     #     for v in q:
-    #     #         closure.update(v.closure(self))
-    #     #     if closure != self.to_set():
-    #     #         q.push(excluded)
-    #     # return set(iter(q))
-
-    def to_set(self) -> set[Attribute]:
-        return set(self.dct.keys()).union(set(self.dct.values()))
 
     def __iter__(self) -> Generator[FunctionDependency, None, None]:
         for k, v in self.dct.items():
@@ -419,6 +407,96 @@ class FunctionalDependencyGroup:
         res += ", ".join(f"{k}->{v}" for k, v in self.dct.items())
         res += " }"
         return res
+
+    def __len__(self) -> int:
+        return len(self.dct)
+
+    def add(self, f: FunctionDependency) -> "FunctionalDependencyGroup":
+        X, Y = f.tuple()
+        self.dct[X] = Y
+        return self
+
+    def minimal_cover(self) -> list[FunctionDependency]:
+        """week 10 page 5 slide 6
+
+        Returns:
+            list[FunctionDependency]: result of minimal cover
+        """
+        G: set[FunctionDependency] = set()
+        for X, Y in self.tuples():
+            for A in Y:
+                G.add(FunctionDependency.from_attributes(X, A))
+
+        # minimal_g = set(range(len(G)+1))
+
+        # def backtracking_helper(G__: set, excluded: set):
+        #     nonlocal minimal_g
+        #     for f in set(G):
+        #         X, A = f.tuple()
+        #         if len(X) > 1:
+        #             for B in X:
+        #                 if X-B not in excluded:
+        #                     if A in (X-B).closure(self):
+        #                         excluded.add(X-B)
+        #                         backtracking_helper(set(), excluded)
+        #                         X -= B
+        #                         excluded.remove(X-B)
+        #         G__.add(FunctionDependency.from_attributes(X, A))
+        #     if len(G__) < len(minimal_g):
+        #         minimal_g = G__
+
+        G_: set = set()
+        for f in set(G):
+            X, A = f.tuple()
+            if len(X) > 1:
+                for B in X:
+                    if A in (X-B).closure(self):
+                        X -= B
+            G_.add(FunctionDependency.from_attributes(X, A))
+        G = set(G_)
+        del G_
+        minimal_g: set = set(range(len(G)+1))
+
+        def backtracking_helper(G: set[FunctionDependency], excluded: set):
+            nonlocal minimal_g
+            OG = set(G)
+            for f in OG:
+                if not f in excluded:
+                    if f.follows_from(set(G)):
+                        excluded.add(f)
+                        backtracking_helper(set(OG), excluded)
+                        G.remove(f)
+                        excluded.remove(f)
+            if len(G) < len(minimal_g):
+                minimal_g = G
+        backtracking_helper(G, set())
+        # for f in set(G):
+        #     if f.follows_from(set(G)):
+        #         G.remove(f)
+
+        return list(sorted(minimal_g))  # type:ignore
+
+    def tuples(self) -> Generator[tuple[Attribute, Attribute], None, None]:
+        for dep in self:
+            yield dep.tuple()
+
+    def to_set(self) -> set[Attribute]:
+        return set(self.dct.keys()).union(set(self.dct.values()))
+
+    def project_on(self, R: Relation) -> "FunctionalDependencyGroup":
+        """week 10 page 4 slide 3
+
+        Args:
+            R (Relation): relation to project ontro
+
+        Returns:
+            FunctionalDependencyGroup: projection group
+        """
+        Ri = R.to_attribute()
+        G = FunctionalDependencyGroup([])
+        for X in R.subsets():
+            G.add(FunctionDependency(X, X.closure(self) & Ri))
+        return G
 
 
 __all__ = [
