@@ -1,4 +1,3 @@
-import pytest
 import functools
 from ....danielutils import Attribute  # type:ignore
 

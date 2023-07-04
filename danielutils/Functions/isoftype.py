@@ -1,4 +1,4 @@
-from typing import get_args, get_origin, get_type_hints, Any, Sequence, Union, TypeVar, ForwardRef, Literal, Optional, cast
+from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, ForwardRef, Literal, Optional, cast, ParamSpec, Concatenate
 from collections.abc import Callable, Generator, Iterable
 
 
@@ -22,10 +22,11 @@ def __isoftype_inquire(obj: Any) -> tuple[Optional[type], Optional[tuple], Optio
 
 
 implicit_union_type = type(int | str)
+concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
 
 
-def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
+def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
     """Checks if an object is of the given type or any of its subtypes.
 
     Args:
@@ -37,8 +38,9 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
     """
     if not isinstance(strict, bool):
         raise TypeError("'strict' must be of type bool")
-    obj_origin, obj_args, obj_hints = __isoftype_inquire(obj)
+    obj_origin, obj_args, obj_hints = __isoftype_inquire(V)
     t_origin, t_args, t_hints = __isoftype_inquire(T)
+    params = (obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints)
     if t_args is not None and ellipsis_ in t_args:
         from ..Colors import warning
         warning(
@@ -47,30 +49,30 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
     if t_origin is not None:
         t_args = cast(tuple, t_args)
         if t_origin in {list, tuple, dict, set, dict, Iterable}:
-            if not isinstance(obj, t_origin):
+            if not isinstance(V, t_origin):
                 return False
 
             if t_origin in {list, set, Iterable}:
-                obj = cast(Iterable, obj)
+                V = cast(Iterable, V)
                 value_t = t_args[0]
-                for value in obj:
+                for value in V:
                     if not isoftype(value, value_t, strict=strict):
                         return False
                 return True
 
             elif t_origin is tuple:
-                obj = cast(tuple, obj)
-                if len(obj) != len(t_args):
+                V = cast(tuple, V)
+                if len(V) != len(t_args):
                     return False
-                for sub_obj, sub_t in zip(obj, t_args):
+                for sub_obj, sub_t in zip(V, t_args):
                     if not isoftype(sub_obj, sub_t, strict=strict):
                         return False
                 return True
 
             elif t_origin is dict:
-                obj = cast(dict, obj)
+                V = cast(dict, V)
                 key_t, value_t,  = t_args[0], t_args[1]
-                for k, v in obj.items():
+                for k, v in V.items():
                     if not isoftype(k, key_t, strict=strict):
                         return False
                     if not isoftype(v, value_t, strict=strict):
@@ -79,26 +81,26 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
 
         elif t_origin in {Union, implicit_union_type}:  # also handle typing.Optional
             for sub_t in t_args:
-                if isoftype(obj, sub_t, strict=strict):
+                if isoftype(V, sub_t, strict=strict):
                     return True
             return False
 
         elif t_origin is Generator:
             yield_t, send_t, return_t = t_args
-            return isinstance(obj, Generator)
+            return isinstance(V, Generator)
 
         elif t_origin is Literal:
             for literal in t_args:
-                if obj is literal:
+                if V is literal:
                     return True
             return False
 
         elif t_origin is Callable:
             obj_hints = cast(dict, obj_hints)
 
-            if not callable(obj):
+            if not callable(V):
                 return False
-            if obj.__name__ == "<lambda>":
+            if V.__name__ == "<lambda>":
                 if strict:
                     from ..Colors import warning
                     warning("using lambda function with isoftype is ambiguous")
@@ -107,11 +109,31 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
                 return True
             tmp = list(obj_hints.values())
             obj_return_type = tmp[-1] if tmp else None
-            obj_param_types = tuple(tmp[:-1]) if tmp else None
+            obj_param_types = list(tmp[:-1]) if tmp else None
             del tmp
             t_return_type = t_args[1]
-            t_param_types = tuple(t_args[0])
-            return obj_return_type is t_return_type and obj_param_types == t_param_types
+            if isinstance(t_args[0], Iterable):
+                t_param_types = list(t_args[0])
+                A = obj_param_types + [obj_return_type]  # type:ignore
+                B = t_param_types + [t_return_type]
+
+                if not len(A) == len(B):
+                    return False
+                for a, b in zip(A, B):
+                    if hasattr(b, "__args__"):  # Union
+                        if a not in b.__args__:
+                            return False
+                    elif a is not b:  # otherwise
+                        return False
+                return True
+
+            if isoftype(t_args[0], [ParamSpec, concatenate_t]):
+                return True
+            # elif isinstance(t_args[0], concatenate_t):
+            #     cont_args = t_args[0].__args__  # type:ignore
+            #     actual = tuple(cont_args[0])
+            # else:
+            #     pass
 
         else:
             from ..Colors import warning
@@ -127,7 +149,7 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
         elif type(T) in {list, tuple}:
             # if T == (int,) or something
             for sub_t in T:
-                if isoftype(obj, sub_t, strict=strict):
+                if isoftype(V, sub_t, strict=strict):
                     return True
             return False
 
@@ -139,7 +161,7 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
             t_args = T.__constraints__
             if t_args:
                 for sub_t in t_args:
-                    if isoftype(obj, sub_t):
+                    if isoftype(V, sub_t):
                         return True
                 return False
             # TODO how should we check that all value in the same relative position are of the same type
@@ -148,9 +170,9 @@ def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
         elif isinstance(T, ForwardRef):
             # TODO what happens if there are a few classes with the same name from different modules? this will break
             name_of_type = T.__forward_arg__
-            return type(obj).__name__ == name_of_type
+            return type(V).__name__ == name_of_type
 
-    return isinstance(obj, T)
+    return isinstance(V, T)
 
 
 __all__ = [
