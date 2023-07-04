@@ -144,3 +144,144 @@ def test_extra():
     # Additional test cases
     assert isoftype(None, Optional[int]) == True  # True
     assert isoftype(lambda x: x + 1, Callable[[int], int]) == False  # True
+
+
+def test_isoftype_comprehensive_2():
+    assert isoftype(5, int)  # Basic type checking
+    assert isoftype("Hello", str)
+    assert not isoftype(5, str)
+    assert not isoftype("Hello", int)
+
+    assert isoftype(5, Union[int, str])  # Union type checking
+    assert isoftype("Hello", Union[int, str])
+    assert not isoftype(5.5, Union[int, str])
+    assert isoftype(True, Union[int, str])  # TODO
+
+    assert isoftype([1, 2, 3], List[int])  # Container type checking
+    assert isoftype((1, 2, 3), Tuple[int, int, int])
+    assert isoftype({'a': 1, 'b': 2}, Dict[str, int])
+    assert not isoftype([1, 2, 3], Tuple[int, int, int])
+    assert not isoftype((1, 2, 3), List[int])
+    assert not isoftype({'a': 1, 'b': 2}, List[int])
+
+    def number_generator():
+        yield 1
+        yield 2
+        yield 3
+
+    def string_generator():
+        yield "Hello"
+        yield "World"
+
+    # Generator type checking
+    assert isoftype(number_generator(), Generator[int, None, None])
+    assert isoftype(string_generator(), Generator[str, None, None])
+    # assert not isoftype(number_generator(), Generator[str, None, None])#TODO
+    # assert not isoftype(string_generator(), Generator[int, None, None])
+
+    assert isoftype(3, Literal[1, 2, 3])  # Literal type checking
+    assert isoftype("apple", Literal["apple", "banana", "cherry"])
+    assert not isoftype(5, Literal[1, 2, 3])
+    assert not isoftype("orange", Literal["apple", "banana", "cherry"])
+
+    T = TypeVar('T', int, str)
+
+    def process_data(data: T) -> T:
+        if isoftype(data, int):  # TypeVar and TypeVar constraints
+            return data * 2
+        elif isoftype(data, str):
+            return data.upper()
+        else:
+            return data
+
+    assert process_data(5) == 10
+    assert process_data("hello") == "HELLO"
+    assert process_data(3.14) == 3.14
+
+    def add_numbers(a: int, b: int) -> int:
+        return a + b
+
+    def greet(name: str) -> str:
+        return "Hello, " + name
+
+    def multiply_numbers(a: int, b: int) -> int:
+        return a * b
+
+    # Callable type checking
+    assert isoftype(add_numbers, Callable[[int, int], int])
+    assert isoftype(greet, Callable[[str], str])
+    assert not isoftype(add_numbers, Callable[[str, str], str])
+    assert not isoftype(multiply_numbers, Callable[[int, int], str])
+
+    # Tree = Union[int, List['Tree']]
+
+    # tree1 = [1, [2, [3], 4], 5]  # Recursive type checking
+    # tree2 = [1, [2, [3, [4]]]]
+    # tree3 = [1, [2, [3, [4, ['5']]]]]
+
+    # assert isoftype(tree1, Tree)
+    # assert isoftype(tree2, Tree)
+    # assert not isoftype(tree3, Tree)
+
+    class MyClass:
+        pass
+
+    MyType = ForwardRef('MyClass')
+
+    obj = MyClass()
+
+    assert isoftype(obj, MyType)  # ForwardRef type checking
+    assert not isoftype(obj, ForwardRef('OtherClass'))
+
+
+def test_isoftype_comprehensive_3():
+    # Tree = Union[int, List['Tree']]
+
+    # tree1 = [1, [2, [3, [4, [5, [6]]]]]]
+    # tree2 = [1, [2, [3, [4, ['5']]]]]
+
+    # assert isoftype(tree1, Tree)  # True
+    # assert not isoftype(tree2, Tree)  # False
+
+    MyDict = Dict[str, Union[List[Tuple[int, str]], str]]
+
+    data1 = {
+        "list1": [(1, "one"), (2, "two")],
+        "list2": [(3, "three"), (4, "four")],
+        "string": "Hello"
+    }
+
+    data2 = {
+        "list1": [(1, "one"), (2, "two")],
+        "list2": [(3, "three"), (4, 4)],
+        "string": "Hello"
+    }
+
+    assert isoftype(data1, MyDict)  # True
+    assert not isoftype(data2, MyDict)  # False
+
+    T1 = TypeVar('T1')
+    T2 = TypeVar('T2')
+
+    def process_data(data: List[T1], value: T2) -> List[Tuple[T1, T2]]:
+        result = []
+        for item in data:
+            result.append((item, value))
+        return result
+
+    assert isoftype(process_data([1, 2, 3], "A"),
+                    List[Tuple[int, str]])  # True
+    assert not isoftype(process_data(
+        [1, 2, 3], "A"), List[Tuple[str, int]])  # False
+
+    Person = Tuple[str, Union[int, List[Dict[str, Union[str, int]]]]]
+
+    data1_ = ("John", 30)
+    data2_ = ("Alice", [{"name": "Bob", "age": 25},
+                        {"name": "Carol", "age": 35}])
+    data3_ = ("Tom", [{"name": "Jerry", "age": "twenty"},
+                      {"name": "Spike", "age": 5}])
+
+    assert isoftype(data1_, Person)  # True
+    assert isoftype(data2_, Person)  # True
+    assert isoftype(data3_, Person)  # True
