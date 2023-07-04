@@ -40,7 +40,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
         raise TypeError("'strict' must be of type bool")
     obj_origin, obj_args, obj_hints = __isoftype_inquire(V)
     t_origin, t_args, t_hints = __isoftype_inquire(T)
-    params = (obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints)
+
     if t_args is not None and ellipsis_ in t_args:
         from ..Colors import warning
         warning(
