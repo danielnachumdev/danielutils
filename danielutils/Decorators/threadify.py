@@ -1,9 +1,12 @@
-from typing import Callable
+from typing import Callable, ParamSpec
 import functools
 import threading
 
+P = ParamSpec("P")
+FuncT = Callable[P, None]
 
-def threadify(func: Callable) -> Callable:
+
+def threadify(func: FuncT) -> FuncT:
     """will modify the function that when calling it a new thread will start to run it with provided arguments.\nnote that no return value will be given
 
     Args:

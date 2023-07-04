@@ -1,11 +1,15 @@
 import functools
-from typing import Callable, Any
+from typing import Callable, Any, TypeVar, ParamSpec
 import threading
 from .validate import validate
 
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]
+
 
 @validate
-def atomic(func: Callable) -> Callable:
+def atomic(func: FuncT) -> FuncT:
     """will make function thread safe by making it
     accessible for only one thread at one time
 

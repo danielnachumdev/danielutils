@@ -4,7 +4,7 @@ from .validate import validate
 
 
 @validate(strict=False)
-def decorate_conditionally(decorator: Callable, predicate: bool | Callable[[], bool], args: Optional[list] = None):
+def decorate_conditionally(decorator: Callable, predicate: bool | Callable[[], bool], args: Optional[list] = None, kwargs: Optional[dict] = None):
     """will decorate a function iff the predicate is True or returns True
 
     Args:
@@ -14,13 +14,15 @@ def decorate_conditionally(decorator: Callable, predicate: bool | Callable[[], b
 
     def deco(func):
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
+        def wrapper(*args2, **kwargs2):
+            return func(*args2, **kwargs2)
+        nonlocal args, kwargs
         if (predicate() if callable(predicate) else predicate):
             if args is None:
-                return decorator(func)
-            return decorator(*args)(func)
+                args = []
+            if kwargs is None:
+                kwargs = dict()
+            return decorator(*args, **kwargs)(func)
         return wrapper
     return deco
 

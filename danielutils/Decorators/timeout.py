@@ -1,11 +1,15 @@
 import threading
 import functools
-from typing import Callable
+from typing import Callable, TypeVar, ParamSpec
 from .validate import validate
+
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]
 
 
 @validate
-def timeout(duration: int | float, silent: bool = False) -> Callable:
+def timeout(duration: int | float, silent: bool = False) -> Callable[[FuncT], FuncT]:
     """A decorator to limit runtime for a function
 
     Args:
@@ -20,7 +24,7 @@ def timeout(duration: int | float, silent: bool = False) -> Callable:
         Callable: the result decorated function
     """
     # https://stackoverflow.com/a/21861599/6416556
-    def timeout_deco(func: Callable) -> Callable:
+    def timeout_deco(func: FuncT) -> FuncT:
         if not callable(func):
             raise ValueError("timeout must decorate a function")
 

@@ -257,7 +257,7 @@ class Relation:
 
     def find_all_keys(self, F: "FunctionalDependencyGroup") -> set[Attribute]:
         # week 9 page 1 slide 3
-        K = self.find_key(F)
+        K: Attribute = self.find_key(F)
         KeyQueue = Queue()
         KeyQueue.push(K)
         Keys = set([K])

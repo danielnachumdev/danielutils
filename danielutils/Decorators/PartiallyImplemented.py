@@ -1,11 +1,15 @@
-from typing import Callable, Any
+from typing import Callable, Any, TypeVar, ParamSpec
 import functools
 from .validate import validate
 from ..Colors import warning
 
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]
+
 
 @validate
-def PartiallyImplemented(func: Callable) -> Callable:
+def PartiallyImplemented(func: FuncT) -> FuncT:
     """decorator to mark function as not fully implemented for development purposes
 
     Args:

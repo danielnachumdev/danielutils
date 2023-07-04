@@ -1,13 +1,17 @@
 import functools
 import inspect
-from typing import Callable, get_type_hints, cast
+from typing import Callable, get_type_hints, cast, TypeVar, ParamSpec
 from ..Functions.isoftype import isoftype
 from ..Reflection import get_function_return_type
 from ..Exceptions import EmptyAnnotationException,\
     InvalidDefaultValueException, ValidationException, InvalidReturnValueException
 
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]
 
-def validate(strict: Callable | bool = True) -> Callable:
+
+def validate(strict: FuncT | bool = True) -> FuncT:
     """A decorator that validates the annotations and types of the arguments and return
     value of a function.
 
@@ -32,8 +36,7 @@ def validate(strict: Callable | bool = True) -> Callable:
         raise TypeError(
             "the argument for validate must be a Callable or a boolean to mark strict use")
 
-    def deco(func: Callable):
-
+    def deco(func: FuncT) -> FuncT:
         SKIP_SET = {"self", "cls", "args", "kwargs"}
         if not callable(func):
             raise TypeError(

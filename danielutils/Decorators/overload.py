@@ -1,4 +1,4 @@
-from typing import Callable, cast, Any
+from typing import Callable, cast, Any, TypeVar, ParamSpec
 import inspect
 import functools
 from ..Reflection import is_function_annotated_properly
@@ -101,6 +101,15 @@ def explicit_global_overload(*types) -> Callable:
     return deco
 
 
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]
+
+T2 = TypeVar("T2")
+P2 = ParamSpec("P2")
+FuncT2 = Callable[P2, T2]
+
+
 class overload:
     """this class create an object to manage the overloads for a given function.\n
     will only match a specific resolution and won't infer best guess for types
@@ -108,7 +117,7 @@ class overload:
 
     __SKIP_SET = {"self", "cls", "args", "kwargs"}
 
-    def __init__(self, func: Callable):
+    def __init__(self, func: FuncT):
         overload._validate(func)
         self._qualname = func.__qualname__
         self._moudle = func.__module__
@@ -128,7 +137,7 @@ class overload:
             raise ValueError(
                 f"{func.__module__}.{func.__qualname__} is not properly annotated.\nFunction must be fully annotated to be overloaded")
 
-    def overload(self, func: Callable) -> "overload":
+    def overload(self, func: FuncT2) -> "overload":
         """will add another function to the list of available options
 
         Args:

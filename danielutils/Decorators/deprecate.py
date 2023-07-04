@@ -1,10 +1,14 @@
-from typing import Callable
+from typing import Callable, TypeVar, ParamSpec
 from ..Colors import warning, ColoredText
 
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]
 
-def deprecate_with(replacement_func) -> Callable[[Callable], Callable]:
+
+def deprecate_with(replacement_func) -> Callable[[FuncT], FuncT]:
     """will replace a deprecated function with the replacement func and will print a warning"""
-    def deco(func):
+    def deco(func: FuncT) -> FuncT:
         warning(f"{func.__module__}.{func.__qualname__} is deprecated, using {replacement_func.__module__}.{replacement_func.__qualname__} instead")
 
         def wrapper(*args, **kwargs):
@@ -13,13 +17,13 @@ def deprecate_with(replacement_func) -> Callable[[Callable], Callable]:
     return deco
 
 
-def deprecate(deprecation_message: str):
+def deprecate(deprecation_message: str) -> Callable[[FuncT], FuncT]:
     """A decorator to print a deprecation message when using a deprecated function
 
     Args:
         deprecation_message (str): deprecation message
     """
-    def deco(func: Callable):
+    def deco(func: FuncT) -> FuncT:
         def wrapper(*args, **kwargs):
             print(ColoredText.orange("Deprecation Warning") +
                   ":", deprecation_message)
