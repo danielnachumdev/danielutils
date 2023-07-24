@@ -1,11 +1,27 @@
-from typing import Callable, cast, Any, TypeVar, ParamSpec
+from typing import Callable, cast, Any, TypeVar
 import inspect
+import platform
 import functools
 from ..Reflection import is_function_annotated_properly
 from ..Functions import isoftype, isoneof, isoneof_strict
 from ..Exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
-__overload_dict: dict[str, dict[tuple, Callable]] = {}
+if platform.python_version() >= "3.9":
+    from typing import ParamSpec
+    from builtins import dict as t_dict
+    T = TypeVar("T")
+    P = ParamSpec("P")
+    FuncT = Callable[P, T]
+    T2 = TypeVar("T2")
+    P2 = ParamSpec("P2")
+    FuncT2 = Callable[P2, T2]
+else:
+    from typing import Dict as t_dict
+    FuncT = Callable  # type:ignore
+    FuncT2 = Callable  # type:ignore
+
+
+__overload_dict: t_dict[str, t_dict[tuple, Callable]] = {}
 
 
 @deprecate("'explicit_global_overload' is a legacy decorator please use 'overload' instead")
@@ -99,15 +115,6 @@ def explicit_global_overload(*types) -> Callable:
 
         return wrapper
     return deco
-
-
-T = TypeVar("T")
-P = ParamSpec("P")
-FuncT = Callable[P, T]
-
-T2 = TypeVar("T2")
-P2 = ParamSpec("P2")
-FuncT2 = Callable[P2, T2]
 
 
 class overload:

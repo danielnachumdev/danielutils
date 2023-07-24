@@ -1,13 +1,18 @@
 from typing import Generic, TypeVar, Any, Union, Iterable, SupportsIndex
+import platform
 from ...MetaClasses.OverloadMeta import OverloadMeta
-from ...Functions import isoftype,types_subseteq
+from ...Functions import isoftype, types_subseteq
 from ...Reflection import get_caller_name
 from ...Decorators import overload
 from .factory import create_typed_class
 T = TypeVar("T", bound=Any)
+if platform.python_version() >= "3.9":
+    from builtins import list as t_list
+else:
+    from typing import List as t_list
 
 
-class ptlist(list[T], Generic[T]):
+class ptlist(t_list[T], Generic[T]):
     """like 'list' but with runtime type safety
     """
 
@@ -42,7 +47,7 @@ class ptlist(list[T], Generic[T]):
         """
 
     @_additional_init.overload
-    def _init_from_set_and_dict(self, obj: set | dict):
+    def _init_from_set_and_dict(self, obj: Union[set, dict]):
         """inits the tlist from a set or a dict object
         Args:
             obj (set | dict): the set or dict instance

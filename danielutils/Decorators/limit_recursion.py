@@ -1,13 +1,18 @@
 import functools
 import re
 import traceback
-from typing import Any, Callable, TypeVar, ParamSpec
+import platform
+from typing import Any, Callable, TypeVar
 from .validate import validate
 from ..Colors import warning
 
-T = TypeVar("T")
-P = ParamSpec("P")
-FuncT = Callable[P, T]
+if platform.python_version() >= "3.9":
+    from typing import ParamSpec
+    T = TypeVar("T")
+    P = ParamSpec("P")
+    FuncT = Callable[P, T]
+else:
+    FuncT = Callable  # type:ignore
 
 
 @validate

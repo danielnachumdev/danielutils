@@ -1,8 +1,13 @@
+import platform
 from typing import Sequence, Any, Union
 from .isoneof import isoneof
+if platform.python_version() < "3.9":
+    from typing import List as t_list, Tuple as t_tuple
+else:
+    from builtins import list as t_list
 
 
-def areoneof(values: Sequence[Any], types: Union[list[type], tuple[type]]) -> bool:
+def areoneof(values: Sequence[Any], types: Union[t_list[type], t_tuple[type]]) -> bool:
     """performs 'isoneof(values[0],types) and ... and isoneof(values[...],types)'
 
     Args:

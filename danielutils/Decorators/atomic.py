@@ -1,11 +1,16 @@
 import functools
-from typing import Callable, Any, TypeVar, ParamSpec
+import platform
+from typing import Callable, Any, TypeVar
 import threading
 from .validate import validate
 
-T = TypeVar("T")
-P = ParamSpec("P")
-FuncT = Callable[P, T]
+if platform.python_version() >= "3.9":
+    from typing import ParamSpec
+    T = TypeVar("T")
+    P = ParamSpec("P")
+    FuncT = Callable[P, T]
+else:
+    FuncT = Callable  # type:ignore
 
 
 @validate

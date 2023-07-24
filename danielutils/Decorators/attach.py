@@ -1,10 +1,14 @@
 import functools
-from typing import Callable, Optional, TypeVar, ParamSpec
+from typing import Callable, Optional, TypeVar
+import platform
 from .validate import validate
-
-T = TypeVar("T")
-P = ParamSpec("P")
-FuncT = Callable[P, T]
+if platform.python_version() >= "3.9":
+    from typing import ParamSpec
+    T = TypeVar("T")
+    P = ParamSpec("P")
+    FuncT = Callable[P, T]
+else:
+    FuncT = Callable  # type:ignore
 
 
 @validate(strict=False)

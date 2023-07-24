@@ -1,15 +1,20 @@
 import threading
 import functools
-from typing import Callable, TypeVar, ParamSpec
+import platform
+from typing import Callable, TypeVar, Union
 from .validate import validate
 
-T = TypeVar("T")
-P = ParamSpec("P")
-FuncT = Callable[P, T]
+if platform.python_version() >= "3.9":
+    from typing import ParamSpec
+    T = TypeVar("T")
+    P = ParamSpec("P")
+    FuncT = Callable[P, T]
+else:
+    FuncT = Callable  # type:ignore
 
 
 @validate
-def timeout(duration: int | float, silent: bool = False) -> Callable[[FuncT], FuncT]:
+def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[FuncT], FuncT]:
     """A decorator to limit runtime for a function
 
     Args:

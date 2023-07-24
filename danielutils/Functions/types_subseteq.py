@@ -1,8 +1,8 @@
 import types
-from typing import Iterable, get_args
+from typing import Iterable, get_args, Union
 
 
-def types_subseteq(a: type | Iterable[type], b: type | Iterable[type]) -> bool:
+def types_subseteq(a: Union[type, Iterable[type]], b: Union[type, Iterable[type]]) -> bool:
     """checks if 'a' is contained in 'b' typing wise
 
     Args:

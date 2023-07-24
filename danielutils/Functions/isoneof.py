@@ -1,8 +1,13 @@
+import platform
 from typing import Any, Union, Sequence
 from .isoftype import isoftype
+if platform.python_version() < "3.9":
+    from typing import List as t_list, Tuple as t_tuple
+else:
+    from builtins import list as t_list
 
 
-def isoneof(v: Any, types: Union[list[type], tuple[type]]) -> bool:
+def isoneof(v: Any, types: Union[t_list[type], t_tuple[type]]) -> bool:
     """performs isoftype() or ... or isoftype()
 
     Args:
@@ -23,7 +28,7 @@ def isoneof(v: Any, types: Union[list[type], tuple[type]]) -> bool:
     return False
 
 
-def isoneof_strict(v: Any, types: Union[list[type], tuple[type]]) -> bool:
+def isoneof_strict(v: Any, types: Union[t_list[type], t_tuple[type]]) -> bool:
     """performs 'type(v) in types' efficiently
 
     Args:

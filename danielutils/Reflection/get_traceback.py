@@ -1,7 +1,12 @@
 import traceback
+import platform
+if platform.python_version() < "3.9":
+    from typing import List as t_list, Tuple as t_tuple
+else:
+    from builtins import list as t_list
 
 
-def get_traceback() -> list[str]:
+def get_traceback() -> t_list[str]:
     """returns the traceback of the stack until current frame
 
     Returns:

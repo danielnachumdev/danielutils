@@ -1,8 +1,13 @@
+import platform
 import inspect
 from typing import cast, Optional, Callable, Any
 from types import FrameType
 from ._get_prev_frame import _get_prev_frame
 from ..Functions.isoftype import isoftype
+if platform.python_version() < "3.9":
+    from typing import List as t_list, Tuple as t_tuple, Set as t_set
+else:
+    from builtins import list as t_list, set as t_set
 
 
 def get_caller_name(steps_back: int = 0) -> Optional[str]:
@@ -82,7 +87,7 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
 
     if ignore is None:
         ignore = {"self", "cls", "args", "kwargs"}
-    if not isoftype(ignore, set[str]):
+    if not isoftype(ignore, t_set[str]):
         raise ValueError("ignore must be a set of str")
 
     # get the signature of the function
@@ -108,7 +113,7 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     return True
 
 
-def get_mro(obj: Any) -> list[type]:
+def get_mro(obj: Any) -> t_list[type]:
     """returns the mro of an object
 
     Args:

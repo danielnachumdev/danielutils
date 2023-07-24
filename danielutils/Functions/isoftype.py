@@ -1,8 +1,11 @@
-from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, ForwardRef, Literal, Optional, cast, ParamSpec, Concatenate
+# , ParamSpec, Concatenate
+import platform
+from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, ForwardRef, Literal, Optional
 from collections.abc import Callable, Generator, Iterable
-
-implicit_union_type = type(int | str)
-concatenate_t = type(Concatenate[str, ParamSpec("P_")])
+if platform.python_version() < "3.9":
+    from typing import Tuple as tuple
+# implicit_union_type = type(int | str)
+# concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
 
 
@@ -182,8 +185,8 @@ def __handle_callable(params: tuple) -> bool:
                 return False
         return True
 
-    if isoftype(t_args[0], [ParamSpec, concatenate_t]):
-        return True
+    # if isoftype(t_args[0], [ParamSpec, concatenate_t]):
+    #     return True
 
     return False
 
@@ -235,7 +238,7 @@ HANDLERS = {
     set: __handle_list_set_iterable,
     Iterable: __handle_list_set_iterable,
     Union: __handle_union,
-    implicit_union_type: __handle_union,
+    # implicit_union_type: __handle_union,
     Generator: __handle_generator,
     Literal: __handle_literal,
     Callable: __handle_callable

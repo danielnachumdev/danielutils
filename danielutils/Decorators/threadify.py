@@ -1,9 +1,14 @@
-from typing import Callable, ParamSpec
+from typing import Callable
+import platform
 import functools
 import threading
 
-P = ParamSpec("P")
-FuncT = Callable[P, None]
+if platform.python_version() >= "3.9":
+    from typing import ParamSpec
+    P = ParamSpec("P")
+    FuncT = Callable[P, None]
+else:
+    FuncT = Callable  # type:ignore
 
 
 def threadify(func: FuncT) -> FuncT:
