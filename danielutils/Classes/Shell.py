@@ -4,7 +4,7 @@ import platform
 if platform.python_version() >= "3.9":
     from builtins import tuple as t_tuple, list as t_list
 else:
-    from typing import Tuple as t_tuple, List as t_list
+    from typing import Tuple as t_tuple, List as t_list  # type:ignore
 
 
 class Argument:
@@ -32,6 +32,7 @@ class Command:
 
 
 class Shell:
+    # type:ignore
     def __init__(self, routes: t_list[Command], *, prompt_symbol: str = ">>> ", exit_keywords: set = {"exit", "quit"}):
         self.prompt_symbol = prompt_symbol
         self.exit_keywords = exit_keywords

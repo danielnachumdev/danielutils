@@ -23,7 +23,7 @@ setup(
     license="MIT License",
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "archive/"]),
-    install_requires=[],
+    install_requires=["tqdm"],
     platforms=["All"],
     keywords=['functions', 'decorators', 'methods', 'classes', 'metaclasses'],
     classifiers=[
