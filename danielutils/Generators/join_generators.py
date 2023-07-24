@@ -1,11 +1,11 @@
 from typing import Generator, Any, Tuple as t_tuple
-import platform
 from threading import Semaphore  # , Condition
 from ..Decorators import threadify
 from ..DataStructures import AtomicQueue, Queue
 from ..Classes import AtomicCounter
 # from ..Print import aprint
-if platform.python_version() >= "3.9":
+from ..Reflection import get_python_version
+if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple  # type:ignore
 
 

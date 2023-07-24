@@ -1,10 +1,13 @@
-import platform
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar,\
     ForwardRef, Literal, Optional, Tuple as t_tuple
 from collections.abc import Callable, Generator, Iterable
-if platform.python_version() < "3.9":
+from ..Reflection import get_python_version
+if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec, Concatenate
 else:
+
+   # pylint: disable=ungrouped-imports
+    from typing import ParamSpec, Concatenate  # type:ignore
     from builtins import tuple as t_tuple  # type:ignore
 # implicit_union_type = type(int | str)
 concatenate_t = type(Concatenate[str, ParamSpec("P_")])
@@ -171,7 +174,7 @@ def __handle_callable(params: tuple) -> bool:
     obj_return_type = obj_hints.get('return')
     obj_param_types = list(obj_hints.values())[:-1] if obj_hints else None
     t_return_type = t_args[1]
-    if platform.python_version() < "3.9":
+    if get_python_version() < (3, 9):
         if isoftype(t_args[0][0], [ParamSpec, concatenate_t]):
             return True
     else:

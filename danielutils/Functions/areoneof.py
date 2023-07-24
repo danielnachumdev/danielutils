@@ -1,10 +1,10 @@
-import platform
 from typing import Sequence, Any, Union
 from .isoneof import isoneof
-if platform.python_version() < "3.9":
+from ..Reflection import get_python_version
+if get_python_version() < (3, 9):
     from typing import List as t_list, Tuple as t_tuple
 else:
-    from builtins import list as t_list
+    from builtins import list as t_list, tuple as t_tuple  # type:ignore
 
 
 def areoneof(values: Sequence[Any], types: Union[t_list[type], t_tuple[type]]) -> bool:

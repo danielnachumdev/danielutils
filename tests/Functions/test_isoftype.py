@@ -1,8 +1,8 @@
 from typing import Union, Callable, Any, Optional, TypeVar, Iterable, ForwardRef, Literal,\
     AnyStr, Generator, List as t_list, Dict as t_dict, Tuple as t_tuple
-import platform
 from ...danielutils.Functions import isoftype  # type:ignore
-if platform.python_version() >= "3.9":
+from ...danielutils.Reflection import get_python_version  # type:ignore
+if get_python_version() >= (3, 9):
     from builtins import list as t_list, dict as t_dict, tuple as t_tuple  # type:ignore
 
 

@@ -1,9 +1,9 @@
-import platform
 from typing import Generator, Iterable, Optional, Union, List as t_list, Set as t_set, Tuple as t_tuple, Dict as t_dict
 from ...Functions import powerset
 from ...Generators import generate_except
 from ...DataStructures import Queue
-if platform.python_version() >= "3.9":
+from ...Reflection import get_python_version
+if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set, tuple as t_tuple, dict as t_dict  # type:ignore
 
 

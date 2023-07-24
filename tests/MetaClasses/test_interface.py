@@ -1,9 +1,9 @@
-import platform
 import math
 from typing import Union, List as t_list
 import pytest
 from ...danielutils.MetaClasses.Interface import Interface  # type:ignore
-if platform.python_version() >= "3.9":
+from ...danielutils.Reflection import get_python_version  # type:ignore
+if get_python_version() >= (3, 9):
     from builtins import list as t_list
 Number = Union[int, float]
 

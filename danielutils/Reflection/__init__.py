@@ -1,8 +1,8 @@
+from .System import *  # this has to be first, the order matters!
 from .File import *
 from .Function import *
 from .get_traceback import *
 from .Module import *
-from .System import *
 
 
 # def get_class(module_name: str, class_name: str) -> type:

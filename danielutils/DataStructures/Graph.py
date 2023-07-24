@@ -1,8 +1,8 @@
-import platform
 from typing import Optional, Generator, List as t_list, Set as t_set
 from .Queue import Queue
 from .Node import MultiNode
-if platform.python_version() >= "3.9":
+from ..Reflection import get_python_version
+if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set
 
 

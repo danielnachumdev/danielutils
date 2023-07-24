@@ -2,10 +2,10 @@ import inspect
 import re
 import traceback
 import functools
-import platform
 from typing import Callable, Iterable, Any, Generator, Optional, Union,\
     List as t_list, Set as t_set, Type as t_type, Dict as t_dict
-if platform.python_version() >= "3.9":
+from ..Reflection import get_python_version
+if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict  # type:ignore
 # from ..Decorators.decorate_conditionally import decorate_conditionally
 

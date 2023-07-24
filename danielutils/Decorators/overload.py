@@ -6,7 +6,8 @@ from ..Reflection import is_function_annotated_properly
 from ..Functions import isoftype, isoneof, isoneof_strict
 from ..Exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
-if platform.python_version() < "3.9":
+from ..Reflection import get_python_version
+if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec
 else:
     from typing import ParamSpec  # type:ignore# pylint: disable=ungrouped-imports

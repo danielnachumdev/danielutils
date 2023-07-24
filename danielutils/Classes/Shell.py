@@ -1,7 +1,7 @@
 from typing import Any, Callable, Union, Tuple as t_tuple, List as t_list, Dict as t_dict
 import re
-import platform
-if platform.python_version() >= "3.9":
+from ..Reflection import get_python_version
+if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple, list as t_list, dict as t_dict  # type:ignore
 
 

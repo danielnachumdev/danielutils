@@ -1,12 +1,12 @@
 from typing import IO, Optional, cast, Union, Generator, Tuple as t_tuple, List as t_list
 from pathlib import Path
-import platform
 import subprocess
 import time
 from .Decorators import timeout, validate
 from .Conversions import str_to_bytes
 from .Generators import join_generators, generator_from_stream
-if platform.python_version() >= "3.9":
+from .Reflection import get_python_version
+if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple, list as t_list  # type:ignore
 
 

@@ -4,7 +4,8 @@ from typing import Union, Any, List as t_list, Tuple as t_tuple
 import pytest
 from ...danielutils.Classes.TypedBuiltins import tlist  # type:ignore
 from ...danielutils import isoftype  # type:ignore
-if platform.python_version() >= "3.9":
+from ...danielutils.Reflection import get_python_version  # type:ignore
+if get_python_version() >= (3, 9):
     from builtins import list as t_list, tuple as t_tuple  # type:ignore
 
 

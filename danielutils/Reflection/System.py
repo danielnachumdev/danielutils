@@ -28,13 +28,14 @@ def get_os() -> OSType:
     return OSType.UNKNOWN
 
 
-def get_python_version() -> str:
-    """returns the python version of the interpreter running this code
+def get_python_version() -> tuple[int, int, int]:
+    """return the version of python that is currently running this code
 
     Returns:
-        str: version string
+        tuple[int, int, int]: version
     """
-    return platform.python_version()
+    values = (int(v) for v in platform.python_version().split("."))
+    return tuple(values)  # type:ignore
 
 
 __all__ = [

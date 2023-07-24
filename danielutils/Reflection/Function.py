@@ -1,10 +1,10 @@
-import platform
 import inspect
 from typing import cast, Optional, Callable, Any
 from types import FrameType
 from .get_prev_frame import get_prev_frame
-from ..Functions.isoftype import isoftype
-if platform.python_version() < "3.9":
+
+from ..Reflection import get_python_version
+if get_python_version() < (3, 9):
     from typing import List as t_list, Set as t_set  # pylint: disable=ungrouped-imports
 else:
     from builtins import list as t_list, set as t_set
@@ -82,7 +82,7 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     Returns:
         bool: result of validation
     """
-
+    from ..Functions.isoftype import isoftype
     if not inspect.isfunction(func):
         raise ValueError("param should be a function")
 
