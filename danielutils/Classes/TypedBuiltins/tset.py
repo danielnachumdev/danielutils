@@ -9,16 +9,28 @@ class tset(parent, Generic[T]):  # type:ignore
     """like 'set' but with runtime type safety
     """
 
-    def subscribable_init(self, *args, **kwargs):
+    def subscribable_init(self, *args, **kwargs):  # pylint: disable=unused-argument
+        """the "real" __init__ function
+        """
         print(self.get_params())
 
     def add(self, value: T) -> None:
+        """adds an item to the set
+
+        Args:
+            value (T): item
+
+        Raises:
+            TypeError: if item is if the wrong type
+        """
         if not isoftype(value, self.get_params()):
             raise TypeError(
                 f"Can't add. Expected {self.get_params()} but got '{value}' which is {type(value)}")
         set.add(self, value)
 
     def update(self, *s: Iterable[T]) -> None:
+        """updates the set with another iterable
+        """
         for value in s:
             if isinstance(value, Iterable):
                 for subv in value:
@@ -27,6 +39,11 @@ class tset(parent, Generic[T]):  # type:ignore
                 self.add(value)  # type:ignore
 
     def union(self, *s: Iterable[T]) -> "tset[T]":
+        """creates a union of two sets
+
+        Returns:
+            tset[T]: the resulting set
+        """
         type_set = set(self.get_params())
         for value in s:
             if isinstance(value, Iterable):

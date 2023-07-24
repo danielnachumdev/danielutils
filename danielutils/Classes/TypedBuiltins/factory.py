@@ -1,13 +1,11 @@
 import types
 from abc import abstractmethod
-from typing import Any, Iterable
+from typing import Any, Iterable, List as t_list, Set as t_set, Dict as t_dict, Tuple as t_tuple
 import platform
 from ...Functions import types_subseteq, isoftype
 from ...Reflection import get_caller_name
 if platform.python_version() >= "3.9":
-    from builtins import list as t_list, set as t_set, dict as t_dict, tuple as t_tuple
-else:
-    from typing import List as t_list, Set as t_set, Dict as t_dict, Tuple as t_tuple
+    from builtins import list as t_list, set as t_set, dict as t_dict, tuple as t_tuple  # type:ignore
 # needed for python 3.8
 class_to_type = {
     list: t_list,
@@ -28,13 +26,14 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
 
     Args:
         name (str): name of class (can be the same of the derived?)
-        fallback_class (type): the fallback class to handle __str__, __repr__ and such. e.g for a typed version of list ('tlist') the fallback class would be 'list'
+        fallback_class (type): the fallback class to handle __str__, __repr__
+        and such. e.g for a typed version of list ('tlist') the fallback class would be 'list'
         bases (tuple, optional): another additional bases that this class should inherit from. Defaults to None.
 
     Returns:
         type: new class type
     """
-    cls = types.new_class(name, (fallback_class,), dict())
+    cls = types.new_class(name, (fallback_class,), {})
 
     def __class_getitem__(cls, item: type):
         return cls(item)

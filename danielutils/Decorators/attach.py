@@ -3,10 +3,10 @@ from typing import Callable, Optional, TypeVar
 import platform
 from .validate import validate
 if platform.python_version() >= "3.9":
-    from typing import ParamSpec
+    from typing import ParamSpec  # pylint: disable=ungrouped-imports
     T = TypeVar("T")
     P = ParamSpec("P")
-    FuncT = Callable[P, T]
+    FuncT = Callable[P, T]  # type:ignore
 else:
     FuncT = Callable  # type:ignore
 

@@ -1,4 +1,4 @@
-from typing import IO, Optional, cast, Union, Generator
+from typing import IO, Optional, cast, Union, Generator, Tuple as t_tuple, List as t_list
 from pathlib import Path
 import platform
 import subprocess
@@ -7,9 +7,7 @@ from .Decorators import timeout, validate
 from .Conversions import str_to_bytes
 from .Generators import join_generators, generator_from_stream
 if platform.python_version() >= "3.9":
-    from builtins import tuple as t_tuple, list as t_list
-else:
-    from typing import Tuple as t_tuple, List as t_list
+    from builtins import tuple as t_tuple, list as t_list  # type:ignore
 
 
 def cm(*args, shell: bool = True) -> t_tuple[int, bytes, bytes]:
@@ -62,7 +60,8 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
 
 @validate
 def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0.01,
-        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) -> t_tuple[int, Optional[t_list[bytes]], Optional[t_list[bytes]]]:
+        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) \
+        -> t_tuple[int, Optional[t_list[bytes]], Optional[t_list[bytes]]]:
     """Advanced command
 
     Args:
@@ -88,6 +87,8 @@ def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0
 
     p = None
     try:
+        # with subprocess.Popen(command, stdout=subprocess.PIPE,
+        #                      stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, shell=shell) as p:
         # TODO with ... as p:
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, shell=shell)
@@ -110,8 +111,8 @@ def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0
                 except BaseException as e1:
                     raise e1
 
-        stdout: list[bytes] = []
-        stderr: list[bytes] = []
+        stdout: t_list[bytes] = []
+        stderr: t_list[bytes] = []
         for curr_input in inputs:
             if p.stdin.writable():
                 if use_write_helper:

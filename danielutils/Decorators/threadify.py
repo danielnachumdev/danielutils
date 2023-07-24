@@ -4,15 +4,16 @@ import functools
 import threading
 
 if platform.python_version() >= "3.9":
-    from typing import ParamSpec
+    from typing import ParamSpec  # pylint: disable=ungrouped-imports
     P = ParamSpec("P")
-    FuncT = Callable[P, None]
+    FuncT = Callable[P, None]  # type:ignore
 else:
     FuncT = Callable  # type:ignore
 
 
 def threadify(func: FuncT) -> FuncT:
-    """will modify the function that when calling it a new thread will start to run it with provided arguments.\nnote that no return value will be given
+    """will modify the function that when calling it a new thread
+    will start to run it with provided arguments.\nnote that no return value will be given
 
     Args:
         func (Callable): the function to make a thread

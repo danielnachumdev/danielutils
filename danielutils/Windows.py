@@ -10,7 +10,7 @@
 
 #     Args:
 #         xy (tuple[int, int], optional): the top left location of the screenshot. Defaults to (0, 0).
-#         wh (tuple[int, int], optional): the size of the screenshot in pixels. Defaults to None. if None will 
+#         wh (tuple[int, int], optional): the size of the screenshot in pixels. Defaults to None. if None will
 #         create a screen shot of all monitors
 #     Returns:
 #         Image: _description_

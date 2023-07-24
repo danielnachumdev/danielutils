@@ -1,13 +1,13 @@
-from typing import Any, Callable, Union
+from typing import Any, Callable, Union, Tuple as t_tuple, List as t_list, Dict as t_dict
 import re
 import platform
 if platform.python_version() >= "3.9":
-    from builtins import tuple as t_tuple, list as t_list
-else:
-    from typing import Tuple as t_tuple, List as t_list  # type:ignore
+    from builtins import tuple as t_tuple, list as t_list, dict as t_dict  # type:ignore
 
 
 class Argument:
+    """a class to wrap an argument"""
+
     def __init__(self, name: str, optional: bool = False, flag: bool = False) -> None:
         self.name = name
         self.optional = optional
@@ -15,7 +15,11 @@ class Argument:
 
 
 class Command:
-    def __init__(self, command: Union[Argument, str], callback: Callable, explanation: str = "", *, options: t_tuple[Argument, ...] = tuple()) -> None:
+    """a class to wrap a command
+    """
+
+    def __init__(self, command: Union[Argument, str], callback: Callable,
+                 explanation: str = "", *, options: t_tuple[Argument, ...] = tuple()) -> None:
         self.command = command if isinstance(
             command, Argument) else Argument(command)
         self.callback = callback
@@ -27,19 +31,26 @@ class Command:
             if args[0] == "help":
                 if self.explanation != "":
                     print(self.explanation)
-                    return
+                    return None
         return self.callback(*args, **kwargs)
 
 
 class Shell:
-    # type:ignore
+    """a class to easily create a shell application and get functionality for free
+    """
+
     def __init__(self, routes: t_list[Command], *, prompt_symbol: str = ">>> ", exit_keywords: set = {"exit", "quit"}):
         self.prompt_symbol = prompt_symbol
         self.exit_keywords = exit_keywords
-        self.routes: dict[str, Command] = {
+        self.routes: t_dict[str, Command] = {
             com.command.name: com for com in routes}
 
     def run(self) -> None:
+        """runs the main loop for the shell
+
+        Raises:
+            e: any error if there is any
+        """
         while True:
             prompt = input(self.prompt_symbol)
             if prompt in self.exit_keywords:

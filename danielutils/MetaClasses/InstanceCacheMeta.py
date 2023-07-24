@@ -17,8 +17,8 @@ class InstanceCacheMeta(type):
     """
     def __new__(mcs, name, bases, namespace):
         INIT = "__init__"
-        instance_2_id = dict()
-        id_2_instance = dict()
+        instance_2_id: dict = {}
+        id_2_instance: dict = {}
         counter = Counter()
         original_init = None
         if INIT in namespace:

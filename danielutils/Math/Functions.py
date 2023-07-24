@@ -18,10 +18,14 @@ def sign(v: Union[int, float]) -> int:
 
 
 def lp_norm(arr, p: Union[int, float]) -> float:
+    """calculates a norm over the data
+    """
     return root(sum(abs(v)**p for v in arr), p)
 
 
 def root(value, power: Union[int, float]) -> float:
+    """calculates any root over value
+    """
     return value**(1/power)
 
 

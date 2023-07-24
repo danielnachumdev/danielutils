@@ -1,11 +1,9 @@
 """functions that convert values to int"""
-from typing import Union
+from typing import Union, List as t_list
 import platform
 from ..MainConversions import char_to_int
 if platform.python_version() >= "3.9":
     from builtins import list as t_list
-else:
-    from typing import List as t_list
 
 
 def to_int(value: str) -> Union[int, t_list[int]]:

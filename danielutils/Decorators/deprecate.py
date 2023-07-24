@@ -6,7 +6,7 @@ if platform.python_version() >= "3.9":
     from typing import ParamSpec
     T = TypeVar("T")
     P = ParamSpec("P")
-    FuncT = Callable[P, T]
+    FuncT = Callable[P, T]  # type:ignore
 else:
     FuncT = Callable  # type:ignore
 
@@ -14,7 +14,8 @@ else:
 def deprecate_with(replacement_func) -> Callable[[FuncT], FuncT]:
     """will replace a deprecated function with the replacement func and will print a warning"""
     def deco(func: FuncT) -> FuncT:
-        warning(f"{func.__module__}.{func.__qualname__} is deprecated, using {replacement_func.__module__}.{replacement_func.__qualname__} instead")
+        warning(f"{func.__module__}.{func.__qualname__} is deprecated,"
+                f" using {replacement_func.__module__}.{replacement_func.__qualname__} instead")
 
         def wrapper(*args, **kwargs):
             return replacement_func(*args, **kwargs)

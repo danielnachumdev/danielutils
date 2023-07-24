@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 import platform
 import subprocess
-from typing import IO, Iterator, Generator, Optional, cast, Union
+from typing import IO, Iterator, Generator, Optional, cast, Union, List as t_list
 import shutil
 from pathlib import Path
 import os
 from .Decorators import validate
 if platform.python_version() >= "3.9":
     from builtins import list as t_list
-else:
-    from typing import List as t_list
 
 
 @validate
@@ -63,6 +61,7 @@ def delete_file(path: str) -> None:
 
 
 @validate
+# type:ignore
 def read_file(path: str, read_bytes: bool = False) -> Union[t_list[str], t_list[bytes]]:
     """read all lines from a file
 
@@ -324,7 +323,8 @@ class IndentedWriter:
         """
         if self.output_stream is None:
             raise ValueError(
-                "Can't write to an empty stream. the stream must not be None: either by set_stream or by initialization")
+                "Can't write to an empty stream. the stream must not be None:"
+                " either by set_stream or by initialization")
         self.output_stream.write(
             str(self.indent_level*self.indent_value + sep.join(args)+end))
 

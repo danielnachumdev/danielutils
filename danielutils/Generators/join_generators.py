@@ -1,14 +1,12 @@
-from typing import Generator, Any
+from typing import Generator, Any, Tuple as t_tuple
 import platform
-from threading import Semaphore, Condition
+from threading import Semaphore  # , Condition
 from ..Decorators import threadify
 from ..DataStructures import AtomicQueue, Queue
 from ..Classes import AtomicCounter
-from ..Print import aprint
+# from ..Print import aprint
 if platform.python_version() >= "3.9":
     from builtins import tuple as t_tuple
-else:
-    from typing import Tuple as t_tuple
 
 
 def join_generators_busy_waiting(*generators) -> Generator[t_tuple[int, Any], None, None]:
@@ -39,7 +37,8 @@ def join_generators_busy_waiting(*generators) -> Generator[t_tuple[int, Any], No
 
 
 def join_generators(*generators) -> Generator[t_tuple[int, Any], None, None]:
-    """will join generators to yield from all of them simultaneously without busy waiting, using semaphores and multithreading 
+    """will join generators to yield from all of them simultaneously 
+    without busy waiting, using semaphores and multithreading 
 
     Yields:
         Generator[Any, None, None]: one generator that combines all of the given ones
@@ -58,7 +57,8 @@ def join_generators(*generators) -> Generator[t_tuple[int, Any], None, None]:
         finished_threads_counter.increment()
 
         if finished_threads_counter.get() == len(generators):
-            # re-release the lock once from the last thread because it gets stuck in the main loop after the generation has stopped
+            # re-release the lock once from the last thread because it
+            # gets stuck in the main loop after the generation has stopped
             queue_status_semaphore.release()
 
     for i, generator in enumerate(generators):

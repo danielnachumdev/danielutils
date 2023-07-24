@@ -2,10 +2,10 @@ import platform
 import inspect
 from typing import cast, Optional, Callable, Any
 from types import FrameType
-from ._get_prev_frame import _get_prev_frame
+from .get_prev_frame import get_prev_frame
 from ..Functions.isoftype import isoftype
 if platform.python_version() < "3.9":
-    from typing import List as t_list, Tuple as t_tuple, Set as t_set
+    from typing import List as t_list, Set as t_set  # pylint: disable=ungrouped-imports
 else:
     from builtins import list as t_list, set as t_set
 
@@ -20,7 +20,7 @@ def get_caller_name(steps_back: int = 0) -> Optional[str]:
     """
     if not isinstance(steps_back, int):
         raise TypeError("steps_back must be an int")
-    if not (steps_back >= 0):
+    if steps_back < 0:
         raise ValueError("steps_back must be a non-negative integer")
     # different implementation:
 
@@ -39,12 +39,12 @@ def get_caller_name(steps_back: int = 0) -> Optional[str]:
     # caller_frame = callee_frame.f_back
     # caller_name = caller_frame.f_code.co_name
     # return caller_name
-    frame = _get_prev_frame(_get_prev_frame(inspect.currentframe()))
+    frame = get_prev_frame(get_prev_frame(inspect.currentframe()))
     if frame is None:
         return None
     frame = cast(FrameType, frame)
     while steps_back > 0:
-        frame = _get_prev_frame(frame)
+        frame = get_prev_frame(frame)
         if frame is None:
             return None
         frame = cast(FrameType, frame)
@@ -69,11 +69,12 @@ def get_function_return_type(func: Callable, signature: Optional[inspect.Signatu
 
 
 def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None, check_return: bool = True) -> bool:
-    """checks wheter a function is annotated properly
+    """checks whether a function is annotated properly
 
     Args:
         func (Callable): the function to check
-        ignore (set, optional): arguments to ignore when validating. when 'None' Defaults to {"self", "cls", "args", "kwargs"}.
+        ignore (set, optional): arguments to ignore when validating.
+        when 'None' Defaults to {"self", "cls", "args", "kwargs"}.
         check_return (bool, optional): whether to also check that the return value is annotated. Defaults to True
     Raises:
         ValueError: if any of the parameters is of the wrong type

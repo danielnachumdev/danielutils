@@ -1,4 +1,4 @@
-from typing import Callable, cast, Any, TypeVar
+from typing import Callable, cast, Any, TypeVar, Dict as t_dict, List as t_list
 import inspect
 import platform
 import functools
@@ -7,16 +7,15 @@ from ..Functions import isoftype, isoneof, isoneof_strict
 from ..Exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
 if platform.python_version() >= "3.9":
-    from typing import ParamSpec
-    from builtins import dict as t_dict
+    from typing import ParamSpec  # pylint: disable=ungrouped-imports
+    from builtins import dict as t_dict, list as t_list
     T = TypeVar("T")
     P = ParamSpec("P")
-    FuncT = Callable[P, T]
+    FuncT = Callable[P, T]  # type:ignore
     T2 = TypeVar("T2")
     P2 = ParamSpec("P2")
-    FuncT2 = Callable[P2, T2]
+    FuncT2 = Callable[P2, T2]  # type:ignore
 else:
-    from typing import Dict as t_dict
     FuncT = Callable  # type:ignore
     FuncT2 = Callable  # type:ignore
 
@@ -128,7 +127,7 @@ class overload:
         overload._validate(func)
         self._qualname = func.__qualname__
         self._moudle = func.__module__
-        self._functions: dict[int, list[Callable]] = dict()
+        self._functions: t_dict[int, t_list[Callable]] = {}
         self._functions[overload._get_key(func)] = [func]
         functools.wraps(func)(self)
 
@@ -142,7 +141,8 @@ class overload:
             raise ValueError("Can only overload functions")
         if not is_function_annotated_properly(func):
             raise ValueError(
-                f"{func.__module__}.{func.__qualname__} is not properly annotated.\nFunction must be fully annotated to be overloaded")
+                f"{func.__module__}.{func.__qualname__} is not properly annotated."
+                "\nFunction must be fully annotated to be overloaded")
 
     def overload(self, func: FuncT2) -> "overload":
         """will add another function to the list of available options

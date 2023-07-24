@@ -19,11 +19,11 @@ def get_os() -> OSType:
         OSType: enum result
     """
     p = sys.platform
-    if p == "linux" or p == "linux2":
+    if p in {"linux", "linux2"}:
         return OSType.LINUX
-    elif p == "darwin":
+    if p == "darwin":
         return OSType.OSX
-    elif p == "win32":
+    if p == "win32":
         return OSType.WINDOWS
     return OSType.UNKNOWN
 

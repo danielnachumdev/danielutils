@@ -1,33 +1,64 @@
 import platform
-from typing import Optional, Generator
+from typing import Optional, Generator, List as t_list, Set as t_set
 from .Queue import Queue
 from .Node import MultiNode
 if platform.python_version() >= "3.9":
-    from builtins import list as t_list
-else:
-    from typing import List as t_list
+    from builtins import list as t_list, set as t_set
 
 
 class Graph:
+    """A general-purpose Graph class.
+
+    This class represents a directed graph, where nodes can be connected through edges.
+
+    Attributes:
+        nodes (Optional[t_list[MultiNode]]): A list of MultiNode instances representing the nodes in the graph.
+                                             Default is an empty list.
+
+    Methods:
+        __init__(self, nodes: Optional[t_list[MultiNode]] = None): Initialize the Graph with given nodes.
+        add_node(self, node): Add a node to the graph.
+        _extended_dfs(self) -> Generator: Perform an extended depth-first search on the graph.
+        dfs(self) -> Generator: Perform a depth-first search on the graph.
+        topological_sort(self) -> list: Get a topological sort of the graph nodes.
+        bfs(self) -> Generator: Perform a breadth-first search on the graph.
+        __str__(self) -> str: Get a string representation of the graph.
+
+    """
+
     def __init__(self, nodes: Optional[t_list[MultiNode]] = None):
         self.nodes: t_list[MultiNode] = nodes if nodes is not None else []
 
     def add_node(self, node):
+        """Add a node to the graph.
+
+        Args:
+            node: The MultiNode instance to add to the graph.
+        """
         self.nodes.append(node)
 
     def _extended_dfs(self) -> Generator:
-        seen = set()
-        enter_times = dict()
-        exit_times = dict()
-        travel_index = 1
-        all_nodes = []
+        """Perform an extended depth-first search on the graph.
+
+        This private method performs an extended depth-first search (DFS) on the graph,
+        keeping track of enter and exit times for each node, and returns a generator that yields
+        nodes in the order of DFS traversal.
+
+        Yields:
+            Generator: The MultiNode instances in the order of depth-first traversal.
+        """
+        seen: set = set()
+        enter_times: dict = {}
+        exit_times: dict = {}
+        travel_index: int = 1
+        all_nodes: list = []
 
         def handle_node(node: MultiNode):
             nonlocal travel_index
             seen.add(node)
             all_nodes.append(node)
             yield node
-            for subnode in node._children:
+            for subnode in node._children:  # pylint: disable=protected-access
                 if subnode not in seen:
                     travel_index += 1
                     enter_times[subnode] = travel_index
@@ -48,9 +79,23 @@ class Graph:
         return topological_order
 
     def dfs(self) -> Generator:
+        """Perform a depth-first search on the graph.
+
+        This method performs a depth-first search (DFS) on the graph using the private _extended_dfs method.
+
+        Yields:
+            Generator: The MultiNode instances in the order of depth-first traversal.
+        """
         yield from self._extended_dfs()
 
     def topological_sort(self) -> list:
+        """Get a topological sort of the graph nodes.
+
+        This method performs a topological sort on the graph using the private _extended_dfs method.
+
+        Returns:
+            list: A list containing the MultiNode instances in topological order.
+        """
         g = self._extended_dfs()
         try:
             while True:
@@ -59,15 +104,22 @@ class Graph:
             return e.value
 
     def bfs(self) -> Generator:
+        """Perform a breadth-first search on the graph.
+
+        This method performs a breadth-first search (BFS) on the graph using a queue.
+
+        Yields:
+            Generator: The MultiNode instances in the order of breadth-first traversal.
+        """
         q = Queue()
         for node in self.nodes:
             q.push(node)
-        seen = set()
+        seen: t_set[MultiNode] = set()
         for node in q:
             if node not in seen:
                 seen.add(node)
                 yield node
-                for child in node._children:
+                for child in node._children:  # pylint: disable=protected-access
                     q.push(child)
 
     def __str__(self) -> str:

@@ -1,16 +1,15 @@
-from typing import Callable, TypeVar
+from typing import Callable, TypeVar, Union
 import platform
 import time
 import functools
-from typing import Union
 from .decorate_conditionally import decorate_conditionally
 from .threadify import threadify
 
 if platform.python_version() >= "3.9":
-    from typing import ParamSpec
+    from typing import ParamSpec  # pylint: disable=ungrouped-imports
     T = TypeVar("T")
     P = ParamSpec("P")
-    FuncT = Callable[P, T]
+    FuncT = Callable[P, T]  # type:ignore
 else:
     FuncT = Callable  # type:ignore
 
@@ -20,7 +19,8 @@ def delay_call(seconds: Union[float, int], blocking: bool = True) -> Callable[[F
 
     Args:
         seconds (float | int): the amount of time to wait
-        blocking (bool, optional): whether to block the main thread when waiting or to wait in a different thread. Defaults to True.
+        blocking (bool, optional): whether to block the main thread
+        when waiting or to wait in a different thread. Defaults to True.
     """
     def deco(func: FuncT) -> FuncT:
         @decorate_conditionally(threadify, not blocking)

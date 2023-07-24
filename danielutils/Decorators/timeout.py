@@ -3,14 +3,13 @@ import functools
 import platform
 from typing import Callable, TypeVar, Union
 from .validate import validate
+FuncT = Callable
+T = TypeVar("T")
 
 if platform.python_version() >= "3.9":
     from typing import ParamSpec
-    T = TypeVar("T")
     P = ParamSpec("P")
-    FuncT = Callable[P, T]
-else:
-    FuncT = Callable  # type:ignore
+    FuncT = Callable[P, T]  # type:ignore
 
 
 @validate
@@ -19,7 +18,8 @@ def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[Func
 
     Args:
         duration (Union[int, float]): allowed runtime duration
-        silent (bool, optional): keyword only argument whether to pass the exception up the call stack. Defaults to False.
+        silent (bool, optional): keyword only argument whether
+        to pass the exception up the call stack. Defaults to False.
 
     Raises:
         ValueError: if a function is not provided to be decorated

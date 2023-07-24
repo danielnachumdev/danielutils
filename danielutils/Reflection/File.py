@@ -1,7 +1,7 @@
 import inspect
 from typing import Optional, cast
 from types import FrameType
-from ._get_prev_frame import _get_prev_frame
+from .get_prev_frame import get_prev_frame
 
 
 def get_filename() -> Optional[str]:
@@ -10,7 +10,7 @@ def get_filename() -> Optional[str]:
     Returns:
         Optional[str]: name of file
     """
-    frame = _get_prev_frame(inspect.currentframe())
+    frame = get_prev_frame(inspect.currentframe())
     if frame is None:
         return None
     frame = cast(FrameType, frame)
@@ -24,7 +24,7 @@ def get_caller_filename() -> Optional[str]:
     Returns:
         Optional[str]: name of file
     """
-    frame = _get_prev_frame(_get_prev_frame(inspect.currentframe()))
+    frame = get_prev_frame(get_prev_frame(inspect.currentframe()))
     if frame is None:
         return None
     frame = cast(FrameType, frame)

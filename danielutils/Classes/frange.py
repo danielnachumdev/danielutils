@@ -43,10 +43,13 @@ class frange:
 
 
 class brange(frange):
+    """like frange but with tqdm
+    """
+
     def __iter__(self):
         itr = super().__iter__()
         try:
-            from tqdm import tqdm  # type:ignore
+            from tqdm import tqdm  # type:ignore  # pylint: disable=import-error
             return iter(tqdm(itr, desc=f"{self}", total=len(self)))
         except:
             return itr

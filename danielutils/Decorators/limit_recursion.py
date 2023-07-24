@@ -10,7 +10,7 @@ if platform.python_version() >= "3.9":
     from typing import ParamSpec
     T = TypeVar("T")
     P = ParamSpec("P")
-    FuncT = Callable[P, T]
+    FuncT = Callable[P, T]  # type:ignore
 else:
     FuncT = Callable  # type:ignore
 

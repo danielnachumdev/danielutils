@@ -1,11 +1,10 @@
 # , ParamSpec, Concatenate
 import platform
-from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, ForwardRef, Literal, Optional
+from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar,\
+    ForwardRef, Literal, Optional, Tuple as t_tuple
 from collections.abc import Callable, Generator, Iterable
 if platform.python_version() >= "3.9":
-    from builtins import tuple as t_tuple
-else:
-    from typing import Tuple as t_tuple
+    from builtins import tuple as t_tuple  # type:ignore
 # implicit_union_type = type(int | str)
 # concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
@@ -272,7 +271,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
     )
 
     if t_args is not None and Ellipsis in t_args:
-        from ..Colors import warning
+        from ..Colors import warning  # pylint: disable=cyclic-import
         warning(
             "using an ellipsis (as in '...') with isoftype is ambiguous returning False")
         return False
@@ -284,7 +283,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
                     return False
             return HANDLERS[t_origin](params)
 
-        from ..Colors import warning
+        from ..Colors import warning  # pylint: disable=cyclic-import
         from ..Reflection.get_traceback import get_traceback
         warning(
             f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")

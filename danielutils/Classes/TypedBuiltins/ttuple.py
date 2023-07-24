@@ -6,7 +6,8 @@ parent_ttuple: type = create_typed_class("ttuple", tuple)
 
 
 class ttuple(parent_ttuple, Generic[T]):
-    ...
+    """like tuple but with runtime type safety
+    """
 
 
 __all__ = [

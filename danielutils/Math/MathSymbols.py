@@ -1,10 +1,8 @@
 """file with math symbols constants"""
 import platform
-from typing import Union
+from typing import Union, Dict as t_dict
 if platform.python_version() >= "3.9":
     from builtins import dict as t_dict
-else:
-    from typing import Dict as t_dict
 # https://unicode-table.com/en/sets/mathematical-signs/
 SPECIAL_DOUBLE_N = "ℕ"
 SPECIAL_DOUBLE_Q = "ℚ"

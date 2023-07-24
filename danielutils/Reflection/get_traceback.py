@@ -1,7 +1,7 @@
 import traceback
 import platform
 if platform.python_version() < "3.9":
-    from typing import List as t_list, Tuple as t_tuple
+    from typing import List as t_list
 else:
     from builtins import list as t_list
 

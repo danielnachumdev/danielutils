@@ -1,13 +1,12 @@
-from typing import Callable, Iterable, Any, Generator, Optional, Union
 import inspect
 import re
 import traceback
 import functools
 import platform
+from typing import Callable, Iterable, Any, Generator, Optional, Union,\
+    List as t_list, Set as t_set, Type as t_type, Dict as t_dict
 if platform.python_version() >= "3.9":
-    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict
-else:
-    from typing import List as t_list, Set as t_set, Type as t_type, Dict as t_dict
+    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict  # type:ignore
 # from ..Decorators.decorate_conditionally import decorate_conditionally
 
 
@@ -97,9 +96,11 @@ class InterfaceHelper:
                 yield func_name
 
     @staticmethod
-    def create_init_handler(cls_name, missing: Optional[Union[t_list[str], t_set[str]]] = None, original: Optional[Callable] = None):
+    def create_init_handler(cls_name, missing: Optional[Union[t_list[str],
+                            t_set[str]]] = None, original: Optional[Callable] = None):
         """this function will create the default interface __init__ function with the wanted behavior"""
-        # @decorate_conditionally(functools.wraps, original is not None, [original])  # TODO implement this decorator
+        # @decorate_conditionally(functools.wraps, original
+        # is not None, [original])  # TODO implement this decorator
         def __interface_init__(*args, **kwargs):
             instance = args[0]
             caller_frame = traceback.format_stack()[-2]

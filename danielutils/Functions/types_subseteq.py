@@ -1,13 +1,12 @@
-import types
 import platform
-from typing import Iterable, get_args, Union
+from typing import Iterable, get_args, Union, Set as t_set
 if platform.python_version() >= "3.9":
     from builtins import set as t_set
-else:
-    from typing import Set as t_set
 
 
 def to_set(x: Union[type, Iterable[type]]) -> t_set[int]:
+    """converts type/types to a set representing them
+    """
     res: t_set[int] = set()
     if hasattr(x, "__origin__") and x.__origin__ is Union:
         for xi in get_args(x):

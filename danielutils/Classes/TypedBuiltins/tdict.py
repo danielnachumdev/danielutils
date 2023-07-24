@@ -7,10 +7,12 @@ V = TypeVar("V")
 
 
 class tdict(parent, Generic[K, V]):
-    """like 'dict' but with runtime type saftey
+    """like 'dict' but with runtime type safety
     """
 
-    def subscribable_init(self, *args, **kwargs):
+    def subscribable_init(self, *args, **kwargs):  # pylint: disable=unused-argument
+        """the "real" __init__ function
+        """
         print(self.get_params())
 
     @property

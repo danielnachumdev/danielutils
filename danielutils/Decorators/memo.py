@@ -1,13 +1,14 @@
-from typing import Callable, Any, TypeVar
+from typing import Callable, Any, TypeVar, Dict as t_dict
 import functools
 import platform
 from .validate import validate
 
 if platform.python_version() >= "3.9":
-    from typing import ParamSpec
+    from typing import ParamSpec  # pylint: disable=ungrouped-imports
+    from builtins import dict as t_dict
     T = TypeVar("T")
     P = ParamSpec("P")
-    FuncT = Callable[P, T]
+    FuncT = Callable[P, T]  # type:ignore
 else:
     FuncT = Callable  # type:ignore
 
@@ -19,7 +20,7 @@ def memo(func: FuncT) -> FuncT:
     Args:
         func (Callable): function to memorize
     """
-    cache: dict[tuple, Any] = {}
+    cache: t_dict[tuple, Any] = {}
 
     @ functools.wraps(func)
     def wrapper(*args, **kwargs):
