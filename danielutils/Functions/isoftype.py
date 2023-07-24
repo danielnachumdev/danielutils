@@ -2,14 +2,16 @@
 import platform
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, ForwardRef, Literal, Optional
 from collections.abc import Callable, Generator, Iterable
-if platform.python_version() < "3.9":
-    from typing import Tuple as tuple
+if platform.python_version() >= "3.9":
+    from builtins import tuple as t_tuple
+else:
+    from typing import Tuple as t_tuple
 # implicit_union_type = type(int | str)
 # concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
 
 
-def __isoftype_inquire(obj: Any) -> tuple[Optional[type], Optional[tuple], Optional[dict]]:
+def __isoftype_inquire(obj: Any) -> t_tuple[Optional[type], Optional[tuple], Optional[dict]]:
     """
     Inquires the origin, arguments, and type hints of an object.
 

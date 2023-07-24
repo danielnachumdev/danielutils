@@ -306,7 +306,7 @@ class Relation:
     def find_BCNF_decomposition(self, F: "FunctionalDependencyGroup") -> t_list["Relation"]:
         """week 10 page 16 slide 2
         """
-        def get_violation() -> tuple[Attribute, Attribute]:
+        def get_violation() -> t_tuple[Attribute, Attribute]:
             for f in F:
                 X, Y = f.tuple()
                 if not (f.is_trivial() or self.is_superkey(X, F)):
@@ -462,7 +462,7 @@ class FunctionalDependencyGroup:
         del G_
         minimal_g: set = set(range(len(G)+1))
 
-        def backtracking_helper(G: set[FunctionDependency], excluded: set):
+        def backtracking_helper(G: t_set[FunctionDependency], excluded: set):
             nonlocal minimal_g
             OG = set(G)
             for f in OG:

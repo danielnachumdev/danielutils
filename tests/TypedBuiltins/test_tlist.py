@@ -1,8 +1,13 @@
+import platform
 import random
 from typing import Union, Any
 import pytest
 from ...danielutils.Classes.TypedBuiltins import tlist  # type:ignore
 from ...danielutils import isoftype  # type:ignore
+if platform.python_version() >= "3.9":
+    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict, tuple as t_tuple
+else:
+    from typing import List as t_list, Set as t_set, Type as t_type, Dict as t_dict, Tuple as t_tuple
 
 
 def test_basic():
@@ -32,7 +37,7 @@ def test_wrong_values():
     with pytest.raises(TypeError):
         tlist[Union[int, float]]([1, 2.2, 3, "4"])
     with pytest.raises(TypeError):
-        tlist[tuple[int]]([[1], [2], [3], ["4"]])
+        tlist[t_tuple[int]]([[1], [2], [3], ["4"]])
 
 
 def test_isinstance():
@@ -53,8 +58,8 @@ def test_isinstanse_fail():
 def test_isinstance_with_regular_list():
     a = tlist[int]([1, 2, 3])
     assert isinstance(a, list)
-    assert isoftype(a, list[int])
-    assert isoftype(a, list[Union[int, float]])
+    assert isoftype(a, t_list[int])
+    assert isoftype(a, t_list[Union[int, float]])
 
 
 def test_extend():

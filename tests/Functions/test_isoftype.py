@@ -1,5 +1,10 @@
 from typing import *
+import platform
 from ...danielutils.Functions import isoftype  # type:ignore
+if platform.python_version() >= "3.9":
+    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict, tuple as t_tuple
+else:
+    from typing import List as t_list, Set as t_set, Type as t_type, Dict as t_dict, Tuple as t_tuple
 
 
 def test_primitives():
@@ -11,19 +16,19 @@ def test_primitives():
     assert isoftype(5, float) is False
     assert isoftype("", str) is True
     assert isoftype([""], list) is True
-    assert isoftype([""], list[str]) is True
-    assert isoftype([""], list[int]) is False
+    assert isoftype([""], t_list[str]) is True
+    assert isoftype([""], t_list[int]) is False
     assert isoftype(1, int) is True
     assert isoftype("hello", str) is True
     assert isoftype([1, 2, 3], list) is True
-    assert isoftype([1, 2, 3], list[int]) is True
+    assert isoftype([1, 2, 3], t_list[int]) is True
     assert isoftype({1: "a", 2: "b"}, dict) is True
-    assert isoftype({1: "a", 2: "b"}, dict[int, str]) is True
+    assert isoftype({1: "a", 2: "b"}, t_dict[int, str]) is True
     assert isoftype(1, float) is False
     assert isoftype("hello", int) is False
-    assert isoftype([1, 2, 3], list[str]) is False
-    assert isoftype([1, 2, "3"], list[int]) is False
-    assert isoftype({1: "a", 2: "b"}, dict[str, int]) is False
+    assert isoftype([1, 2, 3], t_list[str]) is False
+    assert isoftype([1, 2, "3"], t_list[int]) is False
+    assert isoftype({1: "a", 2: "b"}, t_dict[str, int]) is False
 
 
 def test_advanced_types():
@@ -32,22 +37,22 @@ def test_advanced_types():
     d["str"] = str
 
     assert isoftype("hello", Any) is True
-    assert isoftype([1, 2, "3"], list[Union[int, str]]) is True
+    assert isoftype([1, 2, "3"], t_list[Union[int, str]]) is True
     assert isoftype(Union, type(Union)) is True
     assert isoftype(Union[int, float], type(Union)) is True
     assert isoftype(Union, type(Union)) is True
     assert isoftype(1, Union[int, float]) is True
     assert isoftype(int, Union[int, float, type]) is True
     assert isoftype(int, [int, float, type]) is True
-    assert isoftype(1, Union[int, list[int]]) is True
-    assert isoftype([4], Union[int, list[int]]) is True
-    assert isoftype([4.5], Union[int, list[int]]) is False
-    assert isoftype([5, 6], list[int]) is True
-    assert isoftype([5, 6], list[Union[int, float]]) is True
-    assert isoftype([5, 6.3], list[Union[int, float]]) is True
-    assert isoftype([5.0, 6.3], list[Union[int, float]]) is True
-    assert isoftype(dict(one=1), dict[str, int]) is True
-    assert isoftype(d, dict[Union[type, str], Any]) is True
+    assert isoftype(1, Union[int, t_list[int]]) is True
+    assert isoftype([4], Union[int, t_list[int]]) is True
+    assert isoftype([4.5], Union[int, t_list[int]]) is False
+    assert isoftype([5, 6], t_list[int]) is True
+    assert isoftype([5, 6], t_list[Union[int, float]]) is True
+    assert isoftype([5, 6.3], t_list[Union[int, float]]) is True
+    assert isoftype([5.0, 6.3], t_list[Union[int, float]]) is True
+    assert isoftype(dict(one=1), t_dict[str, int]) is True
+    assert isoftype(d, t_dict[Union[type, str], Any]) is True
     assert isoftype(d, dict) is True
 
 
@@ -71,7 +76,7 @@ def test_callable():
     assert isoftype(lambda x: x+1, Callable[[float], int]) is False
     assert isoftype(lambda x: x+1, Callable[[int], Union[int, str]]) is False
     assert isoftype(lambda x: x+1, Callable) is False
-    assert isoftype(lambda x: x+1, Callable[[int], tuple[int, str]]) is False
+    assert isoftype(lambda x: x+1, Callable[[int], t_tuple[int, str]]) is False
     assert isoftype(lambda x: x+1, Callable, strict=False) is True
 
     def foo(a: int) -> int:
