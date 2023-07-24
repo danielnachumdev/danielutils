@@ -20,5 +20,5 @@
     },
     "mypy.dmypyExecutable": "${workspaceFolder}/.conda/Scripts/dmypy.exe",
     "mypy.configFile": "mypy.ini",
-    "mypy.targets": [],
+    "mypy.targets": []
 }
