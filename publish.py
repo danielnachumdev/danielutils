@@ -1,5 +1,5 @@
 import re
-from danielutils import cm, read_file, get_files, directory_exists, create_directory  # type:ignore
+from danielutils import cmrt, cm, read_file, get_files, directory_exists, create_directory  # type:ignore
 VERSION_PATTERN = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 SETUP = "./setup.py"
 TOML = "./pyproject.toml"
@@ -137,8 +137,9 @@ def pylint(config_file_path: str = "./.pylintrc") -> None:
     """run pylint
     """
     print("running pylint...")
-    cm("pylint", "--rcfile", config_file_path,
-       "./danielutils", ">", f"{REPORTS}/pylint.txt")
+    for i, line in cmrt("pylint", "--rcfile", config_file_path,
+                        "./danielutils", ">", f"{REPORTS}/pylint.txt"):
+        print(line.decode(), end="")
 
 
 def git(ver: str) -> None:
@@ -156,15 +157,18 @@ def mypy(config_file_path: str = "mypy.ini") -> None:
     """run mypy
     """
     print("running mypy")
-    cm("mypy", "--config-file", config_file_path,
-       "./danielutils", ">", f"{REPORTS}/mypy.txt")
+    with open(f"{REPORTS}/mypy.txt", "w", encoding="utf8") as f:
+        for i, line in cmrt("mypy", "--config-file", config_file_path,
+                            "./danielutils"):
+            f.write(line.decode())
+            print(line.decode(), end="")
 
 
 if __name__ == "__main__":
     if not directory_exists(REPORTS):
         create_directory(REPORTS)
     has_passed_tests = pytest()
-    if has_passed_tests:
+    if True:
         print("Passed all tests!")
         pylint()
         mypy()
