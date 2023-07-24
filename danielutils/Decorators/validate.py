@@ -6,13 +6,13 @@ from ..Functions.isoftype import isoftype
 from ..Reflection import get_function_return_type
 from ..Exceptions import EmptyAnnotationException,\
     InvalidDefaultValueException, ValidationException, InvalidReturnValueException
-if platform.python_version() >= "3.9":
-    from typing import ParamSpec
-    T = TypeVar("T")
-    P = ParamSpec("P")
-    FuncT = Callable[P, T]  # type:ignore
+if platform.python_version() < "3.9":
+    from typing_extensions import ParamSpec
 else:
-    FuncT = Callable  # type:ignore
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
 
 
 def validate(strict: Union[FuncT, bool] = True) -> FuncT:

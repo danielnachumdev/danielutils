@@ -1,10 +1,9 @@
-from typing import *
+from typing import Union, Callable, Any, Optional, TypeVar, Iterable, ForwardRef, Literal,\
+    AnyStr, Generator, List as t_list, Dict as t_dict, Tuple as t_tuple
 import platform
 from ...danielutils.Functions import isoftype  # type:ignore
 if platform.python_version() >= "3.9":
-    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict, tuple as t_tuple
-else:
-    from typing import List as t_list, Set as t_set, Type as t_type, Dict as t_dict, Tuple as t_tuple
+    from builtins import list as t_list, dict as t_dict, tuple as t_tuple  # type:ignore
 
 
 def test_primitives():
@@ -32,7 +31,7 @@ def test_primitives():
 
 
 def test_advanced_types():
-    d: dict[Any, Any] = {}
+    d: t_dict[Any, Any] = {}
     d[int] = 0
     d["str"] = str
 
@@ -93,65 +92,66 @@ def test_callable():
 
 def test_extra():
     assert isoftype(1, Union[None, int, str, bool]) == True
-    assert isoftype(1, List[Tuple[str, int]]) == False
-    assert isoftype([1], List[Tuple[str, int]]) == False
-    assert isoftype([(1,)], List[Tuple[str, int]]) == False
-    assert isoftype([("1", 1)], List[Tuple[str, int]]) == True
-    assert isoftype(1, Dict[Union[str, int], Optional[List[float]]]) == False
-    assert isoftype({1: 1}, Dict[Union[str, int],
-                    Optional[List[float]]]) == False
+    assert isoftype(1, t_list[t_tuple[str, int]]) == False
+    assert isoftype([1], t_list[t_tuple[str, int]]) == False
+    assert isoftype([(1,)], t_list[t_tuple[str, int]]) == False
+    assert isoftype([("1", 1)], t_list[t_tuple[str, int]]) == True
+    assert isoftype(1, t_dict[Union[str, int],
+                    Optional[t_list[float]]]) == False
+    assert isoftype({1: 1}, t_dict[Union[str, int],
+                    Optional[t_list[float]]]) == False
     assert isoftype({1: [1.1], "a": None},
-                    Dict[Union[str, int], Optional[List[float]]]) == True
+                    t_dict[Union[str, int], Optional[t_list[float]]]) == True
     assert isoftype(lambda: 1, Callable[[], int]) == False
     assert isoftype("1", AnyStr) == True
     assert isoftype(1, AnyStr) == False
     assert isoftype(1, Literal["red", "green", "blue"]) == False
     assert isoftype("red", Literal["red", "green", "blue"]) == True
     assert isoftype(1, TypeVar("T", int, float, str)) == True
-    assert isoftype((1,), Tuple[str, ...]) == False
+    assert isoftype((1,), t_tuple[str, ...]) == False
     assert isoftype(1, Iterable[object]) == False
     assert isoftype([1], Iterable[object]) == True
     assert isoftype(1, ForwardRef("MyClass")) == False
 
     # Test cases for generic types
-    assert isoftype([1, 2, 3], List[int]) == True  # True
-    assert isoftype({'a': 1, 'b': 2}, Dict[str, int]) == True  # True
-    assert isoftype((1, 'a'), Optional[Tuple[int, str]]) == True  # True
+    assert isoftype([1, 2, 3], t_list[int]) == True  # True
+    assert isoftype({'a': 1, 'b': 2}, t_dict[str, int]) == True  # True
+    assert isoftype((1, 'a'), Optional[t_tuple[int, str]]) == True  # True
 
     # T = TypeVar("T")
     # # Test cases for type variables
     # assert isoftype(1, int) == True  # True
     # # True, assuming T is a type variable
-    # assert isoftype([1, 2, 3], List[T]) == True
-    # assert isoftype([1, 2, 3], List[T | int]) == True
-    # assert isoftype([1.2, 2, 3], List[T]) == False
+    # assert isoftype([1, 2, 3], t_list[T]) == True
+    # assert isoftype([1, 2, 3], t_list[T | int]) == True
+    # assert isoftype([1.2, 2, 3], t_list[T]) == False
     # # True, assuming T is a type variable
-    # assert isoftype({'a': 1, 'b': 2}, Dict[str, T]) == True
+    # assert isoftype({'a': 1, 'b': 2}, t_dict[str, T]) == True
 
     # # Test cases for recursive types
     # # True, assuming T is a type variable
-    # assert isoftype([[1, 2], [3, 4]], List[List[T]]) == True
+    # assert isoftype([[1, 2], [3, 4]], t_list[t_list[T]]) == True
     # # True, assuming T is a type variable
     # assert isoftype({'a': [(1, 2), (3, 4)]},
-    #                 Dict[str, List[Tuple[T, T]]]) == True
+    #                 t_dict[str, t_list[t_tuple[T, T]]]) == True
 
     # Test cases for variadic types
-    assert isoftype((1, 2, 3), Tuple[int, ...]) == False  # True
+    assert isoftype((1, 2, 3), t_tuple[int, ...]) == False  # True
     # assert isoftype(1, Union[int, str, ...]))  # True
     # assert isoftype('a', Union[int, str, ...]))  # True
 
     # Test cases for union types
     assert isoftype(10, Union[int, str]) == True  # True
-    assert isoftype([1, 2, 3], Union[List[int], List[str]]) == True  # True
-    assert isoftype(['a', 'b', 'c'], Union[List[int],
-                    List[str]]) == True  # True
+    assert isoftype([1, 2, 3], Union[t_list[int], t_list[str]]) == True  # True
+    assert isoftype(['a', 'b', 'c'], Union[t_list[int],
+                    t_list[str]]) == True  # True
 
     # Additional test cases
     assert isoftype(None, Optional[int]) == True  # True
     assert isoftype(lambda x: x + 1, Callable[[int], int]) == False  # True
 
 
-def test_isoftype_comprehensive_2():
+def test_isoftype_comprehensive_2() -> None:
     assert isoftype(5, int)  # Basic type checking
     assert isoftype("Hello", str)
     assert not isoftype(5, str)
@@ -162,19 +162,19 @@ def test_isoftype_comprehensive_2():
     assert not isoftype(5.5, Union[int, str])
     assert isoftype(True, Union[int, str])  # TODO
 
-    assert isoftype([1, 2, 3], List[int])  # Container type checking
-    assert isoftype((1, 2, 3), Tuple[int, int, int])
-    assert isoftype({'a': 1, 'b': 2}, Dict[str, int])
-    assert not isoftype([1, 2, 3], Tuple[int, int, int])
-    assert not isoftype((1, 2, 3), List[int])
-    assert not isoftype({'a': 1, 'b': 2}, List[int])
+    assert isoftype([1, 2, 3], t_list[int])  # Container type checking
+    assert isoftype((1, 2, 3), t_tuple[int, int, int])
+    assert isoftype({'a': 1, 'b': 2}, t_dict[str, int])
+    assert not isoftype([1, 2, 3], t_tuple[int, int, int])
+    assert not isoftype((1, 2, 3), t_list[int])
+    assert not isoftype({'a': 1, 'b': 2}, t_list[int])
 
-    def number_generator():
+    def number_generator() -> Generator:
         yield 1
         yield 2
         yield 3
 
-    def string_generator():
+    def string_generator() -> Generator:
         yield "Hello"
         yield "World"
 
@@ -218,7 +218,7 @@ def test_isoftype_comprehensive_2():
     assert not isoftype(add_numbers, Callable[[str, str], str])
     assert not isoftype(multiply_numbers, Callable[[int, int], str])
 
-    # Tree = Union[int, List['Tree']]
+    # Tree = Union[int, t_list['Tree']]
 
     # tree1 = [1, [2, [3], 4], 5]  # Recursive type checking
     # tree2 = [1, [2, [3, [4]]]]
@@ -240,7 +240,7 @@ def test_isoftype_comprehensive_2():
 
 
 def test_isoftype_comprehensive_3():
-    # Tree = Union[int, List['Tree']]
+    # Tree = Union[int, t_list['Tree']]
 
     # tree1 = [1, [2, [3, [4, [5, [6]]]]]]
     # tree2 = [1, [2, [3, [4, ['5']]]]]
@@ -248,7 +248,7 @@ def test_isoftype_comprehensive_3():
     # assert isoftype(tree1, Tree)  # True
     # assert not isoftype(tree2, Tree)  # False
 
-    MyDict = Dict[str, Union[List[Tuple[int, str]], str]]
+    Myt_dict = t_dict[str, Union[t_list[t_tuple[int, str]], str]]
 
     data1 = {
         "list1": [(1, "one"), (2, "two")],
@@ -262,24 +262,24 @@ def test_isoftype_comprehensive_3():
         "string": "Hello"
     }
 
-    assert isoftype(data1, MyDict)  # True
-    assert not isoftype(data2, MyDict)  # False
+    assert isoftype(data1, Myt_dict)  # True
+    assert not isoftype(data2, Myt_dict)  # False
 
     T1 = TypeVar('T1')
     T2 = TypeVar('T2')
 
-    def process_data(data: List[T1], value: T2) -> List[Tuple[T1, T2]]:
+    def process_data(data: t_list[T1], value: T2) -> t_list[t_tuple[T1, T2]]:
         result = []
         for item in data:
             result.append((item, value))
         return result
 
     assert isoftype(process_data([1, 2, 3], "A"),
-                    List[Tuple[int, str]])  # True
+                    t_list[t_tuple[int, str]])  # True
     assert not isoftype(process_data(
-        [1, 2, 3], "A"), List[Tuple[str, int]])  # False
+        [1, 2, 3], "A"), t_list[t_tuple[str, int]])  # False
 
-    Person = Tuple[str, Union[int, List[Dict[str, Union[str, int]]]]]
+    Person = t_tuple[str, Union[int, t_list[t_dict[str, Union[str, int]]]]]
 
     data1_ = ("John", 30)
     data2_ = ("Alice", [{"name": "Bob", "age": 25},

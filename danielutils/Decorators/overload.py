@@ -6,19 +6,17 @@ from ..Reflection import is_function_annotated_properly
 from ..Functions import isoftype, isoneof, isoneof_strict
 from ..Exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
-if platform.python_version() >= "3.9":
-    from typing import ParamSpec  # pylint: disable=ungrouped-imports
-    from builtins import dict as t_dict, list as t_list
-    T = TypeVar("T")
-    P = ParamSpec("P")
-    FuncT = Callable[P, T]  # type:ignore
-    T2 = TypeVar("T2")
-    P2 = ParamSpec("P2")
-    FuncT2 = Callable[P2, T2]  # type:ignore
+if platform.python_version() < "3.9":
+    from typing_extensions import ParamSpec
 else:
-    FuncT = Callable  # type:ignore
-    FuncT2 = Callable  # type:ignore
-
+    from typing import ParamSpec  # type:ignore# pylint: disable=ungrouped-imports
+    from builtins import dict as t_dict, list as t_list
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
+T2 = TypeVar("T2")
+P2 = ParamSpec("P2")
+FuncT2 = Callable[P2, T2]  # type:ignore
 
 __overload_dict: t_dict[str, t_dict[tuple, Callable]] = {}
 

@@ -1,8 +1,10 @@
-
+import platform
 import math
-from typing import Union
+from typing import Union, List as t_list
 import pytest
 from ...danielutils.MetaClasses.Interface import Interface  # type:ignore
+if platform.python_version() >= "3.9":
+    from builtins import list as t_list
 Number = Union[int, float]
 
 
@@ -137,7 +139,7 @@ def test_classic_use_case():
         def __str__(self) -> str:
             return super().__str__()+f" color-{self.color}"
 
-    shapes: list[Shape] = [
+    shapes: t_list[Shape] = [
         Circle(2),
         Square(2),
         Rectangel(2, 3),

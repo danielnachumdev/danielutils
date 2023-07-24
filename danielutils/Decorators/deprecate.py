@@ -2,13 +2,13 @@ import platform
 from typing import Callable, TypeVar
 from ..Colors import warning, ColoredText
 
-if platform.python_version() >= "3.9":
-    from typing import ParamSpec
-    T = TypeVar("T")
-    P = ParamSpec("P")
-    FuncT = Callable[P, T]  # type:ignore
+if platform.python_version() < "3.9":
+    from typing_extensions import ParamSpec
 else:
-    FuncT = Callable  # type:ignore
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
 
 
 def deprecate_with(replacement_func) -> Callable[[FuncT], FuncT]:

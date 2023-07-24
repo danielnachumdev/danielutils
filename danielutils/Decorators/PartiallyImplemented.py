@@ -4,13 +4,13 @@ import platform
 from .validate import validate
 from ..Colors import warning
 
-if platform.python_version() >= "3.9":
-    T = TypeVar("T")
-    from typing import ParamSpec  # pylint: disable=ungrouped-imports
-    P = ParamSpec("P")
-    FuncT = Callable[P, T]  # type:ignore
+if platform.python_version() < "3.9":
+    from typing_extensions import ParamSpec
 else:
-    FuncT = Callable  # type:ignore
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
 
 
 @validate

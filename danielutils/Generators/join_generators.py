@@ -6,7 +6,7 @@ from ..DataStructures import AtomicQueue, Queue
 from ..Classes import AtomicCounter
 # from ..Print import aprint
 if platform.python_version() >= "3.9":
-    from builtins import tuple as t_tuple
+    from builtins import tuple as t_tuple  # type:ignore
 
 
 def join_generators_busy_waiting(*generators) -> Generator[t_tuple[int, Any], None, None]:

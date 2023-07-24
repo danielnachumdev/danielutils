@@ -3,14 +3,14 @@ import functools
 import platform
 from .validate import validate
 
-if platform.python_version() >= "3.9":
-    from typing import ParamSpec  # pylint: disable=ungrouped-imports
-    from builtins import dict as t_dict
-    T = TypeVar("T")
-    P = ParamSpec("P")
-    FuncT = Callable[P, T]  # type:ignore
+if platform.python_version() < "3.9":
+    from typing_extensions import ParamSpec
 else:
-    FuncT = Callable  # type:ignore
+    from builtins import dict as t_dict
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
 
 
 @validate

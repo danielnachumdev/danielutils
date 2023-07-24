@@ -1,13 +1,11 @@
 import platform
 import random
-from typing import Union, Any
+from typing import Union, Any, List as t_list, Tuple as t_tuple
 import pytest
 from ...danielutils.Classes.TypedBuiltins import tlist  # type:ignore
 from ...danielutils import isoftype  # type:ignore
 if platform.python_version() >= "3.9":
-    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict, tuple as t_tuple
-else:
-    from typing import List as t_list, Set as t_set, Type as t_type, Dict as t_dict, Tuple as t_tuple
+    from builtins import list as t_list, tuple as t_tuple  # type:ignore
 
 
 def test_basic():

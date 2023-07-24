@@ -1,14 +1,15 @@
-from typing import Callable
+from typing import Callable, TypeVar
 import platform
 import functools
 import threading
 
-if platform.python_version() >= "3.9":
-    from typing import ParamSpec  # pylint: disable=ungrouped-imports
-    P = ParamSpec("P")
-    FuncT = Callable[P, None]  # type:ignore
+if platform.python_version() < "3.9":
+    from typing_extensions import ParamSpec
 else:
-    FuncT = Callable  # type:ignore
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
 
 
 def threadify(func: FuncT) -> FuncT:
