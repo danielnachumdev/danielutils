@@ -1,12 +1,13 @@
-# , ParamSpec, Concatenate
 import platform
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar,\
     ForwardRef, Literal, Optional, Tuple as t_tuple
 from collections.abc import Callable, Generator, Iterable
-if platform.python_version() >= "3.9":
+if platform.python_version() < "3.9":
+    from typing_extensions import ParamSpec, Concatenate
+else:
     from builtins import tuple as t_tuple  # type:ignore
 # implicit_union_type = type(int | str)
-# concatenate_t = type(Concatenate[str, ParamSpec("P_")])
+concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
 
 
@@ -170,6 +171,12 @@ def __handle_callable(params: tuple) -> bool:
     obj_return_type = obj_hints.get('return')
     obj_param_types = list(obj_hints.values())[:-1] if obj_hints else None
     t_return_type = t_args[1]
+    if platform.python_version() < "3.9":
+        if isoftype(t_args[0][0], [ParamSpec, concatenate_t]):
+            return True
+    else:
+        if isoftype(t_args[0], [ParamSpec, concatenate_t]):
+            return True
 
     if isinstance(t_args[0], Iterable):
         t_param_types = list(t_args[0])
@@ -185,9 +192,6 @@ def __handle_callable(params: tuple) -> bool:
             elif a is not b:  # otherwise
                 return False
         return True
-
-    # if isoftype(t_args[0], [ParamSpec, concatenate_t]):
-    #     return True
 
     return False
 
