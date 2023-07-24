@@ -16,7 +16,7 @@ class Heap:
         Args:
             val (Any): the object to add to the heap
         """
-        res: int | float = -1
+        res: Union[int, float] = -1
         curr_index = len(self)
         self.arr.append(val)
         parent_index = curr_index//2 - (1 - curr_index % 2)

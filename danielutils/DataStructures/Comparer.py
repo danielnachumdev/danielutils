@@ -1,5 +1,5 @@
 """Comparer class"""
-from typing import Callable, Any
+from typing import Callable, Any, Union
 from .functions import default_weight_function
 
 
@@ -7,10 +7,10 @@ class Comparer():
     """a Comparer class to be used when comparing two objects
     """
 
-    def __init__(self, func: Callable[[Any, Any], int | float]):
+    def __init__(self, func: Callable[[Any, Any], Union[int, float]]):
         self.func = func
 
-    def compare(self, v1: Any, v2: Any) -> int | float:
+    def compare(self, v1: Any, v2: Any) -> Union[int, float]:
         """compares two objects
 
             Args:
@@ -22,7 +22,7 @@ class Comparer():
             """
         return self.func(v1, v2)
 
-    def __call__(self, v1: Any, v2: Any) -> int | float:
+    def __call__(self, v1: Any, v2: Any) -> Union[int, float]:
         return self.compare(v1, v2)
 
 

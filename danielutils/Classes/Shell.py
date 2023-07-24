@@ -1,5 +1,10 @@
-from typing import Any, Callable
+from typing import Any, Callable, Union
 import re
+import platform
+if platform.python_version() >= "3.9":
+    from builtins import tuple as t_tuple, list as t_list
+else:
+    from typing import Tuple as t_tuple, List as t_list
 
 
 class Argument:
@@ -10,7 +15,7 @@ class Argument:
 
 
 class Command:
-    def __init__(self, command: Argument | str, callback: Callable, explanation: str = "", *, options: tuple[Argument, ...] = tuple()) -> None:
+    def __init__(self, command: Union[Argument, str], callback: Callable, explanation: str = "", *, options: t_tuple[Argument, ...] = tuple()) -> None:
         self.command = command if isinstance(
             command, Argument) else Argument(command)
         self.callback = callback
@@ -27,7 +32,7 @@ class Command:
 
 
 class Shell:
-    def __init__(self, routes: list[Command], *, prompt_symbol: str = ">>> ", exit_keywords: set = {"exit", "quit"}):
+    def __init__(self, routes: t_list[Command], *, prompt_symbol: str = ">>> ", exit_keywords: set = {"exit", "quit"}):
         self.prompt_symbol = prompt_symbol
         self.exit_keywords = exit_keywords
         self.routes: dict[str, Command] = {

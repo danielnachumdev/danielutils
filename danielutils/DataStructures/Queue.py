@@ -1,4 +1,4 @@
-from typing import Callable, Any
+from typing import Callable, Any, Union
 from .Heap import Heap
 from .Comparer import Comparer, CompareGreater
 from .functions import default_weight_function
@@ -76,7 +76,7 @@ class PriorityQueue(Queue):
     A priority queue implementation based on a binary heap.
 
     Args:
-        weight_func (Callable[[T], int | float], optional): A function to calculate the weight of items added
+        weight_func (Callable[[T], Union[int, float]], optional): A function to calculate the weight of items added
             to the queue. Defaults to default_weight_function.
         comparer (Comparer, optional): The comparer to use when comparing weights of items in the queue.
             Defaults to Comparer.GREATER.
@@ -104,7 +104,7 @@ class PriorityQueue(Queue):
         10
     """
 
-    def __init__(self, weight_func: Callable[[Any], int | float] = default_weight_function):
+    def __init__(self, weight_func: Callable[[Any], Union[int, float]] = default_weight_function):
         super().__init__()
         comparer = CompareGreater if weight_func is default_weight_function else Comparer(
             lambda a, b: weight_func(a)-weight_func(b))

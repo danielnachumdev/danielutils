@@ -18,7 +18,7 @@ def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[Func
     """A decorator to limit runtime for a function
 
     Args:
-        duration (int | float): allowed runtime duration
+        duration (Union[int, float]): allowed runtime duration
         silent (bool, optional): keyword only argument whether to pass the exception up the call stack. Defaults to False.
 
     Raises:

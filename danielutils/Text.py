@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Union, TypeGuard
+from typing import Union
 from .Decorators.validate import validate
 from .Functions.check_foreach import check_foreach
 HEBREW_LETTERS = ['\u05D0', '\u2135', '\uFB21', '\uFB2E', '\uFB2F',
@@ -29,40 +29,40 @@ ENGLISH_LETTERS_HEX = [hex(v) for v in ENGLISH_LETTERS_DEC]
 
 
 @validate
-def is_english(s: str) -> TypeGuard[str]:
+def is_english(s: str) -> bool:
     """returns whether the specified string is in the english language
 
     Args:
         s (str): the string to check
 
     Returns:
-        TypeGuard[str]: returns true if the string is in english
+        bool: returns true if the string is in english
     """
     return check_foreach(s, lambda c: c in ENGLISH_LETTERS)
 
 
 @validate
-def is_number(s: str) -> TypeGuard[int | float]:
+def is_number(s: str) -> bool:
     """checks if a string is a number
 
     Args:
         text (str): string to check
 
     Returns:
-        TypeGuard[int | float]: true if string is a number
+        bool: true if string is a number
     """
     return s.isnumeric()
 
 
 @validate
-def is_int(num: Union[int, float]) -> TypeGuard[int]:
+def is_int(num: Union[int, float]) -> bool:
     """_summary_
 
     Args:
         num (Union[int, float]): is a number an int
 
     Returns:
-        TypeGuard[int]: return true if num is a while number
+        bool: return true if num is a while number
     """
     if isinstance(num, int):
         return True
@@ -71,14 +71,14 @@ def is_int(num: Union[int, float]) -> TypeGuard[int]:
 
 
 @validate
-def is_float(s: str) -> TypeGuard[float]:
+def is_float(s: str) -> bool:
     """checks whether a string has a float value
 
     Args:
         s (str): string to check
 
     Returns:
-        TypeGuard[float]: result
+        bool: result
     """
     try:
         float(s)
@@ -88,14 +88,14 @@ def is_float(s: str) -> TypeGuard[float]:
 
 
 @validate
-def is_hebrew(s: str) -> TypeGuard[str]:
+def is_hebrew(s: str) -> bool:
     """checks if a string is in hebrew
 
     Args:
         text (str): string to check
 
     Returns:
-        TypeGuard[str]: true iff all chars are hebrew
+        bool: true iff all chars are hebrew
     """
     return check_foreach(s, lambda c: c in HEBREW_LETTERS)
 

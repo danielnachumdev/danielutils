@@ -1,11 +1,16 @@
+import platform
 from typing import Optional, Generator
 from .Queue import Queue
 from .Node import MultiNode
+if platform.python_version() >= "3.9":
+    from builtins import list as t_list
+else:
+    from typing import List as t_list
 
 
 class Graph:
-    def __init__(self, nodes: Optional[list[MultiNode]] = None):
-        self.nodes: list[MultiNode] = nodes if nodes is not None else []
+    def __init__(self, nodes: Optional[t_list[MultiNode]] = None):
+        self.nodes: t_list[MultiNode] = nodes if nodes is not None else []
 
     def add_node(self, node):
         self.nodes.append(node)

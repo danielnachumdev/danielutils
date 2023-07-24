@@ -99,7 +99,7 @@
 # #     def __instancecheck__(self, func) -> bool:
 # #         if not callable(func):
 # #             return False
-# #         if get_function_return_type(func) not in {int, float, int | float}:
+# #         if get_function_return_type(func) not in {int, float, Union[int, float]}:
 # #             return False
 # #         signature = inspect.signature(func)
 # #         if len(signature.parameters) != 2:
@@ -138,15 +138,15 @@
 #     # "Predicate"
 #     # "ListTupleType"
 # ]
-from typing import Callable, TypeVar, ParamSpec
+from typing import Callable, TypeVar, Union
 
-Number = int | float | complex
+Number = Union[int, float, complex]
 
 A = TypeVar("A")
 B = TypeVar("B")
 U = TypeVar("U")
 T = TypeVar("T")
-P = ParamSpec("P")
+# P = ParamSpec("P")
 
 Supplier = Callable[[], T]
 Runnable = Supplier[None]

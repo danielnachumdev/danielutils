@@ -1,8 +1,9 @@
 
 import math
+from typing import Union
 import pytest
 from ...danielutils.MetaClasses.Interface import Interface  # type:ignore
-Number = int | float
+Number = Union[int, float]
 
 
 def test_no_implementation():

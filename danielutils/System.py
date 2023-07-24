@@ -1,14 +1,18 @@
-from typing import Generator
-from typing import IO, Optional, cast
+from typing import IO, Optional, cast, Union, Generator
 from pathlib import Path
+import platform
 import subprocess
 import time
 from .Decorators import timeout, validate
 from .Conversions import str_to_bytes
 from .Generators import join_generators, generator_from_stream
+if platform.python_version() >= "3.9":
+    from builtins import tuple as t_tuple, list as t_list
+else:
+    from typing import Tuple as t_tuple, List as t_list
 
 
-def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
+def cm(*args, shell: bool = True) -> t_tuple[int, bytes, bytes]:
     """Execute windows shell command and return output
 
     Args:
@@ -36,7 +40,7 @@ def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
 
 
 @validate
-def sleep(seconds: int | float) -> None:
+def sleep(seconds: Union[int, float]) -> None:
     """make current thread sleep
 
     Args:
@@ -57,8 +61,8 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
 
 
 @validate
-def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.01,
-        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) -> tuple[int, Optional[list[bytes]], Optional[list[bytes]]]:
+def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0.01,
+        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) -> t_tuple[int, Optional[t_list[bytes]], Optional[t_list[bytes]]]:
     """Advanced command
 
     Args:
@@ -137,7 +141,7 @@ def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.0
                 p.stdout.close()
 
 
-def cmrt(*args, shell: bool = True) -> Generator[tuple[int, bytes], None, None]:
+def cmrt(*args, shell: bool = True) -> Generator[t_tuple[int, bytes], None, None]:
     """Executes a command and yields stdout and stderr in real-time.
 
     Args:

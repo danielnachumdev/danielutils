@@ -1,13 +1,18 @@
-from typing import Generator, Iterable, Optional
+import platform
+from typing import Generator, Iterable, Optional, Union
 from ...Functions import powerset
 from ...Generators import generate_except
 from ...Decorators import PartiallyImplemented
 from ...DataStructures import Queue
+if platform.python_version() >= "3.9":
+    from builtins import list as t_list, set as t_set, tuple as t_tuple, dict as t_dict
+else:
+    from typing import List as t_list, Set as t_set, Tuple as t_tuple, Dict as t_dict
 
 
 class Attribute:
     @classmethod
-    def create_many(cls, amount: int, offset: int = 0) -> list["Attribute"]:
+    def create_many(cls, amount: int, offset: int = 0) -> t_list["Attribute"]:
         res = []
         ABC = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         for i in range(offset, min(amount, len(ABC))):
@@ -112,7 +117,7 @@ class Attribute:
     def intersection(self, other: "Attribute") -> "Attribute":
         return self & other
 
-    def to_set(self) -> set["Attribute"]:
+    def to_set(self) -> t_set["Attribute"]:
         return set([Attribute(v) for v in self.symbol])
 
     def clone(self) -> "Attribute":
@@ -132,7 +137,7 @@ class Relation:
     def from_string(self, s: str) -> "Relation":
         return Relation.from_strings(s.split())
 
-    def __init__(self, attributes: list[Attribute]):
+    def __init__(self, attributes: t_list[Attribute]):
         self.attributes = attributes
 
     def __contains__(self, attribute) -> bool:
@@ -170,7 +175,7 @@ class Relation:
             # res.update(self.attributes[i])
         return res
 
-    def is_decomposition_lossless(self, R: list["Relation"], F: "FunctionalDependencyGroup") -> bool:
+    def is_decomposition_lossless(self, R: t_list["Relation"], F: "FunctionalDependencyGroup") -> bool:
         if len(R) == 2:
             R1 = R[0].to_attribute()
             R2 = R[1].to_attribute()
@@ -180,7 +185,7 @@ class Relation:
             return False
         raise NotImplementedError()
 
-    def is_decomposition_dependency_preserving(self, R: list["Relation"], F: "FunctionalDependencyGroup"):
+    def is_decomposition_dependency_preserving(self, R: t_list["Relation"], F: "FunctionalDependencyGroup"):
         # week 10 page 2 slide 3
         n = len(R)
         for X, Y in F.tuples():
@@ -255,7 +260,7 @@ class Relation:
     def find_key(self, F: "FunctionalDependencyGroup") -> Attribute:
         return self.to_attribute().minimize(F)
 
-    def find_all_keys(self, F: "FunctionalDependencyGroup") -> set[Attribute]:
+    def find_all_keys(self, F: "FunctionalDependencyGroup") -> t_set[Attribute]:
         # week 9 page 1 slide 3
         K: Attribute = self.find_key(F)
         KeyQueue = Queue()
@@ -276,7 +281,7 @@ class Relation:
                         Keys.add(S_)
         return Keys
 
-    def find_3NF_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
+    def find_3NF_decomposition(self, F: "FunctionalDependencyGroup") -> t_list["Relation"]:
         # TODO add backtracking so this will be deterministic with the correct result
         res = []
         # 1
@@ -298,7 +303,7 @@ class Relation:
         # TODO
         return [Relation.from_string(attr.symbol) for attr in res]
 
-    def find_BCNF_decomposition(self, F: "FunctionalDependencyGroup") -> list["Relation"]:
+    def find_BCNF_decomposition(self, F: "FunctionalDependencyGroup") -> t_list["Relation"]:
         """week 10 page 16 slide 2
         """
         def get_violation() -> tuple[Attribute, Attribute]:
@@ -331,7 +336,7 @@ class FunctionDependency:
     def from_attributes(cls, key: Attribute, value: Attribute) -> "FunctionDependency":
         return cls(key.symbol, value.symbol)
 
-    def __init__(self, key: str | Attribute, value: str | Attribute):
+    def __init__(self, key: Union[str, Attribute], value: Union[str, Attribute]):
         if isinstance(key, str):
             key = Attribute(key)
         if isinstance(value, str):
@@ -365,10 +370,10 @@ class FunctionDependency:
     def is_trivial(self) -> bool:
         return self.Y in self.X
 
-    def tuple(self) -> tuple[Attribute, Attribute]:
+    def tuple(self) -> t_tuple[Attribute, Attribute]:
         return self.X, self.Y
 
-    def follows_from(self, s: set["FunctionDependency"]) -> bool:
+    def follows_from(self, s: t_set["FunctionDependency"]) -> bool:
         if self in s:
             s.remove(self)
 
@@ -378,11 +383,11 @@ class FunctionDependency:
 class FunctionalDependencyGroup:
 
     @classmethod
-    def from_dict(cls, dct: dict[str, str]) -> "FunctionalDependencyGroup":
+    def from_dict(cls, dct: t_dict[str, str]) -> "FunctionalDependencyGroup":
         return cls([FunctionDependency(k, v) for k, v in dct.items()])
 
     def __init__(self, dependencies: Iterable[FunctionDependency]):
-        self.dct: dict[Attribute, Attribute] = {}
+        self.dct: t_dict[Attribute, Attribute] = {}
         for dep in dependencies:
             X, Y = dep.tuple()
             if X not in self.dct:
@@ -416,7 +421,7 @@ class FunctionalDependencyGroup:
         self.dct[X] = Y
         return self
 
-    def minimal_cover(self) -> list[FunctionDependency]:
+    def minimal_cover(self) -> t_list[FunctionDependency]:
         """week 10 page 5 slide 6
 
         Returns:
@@ -476,11 +481,11 @@ class FunctionalDependencyGroup:
 
         return list(sorted(minimal_g))  # type:ignore
 
-    def tuples(self) -> Generator[tuple[Attribute, Attribute], None, None]:
+    def tuples(self) -> Generator[t_tuple[Attribute, Attribute], None, None]:
         for dep in self:
             yield dep.tuple()
 
-    def to_set(self) -> set[Attribute]:
+    def to_set(self) -> t_set[Attribute]:
         return set(self.dct.keys()).union(set(self.dct.values()))
 
     def project_on(self, R: Relation) -> "FunctionalDependencyGroup":

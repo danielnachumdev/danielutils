@@ -153,7 +153,7 @@ class tlist(parent, Generic[T]):
         """
 
     @_additional_init.overload
-    def _init_from_set_and_dict(self, obj: set | dict):
+    def _init_from_set_and_dict(self, obj: Union[set, dict]):
         """inits the tlist from a set or a dict object
         Args:
             obj (set | dict): the set or dict instance

@@ -91,21 +91,22 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
                 raise ValueError(
                     "Can't override '__init__', use 'subscribable_init(self,*args,**kwargs)' instead.")
 
-    for func, decorator in [
-        (__class_getitem__, classmethod),
-        (__instancecheck__, None),
-        (subscribable_init, abstractmethod),
-        (__init__, None),
-        (__call__, None),
-        (__str__, None),
-        (__repr__, None),
-        (__eq__, None),
-        (get_params, None),
-        (__init_subclass__, classmethod)
+    for func, tup in [
+        (__class_getitem__, ["__class_getitem__", classmethod]),
+        (__instancecheck__, ["__instancecheck__", None]),
+        (subscribable_init, ["subscribable_init", abstractmethod]),
+        (__init__, ["__init__", None]),
+        (__call__, ["__call__", None]),
+        (__str__, ["__str__", None]),
+        (__repr__, ["__repr__", None]),
+        (__eq__, ["__eq__", None]),
+        (get_params, ["get_params", None]),
+        (__init_subclass__, ["__init_subclass__", classmethod])
     ]:
-        if decorator is not None:
+        name, decorator = tup  # type:ignore
+        if decorator is not None:  # type:ignore
             func = decorator(func)  # type:ignore
-        setattr(cls, func.__name__, func)
+        setattr(cls, name, func)
 
     return cls
 

@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, Union
 from ..Functions import isoftype
 
 
-def default_weight_function(v: Any) -> int | float:
+def default_weight_function(v: Any) -> Union[int, float]:
     """will return the weight of an object
 
     Args:
@@ -12,9 +12,9 @@ def default_weight_function(v: Any) -> int | float:
         AttributeError: if the object is not a number or doesn't have __weight__ function defined
 
     Returns:
-        int | float: the object's weight
+        Union[int, float]: the object's weight
     """
-    if isoftype(v, int | float):
+    if isoftype(v, Union[int, float]):
         return v
     if hasattr(v, "__weight__"):
         return v.__weight__()
