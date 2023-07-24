@@ -88,7 +88,9 @@ class InterfaceHelper:
         Yields:
             Generator[str, None, None]: yields str values which are names of declared functions
         """
+        # In python 3.8 this function always return the first occurrence so some tests fail
         src = inspect.getsource(cls).splitlines()
+        print(src)
         for line in src:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]

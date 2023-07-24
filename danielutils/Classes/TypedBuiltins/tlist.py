@@ -194,7 +194,7 @@ class tlist(parent, Generic[T]):
         list.append(self, value)
 
     def __add__(self, other: Any) -> "tlist":
-        if not isoftype(other, list | tlist):
+        if not isoftype(other, Union[list, tlist]):
             raise NotImplementedError()
 
         # no need to check because the error handling

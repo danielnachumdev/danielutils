@@ -9,7 +9,7 @@ else:
 
 def to_set(x: Union[type, Iterable[type]]) -> t_set[int]:
     res: t_set[int] = set()
-    if type(x) in {types.UnionType}:
+    if hasattr(x, "__origin__") and x.__origin__ is Union:
         for xi in get_args(x):
             res.update(to_set(xi))
     elif isinstance(x, Iterable):
