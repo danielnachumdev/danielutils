@@ -195,13 +195,13 @@ def test_isoftype_comprehensive_2() -> None:
         if isoftype(data, int):  # TypeVar and TypeVar constraints
             return data * 2
         elif isoftype(data, str):
-            return data.upper()
+            return data.upper()  # type:ignore
         else:
             return data
 
     assert process_data(5) == 10
     assert process_data("hello") == "HELLO"
-    assert process_data(3.14) == 3.14
+    assert process_data(3.14) == 3.14  # type:ignore
 
     def add_numbers(a: int, b: int) -> int:
         return a + b
