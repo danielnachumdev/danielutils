@@ -3,6 +3,8 @@ import itertools
 
 
 def powerset(iterable: Iterable[Any], length: Optional[int] = None) -> Generator[tuple, None, None]:
+    """returns the powerset of specified length of an iterable
+    """
     if length is None:
         if hasattr(iterable, "__len__"):
             length = len(iterable)  # type:ignore

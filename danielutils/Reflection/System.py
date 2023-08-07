@@ -19,22 +19,33 @@ def get_os() -> OSType:
         OSType: enum result
     """
     p = sys.platform
-    if p == "linux" or p == "linux2":
+    if p in {"linux", "linux2"}:
         return OSType.LINUX
-    elif p == "darwin":
+    if p == "darwin":
         return OSType.OSX
-    elif p == "win32":
+    if p == "win32":
         return OSType.WINDOWS
     return OSType.UNKNOWN
 
 
-def get_python_version() -> str:
-    """returns the python version of the interpreter running this code
+def _get_python_version_untyped() -> tuple:
+    values = (int(v) for v in platform.python_version().split("."))
+    return tuple(values)  # type:ignore
+
+
+if _get_python_version_untyped() < (3, 9):
+    from typing import Tuple as t_tuple
+else:
+    from builtins import tuple as t_tuple  # type:ignore
+
+
+def get_python_version() -> t_tuple[int, int, int]:
+    """return the version of python that is currently running this code
 
     Returns:
-        str: version string
+        tuple[int, int, int]: version
     """
-    return platform.python_version()
+    return _get_python_version_untyped()  # type:ignore
 
 
 __all__ = [

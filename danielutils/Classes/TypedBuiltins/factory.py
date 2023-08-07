@@ -1,8 +1,17 @@
 import types
 from abc import abstractmethod
-from typing import Any, Iterable
+from typing import Any, Iterable, List as t_list, Set as t_set, Dict as t_dict, Tuple as t_tuple
 from ...Functions import types_subseteq, isoftype
-from ...Reflection import get_caller_name
+from ...Reflection import get_caller_name, get_python_version
+if get_python_version() >= (3, 9):
+    from builtins import list as t_list, set as t_set, dict as t_dict, tuple as t_tuple  # type:ignore
+# needed for python 3.8
+class_to_type = {
+    list: t_list,
+    set: t_set,
+    dict: t_dict,
+    t_tuple: t_tuple,
+}
 
 
 def create_typed_class(name: str, fallback_class: type = object) -> type:
@@ -16,13 +25,14 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
 
     Args:
         name (str): name of class (can be the same of the derived?)
-        fallback_class (type): the fallback class to handle __str__, __repr__ and such. e.g for a typed version of list ('tlist') the fallback class would be 'list'
+        fallback_class (type): the fallback class to handle __str__, __repr__
+        and such. e.g for a typed version of list ('tlist') the fallback class would be 'list'
         bases (tuple, optional): another additional bases that this class should inherit from. Defaults to None.
 
     Returns:
         type: new class type
     """
-    cls = types.new_class(name, (fallback_class,), dict())
+    cls = types.new_class(name, (fallback_class,), {})
 
     def __class_getitem__(cls, item: type):
         return cls(item)
@@ -37,7 +47,7 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
 
         return isoftype(
             instance,
-            fallback_class[self.get_params()]  # type:ignore
+            class_to_type[fallback_class][self.get_params()]  # type:ignore
         )
 
     def __init__(self, item) -> None:
@@ -91,21 +101,22 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
                 raise ValueError(
                     "Can't override '__init__', use 'subscribable_init(self,*args,**kwargs)' instead.")
 
-    for func, decorator in [
-        (__class_getitem__, classmethod),
-        (__instancecheck__, None),
-        (subscribable_init, abstractmethod),
-        (__init__, None),
-        (__call__, None),
-        (__str__, None),
-        (__repr__, None),
-        (__eq__, None),
-        (get_params, None),
-        (__init_subclass__, classmethod)
+    for func, tup in [
+        (__class_getitem__, ["__class_getitem__", classmethod]),
+        (__instancecheck__, ["__instancecheck__", None]),
+        (subscribable_init, ["subscribable_init", abstractmethod]),
+        (__init__, ["__init__", None]),
+        (__call__, ["__call__", None]),
+        (__str__, ["__str__", None]),
+        (__repr__, ["__repr__", None]),
+        (__eq__, ["__eq__", None]),
+        (get_params, ["get_params", None]),
+        (__init_subclass__, ["__init_subclass__", classmethod])
     ]:
-        if decorator is not None:
+        name, decorator = tup  # type:ignore
+        if decorator is not None:  # type:ignore
             func = decorator(func)  # type:ignore
-        setattr(cls, func.__name__, func)
+        setattr(cls, name, func)
 
     return cls
 

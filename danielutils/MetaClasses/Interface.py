@@ -1,8 +1,12 @@
-from typing import Callable, Iterable, Any, Generator, Optional, cast
 import inspect
 import re
 import traceback
 import functools
+from typing import Callable, Iterable, Any, Generator, Optional, Union,\
+    List as t_list, Set as t_set, Type as t_type, Dict as t_dict
+from ..Reflection import get_python_version
+if get_python_version() >= (3, 9):
+    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict  # type:ignore
 # from ..Decorators.decorate_conditionally import decorate_conditionally
 
 
@@ -83,16 +87,20 @@ class InterfaceHelper:
         Yields:
             Generator[str, None, None]: yields str values which are names of declared functions
         """
+        # In python 3.8 this function always return the first occurrence so some tests fail
         src = inspect.getsource(cls).splitlines()
+        print(src)
         for line in src:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
                 yield func_name
 
     @staticmethod
-    def create_init_handler(cls_name, missing: Optional[list[str] | set[str]] = None, original: Optional[Callable] = None):
+    def create_init_handler(cls_name, missing: Optional[Union[t_list[str],
+                            t_set[str]]] = None, original: Optional[Callable] = None):
         """this function will create the default interface __init__ function with the wanted behavior"""
-        # @decorate_conditionally(functools.wraps, original is not None, [original])  # TODO implement this decorator
+        # @decorate_conditionally(functools.wraps, original
+        # is not None, [original])  # TODO implement this decorator
         def __interface_init__(*args, **kwargs):
             instance = args[0]
             caller_frame = traceback.format_stack()[-2]
@@ -149,13 +157,13 @@ class Interface(type):
         setattr(func, Interface.FUNC_KEY, True)
         return func
 
-    def __new__(mcs: type['Interface'], name: str, bases: tuple, namespace: dict):
+    def __new__(mcs: t_type['Interface'], name: str, bases: tuple, namespace: dict):
         if len(bases) == 0:
             return mcs._handle_new_interface(mcs, name, bases, namespace)
         return mcs._handle_new_subclass(mcs, name, bases, namespace)
 
     @staticmethod
-    def _handle_new_interface(mcs, name: str, bases: tuple, namespace: dict[str, Any]) -> type:
+    def _handle_new_interface(mcs, name: str, bases: tuple, namespace: t_dict[str, Any]) -> type:
         namespace[InterfaceHelper.ORIGINAL_INIT] = None
         if "__init__" in namespace:
             namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
@@ -169,7 +177,7 @@ class Interface(type):
         return type.__new__(mcs, name, bases, namespace)
 
     @staticmethod
-    def _handle_new_subclass(mcs: type['Interface'], name: str, bases: tuple, namespace: dict[str, Any]) -> type:
+    def _handle_new_subclass(mcs: t_type['Interface'], name: str, bases: tuple, namespace: t_dict[str, Any]) -> type:
         need_to_be_implemented: set = set()
         ancestry = set()
         for base in bases:

@@ -1,8 +1,29 @@
-from typing import get_args, get_origin, get_type_hints, Any, Sequence, Union, TypeVar, ForwardRef, Literal, Optional, cast
+from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar,\
+    ForwardRef, Literal, Optional, Tuple as t_tuple
 from collections.abc import Callable, Generator, Iterable
+from ..Reflection import get_python_version
+if get_python_version() < (3, 9):
+    from typing_extensions import ParamSpec, Concatenate
+else:
+
+   # pylint: disable=ungrouped-imports
+    from typing import ParamSpec, Concatenate  # type:ignore
+    from builtins import tuple as t_tuple  # type:ignore
+# implicit_union_type = type(int | str)
+concatenate_t = type(Concatenate[str, ParamSpec("P_")])
+ellipsis_ = ...
 
 
-def __isoftype_inquire(obj: Any) -> tuple[Optional[type], Optional[tuple], Optional[dict]]:
+def __isoftype_inquire(obj: Any) -> t_tuple[Optional[type], Optional[tuple], Optional[dict]]:
+    """
+    Inquires the origin, arguments, and type hints of an object.
+
+    Args:
+        obj: The object to inquire.
+
+    Returns:
+        A tuple containing the origin, arguments, and type hints of the object.
+    """
     origin = None
     args = None
     type_hints = None
@@ -21,136 +42,267 @@ def __isoftype_inquire(obj: Any) -> tuple[Optional[type], Optional[tuple], Optio
     return origin, args, type_hints
 
 
-implicit_union_type = type(int | str)
-ellipsis_ = ...
-
-
-def isoftype(obj: Any, T: Any, /, strict: bool = True) -> bool:
-    """Checks if an object is of the given type or any of its subtypes.
+def __handle_list_set_iterable(params: tuple) -> bool:
+    """
+    Handles the 'list', 'set', and 'Iterable' origin types.
 
     Args:
-        obj (Any): The object to be checked.
-        T (Any): The type or types to be checked against.
+        params: A tuple containing the required parameters.
 
     Returns:
-        bool: True if the object is of the given type or any of its subtypes, False otherwise.
+        True if the object matches the 'list', 'set', or 'Iterable' origin type, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    value_t = t_args[0]
+    for value in V:
+        if not isoftype(value, value_t, strict=strict):
+            return False
+    return True
+
+
+def __handle_tuple(params: tuple) -> bool:
+    """
+    Handles the 'tuple' origin type.
+
+    Args:
+        params: A tuple containing the required parameters.
+
+    Returns:
+        True if the object matches the 'tuple' origin type, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    if len(V) != len(t_args):
+        return False
+    for sub_obj, sub_t in zip(V, t_args):
+        if not isoftype(sub_obj, sub_t, strict=strict):
+            return False
+    return True
+
+
+def __handle_dict(params: tuple) -> bool:
+    """
+    Handles the 'dict' origin type.
+
+    Args:
+        params: A tuple containing the required parameters.
+
+    Returns:
+        True if the object matches the 'dict' origin type, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    key_t, value_t = t_args[0], t_args[1]
+    for k, v in V.items():
+        if not isoftype(k, key_t, strict=strict):
+            return False
+        if not isoftype(v, value_t, strict=strict):
+            return False
+    return True
+
+
+def __handle_union(params: tuple) -> bool:
+    """
+    Handles the 'Union' origin type.
+
+    Args:
+        params: A tuple containing the required parameters.
+
+    Returns:
+        True if the object matches the 'Union' origin type, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    for sub_t in t_args:
+        if isoftype(V, sub_t, strict=strict):
+            return True
+    return False
+
+
+def __handle_generator(params: tuple) -> bool:
+    """
+    Handles the 'Generator' origin type.
+
+    Args:
+        params: A tuple containing the required parameters.
+
+    Returns:
+        True if the object matches the 'Generator' origin type, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    yield_t, send_t, return_t = t_args
+    return isinstance(V, Generator)
+
+
+def __handle_literal(params: tuple) -> bool:
+    """
+    Handles the 'Literal' origin type.
+
+    Args:
+        params: A tuple containing the required parameters.
+
+    Returns:
+        True if the object matches the 'Literal' origin type, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    for literal in t_args:
+        if V is literal:
+            return True
+    return False
+
+
+def __handle_callable(params: tuple) -> bool:
+    """
+    Handles the 'Callable' origin type.
+
+    Args:
+        params: A tuple containing the required parameters.
+
+    Returns:
+        True if the object matches the 'Callable' origin type, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+
+    if not callable(V):
+        return False
+
+    if V.__name__ == "<lambda>":
+        if strict:
+            print("Using lambda function with isoftype is ambiguous.")
+        return not strict
+
+    if len(t_args) == 0:
+        return True
+
+    obj_return_type = obj_hints.get('return')
+    obj_param_types = list(obj_hints.values())[:-1] if obj_hints else None
+    t_return_type = t_args[1]
+    if get_python_version() < (3, 9):
+        if isoftype(t_args[0][0], [ParamSpec, concatenate_t]):
+            return True
+    else:
+        if isoftype(t_args[0], [ParamSpec, concatenate_t]):
+            return True
+
+    if isinstance(t_args[0], Iterable):
+        t_param_types = list(t_args[0])
+        A = obj_param_types + [obj_return_type] if obj_param_types else None
+        B = t_param_types + [t_return_type]
+
+        if A is None or B is None or len(A) != len(B):
+            return False
+        for a, b in zip(A, B):
+            if hasattr(b, "__args__"):  # Union
+                if a not in b.__args__:
+                    return False
+            elif a is not b:  # otherwise
+                return False
+        return True
+
+    return False
+
+
+def __handle_type_origin(params: tuple) -> bool:
+    """
+    Handles the type origin.
+
+    Args:
+        params: A tuple containing the required parameters.
+
+    Returns:
+        True if the object matches the type origin, False otherwise.
+    """
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    if T is Any:
+        return True
+
+    if type(T) in (list, tuple):
+        for sub_t in T:
+            if isoftype(V, sub_t, strict=strict):
+                return True
+        return False
+
+    if obj_origin is not None and obj_origin is Union:
+        return T is type(Union)
+
+    if isinstance(T, TypeVar):
+        t_args = T.__constraints__
+        if t_args:
+            for sub_t in t_args:
+                if isoftype(V, sub_t):
+                    return True
+            return False
+
+        return True
+
+    if isinstance(T, ForwardRef):
+        name_of_type = T.__forward_arg__
+        return type(V).__name__ == name_of_type
+
+    return isinstance(V, T)
+
+
+HANDLERS = {
+    list: __handle_list_set_iterable,
+    tuple: __handle_tuple,
+    dict: __handle_dict,
+    set: __handle_list_set_iterable,
+    Iterable: __handle_list_set_iterable,
+    Union: __handle_union,
+    # implicit_union_type: __handle_union,
+    Generator: __handle_generator,
+    Literal: __handle_literal,
+    Callable: __handle_callable
+}
+
+
+def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
+    """
+    Checks if an object is of a certain type.
+
+    Args:
+        V: The object to check.
+        T: The type to check against.
+        strict: Whether to perform strict type checking.
+
+    Returns:
+        True if the object is of the specified type, False otherwise.
     """
     if not isinstance(strict, bool):
         raise TypeError("'strict' must be of type bool")
-    obj_origin, obj_args, obj_hints = __isoftype_inquire(obj)
+
+    obj_origin, obj_args, obj_hints = __isoftype_inquire(V)
     t_origin, t_args, t_hints = __isoftype_inquire(T)
-    if t_args is not None and ellipsis_ in t_args:
-        from ..Colors import warning
+
+    params = (
+        V, T, strict,
+        obj_origin, obj_args, obj_hints,
+        t_origin, t_args, t_hints
+    )
+
+    if t_args is not None and Ellipsis in t_args:
+        from ..Colors import warning  # pylint: disable=cyclic-import
         warning(
             "using an ellipsis (as in '...') with isoftype is ambiguous returning False")
         return False
+
     if t_origin is not None:
-        t_args = cast(tuple, t_args)
-        if t_origin in {list, tuple, dict, set, dict, Iterable}:
-            if not isinstance(obj, t_origin):
-                return False
-
-            if t_origin in {list, set, Iterable}:
-                obj = cast(Iterable, obj)
-                value_t = t_args[0]
-                for value in obj:
-                    if not isoftype(value, value_t, strict=strict):
-                        return False
-                return True
-
-            elif t_origin is tuple:
-                obj = cast(tuple, obj)
-                if len(obj) != len(t_args):
+        if t_origin in HANDLERS:
+            if t_origin in (list, tuple, dict, set, dict, Iterable):
+                if not isinstance(V, t_origin):
                     return False
-                for sub_obj, sub_t in zip(obj, t_args):
-                    if not isoftype(sub_obj, sub_t, strict=strict):
-                        return False
-                return True
+            return HANDLERS[t_origin](params)
 
-            elif t_origin is dict:
-                obj = cast(dict, obj)
-                key_t, value_t,  = t_args[0], t_args[1]
-                for k, v in obj.items():
-                    if not isoftype(k, key_t, strict=strict):
-                        return False
-                    if not isoftype(v, value_t, strict=strict):
-                        return False
-                return True
+        from ..Colors import warning  # pylint: disable=cyclic-import
+        from ..Reflection.get_traceback import get_traceback
+        warning(
+            f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")
+        print(*get_traceback())
+        return True
 
-        elif t_origin in {Union, implicit_union_type}:  # also handle typing.Optional
-            for sub_t in t_args:
-                if isoftype(obj, sub_t, strict=strict):
-                    return True
-            return False
+    return __handle_type_origin(params)
 
-        elif t_origin is Generator:
-            yield_t, send_t, return_t = t_args
-            return isinstance(obj, Generator)
 
-        elif t_origin is Literal:
-            for literal in t_args:
-                if obj is literal:
-                    return True
-            return False
-
-        elif t_origin is Callable:
-            obj_hints = cast(dict, obj_hints)
-
-            if not callable(obj):
-                return False
-            if obj.__name__ == "<lambda>":
-                if strict:
-                    from ..Colors import warning
-                    warning("using lambda function with isoftype is ambiguous")
-                return not strict
-            if len(t_args) == 0:
-                return True
-            tmp = list(obj_hints.values())
-            obj_return_type = tmp[-1] if tmp else None
-            obj_param_types = tuple(tmp[:-1]) if tmp else None
-            del tmp
-            t_return_type = t_args[1]
-            t_param_types = tuple(t_args[0])
-            return obj_return_type is t_return_type and obj_param_types == t_param_types
-
-        else:
-            from ..Colors import warning
-            from ..Reflection.get_traceback import get_traceback
-            warning(
-                f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")
-            print(*get_traceback())
-            return True
-    else:
-        if T is Any:
-            return True
-
-        elif type(T) in {list, tuple}:
-            # if T == (int,) or something
-            for sub_t in T:
-                if isoftype(obj, sub_t, strict=strict):
-                    return True
-            return False
-
-        elif obj_origin is not None:
-            if obj_origin is Union:
-                return T is type(Union)
-
-        elif isinstance(T, TypeVar):
-            t_args = T.__constraints__
-            if t_args:
-                for sub_t in t_args:
-                    if isoftype(obj, sub_t):
-                        return True
-                return False
-            # TODO how should we check that all value in the same relative position are of the same type
-            return True
-
-        elif isinstance(T, ForwardRef):
-            # TODO what happens if there are a few classes with the same name from different modules? this will break
-            name_of_type = T.__forward_arg__
-            return type(obj).__name__ == name_of_type
-
-    return isinstance(obj, T)
+__all__ = [
+    "isoftype"
+]
 
 
 __all__ = [

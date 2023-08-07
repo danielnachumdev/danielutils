@@ -3,3 +3,4 @@ pytest-html
 notebook
 pylint
 mypy
+tqdm

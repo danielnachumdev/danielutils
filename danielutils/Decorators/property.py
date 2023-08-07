@@ -1,21 +1,27 @@
-from typing import Any
+from typing import Any, Union
 
 
 class property2:
+    """my partial implementation to @property
+    """
+
     def __init__(self, func):
         self.gfunc = func
         self.sfunc = None
         self.dfunc = None
 
     def setter(self, func):
+        """setter function
+        """
         self.sfunc = func
         return self
 
     def deleter(self, func):
+        """deleter function"""
         self.dfunc = func
         return self
 
-    def __get__(self, instance: Any, owner: type | None = None) -> Any:
+    def __get__(self, instance: Any, owner: Union[type, None] = None) -> Any:
         if callable(self.gfunc):
             return self.gfunc(instance)
         raise ValueError("Can't use unset getter function")

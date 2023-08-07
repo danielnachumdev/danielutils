@@ -1,11 +1,21 @@
+import functools
 from typing import Callable
 from ..Decorators import overload
-import functools
 
 
 class OverloadMeta(type):
+    """A meta-class for overloading functions in a class
+    """
     @staticmethod
     def overload(func: Callable) -> overload:
+        """overloads a function
+
+        Args:
+            func (Callable): function ot overload
+
+        Returns:
+            overload: _description_
+        """
         return overload(func)
 
     def __new__(mcs, name, bases, namespace):
@@ -29,7 +39,7 @@ class OverloadMeta(type):
         #     return wrapper
 
         def create_wrapper(v: overload):
-            @functools.wraps(next(iter(v._functions.values()))[0])
+            @functools.wraps(next(iter(v._functions.values()))[0])  # pylint: disable=protected-access
             def wrapper(*args, **kwargs):
                 return v(*args, **kwargs)
             return wrapper

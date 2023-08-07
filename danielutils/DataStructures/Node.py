@@ -4,6 +4,9 @@ from ..MetaClasses import ImplicitDataDeleterMeta
 
 
 class MultiNode:
+    """A node class with no limit to children amount
+    """
+
     def __init__(self, data: Any, children: Optional[list[Optional[MultiNode]]] = None):
         self.data = data
         self._children = children if children is not None else []
@@ -29,7 +32,7 @@ class MultiNode:
             # res += f"MultiNode({node.data}, ["
             seen.add(node)
             tmp = []
-            for child in node._children:
+            for child in node._children:  # pylint: disable=protected-access
                 if child in seen:
                     tmp.append("...")
                 else:
@@ -43,15 +46,22 @@ class MultiNode:
         return str(self)
 
     def add_child(self, child):
+        """adds a child to current node
+        """
         self._children.append(child)
 
 
 class Node(MultiNode, metaclass=ImplicitDataDeleterMeta):
-    def __init__(self, data, next: Optional[Node] = None):
+    """A 'classic' node class with only one child
+    """
+
+    def __init__(self, data, next: Optional[Node] = None):  # pylint: disable=redefined-builtin
         super().__init__(data, [next])
 
     @property
     def next(self):
+        """return the next node after self
+        """
         return self._children[0]
 
     @next.setter
@@ -81,7 +91,10 @@ class Node(MultiNode, metaclass=ImplicitDataDeleterMeta):
         #     if curr in seen:
         #         break
         # return res+")"
-        return MultiNode.__str__(self).replace(self.__class__.__mro__[1].__name__, self.__class__.__name__).replace("[", "").replace("]", "")
+        return MultiNode.__str__(self).replace(
+            self.__class__.__mro__[1].__name__,
+            self.__class__.__name__
+        ).replace("[", "").replace("]", "")
 
     def __repr__(self):
         return str(self)

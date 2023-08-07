@@ -9,7 +9,7 @@ def read_file(path: str) -> "list[str]":
 
 README_PATH = 'README.md'
 DESCRIPTION = 'A python utils library for things I find useful'
-VERSION = "0.9.0"
+VERSION = "0.9.5"
 LONG_DESCRIPTION = '\n'.join(read_file(README_PATH))
 setup(
     name="danielutils",
@@ -23,7 +23,7 @@ setup(
     license="MIT License",
     packages=find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests", "archive/"]),
-    install_requires=[],
+    install_requires=["tqdm"],
     platforms=["All"],
     keywords=['functions', 'decorators', 'methods', 'classes', 'metaclasses'],
     classifiers=[

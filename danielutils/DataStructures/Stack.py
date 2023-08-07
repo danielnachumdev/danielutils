@@ -11,6 +11,11 @@ class Stack:
         self.size = 0
 
     def push(self, value: Any):
+        """push an item to the stack
+
+        Args:
+            value (Any): item to push
+        """
         if self.head is None:
             self.head = Node(value)
         else:
@@ -19,6 +24,11 @@ class Stack:
         self.size += 1
 
     def pop(self) -> Any:
+        """pop an item from the stack
+
+        Returns:
+            Any: poped item
+        """
         if not self.is_empty():
             self.head = cast(Node, self.head)
             res = self.head.data
@@ -34,6 +44,8 @@ class Stack:
             yield self.pop()
 
     def is_empty(self) -> bool:
+        """return whether the stack is empty
+        """
         return len(self) == 0
 
     def __bool__(self) -> bool:

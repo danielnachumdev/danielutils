@@ -2,15 +2,28 @@ from typing import Optional
 
 
 class DeletedException(AttributeError):
-    pass
+    """an exception to be raised if a function is deleted
+    """
 
 
 def deleted(func, cls_name: Optional[str] = None):
+    """replaces a function with a pre-scripted deleted function
+
+    Args:
+        func (_type_): _description_
+        cls_name (Optional[str], optional): _description_. Defaults to None.
+
+    Raises:
+        DeletedException: _description_
+
+    Returns:
+        _type_: _description_
+    """
     msg = f"'{func.__qualname__}' has been marked as deleted"
     if cls_name:
         msg = f"'{cls_name}.{func.__name__}' has been marked as deleted"
 
-    def new_func(*args, **kwargs):
+    def new_func(*args, **kwargs):  # pylint: disable=unused-argument
         nonlocal func
         raise DeletedException(msg)
     return new_func

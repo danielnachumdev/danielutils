@@ -1,13 +1,23 @@
 import functools
 import re
 import traceback
-from typing import Any, Callable
+import platform
+from typing import Any, Callable, TypeVar
 from .validate import validate
 from ..Colors import warning
 
+from ..Reflection import get_python_version
+if get_python_version() < (3, 9):
+    from typing_extensions import ParamSpec
+else:
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
+
 
 @validate
-def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True) -> Callable:
+def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True) -> Callable[[FuncT], FuncT]:
     """decorator to limit recursion of functions
 
     Args:
@@ -17,9 +27,9 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
         quiet (bool, optional): whether to print a warning message. Defaults to True.
     """
 
-    def deco(func: Callable) -> Callable:
+    def deco(func: FuncT) -> FuncT:
         @ functools.wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
+        def wrapper(*args, **kwargs):
             depth = functools.reduce(
                 lambda count, line:
                     count + 1 if re.search(rf"{func.__name__}\(.*\)$", line)

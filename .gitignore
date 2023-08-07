@@ -4,7 +4,7 @@ wslvenv/
 .conda/
 *.json
 *.txt
-!requirements.txt
+!requirements/*.txt
 assets
 *.html
 tmp*.py

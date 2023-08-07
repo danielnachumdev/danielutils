@@ -1,16 +1,26 @@
 import threading
 import functools
-from typing import Callable
+import platform
+from typing import Callable, TypeVar, Union
 from .validate import validate
+from ..Reflection import get_python_version
+if get_python_version() < (3, 9):
+    from typing_extensions import ParamSpec
+else:
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+T = TypeVar("T")
+P = ParamSpec("P")
+FuncT = Callable[P, T]  # type:ignore
 
 
 @validate
-def timeout(duration: int | float, silent: bool = False) -> Callable:
+def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[FuncT], FuncT]:
     """A decorator to limit runtime for a function
 
     Args:
-        duration (int | float): allowed runtime duration
-        silent (bool, optional): keyword only argument whether to pass the exception up the call stack. Defaults to False.
+        duration (Union[int, float]): allowed runtime duration
+        silent (bool, optional): keyword only argument whether
+        to pass the exception up the call stack. Defaults to False.
 
     Raises:
         ValueError: if a function is not provided to be decorated
@@ -20,7 +30,7 @@ def timeout(duration: int | float, silent: bool = False) -> Callable:
         Callable: the result decorated function
     """
     # https://stackoverflow.com/a/21861599/6416556
-    def timeout_deco(func: Callable) -> Callable:
+    def timeout_deco(func: FuncT) -> FuncT:
         if not callable(func):
             raise ValueError("timeout must decorate a function")
 

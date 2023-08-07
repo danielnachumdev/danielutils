@@ -1,14 +1,16 @@
-from typing import Generator
-from typing import IO, Optional, cast
+from typing import IO, Optional, cast, Union, Generator, Tuple as t_tuple, List as t_list
 from pathlib import Path
 import subprocess
 import time
 from .Decorators import timeout, validate
 from .Conversions import str_to_bytes
 from .Generators import join_generators, generator_from_stream
+from .Reflection import get_python_version
+if get_python_version() >= (3, 9):
+    from builtins import tuple as t_tuple, list as t_list  # type:ignore
 
 
-def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
+def cm(*args, shell: bool = True) -> t_tuple[int, bytes, bytes]:
     """Execute windows shell command and return output
 
     Args:
@@ -36,7 +38,7 @@ def cm(*args, shell: bool = True) -> tuple[int, bytes, bytes]:
 
 
 @validate
-def sleep(seconds: int | float) -> None:
+def sleep(seconds: Union[int, float]) -> None:
     """make current thread sleep
 
     Args:
@@ -57,8 +59,9 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
 
 
 @validate
-def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.01,
-        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) -> tuple[int, Optional[list[bytes]], Optional[list[bytes]]]:
+def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0.01,
+        shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) \
+        -> t_tuple[int, Optional[t_list[bytes]], Optional[t_list[bytes]]]:
     """Advanced command
 
     Args:
@@ -84,6 +87,8 @@ def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.0
 
     p = None
     try:
+        # with subprocess.Popen(command, stdout=subprocess.PIPE,
+        #                      stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, shell=shell) as p:
         # TODO with ... as p:
         p = subprocess.Popen(command, stdout=subprocess.PIPE,
                              stdin=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, shell=shell)
@@ -106,8 +111,8 @@ def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.0
                 except BaseException as e1:
                     raise e1
 
-        stdout: list[bytes] = []
-        stderr: list[bytes] = []
+        stdout: t_list[bytes] = []
+        stderr: t_list[bytes] = []
         for curr_input in inputs:
             if p.stdin.writable():
                 if use_write_helper:
@@ -137,7 +142,7 @@ def acm(command: str, inputs: Optional[list[str]] = None, i_timeout: float = 0.0
                 p.stdout.close()
 
 
-def cmrt(*args, shell: bool = True) -> Generator[tuple[int, bytes], None, None]:
+def cmrt(*args, shell: bool = True) -> Generator[t_tuple[int, bytes], None, None]:
     """Executes a command and yields stdout and stderr in real-time.
 
     Args:

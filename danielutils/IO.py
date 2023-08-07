@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 import subprocess
-from typing import IO, Iterator, Generator, Optional, cast
+from typing import IO, Iterator, Generator, Optional, cast, Union, List as t_list
 import shutil
 from pathlib import Path
 import os
 from .Decorators import validate
+from .Reflection import get_python_version
+if get_python_version() >= (3, 9):
+    from builtins import list as t_list
 
 
 @validate
@@ -58,7 +61,8 @@ def delete_file(path: str) -> None:
 
 
 @validate
-def read_file(path: str, read_bytes: bool = False) -> list[str] | list[bytes]:
+# type:ignore
+def read_file(path: str, read_bytes: bool = False) -> Union[t_list[str], t_list[bytes]]:
     """read all lines from a file
 
     Args:
@@ -102,7 +106,7 @@ def is_directory(path: str) -> bool:
 
 
 @validate
-def get_files(path: str) -> list[str]:
+def get_files(path: str) -> t_list[str]:
     """return a list of names of all files inside specified directory
 
     Args:
@@ -117,7 +121,7 @@ def get_files(path: str) -> list[str]:
 
 
 @validate
-def get_files_and_directories(path: str) -> list[str]:
+def get_files_and_directories(path: str) -> t_list[str]:
     """get a list of all files and directories in specified path
 
     Args:
@@ -130,7 +134,7 @@ def get_files_and_directories(path: str) -> list[str]:
 
 
 @validate
-def get_directories(path: str) -> list[str]:
+def get_directories(path: str) -> t_list[str]:
     """get all directories in specified path
 
     Args:
@@ -319,7 +323,8 @@ class IndentedWriter:
         """
         if self.output_stream is None:
             raise ValueError(
-                "Can't write to an empty stream. the stream must not be None: either by set_stream or by initialization")
+                "Can't write to an empty stream. the stream must not be None:"
+                " either by set_stream or by initialization")
         self.output_stream.write(
             str(self.indent_level*self.indent_value + sep.join(args)+end))
 
