@@ -185,7 +185,7 @@ def info(*args, sep: str = " ", end: str = "\n"):
         end (str, optional): print endline. Defaults to "\\n".
     """
     __special_print(*args, sep=sep, end=end,
-                    start_with=ColoredText.red("INFO"))
+                    start_with=ColoredText.yellow("INFO"))
 
 
 __all__ = [
