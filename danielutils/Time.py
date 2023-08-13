@@ -1,8 +1,11 @@
-from typing import Callable
+from typing import Callable, TypeVar
+from typing_extensions import ParamSpec
 import time
+T = TypeVar("T")
+P = ParamSpec("P")
 
 
-def measure(func: Callable) -> Callable:
+def measure(func: Callable[P, T]) -> Callable[P, float]:
     """A function to measure the execution time of a function.
 
     Args:
