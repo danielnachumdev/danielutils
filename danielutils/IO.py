@@ -311,7 +311,7 @@ class IndentedWriter:
         self.output_stream: Optional[IO] = output_stream
         self.indent_value = indent_value
 
-    def write(self, *args, sep=" ", end="\n"):
+    def write(self, *args, sep=" ", end="\n") -> None:
         """writes the supplied arguments to the output_stream
 
         Args:
@@ -328,7 +328,7 @@ class IndentedWriter:
         self.output_stream.write(
             str(self.indent_level*self.indent_value + sep.join(args)+end))
 
-    def set_stream(self, stream: IO):
+    def set_stream(self, stream: IO) -> None:
         """explicitly sets the stream
 
         Args:
