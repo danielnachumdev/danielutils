@@ -349,6 +349,58 @@ class IndentedWriter:
         self.indent_level = max(0, self.indent_level-1)
 
 
+class IndentedWriter2:
+    """every class that will inherit this class will have the following functions available
+        write() with the same arguments a builtin print()
+        indent()
+        undent()
+
+        also, it is expected in the __init__ function to call super().__init__()
+        also, the output_stream must be set whether by the first argument io super().__init__(...)
+        or by set_stream() explicitly somewhere else.
+
+        this class will not function properly is the output_stream is not set!
+
+    """
+
+    def __init__(self, indent_value: str = "\t"):
+        self.indent_level = 0
+        self.indent_value = indent_value
+        self.buffer: str = ""
+
+    def to_stream(self, stream: IO[str]) -> None:
+        """outputs the buffer to a stream
+
+        Args:
+            stream (IO[str]): the stream to output to
+        """
+        stream.write(self.buffer)
+
+    def write(self, *args, sep=" ", end="\n") -> None:
+        """writes the supplied arguments to the output_stream
+
+        Args:
+            sep (str, optional): the str to use as a separator between arguments. Defaults to " ".
+            end (str, optional): the str to use as the final value. Defaults to "\n".
+
+        Raises:
+            ValueError: _description_
+        """
+        self.buffer += str(self.indent_level *
+                           self.indent_value + sep.join(args)+end)
+
+    def indent(self) -> None:
+        """indents the preceding output with write() by one quantity more
+        """
+        self.indent_level += 1
+
+    def undent(self) -> None:
+        """un-dents the preceding output with write() by one quantity less
+            has a minimum value of 0
+        """
+        self.indent_level = max(0, self.indent_level-1)
+
+
 __all__ = [
     "path_exists",
     "file_exists",
@@ -371,5 +423,6 @@ __all__ = [
     "move_directory",
     "copy_file",
     "copy_directory",
-    "IndentedWriter"
+    "IndentedWriter",
+    "IndentedWriter2"
 ]
