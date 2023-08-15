@@ -8,7 +8,7 @@ class WorkerPool:
     """A worker pool class
     """
 
-    def __init__(self, num_workers: int, worker_class: type["scraper.workers.Worker"], w_kwargs: dict, global_variables: dict) -> None:
+    def __init__(self, num_workers: int, worker_class: type[Worker], w_kwargs: dict, global_variables: dict) -> None:
         self.num_workers = num_workers
         self.global_variables: dict = global_variables
         self.q: Queue[tuple[Any]] = Queue()
