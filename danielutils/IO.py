@@ -117,7 +117,7 @@ def get_files(path: str) -> t_list[str]:
     """
     files_and_directories = get_files_and_directories(path)
     return list(
-        filter(lambda name: is_file(f"{path}\\{name}"), files_and_directories))
+        filter(lambda name: is_file(os.path.join(path, name)), files_and_directories))
 
 
 @validate
@@ -145,7 +145,7 @@ def get_directories(path: str) -> t_list[str]:
     """
     files_and_directories = get_files_and_directories(path)
     return list(
-        filter(lambda name: is_directory(f"{path}\\{name}"), files_and_directories))
+        filter(lambda name: is_directory(os.path.join(path, name)), files_and_directories))
 
 
 @ validate
@@ -168,9 +168,9 @@ def clear_directory(path: str) -> None:
         path (str): the path of the directory to clean
     """
     for file in get_files(path):
-        delete_file(f"{path}\\{file}")
+        delete_file(os.path.join(path, file))
     for subdir in get_directories(path):
-        delete_directory(f"{path}\\{subdir}")
+        delete_directory(os.path.join(path, subdir))
 
 
 @validate
@@ -185,6 +185,13 @@ def create_directory(path: str) -> None:
 
 
 @validate
+def create_file(path: str) -> None:
+    if not file_exists(path):
+        with open(path, "w", encoding='utf8') as f:
+            pass
+
+
+@validate
 def get_file_type_from_directory(path: str, file_type: str) -> Iterator[str]:
     """returns all file with specific type from a directory
 
@@ -196,7 +203,7 @@ def get_file_type_from_directory(path: str, file_type: str) -> Iterator[str]:
         list[str]: result
     """
     return filter(
-        lambda name: Path(f"{path}\\{name}").suffix == file_type,
+        lambda name: Path(os.path.join(path, name)).suffix == file_type,
         get_files(path)
     )
 
@@ -213,12 +220,12 @@ def get_file_type_from_directory_recursively(path: str, file_type: str) -> Gener
         _type_: _description_
     """
     yield from filter(
-        lambda name: Path(f"{path}\\{name}").suffix == file_type,
+        lambda name: Path(os.path.join(path, name)).suffix == file_type,
         get_files(path)
     )
     for subdir in get_directories(path):
-        for v in get_file_type_from_directory_recursively(f"{path}\\{subdir}", file_type):
-            yield f"{subdir}\\{v}"
+        for v in get_file_type_from_directory_recursively(os.path.join(path, subdir), file_type):
+            yield os.path.join(subdir, v)
 
 
 @validate
@@ -415,6 +422,7 @@ __all__ = [
     "delete_directory",
     "clear_directory",
     "create_directory",
+    'create_file',
     "get_file_type_from_directory",
     "get_file_type_from_directory_recursively",
     "rename_file",
