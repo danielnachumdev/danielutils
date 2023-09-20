@@ -1,4 +1,5 @@
 import inspect
+import os
 from typing import Optional, cast
 from types import FrameType
 from .get_prev_frame import get_prev_frame
@@ -31,7 +32,12 @@ def get_caller_filename() -> Optional[str]:
     return frame.f_code.co_filename
 
 
+def get_current_directory() -> str:
+    return os.path.dirname(os.path.abspath(get_caller_filename()))  # type:ignore # noqa
+
+
 __all__ = [
     "get_filename",
-    "get_caller_filename"
+    "get_caller_filename",
+    'get_current_directory',
 ]
