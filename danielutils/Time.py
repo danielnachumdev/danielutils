@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Callable, TypeVar
 from typing_extensions import ParamSpec
 import time
@@ -22,6 +23,32 @@ def measure(func: Callable[P, T]) -> Callable[P, float]:
     return wrapper
 
 
+def epoch_to_datetime(epoch: float) -> datetime:
+    """Converts a POSIX timestamp to datetime
+
+    Args:
+        epoch (int): time from epoch
+
+    Returns:
+        datetime: resulting conversion
+    """
+    return datetime.fromtimestamp(epoch)
+
+
+def datetime_to_epoch(dt: datetime) -> float:
+    """Converts a datetime to a POSIX timestamp
+
+    Args:
+        dt (datetime): datetime object
+
+    Returns:
+        int: resulting conversion
+    """
+    return dt.timestamp()
+
+
 __all__ = [
     "measure",
+    'epoch_to_datetime',
+    'datetime_to_epoch'
 ]
