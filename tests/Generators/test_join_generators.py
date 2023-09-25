@@ -1,6 +1,6 @@
 from typing import Generator
 import time
-from ...danielutils.Generators.join_generators import join_generators, join_generators_busy_waiting  # type:ignore
+from ...danielutils.generators.join_generators import join_generators, join_generators_busy_waiting  # type:ignore
 
 
 def test_simple_case():

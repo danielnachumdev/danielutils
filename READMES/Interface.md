@@ -7,7 +7,7 @@ TL;DR :
 
 To jump to the showcase click [here](#usage-and-capabilities)
 
-to jump to the implementation click [here](../danielutils/MetaClasses/Interface.py)
+to jump to the implementation click [here](../danielutils/metaclasses/Interface.py)
 ## Preface
 The target of this was to learn about python's metaclasses
 

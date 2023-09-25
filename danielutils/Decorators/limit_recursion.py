@@ -4,9 +4,9 @@ import traceback
 import platform
 from typing import Any, Callable, TypeVar
 from .validate import validate
-from ..Colors import warning
+from ..colors import warning
 
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec
 else:

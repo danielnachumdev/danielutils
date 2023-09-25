@@ -2,11 +2,11 @@ from typing import Callable, cast, Any, TypeVar, Dict as t_dict, List as t_list
 import inspect
 import platform
 import functools
-from ..Reflection import is_function_annotated_properly
-from ..Functions import isoftype, isoneof, isoneof_strict
-from ..Exceptions import OverloadDuplication, OverloadNotFound
+from ..reflection import is_function_annotated_properly
+from ..functions import isoftype, isoneof, isoneof_strict
+from ..exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec
 else:

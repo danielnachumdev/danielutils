@@ -1,27 +1,18 @@
+from dataclasses import dataclass
 from datetime import datetime
-from ....Time import epoch_to_datetime, datetime_to_epoch
+from typing import Optional
 
 
+@dataclass
 class FileTime:
-
-    @staticmethod
-    def from_datatime(dt: datetime) -> 'FileTime':
-        return FileTime(FileTime.datetime_to_epoch(dt))
-
-    def __init__(self, posix_timestamp: float) -> None:
-        self._timestamp = posix_timestamp
-        self._datetime = FileTime.epoch_to_datetime(self._timestamp)
-
-    @property
-    def posix(self) -> float:
-        return self._timestamp
-
-    @property
-    def datetime(self) -> datetime:
-        return self._datetime
+    creation: Optional[datetime] = None
+    modification: Optional[datetime] = None
+    access: Optional[datetime] = None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.datetime})"
+        return f"{self.__class__.__name__}(\n\tcreation={str(self.creation)},\n\tmodification={str(self.modification)},\n\taceess={str(self.access)}\n)"
 
-    epoch_to_datetime = staticmethod(epoch_to_datetime)
-    datetime_to_epoch = staticmethod(datetime_to_epoch)
+
+__all__ = [
+    'FileTime'
+]

@@ -1,4 +1,4 @@
-from ...danielutils.MetaClasses.AtomicClassMeta import AtomicClassMeta  # type:ignore
+from ...danielutils.metaclasses.AtomicClassMeta import AtomicClassMeta  # type:ignore
 from ...danielutils import threadify  # type:ignore
 import time
 

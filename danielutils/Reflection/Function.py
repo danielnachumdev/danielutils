@@ -3,7 +3,7 @@ from typing import cast, Optional, Callable, Any
 from types import FrameType
 from .get_prev_frame import get_prev_frame
 
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() < (3, 9):
     from typing import List as t_list, Set as t_set  # pylint: disable=ungrouped-imports
 else:
@@ -82,7 +82,7 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     Returns:
         bool: result of validation
     """
-    from ..Functions.isoftype import isoftype
+    from ..functions.isoftype import isoftype
     if not inspect.isfunction(func):
         raise ValueError("param should be a function")
 

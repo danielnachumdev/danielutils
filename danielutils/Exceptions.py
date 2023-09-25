@@ -77,7 +77,7 @@ class PrintCatchOne:
 
     def __exit__(self, cls, instance, traceback):
         if instance:
-            from .Colors import error  # pylint: disable=cyclic-import
+            from .colors import error  # pylint: disable=cyclic-import
             error(f"{cls} {instance}")
             return isinstance(instance, cls)
         return False

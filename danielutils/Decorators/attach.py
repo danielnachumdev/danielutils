@@ -2,7 +2,7 @@ import functools
 from typing import Callable, Optional, TypeVar
 import platform
 from .validate import validate
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec
 else:

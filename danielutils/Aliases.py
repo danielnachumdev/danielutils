@@ -1,8 +1,8 @@
 # import inspect
 # from abc import ABC, abstractmethod
 # from typing import cast, Generic, ParamSpec, TypeVar, Callable
-# from .Functions import isoftype
-# from .Reflection.Function import get_caller_name, get_function_return_type
+# from .functions import isoftype
+# from .reflection.Function import get_caller_name, get_function_return_type
 # P = ParamSpec("P")
 # A = TypeVar("A")
 # B = TypeVar("B")

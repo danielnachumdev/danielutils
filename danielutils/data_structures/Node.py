@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import Any, Optional, Generator
-from ..MetaClasses import ImplicitDataDeleterMeta
+from ..metaclasses import ImplicitDataDeleterMeta
 
 
 class MultiNode:

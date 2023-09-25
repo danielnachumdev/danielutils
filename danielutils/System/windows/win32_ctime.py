@@ -2,8 +2,11 @@
 credit to https://github.com/Delgan/win32-setctime/blob/master/win32_setctime.py
 and modifications by me
 """
+from typing import Optional
+from datetime import datetime
 from enum import IntEnum
 import os
+from .utils import FileTime
 
 try:
     from ctypes import byref, get_last_error, wintypes, WinDLL, WinError
@@ -53,48 +56,64 @@ else:
     SUPPORTED = os.name == "nt"
 
 
-class CreationDisposition(IntEnum):
-    # https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
-    CREATE_NEW = 1
-    CREATE_ALWAYS = 2
-    OPEN_EXISTING = 3
-    OPEN_ALWAYS = 4
-    TRUNCATE_EXISTING = 5
+class HELPERS:
+
+    class CreationDisposition(IntEnum):
+        # https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew
+        CREATE_NEW = 1
+        CREATE_ALWAYS = 2
+        OPEN_EXISTING = 3
+        OPEN_ALWAYS = 4
+        TRUNCATE_EXISTING = 5
+
+    @staticmethod
+    def epoch_time_to_windows_time(timestamp: float) -> int:
+        # https://stackoverflow.com/questions/1566645/filetime-to-int64
+        # https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
+        return int(timestamp * 10000000) + 116444736000000000
+
+    @staticmethod
+    def windows_time_to_epoch(timestamp: int) -> int:
+        # https://stackoverflow.com/questions/1566645/filetime-to-int64
+        # https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
+        return (timestamp-116444736000000000)//10000000
+
+    @staticmethod
+    def close_handle(handle) -> None:
+        if not wintypes.BOOL(CloseHandle(handle)):
+            raise WinError(get_last_error())
+
+    @staticmethod
+    def datetime_to_wintypes_FILETIME(dt: Optional[datetime]) -> wintypes.FILETIME:
+        if dt is None:
+            return wintypes.FILETIME(0xFFFFFFFF, 0xFFFFFFFF)
+
+        timestamp = HELPERS.epoch_time_to_windows_time(dt.timestamp())
+        if not 0 < timestamp < (1 << 64):
+            raise ValueError(
+                "The system value of the timestamp exceeds u64 size: %d" % timestamp)
+
+        return wintypes.FILETIME(timestamp & 0xFFFFFFFF, timestamp >> 32)
 
 
-def epoch_time_to_windows_time(timestamp: int) -> int:
-    # https://stackoverflow.com/questions/1566645/filetime-to-int64
-    # https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
-    return int(timestamp * 10000000) + 116444736000000000
-
-
-def windows_time_to_epoch(timestamp: int) -> int:
-    # https://stackoverflow.com/questions/1566645/filetime-to-int64
-    # https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
-    return (timestamp-116444736000000000)//10000000
-
-
-def close_handle(handle) -> None:
-    if not wintypes.BOOL(CloseHandle(handle)):
-        raise WinError(get_last_error())
-
-
-def setctime(filepath: str, timestamp, *, follow_symlinks: bool = True) -> None:
+def setctime(filepath: str, filetime: FileTime, *, follow_symlinks: bool = True) -> None:
     """Set the "ctime" (creation time) attribute of a file given an unix timestamp (Windows only)."""
     if not SUPPORTED:
         raise OSError(
             "This function is only available for the Windows platform.")
 
-    filepath = os.path.normpath(os.path.abspath(str(filepath)))
-    timestamp = epoch_time_to_windows_time(timestamp)
-
-    if not 0 < timestamp < (1 << 64):
+    if filetime.access is None and filetime.modification is None and filetime.creation is None:
         raise ValueError(
-            "The system value of the timestamp exceeds u64 size: %d" % timestamp)
+            "This function has no meaning if all values in 'filetime' argument are None. This is probably a mistake")
 
-    atime = wintypes.FILETIME(0xFFFFFFFF, 0xFFFFFFFF)
-    mtime = wintypes.FILETIME(0xFFFFFFFF, 0xFFFFFFFF)
-    ctime = wintypes.FILETIME(timestamp & 0xFFFFFFFF, timestamp >> 32)
+    filepath = os.path.normpath(os.path.abspath(str(filepath)))
+
+    atime: wintypes.FILETIME = HELPERS.datetime_to_wintypes_FILETIME(
+        filetime.access)
+    mtime: wintypes.FILETIME = HELPERS.datetime_to_wintypes_FILETIME(
+        filetime.modification)
+    ctime: wintypes.FILETIME = HELPERS.datetime_to_wintypes_FILETIME(
+        filetime.creation)
 
     flags = 128 | 0x02000000
 
@@ -107,7 +126,7 @@ def setctime(filepath: str, timestamp, *, follow_symlinks: bool = True) -> None:
             256,
             0,
             None,
-            CreationDisposition.OPEN_EXISTING.value,
+            HELPERS.CreationDisposition.OPEN_EXISTING.value,
             flags,
             None
         )
@@ -117,13 +136,10 @@ def setctime(filepath: str, timestamp, *, follow_symlinks: bool = True) -> None:
 
     if not wintypes.BOOL(SetFileTime(handle, byref(ctime), byref(atime), byref(mtime))):
         raise WinError(get_last_error())
-    close_handle(handle)
+    HELPERS.close_handle(handle)
 
 
-MaybeFileDescriptor = int
-
-
-def getctime(filepath: str, follow_symlinks: bool = True) -> int:
+def getctime(filepath: str, follow_symlinks: bool = True) -> FileTime:
     if not SUPPORTED:
         raise OSError(
             "This function is only available for the Windows platform.")
@@ -140,7 +156,7 @@ def getctime(filepath: str, follow_symlinks: bool = True) -> int:
     if not follow_symlinks:
         flags |= 0x00200000
     f = CreateFileW(filepath, 256, 0, None,
-                    CreationDisposition.OPEN_EXISTING.value, flags, None)
+                    HELPERS.CreationDisposition.OPEN_EXISTING.value, flags, None)
     handle = wintypes.HANDLE(f)
     if handle.value == wintypes.HANDLE(-1).value:
         raise WinError(get_last_error())
@@ -148,17 +164,20 @@ def getctime(filepath: str, follow_symlinks: bool = True) -> int:
     if not wintypes.BOOL(GetFileTime(handle, byref(ctime), byref(atime), byref(mtime))):
         raise WinError(get_last_error())
 
-    close_handle(handle)
+    HELPERS.close_handle(handle)
 
     # reverse of calculation in setctime function above.
-    # https://stackoverflow.com/questions/1566645/filetime-to-int64
-    ctime64bit = ctime.dwHighDateTime << 32 | ctime.dwLowDateTime  # type:ignore
-    # https://stackoverflow.com/questions/6161776/convert-windows-filetime-to-second-in-unix-linux
-    return windows_time_to_epoch(ctime64bit)
+    stage1 = map(
+        lambda time: time.dwHighDateTime << 32 | time.dwLowDateTime,  # type:ignore
+        [ctime, mtime, atime]
+    )
+    stage2 = map(HELPERS.windows_time_to_epoch, stage1)
+    stage3 = map(datetime.fromtimestamp, stage2)
+    return FileTime(*list(stage3))
 
 
-__version__ = "1.1.0"
 __all__ = [
     "setctime",
-    "getctime"
+    "getctime",
+    'FileTime'
 ]

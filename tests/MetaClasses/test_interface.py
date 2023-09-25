@@ -1,8 +1,8 @@
 import math
 from typing import Union, List as t_list
 import pytest
-from ...danielutils.MetaClasses.Interface import Interface  # type:ignore
-from ...danielutils.Reflection import get_python_version  # type:ignore
+from ...danielutils.metaclasses.Interface import Interface  # type:ignore
+from ...danielutils.reflection import get_python_version  # type:ignore
 if get_python_version() >= (3, 9):
     from builtins import list as t_list
 Number = Union[int, float]

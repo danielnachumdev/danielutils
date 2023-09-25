@@ -1,8 +1,8 @@
 from typing import Generic, TypeVar, Any, Union, Iterable, SupportsIndex
-# from ...MetaClasses.OverloadMeta import OverloadMeta
-from ...Functions import isoftype, types_subseteq
-# from ...Reflection import get_caller_name
-from ...Decorators import overload
+# from ...metaclasses.OverloadMeta import OverloadMeta
+from ...functions import isoftype, types_subseteq
+# from ...reflection import get_caller_name
+from ...decorators import overload
 from .factory import create_typed_class
 T = TypeVar("T", bound=Any)
 

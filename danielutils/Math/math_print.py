@@ -1,4 +1,4 @@
-from .MathSymbols import subscript_dict, superscript_dict
+from .math_symbols import subscript_dict, superscript_dict
 
 
 def mprint_parse_one(s: str) -> str:

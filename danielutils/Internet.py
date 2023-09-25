@@ -3,8 +3,8 @@ import urllib.parse
 from urllib.parse import urlparse
 import urllib
 from typing import Tuple as t_tuple
-from .Decorators import validate
-from .Reflection import get_python_version
+from .decorators import validate
+from .reflection import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple  # type:ignore
 

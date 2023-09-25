@@ -1,7 +1,7 @@
 # `isoftype`
 -- _Check if an object is of a given type or any of its subtypes._
 
-Browse code [here](../danielutils/Functions/isoftype.py)
+Browse code [here](../danielutils/functions/isoftype.py)
 
 ## Purpose - What am I solving?
 The purpose of the `isoftype` function is to determine whether an object is of a specific type or any of its subtypes. It provides a flexible type checking mechanism that accounts for various scenarios, including nested structures, unions, generics, and callable types. The function allows for both strict and non-strict type checking, providing different levels of accuracy based on the requirements.

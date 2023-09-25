@@ -1,5 +1,5 @@
 from typing import Any, Union
-from ..Functions import isoftype
+from ..functions import isoftype
 
 
 def default_weight_function(v: Any) -> Union[int, float]:

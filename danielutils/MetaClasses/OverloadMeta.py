@@ -1,6 +1,6 @@
 import functools
 from typing import Callable
-from ..Decorators import overload
+from ..decorators import overload
 
 
 class OverloadMeta(type):

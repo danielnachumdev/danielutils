@@ -2,7 +2,7 @@
 from typing import Any, Union
 import pytest
 from ...danielutils import validate
-from ...danielutils.Exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, InvalidReturnValueException
+from ...danielutils.exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, InvalidReturnValueException
 
 
 def test_empty_annotation_exception():

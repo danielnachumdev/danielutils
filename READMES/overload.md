@@ -1,7 +1,7 @@
 # `overload`
 -- _Managing function overloads with specific resolutions_
 
-Browse code [here](../danielutils//Decorators//overload.py)
+Browse code [here](../danielutils//decorators//overload.py)
 ## Purpose - What am I solving?
 The purpose of the `overload` class is to provide a solution for managing function overloads with specific resolutions. It allows developers to define multiple alternative functions for a given function and select the appropriate one based on the number and types of arguments passed.
 

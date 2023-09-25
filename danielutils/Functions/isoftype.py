@@ -1,7 +1,7 @@
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar,\
     ForwardRef, Literal, Optional, Tuple as t_tuple
 from collections.abc import Callable, Generator, Iterable
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec, Concatenate
 else:
@@ -278,7 +278,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
     )
 
     if t_args is not None and Ellipsis in t_args:
-        from ..Colors import warning  # pylint: disable=cyclic-import
+        from ..colors import warning  # pylint: disable=cyclic-import
         warning(
             "using an ellipsis (as in '...') with isoftype is ambiguous returning False")
         return False
@@ -290,8 +290,8 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
                     return False
             return HANDLERS[t_origin](params)
 
-        from ..Colors import warning  # pylint: disable=cyclic-import
-        from ..Reflection.get_traceback import get_traceback
+        from ..colors import warning  # pylint: disable=cyclic-import
+        from ..reflection.get_traceback import get_traceback
         warning(
             f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")
         print(*get_traceback())

@@ -1,7 +1,7 @@
 """functions that convert values to int"""
 from typing import Union, List as t_list
 from ..MainConversions import char_to_int
-from ...Reflection import get_python_version
+from ...reflection import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import list as t_list
 

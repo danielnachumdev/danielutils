@@ -1,5 +1,5 @@
 from typing import IO, Generator, Any, Iterable, Union
-from ..Decorators import validate
+from ..decorators import validate
 
 
 @validate

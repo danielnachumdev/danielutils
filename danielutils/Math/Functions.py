@@ -1,5 +1,5 @@
 from typing import Union
-from ..Decorators import validate
+from ..decorators import validate
 
 
 @validate

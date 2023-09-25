@@ -1,8 +1,8 @@
 import types
 from abc import abstractmethod
 from typing import Any, Iterable, List as t_list, Set as t_set, Dict as t_dict, Tuple as t_tuple
-from ...Functions import types_subseteq, isoftype
-from ...Reflection import get_caller_name, get_python_version
+from ...functions import types_subseteq, isoftype
+from ...reflection import get_caller_name, get_python_version
 if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set, dict as t_dict, tuple as t_tuple  # type:ignore
 # needed for python 3.8

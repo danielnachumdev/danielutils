@@ -1,4 +1,4 @@
-from ..Decorators import atomic
+from ..decorators import atomic
 
 
 class AtomicClassMeta(type):

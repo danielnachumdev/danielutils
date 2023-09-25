@@ -2,11 +2,11 @@ import platform
 import functools
 import inspect
 from typing import Callable, get_type_hints, cast, TypeVar, Union
-from ..Functions.isoftype import isoftype
-from ..Reflection import get_function_return_type
-from ..Exceptions import EmptyAnnotationException,\
+from ..functions.isoftype import isoftype
+from ..reflection import get_function_return_type
+from ..exceptions import EmptyAnnotationException,\
     InvalidDefaultValueException, ValidationException, InvalidReturnValueException
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec
 else:

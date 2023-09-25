@@ -1,7 +1,7 @@
 # `@validate`
 -- _Protecting Your Code from Type-related Disasters._
 
-Browse code [here](../danielutils/Decorators//validate.py)
+Browse code [here](../danielutils/decorators//validate.py)
 ## Purpose - What am I solving?
 The `validate` decorator is designed to validate the annotations and types of the arguments and return value of a function. It provides a convenient way to enforce type checking and ensure that the function is used correctly.
 

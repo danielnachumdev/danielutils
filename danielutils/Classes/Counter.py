@@ -1,5 +1,5 @@
 from typing import Union
-from ..MetaClasses import AtomicClassMeta
+from ..metaclasses import AtomicClassMeta
 
 
 class Counter:

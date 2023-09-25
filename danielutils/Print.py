@@ -1,7 +1,7 @@
 import sys
-from .Functions.areoneof import areoneof
-from .Math.MathPrint import mprint_parse_one
-from .Decorators import atomic, deprecate
+from .functions.areoneof import areoneof
+from .math.math_print import mprint_parse_one
+from .decorators import atomic, deprecate
 
 
 def mprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:

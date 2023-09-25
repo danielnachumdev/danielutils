@@ -1,5 +1,5 @@
 import json
-from .Decorators import validate
+from .decorators import validate
 
 
 @validate

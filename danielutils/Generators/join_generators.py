@@ -1,10 +1,10 @@
 from typing import Generator, Any, Tuple as t_tuple
 from threading import Semaphore  # , Condition
-from ..Decorators import threadify
-from ..DataStructures import AtomicQueue, Queue
-from ..Classes import AtomicCounter
+from ..decorators import threadify
+from ..data_structures import AtomicQueue, Queue
+from ..classes import AtomicCounter
 # from ..Print import aprint
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple  # type:ignore
 

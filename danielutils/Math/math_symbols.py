@@ -1,6 +1,6 @@
 """file with math symbols constants"""
 from typing import Union, Dict as t_dict
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import dict as t_dict
 # https://unicode-table.com/en/sets/mathematical-signs/

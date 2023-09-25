@@ -2,7 +2,7 @@ from typing import Callable, Any, Union
 from .Heap import Heap
 from .Comparer import Comparer, CompareGreater
 from .functions import default_weight_function
-from ..MetaClasses import AtomicClassMeta
+from ..metaclasses import AtomicClassMeta
 
 
 class Queue:

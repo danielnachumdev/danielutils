@@ -1,3 +1,3 @@
-from .Constants import *
+from .constants import *
 # from .MathPrint import *
-from .Functions import *
+from .functions import *

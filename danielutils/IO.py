@@ -4,8 +4,8 @@ from typing import IO, Iterator, Generator, Optional, cast, Union, List as t_lis
 import shutil
 from pathlib import Path
 import os
-from .Decorators import validate
-from .Reflection import get_python_version
+from .decorators import validate
+from .reflection import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import list as t_list
 

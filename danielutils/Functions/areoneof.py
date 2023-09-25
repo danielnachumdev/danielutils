@@ -1,6 +1,6 @@
 from typing import Sequence, Any, Union
 from .isoneof import isoneof
-from ..Reflection import get_python_version
+from ..reflection import get_python_version
 if get_python_version() < (3, 9):
     from typing import List as t_list, Tuple as t_tuple
 else:
