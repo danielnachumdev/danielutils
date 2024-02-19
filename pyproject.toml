@@ -5,13 +5,16 @@ build-backend = "setuptools.build_meta"
 name = "danielutils"
 version = "0.9.5"
 authors = [
-  { name="danielnachumdev", email="danielnachumdev@gmail.com" },
+    { name = "danielnachumdev", email = "danielnachumdev@gmail.com" },
 ]
+dependencies = ["tqdm"]
+keywords = ['functions', 'decorators', 'methods', 'classes', 'metaclasses']
+license = { "file" = "LISENCE" }
 description = "A python utils library for things I find useful"
 readme = "README.md"
 requires-python = ">=3.8.17"
 classifiers = [
-   "Development Status :: 3 - Alpha",
+    "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
     # "Operating System :: Unix",
