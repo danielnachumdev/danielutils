@@ -27,3 +27,4 @@ from .signals import *
 from .university import *
 from .tqdm import tqdm
 from .threading import *
+from .loops import *
