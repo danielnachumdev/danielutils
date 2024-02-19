@@ -3,6 +3,7 @@ from ...functions import powerset
 from ...generators import generate_except
 from ...data_structures import Queue
 from ...reflection import get_python_version
+
 if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set, tuple as t_tuple, dict as t_dict  # type:ignore
 
@@ -10,6 +11,7 @@ if get_python_version() >= (3, 9):
 class Attribute:
     """Attribute class as in the course
     """
+
     @classmethod
     def create_many(cls, amount: int, offset: int = 0) -> t_list["Attribute"]:
         """Create multiple Attribute instances.
@@ -91,7 +93,7 @@ class Attribute:
 
         X = self.clone()
         for A in self:
-            if A in (X-A).closure(F):
+            if A in (X - A).closure(F):
                 X -= A
 
         return X
@@ -144,7 +146,7 @@ class Attribute:
         Returns:
             Attribute: The result of the attribute union.
         """
-        return self+other
+        return self + other
 
     def intersection(self, other: "Attribute") -> "Attribute":
         """Perform attribute intersection (self & other).
@@ -185,6 +187,7 @@ class Attribute:
 class Relation:
     """Relation class as in the course
     """
+
     @classmethod
     def from_strings(cls, lst: Iterable[str]) -> "Relation":
         """Create a Relation instance from a list of attribute symbols.
@@ -232,7 +235,7 @@ class Relation:
         return repr(self)
 
     def __repr__(self) -> str:
-        return self.__class__.__name__+str(self.attributes)
+        return self.__class__.__name__ + str(self.attributes)
 
     def __iter__(self) -> Generator[Attribute, None, None]:
         yield from self.attributes
@@ -334,6 +337,7 @@ class Relation:
         Returns:
             bool: True if the Relation instance is in 3NF, otherwise False.
         """
+
         def second_condition(X: Attribute, Y: Attribute) -> bool:
             keys = self.find_all_keys(F)
 
@@ -420,7 +424,7 @@ class Relation:
             K = KeyQueue.pop()
             for X, Y in F.tuples():
                 if not Y.intersection(K).is_empty():
-                    S = (K-Y).union(X)
+                    S = (K - Y).union(X)
 
                     for k in Keys:
                         if k in S:
@@ -448,7 +452,7 @@ class Relation:
         # 2
         for f in G:
             X, A = f.tuple()
-            res.append(X+A)
+            res.append(X + A)
 
         # 3
         for decomp in res:
@@ -470,6 +474,7 @@ class Relation:
         Returns:
             List[Relation]: A list of decomposed relations in BCNF.
         """
+
         def get_violation() -> t_tuple[Attribute, Attribute]:
             for f in F:
                 X, Y = f.tuple()
@@ -493,6 +498,7 @@ class Relation:
 class FunctionDependency:
     """FunctionDependency class as in the course
     """
+
     @classmethod
     def from_string(cls, s: str) -> "FunctionDependency":
         """Create a FunctionDependency instance from a string representation.
@@ -592,6 +598,7 @@ class FunctionDependency:
 class FunctionalDependencyGroup:
     """FunctionalDependencyGroup class as in the course
     """
+
     @classmethod
     def from_dict(cls, dct: t_dict[str, str]) -> "FunctionalDependencyGroup":
         """Create a FunctionalDependencyGroup instance from a dictionary.
@@ -681,12 +688,12 @@ class FunctionalDependencyGroup:
             X, A = f.tuple()
             if len(X) > 1:
                 for B in X:
-                    if A in (X-B).closure(self):
+                    if A in (X - B).closure(self):
                         X -= B
             G_.add(FunctionDependency.from_attributes(X, A))
         G = set(G_)
         del G_
-        minimal_g: set = set(range(len(G)+1))
+        minimal_g: set = set(range(len(G) + 1))
 
         def backtracking_helper(G: t_set[FunctionDependency], excluded: set):
             nonlocal minimal_g
@@ -700,6 +707,7 @@ class FunctionalDependencyGroup:
                         excluded.remove(f)
             if len(G) < len(minimal_g):
                 minimal_g = G
+
         backtracking_helper(G, set())
         # for f in set(G):
         #     if f.follows_from(set(G)):
