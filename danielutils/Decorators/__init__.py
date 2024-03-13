@@ -11,3 +11,4 @@ from .chain_decorators import *
 from .threadify import *
 from .delay_call import *
 from .deprecate import *
+from .processify import *

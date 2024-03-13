@@ -171,15 +171,16 @@ def __handle_callable(params: tuple) -> bool:
     if len(t_args) == 0:
         return True
 
-    obj_return_type = obj_hints.get('return')
-    obj_param_types = list(obj_hints.values())[:-1] if obj_hints else None
-    t_return_type = t_args[1]
     if get_python_version() < (3, 9):
         if isoftype(t_args[0][0], [ParamSpec, concatenate_t]):
             return True
     else:
         if isoftype(t_args[0], [ParamSpec, concatenate_t]):
             return True
+
+    obj_return_type = obj_hints.get('return')
+    obj_param_types = list(obj_hints.values())[:-1] if obj_hints else None
+    t_return_type = t_args[1]
 
     if isinstance(t_args[0], Iterable):
         t_param_types = list(t_args[0])

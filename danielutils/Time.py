@@ -1,7 +1,12 @@
+import time
 from datetime import datetime
 from typing import Callable, TypeVar
-from typing_extensions import ParamSpec
-import time
+from .reflection import get_python_version
+
+if get_python_version() < (3, 9):
+    from typing_extensions import ParamSpec
+else:
+    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
 T = TypeVar("T")
 P = ParamSpec("P")
 
@@ -15,11 +20,13 @@ def measure(func: Callable[P, T]) -> Callable[P, float]:
     Returns:
         float: The time taken in seconds to execute the given function.
     """
+
     def wrapper(*args, **kwargs) -> float:
         start = time.time()
         func(*args, **kwargs)
         end = time.time()
-        return end-start
+        return end - start
+
     return wrapper
 
 

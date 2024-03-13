@@ -1,9 +1,9 @@
 import inspect
 from typing import cast, Optional, Callable, Any
 from types import FrameType
-from .get_prev_frame import get_prev_frame
-
+from .get_prev_frame import get_prev_frame_from, get_n_prev_frame
 from ..reflection import get_python_version
+
 if get_python_version() < (3, 9):
     from typing import List as t_list, Set as t_set  # pylint: disable=ungrouped-imports
 else:
@@ -22,32 +22,12 @@ def get_caller_name(steps_back: int = 0) -> Optional[str]:
         raise TypeError("steps_back must be an int")
     if steps_back < 0:
         raise ValueError("steps_back must be a non-negative integer")
-    # different implementation:
-
-    # RGX = r'File ".*", line \d+, in (.+)\n'
-    # # traceback_list = get_traceback()
-    # # callee_frame = traceback_list[-1]
-    # # callee_name = re.search(RGX, callee_frame).group(1)
-    # # caller_frame = traceback_list[-2]
-    # # caller_name = re.search(RGX, caller_frame).group(1)
-
-    # this is more readable:
-
-    # current_frame = inspect.currentframe()
-    # callee_frame = current_frame.f_back
-    # # callee_name = callee_frame.f_code.co_name
-    # caller_frame = callee_frame.f_back
-    # caller_name = caller_frame.f_code.co_name
-    # return caller_name
-    frame = get_prev_frame(get_prev_frame(inspect.currentframe()))
-    if frame is None:
+    if (frame := get_n_prev_frame(2)) is None:
         return None
     frame = cast(FrameType, frame)
     while steps_back > 0:
-        frame = get_prev_frame(frame)
-        if frame is None:
+        if (frame := cast(FrameType, get_prev_frame_from(frame))) is None:
             return None
-        frame = cast(FrameType, frame)
         steps_back -= 1
     return frame.f_code.co_name
 
@@ -114,6 +94,40 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     return True
 
 
+def get_current_func():
+    caller_frame = get_n_prev_frame(2)
+    caller_name = caller_frame.f_code.co_name
+    caller_func = caller_frame.f_globals[caller_name]
+    return caller_func
+
+
+def get_caller_func() -> Optional[Callable]:
+    caller_frame = get_n_prev_frame(3)
+    if (caller_name := caller_frame.f_code.co_name) == "<module>":
+        return None
+    caller_func = caller_frame.f_globals[caller_name]
+    return caller_func
+
+
+import json
+
+
+def get_n_caller_func(n_steps: int = 1) -> Optional[Callable]:
+    caller_frame = get_n_prev_frame(2 + n_steps)
+    # print(json.dumps(dict(caller_frame.f_globals), default=str, indent=4))
+    if (caller_name := caller_frame.f_code.co_name) == "<module>":
+        return None
+    caller_func = caller_frame.f_globals[caller_name]
+    return caller_func
+
+
+def get_caller_module_name() -> Optional[str]:
+    caller_func = get_caller_func()
+    if caller_func is None:
+        return None
+    return caller_func.__module__
+
+
 def get_mro(obj: Any) -> t_list[type]:
     """returns the mro of an object
 
@@ -132,5 +146,9 @@ __all__ = [
     "get_caller_name",
     "get_function_return_type",
     "is_function_annotated_properly",
-    "get_mro"
+    "get_mro",
+    "get_current_func",
+    "get_caller_func",
+    "get_n_caller_func",
+    "get_caller_module_name"
 ]

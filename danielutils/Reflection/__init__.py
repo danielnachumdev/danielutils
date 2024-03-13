@@ -4,7 +4,7 @@ from .Function import *
 from .get_traceback import *
 from .Module import *
 from .Class import *
-
+from .get_prev_frame import *
 # def get_class(module_name: str, class_name: str) -> type:
 #     """dynammically loads the module and returns the class from this file
 

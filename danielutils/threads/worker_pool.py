@@ -57,6 +57,10 @@ class WorkerPool:
         if self.q.unfinished_tasks <= 0:
             self.sem.release(self.num_workers)
 
+    def join(self) -> None:
+        for w in self.workers:
+            w.thread.join()
+
 
 __all__ = [
     "WorkerPool"

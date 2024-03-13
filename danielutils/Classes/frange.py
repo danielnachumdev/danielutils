@@ -49,7 +49,7 @@ class brange(frange):
     def __iter__(self):
         itr = super().__iter__()
         try:
-            from tqdm import tqdm  # type:ignore  # pylint: disable=import-error
+            from my_tqdm import tqdm  # type:ignore  # pylint: disable=import-error
             return iter(tqdm(itr, desc=f"{self}", total=len(self)))
         except:
             return itr

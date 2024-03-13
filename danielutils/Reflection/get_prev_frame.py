@@ -1,29 +1,30 @@
-from typing import cast, Optional
+import inspect
+from typing import Optional
 from types import FrameType
 
 
-def get_prev_frame(frame: Optional[FrameType]) -> Optional[FrameType]:
-    """Get the previous frame (caller's frame) in the call stack.
+def get_current_frame() -> Optional[FrameType]:
+    return get_prev_frame_from(inspect.currentframe())
 
-    This function retrieves the frame that called the current frame in the Python call stack.
 
-    Args:
-        frame (Optional[FrameType]): The current frame for which to find the previous frame.
+def get_prev_frame_from(frame: Optional[FrameType]) -> Optional[FrameType]:
+    """Get the previous frame (caller's frame) in the call stack."""
+    return frame.f_back if frame is not None else None
 
-    Returns:
-        Optional[FrameType]: The previous frame in the call stack, or None if it is not available.
 
-    Note:
-        If the input frame is None or not of type FrameType, the function returns None.
-    """
-    if frame is None:
+def get_n_prev_frame(n_steps: int = 1) -> Optional[FrameType]:
+    if (f := get_current_frame()) is None:
         return None
-    if not isinstance(frame, FrameType):
-        return None
-    frame = cast(FrameType, frame)
-    return frame.f_back
+    i = 0
+    while i < n_steps:
+        if (f := f.f_back) is None:
+            return None
+        i += 1
+    return f
 
 
 __all__ = [
-    "get_prev_frame"
+    "get_current_frame",
+    "get_prev_frame_from",
+    "get_n_prev_frame"
 ]

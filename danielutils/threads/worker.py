@@ -47,9 +47,9 @@ class Worker(ABC):
         execution of a single job
         """
         self._work(obj)
-        self.notify()
+        self._notify()
 
-    def notify(self) -> None:
+    def _notify(self) -> None:
         """utility method to be called on the end of each iteration of work 
         to signal actions if needed
         will call 'notification_function'
