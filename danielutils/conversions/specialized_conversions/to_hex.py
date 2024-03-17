@@ -1,5 +1,5 @@
 from ...metaclasses.OverloadMeta import OverloadMeta
-from ..MainConversions import int_to_hex, char_to_hex
+from ..main_conversions import int_to_hex, char_to_hex
 
 
 @OverloadMeta.overload

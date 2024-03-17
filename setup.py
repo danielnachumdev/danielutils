@@ -30,9 +30,9 @@ setup(
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
-        # "Operating System :: Unix",
-        # "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows",
+        # "Operating system :: Unix",
+        # "Operating system :: MacOS :: MacOS X",
+        "Operating system :: Microsoft :: Windows",
     ]
 )
 # python .\setup.py sdist

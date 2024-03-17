@@ -1,10 +1,15 @@
 from typing import Optional
 from tqdm import tqdm
+from .reflection import get_python_version
+if get_python_version() >= (3, 9):
+    from builtins import list as t_list  # type:ignore
+else:
+    from typing import List as t_list
 
 
 class ProgressBarPool:
-    def __init__(self, num_of_bars: int = 1, *, global_options: Optional[dict] = None, individual_options: Optional[list[Optional[dict]]] = None) -> None:
-        self.bars: list[tqdm] = []
+    def __init__(self, num_of_bars: int = 1, *, global_options: Optional[dict] = None, individual_options: Optional[t_list[Optional[dict]]] = None) -> None:
+        self.bars: t_list[tqdm] = []
         if global_options is None:
             global_options = {}
         if individual_options is None:

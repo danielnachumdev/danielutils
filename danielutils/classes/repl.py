@@ -35,7 +35,7 @@ class Command:
         return self.callback(*args, **kwargs)
 
 
-class Shell:
+class REPL:
     """a class to easily create a shell application and get functionality for free
     """
 
@@ -82,7 +82,7 @@ class Shell:
 
 
 __all__ = [
-    "Shell",
+    "REPL",
     "Command",
     "Argument"
 ]

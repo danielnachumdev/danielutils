@@ -8,7 +8,7 @@
             "name": "tmp.py",
             "type": "python",
             "request": "launch",
-            "program": "tmp.py",
+            "program": "main.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

@@ -4,10 +4,11 @@ wslvenv/
 .conda/
 *.json
 *.txt
+main.py
 !requirements/*.txt
 assets
 *.html
-tmp*.py
+main.py
 tmp/
 html/*
 # Byte-compiled / optimized / DLL files

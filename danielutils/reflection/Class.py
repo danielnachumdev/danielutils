@@ -1,7 +1,12 @@
 import inspect
+from ..reflection import get_python_version
+if get_python_version() >= (3, 9):
+    from builtins import list as t_list  # type:ignore
+else:
+    from typing import List as t_list
 
 
-def get_explicitly_declared_functions(cls: type) -> list[str]:
+def get_explicitly_declared_functions(cls: type) -> t_list[str]:
     """
     Returns the names of the functions that are explicitly declared in a class.
 

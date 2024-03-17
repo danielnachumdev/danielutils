@@ -1,5 +1,5 @@
 from typing import Any, Union
-from .Comparer import Comparer, CompareGreater, CompareSmaller
+from .comparer import Comparer, CompareGreater, CompareSmaller
 
 
 class Heap:

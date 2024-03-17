@@ -2,7 +2,7 @@ import platform
 import random
 from typing import Union, Any, List as t_list, Tuple as t_tuple
 import pytest
-from ...danielutils.classes.TypedBuiltins import tlist  # type:ignore
+from ...danielutils.classes.typed_builtins import tlist  # type:ignore
 from ...danielutils import isoftype  # type:ignore
 from ...danielutils.reflection import get_python_version  # type:ignore
 if get_python_version() >= (3, 9):

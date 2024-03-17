@@ -1,2 +1,2 @@
-from .MainConversions import *
-from .SpecializedConversions import *
+from .main_conversions import *
+from .specialized_conversions import *

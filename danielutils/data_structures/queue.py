@@ -1,6 +1,6 @@
 from typing import Callable, Any, Union
-from .Heap import Heap
-from .Comparer import Comparer, CompareGreater
+from .heap import Heap
+from .comparer import Comparer, CompareGreater
 from .functions import default_weight_function
 from ..metaclasses import AtomicClassMeta
 

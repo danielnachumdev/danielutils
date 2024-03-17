@@ -1,4 +1,4 @@
-from ..classes.Counter import Counter
+from ..classes.counter import Counter
 
 
 class InstanceCacheMeta(type):

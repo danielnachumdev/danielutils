@@ -2,18 +2,23 @@ from queue import Queue
 from typing import Optional, Any
 from threading import Semaphore
 from .worker import Worker
+from ..reflection import get_python_version
+if get_python_version() >= (3, 9):
+    from builtins import type as t_type, tuple as t_tuple, list as t_list  # type:ignore
+else:
+    from typing import Type as t_type, Tuple as t_tuple, List as t_list
 
 
 class WorkerPool:
     """A worker pool class
     """
 
-    def __init__(self, num_workers: int, worker_class: type[Worker], w_kwargs: dict, global_variables: dict) -> None:
+    def __init__(self, num_workers: int, worker_class: t_type[Worker], w_kwargs: dict, global_variables: dict) -> None:
         self.num_workers = num_workers
         self.global_variables: dict = global_variables
-        self.q: Queue[tuple[Any]] = Queue()
+        self.q: Queue[t_tuple[Any]] = Queue()
         self.worker_class = worker_class
-        self.workers: list[Worker] = []
+        self.workers: t_list[Worker] = []
         self.sem = Semaphore(0)
         self.w_kwargs = w_kwargs
 
@@ -30,7 +35,7 @@ class WorkerPool:
         self.q.put((job,))
         self.sem.release()
 
-    def _acquire(self) -> Optional[tuple[Any]]:
+    def _acquire(self) -> Optional[t_tuple[Any]]:
         """acquire a new job from the pool
 
         Returns:

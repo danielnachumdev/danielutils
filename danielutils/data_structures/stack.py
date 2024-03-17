@@ -1,5 +1,5 @@
 from typing import Optional, Generator, Any, cast
-from .Node import Node
+from .node import Node
 
 
 class Stack:
