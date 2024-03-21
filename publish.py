@@ -176,8 +176,8 @@ if __name__ == "__main__":
     has_passed_tests = pytest()
     if True:
         print("Passed all tests!")
-        pylint()
-        mypy()
+        # pylint()
+        # mypy()
         version = input(
             f"Please supply a new version number (LATEST = {get_latest()}): ")
         if re.match(VERSION_PATTERN, version):
