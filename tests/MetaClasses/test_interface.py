@@ -1,7 +1,7 @@
 import math
 from typing import Union, List as t_list
 import pytest
-from ...danielutils.metaclasses.Interface import Interface  # type:ignore
+from ...danielutils.metaclasses.interface import Interface  # type:ignore
 from ...danielutils.reflection import get_python_version  # type:ignore
 if get_python_version() >= (3, 9):
     from builtins import list as t_list

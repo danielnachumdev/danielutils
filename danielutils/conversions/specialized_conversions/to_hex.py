@@ -1,4 +1,4 @@
-from ...metaclasses.OverloadMeta import OverloadMeta
+from ...metaclasses.overload_meta import OverloadMeta
 from ..main_conversions import int_to_hex, char_to_hex
 
 

@@ -1,9 +1,9 @@
-from .System import *  # this has to be first, the order matters!
-from .File import *
-from .Function import *
+from .system_reflections import *  # this has to be first, the order matters!
+from .file_reflection import *
+from .function_reflections import *
 from .get_traceback import *
-from .Module import *
-from .Class import *
+from .module_reflections import *
+from .class_reflection import *
 from .get_prev_frame import *
 # def get_class(module_name: str, class_name: str) -> type:
 #     """dynammically loads the module and returns the class from this file

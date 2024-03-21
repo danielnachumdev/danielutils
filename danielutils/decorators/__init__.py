@@ -5,7 +5,7 @@ from .decorate_conditionally import *
 from .limit_recursion import *
 from .memo import *
 from .overload import *
-from .PartiallyImplemented import *
+from .partially_implemented import *
 from .timeout import *
 from .chain_decorators import *
 from .threadify import *
