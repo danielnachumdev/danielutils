@@ -1,5 +1,8 @@
 import re
 from danielutils import cmrt, cm, read_file, get_files, directory_exists, create_directory  # type:ignore
+
+NAME = "danielutils"
+
 VERSION_PATTERN = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 SETUP = "./setup.py"
 TOML = "./pyproject.toml"
@@ -19,7 +22,7 @@ def get_latest(ver: str = '0.0.0') -> str:
     """
     if not directory_exists(DIST):
         return ver
-    DIST_PATTERN = r"danielutils-(\d+)\.(\d+)\.(\d+)\.tar\.gz"
+    DIST_PATTERN = NAME+r"-(\d+)\.(\d+)\.(\d+)\.tar\.gz"
     best = ver
     for filename in get_files(DIST):
         a1, b1, c1 = best.split(".")
@@ -51,6 +54,7 @@ def main(ver: str):
         Args:
             version (_type_): _description_
         """
+
         def update_setup() -> None:
             lines = read_file(SETUP)
             with open(SETUP, "w", encoding="utf8") as f:
@@ -64,8 +68,8 @@ def main(ver: str):
             lines = read_file(README)
             with open(README, "w", encoding="utf8") as f:
                 for line in lines:
-                    if line.startswith("# danielutils v="):
-                        f.write(f"# danielutils v={ver}\n")
+                    if line.startswith(f"# {NAME} v="):
+                        f.write(f"# {NAME} v={ver}\n")
                     else:
                         f.write(line)
 
@@ -77,6 +81,7 @@ def main(ver: str):
                         f.write(f"version = \"{ver}\"\n")
                     else:
                         f.write(line)
+
         update_readme()
         update_toml()
         update_setup()
@@ -95,7 +100,7 @@ def main(ver: str):
     print("Created dist successfully")
     # # twine upload dist/...
     ret, stdout, stderr = cm("wt.exe",
-                             "twine", "upload", "--config-file", ".pypirc", f"dist/danielutils-{ver}.tar.gz")
+                             "twine", "upload", "--config-file", ".pypirc", f"dist/{NAME}-{ver}.tar.gz")
 
 
 def pytest() -> bool:
@@ -104,6 +109,7 @@ def pytest() -> bool:
     Returns:
         bool: success status
     """
+
     def has_fails(pytest_out: str) -> bool:
         RE = r'=+ (?:(?P<FAIL>\d+ failed), )?(?P<PASS>\d+ passed) in [\d\.]+s =+'
         if not re.match(RE, pytest_out):
@@ -138,7 +144,7 @@ def pylint(config_file_path: str = "./.pylintrc") -> None:
     """
     print("running pylint...")
     for i, line in cmrt("pylint", "--rcfile", config_file_path,
-                        "./danielutils", ">", f"{REPORTS}/pylint.txt"):
+                        f"./{NAME}", ">", f"{REPORTS}/pylint.txt"):
         print(line.decode(), end="")
 
 
@@ -159,7 +165,7 @@ def mypy(config_file_path: str = "mypy.ini") -> None:
     print("running mypy")
     with open(f"{REPORTS}/mypy.txt", "w", encoding="utf8") as f:
         for i, line in cmrt("mypy", "--config-file", config_file_path,
-                            "./danielutils"):
+                            f"./{NAME}"):
             f.write(line.decode())
             print(line.decode(), end="")
 
@@ -180,4 +186,3 @@ if __name__ == "__main__":
             print("DONE")
         else:
             print("invalid version. example 1.0.5.20")
-__all__: list = []

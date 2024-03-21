@@ -1,11 +1,10 @@
+*tmp*
 .pypirc
 reports/
 wslvenv/
 .conda/
 *.json
-*.txt
 main.py
-!requirements/*.txt
 assets
 *.html
 main.py
@@ -262,5 +261,3 @@ fabric.properties
 
 # Built Visual Studio Code Extensions
 *.vsix
-!requirements/
-!requirements/*.txt
