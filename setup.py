@@ -9,7 +9,7 @@ def read_file(path: str) -> "list[str]":
 
 README_PATH = 'README.md'
 DESCRIPTION = 'A python utils library for things I find useful'
-VERSION = "0.9.64"
+VERSION = "0.9.65"
 LONG_DESCRIPTION = '\n'.join(read_file(README_PATH))
 setup(
     name="danielutils",
