@@ -30,7 +30,7 @@ class Graph:
     def __init__(self, nodes: Optional[t_list[MultiNode]] = None):
         self.nodes: t_list[MultiNode] = nodes if nodes is not None else []
 
-    def add_node(self, node):
+    def add_node(self, node)->None:
         """Add a node to the graph.
 
         Args:
@@ -128,6 +128,9 @@ class Graph:
         for n in self.dfs():
             tmp.append(f"\t{str(n)}")
         return "Graph(\n" + ",\n".join(tmp) + "\n)"
+
+    def __iter__(self):
+        return iter(self.nodes)
 
 
 __all__ = [
