@@ -79,6 +79,22 @@ class Graph:
             all_nodes, key=lambda v: exit_times[v], reverse=True)
         return topological_order
 
+    # def topological_sort(graph: Graph):
+    #     def dfs(node: MultiNode, visited: set, result: list):
+    #         visited.add(node)
+    #         for neighbor in node:
+    #             if neighbor not in visited:
+    #                 dfs(neighbor, visited, result)
+    #         result.append(node)
+    #
+    #     visited: set = set()
+    #     result: list = []
+    #     for node in graph:
+    #         if node not in visited:
+    #             dfs(node, visited, result)
+    #     return result[::-1]  # Reverse the result list
+
+
     def dfs(self) -> Generator:
         """Perform a depth-first search on the graph.
 

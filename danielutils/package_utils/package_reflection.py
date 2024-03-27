@@ -4,34 +4,10 @@ import pkgutil
 from pathlib import Path
 from collections import defaultdict
 from ..files_and_folders import is_directory, file_exists
-from ..decorators import memo
 from ..data_structures import Graph, MultiNode
 
 
-def get_imports_helper(path: str):
-    if not file_exists(path):
-        raise ValueError(f"Can't find file {path}")
-
-    with open(path, "r", encoding="utf-8") as f:
-        return [line for line in f.readlines() if "import" in line and not line.strip().startswith("#")]
-
-
-def resolve_relative(base_path: str, statement: str) -> str:
-    res = base_path
-    splits = statement.split(".")
-    for s in splits:
-        if s == "":
-            res = str(Path(res).parent)
-        else:
-            res = os.path.join(res, s)
-            break
-    if not is_directory(res):
-        res = f"{res}.py"
-    return res
-
-
-@memo
-def get_all_modules():
+def get_all_modules() -> set:
     all_modules = set()
 
     # Get built-in modules
@@ -53,8 +29,45 @@ def get_all_modules():
     return all_modules
 
 
+ALL_MODULES: set = get_all_modules()
+
+
+def get_imports_helper(path: str):
+    if not file_exists(path):
+        raise ValueError(f"Can't find file {path}")
+    is_in_multiline_comment = False
+    with open(path, "r", encoding="utf-8") as f:
+        for l in f.readlines():
+            l = l.strip()
+            if l.startswith("#"):
+                continue
+            if '"""' in l:
+                if l.count('"""') % 2 == 1:
+                    is_in_multiline_comment = not is_in_multiline_comment
+
+            if is_in_multiline_comment:
+                continue
+
+            if any([l.startswith("import "), l.startswith("from ")]):
+                yield l
+
+
+def resolve_relative(base_path: str, statement: str) -> str:
+    res = base_path
+    splits = statement.split(".")
+    for s in splits:
+        if s == "":
+            res = str(Path(res).parent)
+        else:
+            res = os.path.join(res, s)
+            break
+    if not is_directory(res):
+        res = f"{res}.py"
+    return res
+
+
 def resolve_absolute(statement: str) -> str:
-    if statement in get_all_modules():
+    if statement in ALL_MODULES:
         return statement
     if "." in statement:
         statement = statement.split(".")[0]
@@ -62,21 +75,24 @@ def resolve_absolute(statement: str) -> str:
     return statement
 
 
-def resolve_path(base_path, statement) -> str:
-    if "from" in statement:
-        statement = statement.split("from")[1].strip()
-        statement = statement.split("import")[0].strip()
+def resolve_path(base_path, statement: str) -> str:
+    og = statement
+    FROM = "from"
+    IMPORT = "import"
+    if FROM in statement:
+        statement = statement[statement.index(FROM) + len(FROM):].strip()
+        statement = statement[:statement.index(IMPORT)].strip()
         if statement.startswith("."):
             return resolve_relative(base_path, statement)
     else:
-        statement = statement.split("import")[1].strip()
+        statement = statement[statement.index(IMPORT) + len(IMPORT):].strip()
     return resolve_absolute(statement)
 
 
 def normalize_path(path: str) -> str:
     if is_directory(path):
         path = os.path.join(path, '__init__.py')
-    return path
+    return str(Path(path).absolute())
 
 
 def get_imports(path: str) -> dict:
@@ -86,12 +102,11 @@ def get_imports(path: str) -> dict:
     queue = [path]
     while i < len(queue):
         cur = queue[i]
-        cur = str(Path(cur).absolute())
-        imports = list(resolve_path(cur, imp) for imp in get_imports_helper(cur))
-        for sub_path in imports:
+        imports = list(get_imports_helper(cur))
+        paths = [resolve_path(cur, imp) for imp in imports]
+        for sub_path in paths:
             if sub_path in res:
                 continue
-
             if not (file_exists(sub_path) or is_directory(sub_path)):
                 res[cur].add(sub_path)
             else:
