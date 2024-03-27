@@ -2,6 +2,7 @@ from typing import Optional, Generator, List as t_list, Set as t_set
 from .queue import Queue
 from .node import MultiNode
 from ..reflection import get_python_version
+
 if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set
 
@@ -37,7 +38,7 @@ class Graph:
         """
         self.nodes.append(node)
 
-    def _extended_dfs(self) -> Generator:
+    def _extended_dfs(self) -> Generator[MultiNode, None, None]:
         """Perform an extended depth-first search on the graph.
 
         This private method performs an extended depth-first search (DFS) on the graph,
@@ -53,7 +54,7 @@ class Graph:
         travel_index: int = 1
         all_nodes: list = []
 
-        def handle_node(node: MultiNode):
+        def handle_node(node: MultiNode) -> Generator[MultiNode, None, None]:
             nonlocal travel_index
             seen.add(node)
             all_nodes.append(node)
@@ -126,7 +127,7 @@ class Graph:
         tmp = []
         for n in self.dfs():
             tmp.append(f"\t{str(n)}")
-        return "Graph(\n"+",\n".join(tmp)+"\n)"
+        return "Graph(\n" + ",\n".join(tmp) + "\n)"
 
 
 __all__ = [
