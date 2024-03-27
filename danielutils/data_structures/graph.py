@@ -38,7 +38,7 @@ class Graph:
         """
         self.nodes.append(node)
 
-    def _extended_dfs(self) -> Generator[MultiNode, None, None]:
+    def _extended_dfs(self) -> Generator[MultiNode, None, list[MultiNode]]:
         """Perform an extended depth-first search on the graph.
 
         This private method performs an extended depth-first search (DFS) on the graph,
@@ -52,7 +52,7 @@ class Graph:
         enter_times: dict = {}
         exit_times: dict = {}
         travel_index: int = 1
-        all_nodes: list = []
+        all_nodes: list[MultiNode] = []
 
         def handle_node(node: MultiNode) -> Generator[MultiNode, None, None]:
             nonlocal travel_index
@@ -89,7 +89,7 @@ class Graph:
         """
         yield from self._extended_dfs()
 
-    def topological_sort(self) -> list:
+    def topological_sort(self) -> list[MultiNode]:
         """Get a topological sort of the graph nodes.
 
         This method performs a topological sort on the graph using the private _extended_dfs method.
