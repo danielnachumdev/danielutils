@@ -5,7 +5,7 @@ def main() -> None:
     publish(
         name="danielutils",
         src="./danielutils",
-        version="0.9.69",
+        version="0.9.70",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
