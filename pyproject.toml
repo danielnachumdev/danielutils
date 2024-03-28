@@ -23,6 +23,8 @@ classifiers = [
 
 [tool.setuptools]
 packages = ["danielutils"]
+[tool.setuptools.package-data]
+"danielutils" = ["py.typed"]
 
 [project.urls]
 "Homepage" = "https://github.com/danielnachumdev/danielutils"
