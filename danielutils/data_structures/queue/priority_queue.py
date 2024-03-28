@@ -1,77 +1,13 @@
-from typing import Callable, Any, Union
-from .heap import Heap
-from .comparer import Comparer, CompareGreater
-from .functions import default_weight_function
-from ..metaclasses import AtomicClassMeta
+from typing import Callable, Any, Union, TypeVar
+from ..heap import Heap
+from ..comparer import Comparer, CompareGreater
+from ..functions import default_weight_function
+from .queue import Queue
+
+T = TypeVar("T")
 
 
-class Queue:
-    """classic Queue data structure"""
-
-    def __init__(self) -> None:
-        self.data: list = []
-
-    def pop(self) -> Any:
-        """return the oldest element while removing it from the queue
-
-        Returns:
-            Any: result
-        """
-        return self.data.pop()
-
-    def push(self, value: Any) -> None:
-        """adds a new element to the queue
-
-        Args:
-            value (Any): the value to add
-        """
-        self.data.insert(0, value)
-
-    def peek(self) -> Any:
-        """returns the oldest element in the queue 
-        without removing it from the queue
-
-        Returns:
-            Any: result
-        """
-        return self.data[-1]
-
-    def __len__(self) -> int:
-        return len(self.data)
-
-    def is_empty(self) -> bool:
-        """returns whether the queue is empty
-
-        Returns:
-            bool: result
-        """
-        return len(self) == 0
-
-    def __str__(self) -> str:
-        return repr(self)
-
-    def __repr__(self) -> str:
-        return str(self.data)
-
-    def __iter__(self):
-        return iter(self.data)
-
-    def push_many(self, arr: list):
-        """will push many objects to the Queue
-
-        Args:
-            arr (list): the objects to push
-        """
-        for v in arr:
-            self.push(v)
-
-
-class AtomicQueue(Queue, metaclass=AtomicClassMeta):
-    """Same as Queue but atomic
-    """
-
-
-class PriorityQueue(Queue):
+class PriorityQueue(Queue[T]):
     """
     A priority queue implementation based on a binary heap.
 
@@ -90,7 +26,7 @@ class PriorityQueue(Queue):
         push(value: T):
             Adds a new item to the queue with the specified value and weight.
         peek() -> T:
-            Returns the item with the highest priority 
+            Returns the item with the highest priority
             (i.e., the lowest weight value) from the queue without removing it.
         __str__() -> str:
             Returns a string representation of the queue.
@@ -107,12 +43,12 @@ class PriorityQueue(Queue):
     def __init__(self, weight_func: Callable[[Any], Union[int, float]] = default_weight_function):
         super().__init__()
         comparer = CompareGreater if weight_func is default_weight_function else Comparer(
-            lambda a, b: weight_func(a)-weight_func(b))
+            lambda a, b: weight_func(a) - weight_func(b))
         self.data: Heap = Heap(comparer)  # type:ignore
         self.weight_func = weight_func
         self.dct: dict = {}
 
-    def pop(self) -> Any:
+    def pop(self) -> T:
         """
         Removes and returns the item with the highest priority (i.e., the lowest weight value) from the queue.
 
@@ -127,7 +63,7 @@ class PriorityQueue(Queue):
         del self.dct[item_weight]
         return res
 
-    def push(self, value: Any):
+    def push(self, value: T) -> None:
         """
         Adds a new item to the queue with the specified value and weight.
 
@@ -147,7 +83,7 @@ class PriorityQueue(Queue):
         self.data.push(item_weight)
         self.dct[item_weight] = value
 
-    def peek(self) -> Any:
+    def peek(self) -> T:
         """
         Returns the item with the highest priority (i.e., the lowest weight value) from the queue without removing it.
 
@@ -170,7 +106,5 @@ class PriorityQueue(Queue):
 
 
 __all__ = [
-    "Queue",
-    "AtomicQueue",
     "PriorityQueue"
 ]

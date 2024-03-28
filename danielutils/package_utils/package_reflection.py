@@ -118,15 +118,21 @@ def get_imports(path: str) -> dict:
     return res
 
 
-def get_dependencies(path: str, topological_sort: bool = True) -> list[str]:
+def create_dependency_graph(path: str) -> Graph[str]:
     res = dict(get_imports(path))
     g = Graph()
-    dct: dict[str, MultiNode] = {}
+    dct: dict[str, MultiNode[str]] = {}
     for k, v in res.items():
         for o in v:
             dct[o] = dct.get(o, MultiNode(o))
         n = MultiNode(k, [dct[o] for o in v])
         g.add_node(n)
+
+    return g
+
+
+def get_dependencies(path: str, topological_sort: bool = True) -> list[str]:
+    g: Graph[str] = create_dependency_graph(path)
 
     if topological_sort:
         return [n.data for n in g.topological_sort()]

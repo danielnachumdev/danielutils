@@ -1,13 +1,15 @@
-from typing import Optional, Generator, List as t_list, Set as t_set
-from .queue import Queue
-from .node import MultiNode
-from ..reflection import get_python_version
+from typing import Optional, Generator, List as t_list, Set as t_set, Generic, TypeVar
+from ..queue import Queue
+from ...reflection import get_python_version
+from .multinode import MultiNode
 
 if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set
 
+T = TypeVar("T")
 
-class Graph:
+
+class Graph(Generic[T]):
     """A general-purpose Graph class.
 
     This class represents a directed graph, where nodes can be connected through edges.
@@ -27,10 +29,10 @@ class Graph:
 
     """
 
-    def __init__(self, nodes: Optional[t_list[MultiNode]] = None):
-        self.nodes: t_list[MultiNode] = nodes if nodes is not None else []
+    def __init__(self, nodes: Optional[t_list[MultiNode[T]]] = None):
+        self.nodes: t_list[MultiNode[T]] = nodes if nodes is not None else []
 
-    def add_node(self, node)->None:
+    def add_node(self, node: MultiNode[T]) -> None:
         """Add a node to the graph.
 
         Args:
@@ -38,7 +40,7 @@ class Graph:
         """
         self.nodes.append(node)
 
-    def _extended_dfs(self) -> Generator[MultiNode, None, list[MultiNode]]:
+    def _extended_dfs(self) -> Generator[MultiNode[T], None, list[MultiNode[T]]]:
         """Perform an extended depth-first search on the graph.
 
         This private method performs an extended depth-first search (DFS) on the graph,
@@ -54,7 +56,7 @@ class Graph:
         travel_index: int = 1
         all_nodes: list[MultiNode] = []
 
-        def handle_node(node: MultiNode) -> Generator[MultiNode, None, None]:
+        def handle_node(node: MultiNode[T]) -> Generator[MultiNode[T], None, None]:
             nonlocal travel_index
             seen.add(node)
             all_nodes.append(node)
@@ -94,8 +96,7 @@ class Graph:
     #             dfs(node, visited, result)
     #     return result[::-1]  # Reverse the result list
 
-
-    def dfs(self) -> Generator:
+    def dfs(self) -> Generator[MultiNode[T], None, None]:
         """Perform a depth-first search on the graph.
 
         This method performs a depth-first search (DFS) on the graph using the private _extended_dfs method.
@@ -105,7 +106,7 @@ class Graph:
         """
         yield from self._extended_dfs()
 
-    def topological_sort(self) -> list[MultiNode]:
+    def topological_sort(self) -> list[MultiNode[T]]:
         """Get a topological sort of the graph nodes.
 
         This method performs a topological sort on the graph using the private _extended_dfs method.
@@ -120,7 +121,7 @@ class Graph:
         except StopIteration as e:
             return e.value
 
-    def bfs(self) -> Generator:
+    def bfs(self) -> Generator[MultiNode[T], None, None]:
         """Perform a breadth-first search on the graph.
 
         This method performs a breadth-first search (BFS) on the graph using a queue.
@@ -128,7 +129,7 @@ class Graph:
         Yields:
             Generator: The MultiNode instances in the order of breadth-first traversal.
         """
-        q = Queue()
+        q: Queue[MultiNode[T]] = Queue()
         for node in self.nodes:
             q.push(node)
         seen: t_set[MultiNode] = set()
