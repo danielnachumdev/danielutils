@@ -99,7 +99,7 @@ def normalize_path(path: str) -> str:
 def get_imports(path: str) -> dict[str, set[str]]:
     res: dict[str, set[str]] = defaultdict(set)
     i = 0
-    path: str = normalize_path(path)
+    path = normalize_path(path)
     queue: list[str] = [path]
     while i < len(queue):
         cur = queue[i]
