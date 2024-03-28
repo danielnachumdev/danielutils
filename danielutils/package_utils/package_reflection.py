@@ -7,7 +7,7 @@ from ..files_and_folders import is_directory, file_exists
 from ..data_structures import Graph, MultiNode
 
 
-def get_all_modules() -> set:
+def get_all_modules() -> set[str]:
     all_modules = set()
 
     # Get built-in modules
@@ -24,7 +24,8 @@ def get_all_modules() -> set:
     all_modules.update(stdlib_modules)
 
     all_modules.update({
-        "platform", 'os', 'pathlib', 'subprocess', "inspect", "types"
+        "platform", 'os', 'pathlib', 'subprocess', "inspect", "types", "dataclasses", "__future__", "ctypes", "pkgutil",
+        "logging", "importlib", "enum", "multiprocessing", "traceback", "re", "threading"
     })
     return all_modules
 
@@ -95,11 +96,11 @@ def normalize_path(path: str) -> str:
     return str(Path(path).absolute())
 
 
-def get_imports(path: str) -> dict:
-    res = defaultdict(set)
+def get_imports(path: str) -> dict[str, set[str]]:
+    res: dict[str, set[str]] = defaultdict(set)
     i = 0
-    path = normalize_path(path)
-    queue = [path]
+    path: str = normalize_path(path)
+    queue: list[str] = [path]
     while i < len(queue):
         cur = queue[i]
         imports = list(get_imports_helper(cur))
@@ -120,7 +121,7 @@ def get_imports(path: str) -> dict:
 
 def create_dependency_graph(path: str) -> Graph[str]:
     res = dict(get_imports(path))
-    g = Graph()
+    g: Graph[str] = Graph()
     dct: dict[str, MultiNode[str]] = {}
     for k, v in res.items():
         for o in v:
@@ -141,5 +142,7 @@ def get_dependencies(path: str, topological_sort: bool = True) -> list[str]:
 
 
 __all__ = [
-    "get_dependencies"
+    "get_dependencies",
+    "create_dependency_graph",
+    'ALL_MODULES'
 ]

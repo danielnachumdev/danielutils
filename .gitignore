@@ -1,5 +1,6 @@
 *tmp*
 .pypirc
+output/
 reports/
 wslvenv/
 .conda/

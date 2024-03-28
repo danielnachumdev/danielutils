@@ -1,4 +1,4 @@
-from typing import Callable, Any, Union, Generic, TypeVar, Iterable
+from typing import Callable, Any, Union, Generic, TypeVar, Iterable, Iterator
 from ..heap import Heap
 from ..comparer import Comparer, CompareGreater
 from ..functions import default_weight_function
@@ -55,7 +55,7 @@ class Queue(Generic[T]):
     def __repr__(self) -> str:
         return str(self.data)
 
-    def __iter__(self) -> Iterable[T]:
+    def __iter__(self) -> Iterator[T]:
         return iter(self.data)
 
     def push_many(self, arr: list[T]):

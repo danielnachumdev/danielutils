@@ -20,7 +20,7 @@ class MultiNode(Generic[T]):
     def __len__(self) -> int:
         return len(self._children)
 
-    def __iter__(self) -> Generator[T, None, None]:
+    def __iter__(self) -> Generator["MultiNode[T]", None, None]:
         yield from self._children
 
     def __str__(self) -> str:

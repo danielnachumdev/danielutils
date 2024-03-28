@@ -1,4 +1,4 @@
-from typing import Optional, Generator, List as t_list, Set as t_set, Generic, TypeVar
+from typing import Optional, Generator, List as t_list, Set as t_set, Generic, TypeVar, Iterable, Iterator
 from ..queue import Queue
 from ...reflection import get_python_version
 from .multinode import MultiNode
@@ -28,6 +28,29 @@ class Graph(Generic[T]):
         __str__(self) -> str: Get a string representation of the graph.
 
     """
+
+    def to_dict(self) -> dict[T, set[T]]:
+        dct: dict[T, set[T]] = {}
+        for node in self:
+            v = dct.get(node.data, set())
+            for child in node:
+                v.add(child.data)
+            dct[node.data] = v
+        return dct
+
+    @staticmethod
+    def from_dict(dct: dict[T, Iterable[T]]) -> "Graph[T]":
+        g: Graph[T] = Graph()
+        seen: dict[T, MultiNode[T]] = {}
+        for k, v in dct.items():
+            seen[k] = seen.get(k, MultiNode(k))
+
+            for o in v:
+                seen[o] = seen.get(o, MultiNode(o))
+                seen[k].add_child(seen[o])
+
+            g.add_node(seen[k])
+        return g
 
     def __init__(self, nodes: Optional[t_list[MultiNode[T]]] = None):
         self.nodes: t_list[MultiNode[T]] = nodes if nodes is not None else []
@@ -146,7 +169,7 @@ class Graph(Generic[T]):
             tmp.append(f"\t{str(n)}")
         return "Graph(\n" + ",\n".join(tmp) + "\n)"
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[MultiNode[T]]:
         return iter(self.nodes)
 
 
