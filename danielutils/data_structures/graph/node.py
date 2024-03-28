@@ -17,10 +17,10 @@ class Node(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
     def next(self) -> "Node[T]":
         """return the next node after self
         """
-        return self._children[0]
+        return self._children[0]  # type:ignore
 
     @next.setter
-    def next(self, value) -> None:
+    def next(self, value: Node[T]) -> None:
         self._children[0] = value
 
     def __str__(self):

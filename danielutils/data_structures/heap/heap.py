@@ -1,8 +1,10 @@
-from typing import Any, Union
-from .comparer import Comparer, CompareGreater, CompareSmaller
+from typing import Any, Union, TypeVar, Generic
+from ..comparer import Comparer
+
+T = TypeVar("T")
 
 
-class Heap:
+class Heap(Generic[T]):
     """a Heap class which will do the sorting according to the supplied comparer object
     """
 
@@ -10,7 +12,7 @@ class Heap:
         self.arr: list = []
         self.comparer = comparer
 
-    def push(self, val: Any) -> None:
+    def push(self, val: T) -> None:
         """will add a new object to the heap
 
         Args:
@@ -19,19 +21,19 @@ class Heap:
         res: Union[int, float] = -1
         curr_index = len(self)
         self.arr.append(val)
-        parent_index = curr_index//2 - (1 - curr_index % 2)
+        parent_index = curr_index // 2 - (1 - curr_index % 2)
         while res < 0 and parent_index >= 0:
             res = self.comparer.compare(
                 self[parent_index], self[curr_index])
             if res < 0:
                 self.arr[parent_index], self.arr[curr_index] = self[curr_index], self[parent_index]
                 curr_index = parent_index
-                parent_index = curr_index//2 - (1 - curr_index % 2)
+                parent_index = curr_index // 2 - (1 - curr_index % 2)
 
     def __len__(self):
         return len(self.arr)
 
-    def __getitem__(self, index: int):
+    def __getitem__(self, index: int) -> T:
         return self.arr[index]
 
     def is_empty(self) -> bool:
@@ -42,7 +44,7 @@ class Heap:
         """
         return len(self) == 0
 
-    def pop(self) -> Any:
+    def pop(self) -> T:
         """return the value at the top of the heap while removing it
 
         Returns:
@@ -54,8 +56,8 @@ class Heap:
         flag = True
         curr_index = 0
         while flag:
-            child1_index = curr_index*2+1
-            child2_index = curr_index*2+2
+            child1_index = curr_index * 2 + 1
+            child2_index = curr_index * 2 + 2
             if len(self) > child2_index:
                 if self.comparer.compare(self[child1_index], self[child2_index]) < 0:
                     self.arr[curr_index], self.arr[child2_index] = self[child2_index], self[curr_index]
@@ -79,7 +81,7 @@ class Heap:
     def __str__(self):
         return str(self.arr)
 
-    def peek(self) -> Any:
+    def peek(self) -> T:
         """return the value at the top of the Heap without removing it
 
         Returns:
@@ -88,24 +90,6 @@ class Heap:
         return self[0]
 
 
-class MaxHeap(Heap):
-    """classic MaxHeap implementation
-    """
-
-    def __init__(self):
-        super().__init__(CompareGreater)
-
-
-class MinHeap(Heap):
-    """classic MinHeap implementation
-    """
-
-    def __init__(self) -> None:
-        super().__init__(CompareSmaller)
-
-
 __all__ = [
     "Heap",
-    "MaxHeap",
-    "MinHeap",
 ]
