@@ -1,16 +1,18 @@
-from typing import Optional, Generator, Any, cast
+from typing import Optional, Generator, Any, cast, TypeVar, Generic
 from .graph import Node
 
+T = TypeVar('T')
 
-class Stack:
+
+class Stack(Generic[T]):
     """A classic Stack class
     """
 
     def __init__(self) -> None:
-        self.head: Optional[Node] = None
+        self.head: Optional[Node[T]] = None
         self.size = 0
 
-    def push(self, value: Any):
+    def push(self, value: Node[T]):
         """push an item to the stack
 
         Args:
@@ -23,7 +25,7 @@ class Stack:
             self.head = new_head
         self.size += 1
 
-    def pop(self) -> Any:
+    def pop(self) -> Node[T]:
         """pop an item from the stack
 
         Returns:
@@ -39,7 +41,7 @@ class Stack:
     def __len__(self) -> int:
         return self.size
 
-    def __iter__(self) -> Generator:
+    def __iter__(self) -> Generator[Node[T], None, None]:
         while self:
             yield self.pop()
 
@@ -51,7 +53,7 @@ class Stack:
     def __bool__(self) -> bool:
         return not self.is_empty()
 
-    def __contains__(self, value) -> bool:
+    def __contains__(self, value: T) -> bool:
         curr = self.head
         while curr is not None:
             if curr.data == value:
