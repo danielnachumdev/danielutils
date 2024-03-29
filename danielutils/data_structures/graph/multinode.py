@@ -2,7 +2,7 @@ from typing import  Optional, Generator, TypeVar, Generic,List as t_list
 from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from typing import list as t_list
+    from builtins import list as t_list
 T = TypeVar("T")
 
 

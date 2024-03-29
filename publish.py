@@ -5,11 +5,11 @@ def main() -> None:
     publish(
         name="danielutils",
         src="./danielutils",
-        version="0.9.70",
+        version="0.9.71",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
-        min_python=Version(3, 8, 17),
+        min_python=Version(3, 8, 0),
         homepage="https://github.com/danielnachumdev/danielutils",
         keywords=['functions', 'decorators', 'methods', 'classes', 'metaclasses'],
         dependencies=["tqdm"]

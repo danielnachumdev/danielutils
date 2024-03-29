@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "danielutils"
-version = "0.9.70"
+version = "0.9.71"
 authors = [
     { name = "danielnachumdev", email = "danielnachumdev@gmail.com" },
 ]
@@ -13,7 +13,7 @@ keywords = ['functions', 'decorators', 'methods', 'classes', 'metaclasses']
 license = { "file" = "LISENCE" }
 description = "A python utils library for things I find useful"
 readme = "README.md"
-requires-python = ">=3.8.17"
+requires-python = ">=3.8.0"
 classifiers = [
 	"Development Status :: 3 - Alpha",
 	"Intended Audience :: Developers",
