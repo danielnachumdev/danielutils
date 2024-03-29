@@ -1,10 +1,10 @@
-from typing import Optional, Generator, List as t_list, Set as t_set, Generic, TypeVar, Iterable, Iterator
+from typing import Optional, Generator, List as t_list, Set as t_set,Dict as t_dict, Generic, TypeVar, Iterable, Iterator
 from ..queue import Queue
-from ...reflection import get_python_version
 from .multinode import MultiNode
+from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list, set as t_set
+    from builtins import list as t_list, set as t_set,dict as t_dict
 
 T = TypeVar("T")
 
@@ -29,8 +29,8 @@ class Graph(Generic[T]):
 
     """
 
-    def to_dict(self) -> dict[T, set[T]]:
-        dct: dict[T, set[T]] = {}
+    def to_dict(self) -> t_dict[T, t_set[T]]:
+        dct: t_dict[T, t_set[T]] = {}
         for node in self:
             v = dct.get(node.data, set())
             for child in node:
@@ -39,9 +39,9 @@ class Graph(Generic[T]):
         return dct
 
     @staticmethod
-    def from_dict(dct: dict[T, Iterable[T]]) -> "Graph[T]":
+    def from_dict(dct: t_dict[T, Iterable[T]]) -> "Graph[T]":
         g: Graph[T] = Graph()
-        seen: dict[T, MultiNode[T]] = {}
+        seen: t_dict[T, MultiNode[T]] = {}
         for k, v in dct.items():
             seen[k] = seen.get(k, MultiNode(k))
 
@@ -63,7 +63,7 @@ class Graph(Generic[T]):
         """
         self.nodes.append(node)
 
-    def _extended_dfs(self) -> Generator[MultiNode[T], None, list[MultiNode[T]]]:
+    def _extended_dfs(self) -> Generator[MultiNode[T], None, t_list[MultiNode[T]]]:
         """Perform an extended depth-first search on the graph.
 
         This private method performs an extended depth-first search (DFS) on the graph,
@@ -77,7 +77,7 @@ class Graph(Generic[T]):
         enter_times: dict = {}
         exit_times: dict = {}
         travel_index: int = 1
-        all_nodes: list[MultiNode] = []
+        all_nodes: t_list[MultiNode] = []
 
         def handle_node(node: MultiNode[T]) -> Generator[MultiNode[T], None, None]:
             nonlocal travel_index
@@ -129,7 +129,7 @@ class Graph(Generic[T]):
         """
         yield from self._extended_dfs()
 
-    def topological_sort(self) -> list[MultiNode[T]]:
+    def topological_sort(self) -> t_list[MultiNode[T]]:
         """Get a topological sort of the graph nodes.
 
         This method performs a topological sort on the graph using the private _extended_dfs method.

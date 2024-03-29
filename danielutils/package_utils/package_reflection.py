@@ -3,11 +3,16 @@ import os
 import pkgutil
 from pathlib import Path
 from collections import defaultdict
+from typing import Set as t_set, List as t_list, Dict as t_dict
 from ..files_and_folders import is_directory, file_exists
 from ..data_structures import Graph, MultiNode
+from ..reflection import get_python_version
+
+if get_python_version() >= (3, 9):
+    from builtins import list as t_list, set as t_set, dict as t_dict
 
 
-def get_all_modules() -> set[str]:
+def get_all_modules() -> t_set[str]:
     all_modules = set()
 
     # Get built-in modules
@@ -96,11 +101,11 @@ def normalize_path(path: str) -> str:
     return str(Path(path).absolute())
 
 
-def get_imports(path: str) -> dict[str, set[str]]:
-    res: dict[str, set[str]] = defaultdict(set)
+def get_imports(path: str) -> t_dict[str, t_set[str]]:
+    res: t_dict[str, t_set[str]] = defaultdict(set)
     i = 0
     path = normalize_path(path)
-    queue: list[str] = [path]
+    queue: t_list[str] = [path]
     while i < len(queue):
         cur = queue[i]
         imports = list(get_imports_helper(cur))
@@ -122,7 +127,7 @@ def get_imports(path: str) -> dict[str, set[str]]:
 def create_dependency_graph(path: str) -> Graph[str]:
     res = dict(get_imports(path))
     g: Graph[str] = Graph()
-    dct: dict[str, MultiNode[str]] = {}
+    dct: t_dict[str, MultiNode[str]] = {}
     for k, v in res.items():
         for o in v:
             dct[o] = dct.get(o, MultiNode(o))
@@ -132,7 +137,7 @@ def create_dependency_graph(path: str) -> Graph[str]:
     return g
 
 
-def get_dependencies(path: str, topological_sort: bool = True) -> list[str]:
+def get_dependencies(path: str, topological_sort: bool = True) -> t_list[str]:
     g: Graph[str] = create_dependency_graph(path)
 
     if topological_sort:

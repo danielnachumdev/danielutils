@@ -1,12 +1,13 @@
-from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar,\
+from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
     ForwardRef, Literal, Optional, Tuple as t_tuple
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
+
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec, Concatenate
 else:
 
-   # pylint: disable=ungrouped-imports
+    # pylint: disable=ungrouped-imports
     from typing import ParamSpec, Concatenate  # type:ignore
     from builtins import tuple as t_tuple  # type:ignore
 # implicit_union_type = type(int | str)
@@ -168,6 +169,8 @@ def __handle_callable(params: tuple) -> bool:
             print("Using lambda function with isoftype is ambiguous.")
         return not strict
 
+    if t_args is None:
+        return True
     if len(t_args) == 0:
         return True
 
@@ -304,7 +307,6 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
 __all__ = [
     "isoftype"
 ]
-
 
 __all__ = [
     "isoftype"

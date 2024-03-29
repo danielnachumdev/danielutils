@@ -1,9 +1,8 @@
-from typing import Callable, Any, Union, Generic, TypeVar, Iterable, Iterator
-from ..heap import Heap
-from ..comparer import Comparer, CompareGreater
-from ..functions import default_weight_function
-from ...metaclasses import AtomicClassMeta
+from typing import Generic, TypeVar, Iterator, List as t_list
+from ...reflection import get_python_version
 
+if get_python_version() >= (3, 9):
+    from typing import list as t_list
 T = TypeVar("T")
 
 
@@ -58,7 +57,7 @@ class Queue(Generic[T]):
     def __iter__(self) -> Iterator[T]:
         return iter(self.data)
 
-    def push_many(self, arr: list[T]):
+    def push_many(self, arr: t_list[T]):
         """will push many objects to the Queue
 
         Args:
