@@ -1,5 +1,5 @@
 import inspect
-from ..reflection import get_python_version
+from .interpreter import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import list as t_list  # type:ignore
 else:

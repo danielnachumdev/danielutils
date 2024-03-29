@@ -2,7 +2,7 @@ import inspect
 from typing import cast, Optional, Callable, Any
 from types import FrameType
 from .get_prev_frame import get_prev_frame_from, get_n_prev_frame
-from ..reflection import get_python_version
+from .interpreter import get_python_version
 
 if get_python_version() < (3, 9):
     from typing import List as t_list, Set as t_set  # pylint: disable=ungrouped-imports

@@ -1,6 +1,6 @@
 # from typing import Optional
-# from ..system import cm
-# from ..decorators import memo
+# from ...system import cm
+# from ...decorators import memo
 #
 # @memo
 # def get_currently_installed_packages() -> list[tuple[str, str]]:
