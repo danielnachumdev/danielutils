@@ -9,6 +9,7 @@ if get_python_version() < (3, 9):
 else:
     from builtins import dict as t_dict
     from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+from copy import deepcopy
 T = TypeVar("T")
 P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
@@ -27,7 +28,7 @@ def memo(func: FuncT) -> FuncT:
     def wrapper(*args, **kwargs):
         if (args, *kwargs.items()) not in cache:
             cache[(args, *kwargs.items())] = func(*args, **kwargs)
-        return cache[(args, *kwargs.items())]
+        return deepcopy(cache[(args, *kwargs.items())])
     return wrapper
 
 
