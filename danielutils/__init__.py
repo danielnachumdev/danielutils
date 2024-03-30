@@ -7,35 +7,39 @@
 from .path import *
 from .date_time import *
 from .multi_x import *
+from .loops import *
+from .signals import *
+from .aliases import *
+from .exceptions import PrintCatchOne
+from .snippets import *
 
 # =================================================================
 # ========================= ORDER MATTERS =========================
 # =================================================================
 
+from .reflection import *
+from .decorators import *
+
+# ========== NEEDS REFLECTION ==========
+from .threads import *
+from .my_tqdm import *
+# ========== NEEDS DECORATORS ==========
+from .colors import *
+# ========== NEEDS BOTH ==========
 
 from .functions import *
-from .decorators import *
 from .files_and_folders import *
 from .system import *
 from .text import *
 from .conversions import *
 from .classes import *
 from .time import *
-from .colors import *
 from .date import *
 from .data_structures import *
 from .math import *
 from .system import *
-from .print import *
-from .exceptions import PrintCatchOne
-from .reflection import *
+from .d_print import *
 from .metaclasses import *
 from .generators import *
-from .snippets import *
-from .aliases import *
-from .signals import *
 from .university import *
-from .my_tqdm import *
-from .threads import *
-from .loops import *
 from .package_utils import *

@@ -1,5 +1,5 @@
 from typing import Optional, IO
-from .decorators.validate import validate
+from .decorators import validate
 
 
 RESET = "\033[0m"
