@@ -4,6 +4,7 @@ import platform
 from typing import Callable, TypeVar, Union
 from .validate import validate
 from ..reflection import get_python_version
+
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec
 else:
@@ -29,6 +30,7 @@ def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[Func
     Returns:
         Callable: the result decorated function
     """
+
     # https://stackoverflow.com/a/21861599/6416556
     def timeout_deco(func: FuncT) -> FuncT:
         if not callable(func):
@@ -56,5 +58,12 @@ def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[Func
                     raise res[0]
                 return None
             return res[0]
+
         return wrapper
+
     return timeout_deco
+
+
+__all__ = [
+    "timeout"
+]

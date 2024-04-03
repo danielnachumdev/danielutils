@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ..funcs import P
+from ..funcs import ProbabilityFunction as P
 from ..conditional_variable import ConditionalVariable
 from ..accumulation_expression import AccumulationExpression
 from ..operators import Operators

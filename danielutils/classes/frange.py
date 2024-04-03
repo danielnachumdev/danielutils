@@ -1,7 +1,7 @@
 from typing import Iterable, Callable, Optional, Iterator
 
 
-class frange:
+class frange(Iterable[float]):
     """this class is the same like builtin range but with float values
     """
 

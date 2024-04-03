@@ -1,5 +1,7 @@
+from ...operators import Operators
 from ..conditional_variable import ConditionalVariable
 from ...supp import DiscreteSetSupp
+
 
 class Bernoulli(ConditionalVariable):
     def __hash__(self):
@@ -12,9 +14,13 @@ class Bernoulli(ConditionalVariable):
         self.p = p
 
     def _evaluate(self, op, val):
-        if val == 1:
-            return self.p
-        return 1 - self.p
+        if op == Operators.EQ:
+            if val == 1:
+                return self.p
+            return 1 - self.p
+        elif op == Operators.NE:
+            return 1 - self.evaluate(Operators.EQ, val)
+        raise NotImplementedError("this part needs to be implemented")
 
 
 Ber = Bernoulli

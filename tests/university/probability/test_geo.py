@@ -1,6 +1,6 @@
 import unittest
 
-from danielutils import Geo as G, P
+from danielutils import Geo as G, ProbabilityFunction as P
 
 
 class TestGeo(unittest.TestCase):
