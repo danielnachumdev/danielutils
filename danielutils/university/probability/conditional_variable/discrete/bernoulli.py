@@ -11,7 +11,7 @@ class Bernoulli(ConditionalVariable):
     def __init__(self, p: float) -> None:
         self.p = p
 
-    def _evaluate(self, val):
+    def _evaluate(self, op, val):
         if val == 1:
             return self.p
         return 1 - self.p

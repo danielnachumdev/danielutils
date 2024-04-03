@@ -1,13 +1,10 @@
 from enum import Enum
 from typing import Any
 from ...data_structures import BST, BinaryNode
+from .operators import Operators
 
 
 class AccumulationExpression:
-    class Operators(Enum):
-        GIVEN = "|"
-        EQUALS = "=="
-
     def __init__(self, lhs: Any, op: Operators, rhs: Any) -> None:
         root = BinaryNode(
             op,
@@ -17,7 +14,15 @@ class AccumulationExpression:
         self.tree = BST(root)
 
     def __eq__(self, other):
-        self.add_right(other, AccumulationExpression.Operators.EQUALS)
+        self.add_right(other, Operators.EQ)
+        return self
+
+    def __ge__(self, other):
+        self.add_right(other, Operators.GE)
+        return self
+
+    def __gt__(self, other):
+        self.add_right(other, Operators.GT)
         return self
 
     def add_right(self, right, op) -> None:
@@ -41,13 +46,38 @@ class AccumulationExpression:
         return lhs.data == rhs.data
 
     @staticmethod
+    def _handle_greater_equals(lhs: Any, rhs: Any):
+        return lhs.data >= rhs.data
+
+    @staticmethod
+    def _handle_greater_than(lhs: Any, rhs: Any):
+        pass
+
+    @staticmethod
+    def _handle_less_equals(lhs: Any, rhs: Any):
+        pass
+
+    @staticmethod
+    def _handle_less_than(lhs: Any, rhs: Any):
+        pass
+
+    @staticmethod
+    def _handle_not_equals(lhs: Any, rhs: Any):
+        pass
+
+    @staticmethod
     def _handle_given(lhs: Any, rhs: Any):
         return (lhs & rhs).evaluate() / rhs.evaluate()
 
     def evaluate(self):
         return self.tree.evaluate({
-            AccumulationExpression.Operators.EQUALS: AccumulationExpression._handle_equals,
-            AccumulationExpression.Operators.GIVEN: AccumulationExpression._handle_given,
+            Operators.EQ: AccumulationExpression._handle_equals,
+            Operators.GIVEN: AccumulationExpression._handle_given,
+            Operators.GE: AccumulationExpression._handle_greater_equals,
+            Operators.GT: AccumulationExpression._handle_greater_than,
+            Operators.LE: AccumulationExpression._handle_less_equals,
+            Operators.LT: AccumulationExpression._handle_less_than,
+            Operators.NE: AccumulationExpression._handle_not_equals,
         })
 
 

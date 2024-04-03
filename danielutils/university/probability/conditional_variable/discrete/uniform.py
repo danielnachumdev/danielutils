@@ -4,7 +4,7 @@ from .....classes import frange
 
 
 class Uniform(ConditionalVariable):
-    def _evaluate(self, val) -> float:
+    def _evaluate(self, op, val) -> float:
         return 1 / self._n
 
     def _supp(self) -> DiscreteRangeSupp:
