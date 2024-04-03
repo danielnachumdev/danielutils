@@ -1,4 +1,4 @@
-from typing import Iterable, Callable, Optional
+from typing import Iterable, Callable, Optional, Iterator
 
 
 class frange:
@@ -14,6 +14,11 @@ class frange:
         self.stop = stop
         self.step = step
         self.method = round_method
+
+    def __eq__(self, other):
+        if not isinstance(other, frange):
+            raise NotImplementedError
+        return self.start == other.start and self.stop == other.stop and self.step == other.step
 
     def __iter__(self) -> Iterable:
         if self.stop < self.start:
@@ -48,7 +53,7 @@ class frange:
     def __contains__(self, item):
         if item < self.start:
             return False
-        if item > self.stop:
+        if item >= self.stop:
             return False
 
         if self._is_whole_step:
@@ -65,14 +70,40 @@ class frange:
         start1, stop1 = a.start, a.stop
         start2, stop2 = b.start, b.stop
         remainder1, remainder2 = start1 - int(start1), start2 - int(start2)
-        if stop1 == float("inf") or stop2 == float("inf"):
-            if remainder1 == remainder2:
+        if remainder1 == remainder2:
+            if stop1 == float("inf") or stop2 == float("inf"):
                 return frange(max(start1, start2), float("inf"))
+            return frange(max(start1, start2), min(stop1, stop2))
         raise NotImplementedError("this part is not implemented yet")
         if remainder1 != 0 and remainder2 / remainder1 - remainder2 // remainder1 == 0:
             pass
 
         pass
+
+
+class frange_iterator(Iterator[float]):
+    def __init__(self, obj: frange):
+        self.r = obj
+
+    def __next__(self):
+        if self.r.stop < self.r.start:
+            return
+        if self.r.start > self.r.stop:
+            return
+        if abs(self.r.stop - self.r.start) < abs(self.r.step):
+            return
+        if self.r.stop > 0 and self.r.step < 0:
+            return
+        if self.r.stop < 0 and self.r.step > 0:
+            return
+
+        cur = self.r.start
+        while cur < self.r.stop:
+            yield self.r.method(cur)
+            cur += self.r.step
+
+    def __iter__(self):
+        return self
 
 
 class brange(frange):

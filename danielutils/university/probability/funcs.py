@@ -1,3 +1,5 @@
+from typing import Callable
+
 import danielutils
 def ProbabilityFunction(expr) -> float:
     return expr.evaluate()
@@ -18,7 +20,7 @@ def ExpectedValue(X: "ConditionalVariable") -> float:
     return res
 
 
-E = ExpectedValue
+E:Callable = ExpectedValue
 __all__ = [
     "ProbabilityFunction",
     "P",
