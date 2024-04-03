@@ -1,72 +1,73 @@
 # type:ignore
+import unittest
 from typing import Any, Union
-import pytest
-from ...danielutils import validate
-from ...danielutils.exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, InvalidReturnValueException
+from danielutils import validate
+from danielutils.exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, \
+    InvalidReturnValueException
 
 
-def test_empty_annotation_exception():
-    with pytest.raises(EmptyAnnotationException):
+class TestValidate(unittest.TestCase):
+
+    def test_empty_annotation_exception(self):
+        with self.assertRaises(EmptyAnnotationException):
+            @validate
+            def foo(x):
+                pass
+
+        with self.assertRaises(EmptyAnnotationException):
+            @validate
+            def foo1(x) -> Any:
+                pass
+
+        with self.assertRaises(EmptyAnnotationException):
+            @validate
+            def foo2(x, y: str):
+                pass
+
+        with self.assertRaises(EmptyAnnotationException):
+            @validate
+            def foo3(x, y: str, *args):
+                pass
+
         @validate
-        def foo(x):
+        def foo4(*args):
             pass
 
-    with pytest.raises(EmptyAnnotationException):
+        with self.assertRaises(EmptyAnnotationException):
+            @validate
+            def foo5(a: str, /, k=1):
+                pass
+
+    def test_invalid_default_value_exception(self):
+        with self.assertRaises(InvalidDefaultValueException):
+            @validate
+            def foo(x: str = 1):
+                pass
+
         @validate
-        def foo1(x) -> Any:
+        def foo2(x: int = 1):
             pass
 
-    with pytest.raises(EmptyAnnotationException):
+    def test_validation_exception(self):
         @validate
-        def foo2(x, y: str):
+        def foo(x: Union[int, str]):
             pass
 
-    with pytest.raises(EmptyAnnotationException):
+        with self.assertRaises(ValidationException):
+            foo(1.5)
+
+        foo("aaa")
+
+    def test_invalid_return_value_exception(self):
         @validate
-        def foo3(x, y: str, *args):
-            pass
+        def foo() -> int:
+            return 0.5
 
-    @validate
-    def foo4(*args):
-        pass
+        with self.assertRaises(InvalidReturnValueException):
+            foo()
 
-    with pytest.raises(EmptyAnnotationException):
         @validate
-        def foo5(a: str, /, k=1):
-            pass
+        def foo2() -> str:
+            return "str"
 
-
-def test_invalid_default_value_exception():
-
-    with pytest.raises(InvalidDefaultValueException):
-        @validate
-        def foo(x: str = 1):
-            pass
-
-    @validate
-    def foo2(x: int = 1):
-        pass
-
-
-def test_validation_exception():
-    @validate
-    def foo(x: Union[int, str]):
-        pass
-    with pytest.raises(ValidationException):
-        foo(1.5)
-
-    foo("aaa")
-
-
-def test_invalid_return_value_exception():
-    @validate
-    def foo() -> int:
-        return 0.5
-    with pytest.raises(InvalidReturnValueException):
-        foo()
-
-    @validate
-    def foo2() -> str:
-        return "str"
-
-    foo2()
+        foo2()
