@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "danielutils"
-version = "0.9.71"
+version = "0.9.72"
 authors = [
     { name = "danielnachumdev", email = "danielnachumdev@gmail.com" },
 ]
 dependencies = ['tqdm']
 keywords = ['functions', 'decorators', 'methods', 'classes', 'metaclasses']
-license = { "file" = "LISENCE" }
+license = { "file" = "./LICENSE" }
 description = "A python utils library for things I find useful"
-readme = "README.md"
+readme = "./README.md"
 requires-python = ">=3.8.0"
 classifiers = [
 	"Development Status :: 3 - Alpha",
