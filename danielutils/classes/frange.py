@@ -1,9 +1,39 @@
-from typing import Iterable, Callable, Optional, Iterator
+from abc import abstractmethod
+from typing import Iterable, Callable, Optional, Iterator, Sequence, overload
 
 
-class frange(Iterable[float]):
+class frange(Sequence[float]):
     """this class is the same like builtin range but with float values
     """
+
+    @overload
+    @abstractmethod
+    def __getitem__(self, index: int) -> float:
+        ...
+
+    @overload
+    @abstractmethod
+    def __getitem__(self, index: slice) -> 'frange':
+        ...
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            index = slice(
+                index.start if index.start is not None else 0,
+                index.stop if index.stop is not None else len(self),
+                index.step if index.step is not None else 1,
+            )
+            step = self.step * index.step
+            start = self.start + step * index.start
+            stop = self.start + step * index.stop
+            return frange(start, stop, step)
+        if index < 0:
+            raise ValueError(f"At {self.__class__.__qualname__}.__getitem__ 'index' must be a positive integer")
+        return self.start + self.step * index
+
+    @staticmethod
+    def from_range(r: range) -> 'frange':
+        return frange(r.start, r.stop, r.step)
 
     def __init__(self, start: float, stop: Optional[float] = None,
                  step: float = 1, round_method: Callable[[float], float] = lambda f: round(f, 3)):
@@ -20,7 +50,7 @@ class frange(Iterable[float]):
             raise NotImplementedError
         return self.start == other.start and self.stop == other.stop and self.step == other.step
 
-    def __iter__(self) -> Iterable:
+    def __iter__(self) -> Iterator[float]:
         if self.stop < self.start:
             return
         if self.start > self.stop:
@@ -38,6 +68,8 @@ class frange(Iterable[float]):
             cur += self.step
 
     def __len__(self) -> int:
+        if self.stop == float("inf"):
+            return float("inf")
         return int((self.stop - self.start) // self.step)
 
     def __str__(self) -> str:
@@ -65,20 +97,44 @@ class frange(Iterable[float]):
     def normalize(self) -> 'frange':
         return frange(self.start / self.step, self.stop / self.step, 1)
 
+    # def _normalize_with(self, other: 'frange') -> 'frange':
+    #     return frange(self.start / (self.step * other.step), self.stop / (self.step * other.step), 1)
+    @staticmethod
+    def _find_min_step(s1: float, s2: float) -> float:
+        M = max(s1, s2)
+        m = min(s1, s2)
+        if float.is_integer(M / m):
+            return M
+        k1, k2 = 1, 1
+        while s1 * k1 != s2 * k2:
+            if s1 * k1 > s2 * k2:
+                k2 += 1
+            else:
+                k1 += 1
+
+        return s1 * k1
+
     def intersect(self, other: 'frange') -> 'frange':
+        if not isinstance(other, frange):
+            raise ValueError("frange.intercept only accepts frange objects")
         a, b = self.normalize(), other.normalize()
         start1, stop1 = a.start, a.stop
         start2, stop2 = b.start, b.stop
         remainder1, remainder2 = start1 - int(start1), start2 - int(start2)
+        start = max(self.start, other.start)
+        stop = min(self.stop, other.stop)
         if remainder1 == remainder2:
+            min_step = self._find_min_step(self.step, other.step)
             if stop1 == float("inf") or stop2 == float("inf"):
-                return frange(max(start1, start2), float("inf"))
-            return frange(max(start1, start2), min(stop1, stop2))
+                return frange(start, float("inf"), min_step)
+            return frange(start, stop, min_step)
+        # find k; start1 + remainder1*k == start2 +remainder2*k
+        k = (start1 - start2) / (remainder2 - remainder1)
+        if k <= 0:
+            return frange(0)
+        if stop1 == float("inf") or stop2 == float("inf"):
+            raise NotImplementedError("this part is not implemented yet. one has inf")
         raise NotImplementedError("this part is not implemented yet")
-        if remainder1 != 0 and remainder2 / remainder1 - remainder2 // remainder1 == 0:
-            pass
-
-        pass
 
 
 class frange_iterator(Iterator[float]):
