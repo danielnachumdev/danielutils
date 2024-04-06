@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod,abstractproperty
 from typing import Union, Any, Callable
 
 from ..operators import Operators
@@ -17,13 +17,11 @@ class ConditionalVariable(ABC):
     def supp(self) -> Supp:
         return self._supp()
 
-    def evaluate(self, op, n) -> float:
-        if n not in self.supp:
-            raise ValueError(f"{self.__class__.__qualname__} does not support {n}")
+    def evaluate(self, op: Operators, n: int) -> float:
         return self._evaluate(op, n)
 
     @abstractmethod
-    def _evaluate(self, op, val) -> float:
+    def _evaluate(self, op:Operators, val) -> float:
         pass
 
     @abstractmethod
@@ -32,7 +30,7 @@ class ConditionalVariable(ABC):
 
     @staticmethod
     def _create_operator(op: Operators) -> Callable[[SelfT, Any], Any]:
-        def operator(self, other):
+        def inner(self, other):
             if isinstance(other, AccumulationExpression):
                 other.add_left(self, op)
                 return other
@@ -41,8 +39,9 @@ class ConditionalVariable(ABC):
                 return ConditionalWithValue(self, op, other)
             elif isinstance(other, ConditionalVariable):
                 return ConditionalWithConditional(self, op, other)
+            raise NotImplementedError("Illegal state (?)")
 
-        return operator
+        return inner
 
     __eq__ = _create_operator(Operators.EQ)
     __lt__ = _create_operator(Operators.LT)
@@ -56,7 +55,13 @@ class ConditionalVariable(ABC):
         pass
 
     def __or__(self, other):
-        return AccumulationExpression(self, Operators.GIVEN, other)
+        return AccumulationExpression.from_raw(self, Operators.GIVEN, other)
 
     def __ror__(self, other):
-        return AccumulationExpression(other, Operators.GIVEN, self)
+        return AccumulationExpression.from_raw(other, Operators.GIVEN, self)
+
+    def __and__(self, other):
+        return AccumulationExpression.from_raw(self, Operators.AND, other)
+
+    def __rand__(self, other):
+        return AccumulationExpression.from_raw(other, Operators.AND, self)

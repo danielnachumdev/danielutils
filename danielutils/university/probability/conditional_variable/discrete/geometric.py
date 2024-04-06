@@ -9,24 +9,30 @@ class Geometric(ConditionalVariable):
     def __hash__(self):
         return hash((self.__class__.__qualname__, self.p))
 
-    def _supp(self):
+    def _supp(self) -> DiscreteRangeSupp:
         return DiscreteRangeSupp(frange(1, float("inf"), 1))
 
     def _evaluate(self, op, n) -> float:
-        if op == Operators.EQ:
-            return self.p * (1 - self.p) ** n
-        elif op == Operators.NE:
-            return 1 - self.evaluate(Operators.EQ, n)
-        elif op == Operators.LT:
-            return self.evaluate(Operators.GE, n)
-        elif op == Operators.GT:
-            return (1 - self.p) ** n
-        elif op == Operators.GE:
-            return (1 - self.p) ** (n - 1)
-        elif op == Operators.LE:
-            return 1 - self.evaluate(Operators.LT, n)
+        if n > 0:
+            if op == Operators.EQ:
+                return self.p * (1 - self.p) ** n
+            if op == Operators.GT:
+                return (1 - self.p) ** n
+            if op == Operators.GE:
+                return self.evaluate(Operators.GT, n - 1)
+            if op == Operators.NE:
+                return 1 - self.evaluate(Operators.EQ, n)
+            if op == Operators.LT:
+                return 1 - self.evaluate(Operators.GE, n)
+            if op == Operators.LE:
+                return 1 - self.evaluate(Operators.GT, n)
+            raise RuntimeError("Illegal State")
         else:
-            raise RuntimeError("Unreachable Code")
+            if op in {Operators.EQ, Operators.LT, Operators.LE}:
+                return 0
+            if op in {Operators.GT, Operators.GE, Operators.NE}:
+                return 1
+            raise RuntimeError("Illegal State")
 
     def __init__(self, p: float) -> None:
         self.p = p

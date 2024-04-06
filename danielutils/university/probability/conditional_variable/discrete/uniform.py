@@ -18,10 +18,8 @@ class Uniform(ConditionalVariable):
 
 
 Unif = Uniform
-U = Uniform
 
 __all__ = [
     "Uniform",
     "Unif",
-    "U"
 ]

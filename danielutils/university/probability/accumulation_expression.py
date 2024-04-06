@@ -4,16 +4,56 @@ from ...data_structures import BST, BinaryNode
 from .operators import Operators
 
 
+def _handle_equals(lhs: Any, rhs: Any):
+    return lhs.data == rhs.data
+
+
+def _handle_greater_equals(lhs: Any, rhs: Any):
+    return lhs.data >= rhs.data
+
+
+def _handle_greater_than(lhs: Any, rhs: Any):
+    return lhs.data > rhs.data
+
+
+def _handle_less_equals(lhs: Any, rhs: Any):
+    return lhs.data <= rhs.data
+
+
+def _handle_less_than(lhs: Any, rhs: Any):
+    return lhs.data < rhs.data
+
+
+def _handle_not_equals(lhs: Any, rhs: Any):
+    return lhs.data != rhs.data
+
+
+def _handle_given(lhs: Any, rhs: Any):
+    return _handle_and(lhs, rhs) / rhs.evaluate()
+
+
+def _handle_and(lhs: Any, rhs: Any):
+    return (lhs & rhs).evaluate()
+
+
 class AccumulationExpression:
-    def __init__(self, lhs: Any, op: Operators, rhs: Any) -> None:
+    @classmethod
+    def from_raw(cls, lhs: Any, op: Operators, rhs: Any):
+        return cls(BinaryNode(lhs), op, BinaryNode(rhs))
+
+    def __init__(self, lhs: BinaryNode, op: Operators, rhs: BinaryNode) -> None:
         root = BinaryNode(
             op,
-            BinaryNode(lhs),
-            BinaryNode(rhs)
+            lhs,
+            rhs
         )
         self.tree = BST(root)
 
     def __eq__(self, other):
+        self.add_right(other, Operators.EQ)
+        return self
+
+    def __ne__(self, other):
         self.add_right(other, Operators.EQ)
         return self
 
@@ -22,6 +62,14 @@ class AccumulationExpression:
         return self
 
     def __gt__(self, other):
+        self.add_right(other, Operators.GT)
+        return self
+
+    def __lt__(self, other):
+        self.add_right(other, Operators.GT)
+        return self
+
+    def __le__(self, other):
         self.add_right(other, Operators.GT)
         return self
 
@@ -41,43 +89,16 @@ class AccumulationExpression:
         )
         self.tree.left = replacement
 
-    @staticmethod
-    def _handle_equals(lhs: Any, rhs: Any):
-        return lhs.data == rhs.data
-
-    @staticmethod
-    def _handle_greater_equals(lhs: Any, rhs: Any):
-        return lhs.data >= rhs.data
-
-    @staticmethod
-    def _handle_greater_than(lhs: Any, rhs: Any):
-        pass
-
-    @staticmethod
-    def _handle_less_equals(lhs: Any, rhs: Any):
-        pass
-
-    @staticmethod
-    def _handle_less_than(lhs: Any, rhs: Any):
-        pass
-
-    @staticmethod
-    def _handle_not_equals(lhs: Any, rhs: Any):
-        pass
-
-    @staticmethod
-    def _handle_given(lhs: Any, rhs: Any):
-        return (lhs & rhs).evaluate() / rhs.evaluate()
-
     def evaluate(self):
         return self.tree.evaluate({
-            Operators.EQ: AccumulationExpression._handle_equals,
-            Operators.GIVEN: AccumulationExpression._handle_given,
-            Operators.GE: AccumulationExpression._handle_greater_equals,
-            Operators.GT: AccumulationExpression._handle_greater_than,
-            Operators.LE: AccumulationExpression._handle_less_equals,
-            Operators.LT: AccumulationExpression._handle_less_than,
-            Operators.NE: AccumulationExpression._handle_not_equals,
+            Operators.GIVEN: _handle_given,
+            Operators.AND: _handle_and,
+            Operators.EQ: _handle_equals,
+            Operators.GE: _handle_greater_equals,
+            Operators.GT: _handle_greater_than,
+            Operators.LE: _handle_less_equals,
+            Operators.LT: _handle_less_than,
+            Operators.NE: _handle_not_equals,
         })
 
 

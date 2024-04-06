@@ -1,35 +1,12 @@
+import math
+import decimal
 from abc import abstractmethod
-from typing import Iterable, Callable, Optional, Iterator, Sequence, overload
+from typing import Iterable, Callable, Optional, Iterator, Sequence, overload, Union
 
 
 class frange(Sequence[float]):
     """this class is the same like builtin range but with float values
     """
-
-    @overload
-    @abstractmethod
-    def __getitem__(self, index: int) -> float:
-        ...
-
-    @overload
-    @abstractmethod
-    def __getitem__(self, index: slice) -> 'frange':
-        ...
-
-    def __getitem__(self, index):
-        if isinstance(index, slice):
-            index = slice(
-                index.start if index.start is not None else 0,
-                index.stop if index.stop is not None else len(self),
-                index.step if index.step is not None else 1,
-            )
-            step = self.step * index.step
-            start = self.start + step * index.start
-            stop = self.start + step * index.stop
-            return frange(start, stop, step)
-        if index < 0:
-            raise ValueError(f"At {self.__class__.__qualname__}.__getitem__ 'index' must be a positive integer")
-        return self.start + self.step * index
 
     @staticmethod
     def from_range(r: range) -> 'frange':
@@ -44,6 +21,32 @@ class frange(Sequence[float]):
         self.stop = stop
         self.step = step
         self.method = round_method
+
+    @overload
+    @abstractmethod
+    def __getitem__(self, index: int) -> float:
+        ...
+
+    @overload
+    @abstractmethod
+    def __getitem__(self, index: slice) -> 'frange':
+        ...
+
+    def __getitem__(self, index: Union[float, 'frange']) -> Union[float, 'frange']:
+        if isinstance(index, slice):
+            index = slice(
+                index.start if index.start is not None else 0,
+                index.stop if index.stop is not None else len(self),
+                index.step if index.step is not None else 1,
+            )
+            # index.indices(len(self))
+            step = self.step * index.step
+            start = self.start + step * index.start
+            stop = self.start + step * index.stop
+            return frange(start, stop, step)
+        if index < 0:
+            raise ValueError(f"At {self.__class__.__qualname__}.__getitem__ 'index' must be a positive integer")
+        return self.start + self.step * index
 
     def __eq__(self, other):
         if not isinstance(other, frange):
@@ -68,7 +71,7 @@ class frange(Sequence[float]):
             cur += self.step
 
     def __len__(self) -> int:
-        if self.stop == float("inf"):
+        if self.stop in {float("inf"), -float("inf")}:
             return float("inf")
         return int((self.stop - self.start) // self.step)
 
@@ -78,9 +81,12 @@ class frange(Sequence[float]):
     def __repr__(self):
         return f"{self.__class__.__name__}({self.start}, {self.stop}, {self.step})"
 
-    @property
-    def _is_whole_step(self) -> bool:
-        return self.step - int(self.step) == 0
+    @staticmethod
+    def _is_int(n: Union[int, float]) -> bool:
+        if isinstance(n,int):
+            return True
+
+        return n.is_integer()
 
     def __contains__(self, item):
         if item < self.start:
@@ -88,8 +94,8 @@ class frange(Sequence[float]):
         if item >= self.stop:
             return False
 
-        if self._is_whole_step:
-            if not item - int(item) == 0:
+        if frange._is_int(self.step):
+            if not frange._is_int(item):
                 return False
 
         return item / self.step - item // self.step == 0
@@ -99,20 +105,21 @@ class frange(Sequence[float]):
 
     # def _normalize_with(self, other: 'frange') -> 'frange':
     #     return frange(self.start / (self.step * other.step), self.stop / (self.step * other.step), 1)
+
+    @staticmethod
+    def _lcm_float(a: float, b: float) -> float:
+        prec = decimal.getcontext().prec
+        a = round(a, prec)
+        b = round(b, prec)
+        return math.lcm(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec
+
     @staticmethod
     def _find_min_step(s1: float, s2: float) -> float:
         M = max(s1, s2)
         m = min(s1, s2)
         if float.is_integer(M / m):
             return M
-        k1, k2 = 1, 1
-        while s1 * k1 != s2 * k2:
-            if s1 * k1 > s2 * k2:
-                k2 += 1
-            else:
-                k1 += 1
-
-        return s1 * k1
+        return frange._lcm_float(s1, s2)
 
     def intersect(self, other: 'frange') -> 'frange':
         if not isinstance(other, frange):

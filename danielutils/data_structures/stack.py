@@ -12,7 +12,10 @@ class Stack(Generic[T]):
         self.head: Optional[Node[T]] = None
         self.size = 0
 
-    def push(self, value: Node[T]):
+    def push(self, value: T) -> None:
+        self.push_node(Node(value))
+
+    def push_node(self, value: Node[T]):
         """push an item to the stack
 
         Args:
