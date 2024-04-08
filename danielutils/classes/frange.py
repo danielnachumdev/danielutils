@@ -21,6 +21,15 @@ class frange(Sequence[float]):
         self.stop = stop
         self.step = step
         self.method = round_method
+        self._is_finite = len(self) != float("inf")
+
+    @property
+    def is_finite(self) -> bool:
+        return self._is_finite
+
+    @property
+    def is_infinite(self) -> bool:
+        return not self.is_finite
 
     @overload
     @abstractmethod
@@ -83,7 +92,7 @@ class frange(Sequence[float]):
 
     @staticmethod
     def _is_int(n: Union[int, float]) -> bool:
-        if isinstance(n,int):
+        if isinstance(n, int):
             return True
 
         return n.is_integer()

@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod,abstractproperty
+from abc import ABC, abstractmethod, abstractproperty
 from typing import Union, Any, Callable
 
 from ..operators import Operators
@@ -6,11 +6,12 @@ from ....decorators import memo
 from ....functions import isoftype
 from ..supp import Supp
 from ..accumulation_expression import AccumulationExpression
+from ..evaluable import Evaluable
 
 SelfT = Any
 
 
-class ConditionalVariable(ABC):
+class ConditionalVariable(Evaluable):
 
     @property
     @memo
@@ -21,7 +22,7 @@ class ConditionalVariable(ABC):
         return self._evaluate(op, n)
 
     @abstractmethod
-    def _evaluate(self, op:Operators, val) -> float:
+    def _evaluate(self, op: Operators, val) -> float:
         pass
 
     @abstractmethod
@@ -65,3 +66,6 @@ class ConditionalVariable(ABC):
 
     def __rand__(self, other):
         return AccumulationExpression.from_raw(other, Operators.AND, self)
+
+    def __add__(self, other):
+        if isinstance(other, ConditionalVariable):

@@ -16,6 +16,7 @@ class DiscreteSupp(Supp):
 
     def __contains__(self, item):
         return item in self.inner
+
     @staticmethod
     def _get_handler(lhs: "DiscreteSupp", rhs: "DiscreteSupp") -> Callable[
         ["DiscreteSupp", "DiscreteSupp"], "DiscreteSupp"]:
@@ -38,16 +39,22 @@ class DiscreteSetSupp(DiscreteSupp):
     def inner(self):
         return self._obj
 
-    def __init__(self, obj: set):
+    def __init__(self, obj: set, is_finite: bool) -> None:
+        super().__init__(is_finite)
         self._obj = obj
 
 
 class DiscreteRangeSupp(DiscreteSupp):
+    @staticmethod
+    def from_explicit(start: float, stop: float, step: float) -> "DiscreteRangeSupp":
+        return DiscreteRangeSupp(frange(start, stop, step))
+
     @property
     def inner(self):
         return self._obj
 
     def __init__(self, obj: frange):
+        super().__init__(obj.is_finite)
         self._obj = obj
 
 

@@ -1,4 +1,4 @@
-from enum import Enum
+from .evaluable import Evaluable
 from typing import Any
 from ...data_structures import BST, BinaryNode
 from .operators import Operators
@@ -36,7 +36,7 @@ def _handle_and(lhs: Any, rhs: Any):
     return (lhs & rhs).evaluate()
 
 
-class AccumulationExpression:
+class AccumulationExpression(Evaluable):
     @classmethod
     def from_raw(cls, lhs: Any, op: Operators, rhs: Any):
         return cls(BinaryNode(lhs), op, BinaryNode(rhs))
