@@ -1,5 +1,7 @@
 import inspect
+from typing import Any
 from .interpreter import get_python_version
+
 if get_python_version() >= (3, 9):
     from builtins import list as t_list  # type:ignore
 else:
@@ -21,6 +23,21 @@ def get_explicitly_declared_functions(cls: type) -> t_list[str]:
     return [func for func, val in inspect.getmembers(cls, predicate=inspect.isfunction)]
 
 
+def get_mro(obj: Any) -> t_list[type]:
+    """returns the mro of an object
+
+    Args:
+        obj (Any): any object, instance or class
+
+    Returns:
+        list[type]: the resulting mro for the object
+    """
+    if isinstance(obj, type):
+        return obj.mro()
+    return get_mro(obj.__class__)
+
+
 __all__ = [
-    "get_explicitly_declared_functions"
+    "get_explicitly_declared_functions",
+    "get_mro"
 ]

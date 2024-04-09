@@ -2,7 +2,7 @@ import inspect
 import functools
 import multiprocessing
 
-from ..reflection import get_n_caller_func, get_current_frame, get_n_prev_frame
+from ..reflection import get_prev_frame
 from ..multi_x import process_id
 import pickle
 
@@ -24,7 +24,7 @@ def processify(func):
     def wrapper(*args, **kwargs):
         main_pid = kwargs.get("__main_pid", process_id())
         if process_id() == main_pid:
-            frame = get_n_prev_frame(2)
+            frame = get_prev_frame(2)
             dct = {k: v for k, v in frame.f_globals.items() if type(v) != type(inspect)}
             p = multiprocessing.Process(target=_run_func, args=(main_pid, dct, func.__name__, args, kwargs))
             p.start()
@@ -41,7 +41,7 @@ def _run_func(main_pid: int, dct: dict, func_name: str, args, kwargs) -> None:
     return dct[func_name](*args, __main_pid=main_pid, **kwargs)
 
 def debug_info(include_builtins: bool = False) -> dict:
-    f = get_n_prev_frame(2)
+    f = get_prev_frame(2)
     g = {k: v for k, v in f.f_globals.items() if k != "__builtins__"} if not include_builtins else dict(f.f_globals)
     return {
         "file": f.f_code.co_filename,
