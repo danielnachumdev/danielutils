@@ -5,7 +5,7 @@ from typing import Iterable, Callable, Optional, Iterator, Sequence, overload, U
 
 
 class frange(Sequence[float]):
-    """this class is the same like builtin range but with float values
+    """This class is the same like the builtin range but with float values
     """
 
     @staticmethod
@@ -48,14 +48,18 @@ class frange(Sequence[float]):
                 index.stop if index.stop is not None else len(self),
                 index.step if index.step is not None else 1,
             )
-            # index.indices(len(self))
-            step = self.step * index.step
-            start = self.start + step * index.start
-            stop = self.start + step * index.stop
-            return frange(start, stop, step)
+            if index.step > 0:
+                step = self.step * index.step
+                start = self.start + step * index.start
+                stop = self.start + step * index.stop
+                return frange(start, stop, step)
+            return reversed(self[index.start:index.stop:abs(index.step)])
         if index < 0:
             raise ValueError(f"At {self.__class__.__qualname__}.__getitem__ 'index' must be a positive integer")
         return self.start + self.step * index
+
+    def __reversed__(self) -> Iterator[float]:
+        return frange(self.stop - 1, self.start - 1, -self.step)
 
     def __eq__(self, other):
         if not isinstance(other, frange):

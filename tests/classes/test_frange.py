@@ -42,4 +42,4 @@ class TestFrange(unittest.TestCase):
         r = f(10)
         self.assertEqual(5, r[5])
         self.assertListEqual(list(range(5)), list(r[:5]))
-        self.assertListEqual(list(range(0, -5, -1)), list(r[:5:-1]))
+        self.assertListEqual(list(range(4,-1,-1)), list(r[:5:-1]))
