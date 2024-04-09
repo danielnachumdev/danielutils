@@ -1,5 +1,5 @@
 from .binary_aggregation import BinaryAggregation
-from ..operators import Operators
+from university.probability._old.operators import Operators
 
 
 class BinaryAdditionBinaryAggregation(BinaryAggregation):

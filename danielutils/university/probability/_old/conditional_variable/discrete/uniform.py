@@ -1,6 +1,6 @@
 from ..conditional_variable import ConditionalVariable
-from ...supp import DiscreteRangeSupp
-from .....classes import frange
+from university.probability._old.supp import DiscreteRangeSupp
+from classes import frange
 
 
 class Uniform(ConditionalVariable):

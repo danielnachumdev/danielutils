@@ -1,6 +1,6 @@
 from typing import Union, Callable
 from .supp import Supp
-from ....classes import frange
+from classes import frange
 from .handler_implementations import *
 from abc import abstractmethod
 

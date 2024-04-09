@@ -1,6 +1,6 @@
 from ..conditional_variable import ConditionalVariable
-from ...operators import Operators
-from ...supp import Supp, DiscreteRangeSupp
+from university.probability._old.operators import Operators
+from university.probability._old.supp import Supp
 
 
 class Poisson(ConditionalVariable):

@@ -1,46 +1,36 @@
 from ..conditional_variable import ConditionalVariable
-from .....classes import frange
-from ...supp import DiscreteRangeSupp
-from ...operators import Operators
+from ...operator import Operator
 
 
 class Geometric(ConditionalVariable):
+    @property
+    def p(self) -> float:
+        return self.p
 
-    def __hash__(self):
-        return hash((self.__class__.__qualname__, self.p))
+    def __init__(self, p: float):
+        self._p = p
 
-    def _supp(self) -> DiscreteRangeSupp:
-        return DiscreteRangeSupp(frange(1, float("inf"), 1))
-
-    def _evaluate(self, op, n) -> float:
+    def evaluate(self, op: Operator, n: float) -> float:
         if n > 0:
-            if op == Operators.EQ:
+            if op == Operator.EQ:
                 return self.p * (1 - self.p) ** n
-            if op == Operators.GT:
+            if op == Operator.GT:
                 return (1 - self.p) ** n
-            if op == Operators.GE:
-                return self.evaluate(Operators.GT, n - 1)
-            if op == Operators.NE:
-                return 1 - self.evaluate(Operators.EQ, n)
-            if op == Operators.LT:
-                return 1 - self.evaluate(Operators.GE, n)
-            if op == Operators.LE:
-                return 1 - self.evaluate(Operators.GT, n)
-            raise RuntimeError("Illegal State")
+            if op == Operator.GE:
+                return self.evaluate(Operator.GT, n - 1)
+            if op == Operator.NE:
+                return 1 - self.evaluate(Operator.EQ, n)
+            if op == Operator.LT:
+                return 1 - self.evaluate(Operator.GE, n)
+            if op == Operator.LE:
+                return 1 - self.evaluate(Operator.GT, n)
         else:
-            if op in {Operators.EQ, Operators.LT, Operators.LE}:
+            if op in {Operator.EQ, Operator.LT, Operator.LE}:
                 return 0
-            if op in {Operators.GT, Operators.GE, Operators.NE}:
+            if op in {Operator.GT, Operator.GE, Operator.NE}:
                 return 1
-            raise RuntimeError("Illegal State")
+        raise RuntimeError("Illegal State")
 
-    def __init__(self, p: float) -> None:
-        self.p = p
-
-
-Geo = Geometric
-
-__all__ = [
-    "Geometric",
-    "Geo"
+__all__=[
+    "Geometric"
 ]

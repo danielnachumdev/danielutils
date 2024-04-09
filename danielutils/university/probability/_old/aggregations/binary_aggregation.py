@@ -1,5 +1,5 @@
-from ..operators import Operators
-from ..evaluable import Evaluable
+from university.probability._old.operators import Operators
+
 
 class BinaryAggregation:
     def __init__(self, lhs, op: Operators, rhs):

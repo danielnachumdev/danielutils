@@ -117,7 +117,7 @@ class frange(Sequence[float]):
 
     @staticmethod
     def _lcm_float(a: float, b: float) -> float:
-        prec = decimal.getcontext().prec
+        prec = min(5, max(decimal.getcontext().prec, 10))
         a = round(a, prec)
         b = round(b, prec)
         return math.lcm(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec

@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from ..funcs import ProbabilityFunction as P
+from university.probability._old.funcs import ProbabilityFunction as P
 from ..conditional_variable import ConditionalVariable
-from ..accumulation_expression import AccumulationExpression
-from ..operators import Operators
-from ....data_structures import BinaryNode
+from university.probability._old.accumulation_expression import AccumulationExpression
+from university.probability._old.operators import Operators
+from data_structures import BinaryNode
 
 
 class ConditionalExpression(ABC):

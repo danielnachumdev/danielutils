@@ -1,6 +1,6 @@
 from .evaluable import Evaluable
 from typing import Any
-from ...data_structures import BST, BinaryNode
+from data_structures import BST, BinaryNode
 from .operators import Operators
 
 
