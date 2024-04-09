@@ -30,13 +30,13 @@ class TestTlist(unittest.TestCase):
         tlist[Any]([1, 2, 0.2, 0.63, [], [1]])
 
     def test_wrong_values(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             tlist[float]([1, 2, 3, 4])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             tlist[int]([1, 2, 3, "4"])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             tlist[Union[int, float]]([1, 2.2, 3, "4"])
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             tlist[t_tuple[int]]([[1], [2], [3], ["4"]])
 
     def test_isinstance(self):

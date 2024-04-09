@@ -3,6 +3,7 @@ from abc import abstractmethod
 from typing import Any, Iterable, List as t_list, Set as t_set, Dict as t_dict, Tuple as t_tuple
 from ...functions import types_subseteq, isoftype
 from ...reflection import get_caller_name, get_python_version
+
 if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set, dict as t_dict, tuple as t_tuple  # type:ignore
 # needed for python 3.8
@@ -39,7 +40,6 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
 
     def __instancecheck__(self, instance: Any) -> bool:
         if isinstance(instance, cls):
-
             return types_subseteq(
                 instance.get_params(),  # type:ignore
                 self.get_params()
@@ -51,7 +51,7 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
         )
 
     def __init__(self, item) -> None:
-        if not get_caller_name(0) == "__class_getitem__":
+        if not get_caller_name(1) == "__class_getitem__":
             raise ValueError(
                 f"Can't instantiate {self.__class__.__name__} without a supplied type")
         fallback_class.__init__(self)  # type: ignore
