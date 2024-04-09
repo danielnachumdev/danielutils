@@ -1,13 +1,12 @@
 import inspect
-from typing import cast, Optional, Callable, Any
-from types import FrameType
-from .get_prev_frame import _get_prev_frame_from, get_prev_frame
+from typing import Optional, Callable
+from .callstack import get_prev_frame
 from .interpreter import get_python_version
 
 if get_python_version() < (3, 9):
-    from typing import List as t_list, Set as t_set  # pylint: disable=ungrouped-imports
+    from typing import Set as t_set  # pylint: disable=ungrouped-imports
 else:
-    from builtins import list as t_list, set as t_set
+    from builtins import set as t_set
 
 
 def get_caller_name(steps_back: int) -> Optional[str]:

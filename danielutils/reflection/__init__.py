@@ -4,7 +4,7 @@ from .function_reflections import *
 from .get_traceback import *
 from .module_reflections import *
 from .class_reflection import *
-from .get_prev_frame import *
+from .callstack import *
 from .interpreter import *
 # def get_class(module_name: str, class_name: str) -> type:
 #     """dynammically loads the module and returns the class from this file
