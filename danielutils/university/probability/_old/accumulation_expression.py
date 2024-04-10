@@ -1,6 +1,6 @@
 from .evaluable import Evaluable
 from typing import Any
-from data_structures import BST, BinaryNode
+from data_structures import BinarySyntaxTree, BinaryNode
 from .operators import Operators
 
 
@@ -47,7 +47,7 @@ class AccumulationExpression(Evaluable):
             lhs,
             rhs
         )
-        self.tree = BST(root)
+        self.tree = BinarySyntaxTree(root)
 
     def __eq__(self, other):
         self.add_right(other, Operators.EQ)
@@ -76,18 +76,18 @@ class AccumulationExpression(Evaluable):
     def add_right(self, right, op) -> None:
         replacement = BinaryNode(
             op,
-            BinaryNode(self.tree.right.data),
+            BinaryNode(self.tree.bottom_right.data),
             BinaryNode(right)
         )
-        self.tree.right = replacement
+        self.tree.bottom_right = replacement
 
     def add_left(self, left, op) -> None:
         replacement = BinaryNode(
             op,
             BinaryNode(left),
-            BinaryNode(self.tree.left.data),
+            BinaryNode(self.tree.bottom_left.data),
         )
-        self.tree.left = replacement
+        self.tree.bottom_left = replacement
 
     def evaluate(self):
         return self.tree.evaluate({

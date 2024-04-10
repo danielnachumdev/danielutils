@@ -1,2 +1,2 @@
 from .binary_tree import *
-from .bst import *
+from .binary_syntax_tree import *
