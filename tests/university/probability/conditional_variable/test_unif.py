@@ -1,5 +1,5 @@
 import unittest
-from danielutils import Unif, ProbabilityFunction as P
+from danielutils.university.probability import Unif, ProbabilityFunction as P
 
 N = 100
 X = Unif(N)

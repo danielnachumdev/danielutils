@@ -1,5 +1,5 @@
 import unittest
-from danielutils import Geometric as G
+from danielutils.university.probability import Geometric as G
 
 X = G(0.5)
 

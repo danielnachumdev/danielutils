@@ -1,6 +1,6 @@
 import unittest
 
-from danielutils import Geo as G, ProbabilityFunction as P
+from danielutils.university.probability import Geo as G, ProbabilityFunction as P
 
 X = G(0.5)
 

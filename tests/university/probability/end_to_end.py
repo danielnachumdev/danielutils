@@ -1,5 +1,5 @@
 import unittest
-from danielutils import ProbabilityFunction as P, ExpectedValue as E, Ber, Unif, Geo, Bin, Pois
+from danielutils.university.probability import ProbabilityFunction as P, ExpectedValue as E, Ber, Unif, Geo, Bin, Pois
 from random import uniform
 
 X1, X2, X = Ber(0.5), Ber(0.5), Bin(2, 0.5)
