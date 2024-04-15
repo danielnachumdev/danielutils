@@ -1,4 +1,4 @@
-from university.probability._old.operators import Operators
+from ..operators import Operators
 
 
 class BinaryAggregation:
