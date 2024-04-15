@@ -59,7 +59,7 @@ class Worker(ABC):
         to signal actions if needed
         will call 'notification_function'
         """
-        self.pool._notify()  # pylint: disable=protected-access
+        self.pool._notify_subscribers()  # pylint: disable=protected-access
 
     def acquire(self) -> Optional[t_tuple[Any]]:
         """acquire a new job object to work on from the pool

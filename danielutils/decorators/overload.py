@@ -7,6 +7,7 @@ from ..functions import isoftype, isoneof, isoneof_strict
 from ..exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
 from ..reflection import get_python_version
+
 if get_python_version() < (3, 9):
     from typing_extensions import ParamSpec
 else:
@@ -79,7 +80,7 @@ def explicit_global_overload(*types) -> Callable:
 
         __overload_dict[name][types] = func
 
-        @ functools.wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs) -> Any:
             default_func = None
             # select correct overload
@@ -112,6 +113,7 @@ def explicit_global_overload(*types) -> Callable:
                 f"function {func.__module__}.{func.__qualname__} is not overloaded with {[type(v) for v in args]}")
 
         return wrapper
+
     return deco
 
 
@@ -160,31 +162,42 @@ class overload:
         return self
 
     def __call__(self, *args, **kwargs):
-        num_args = len(args)+len(kwargs.keys())
+        num_args = len(args) + len(kwargs.keys())
         if num_args not in self._functions:
             raise AttributeError(
                 f"No overload with {num_args} argument found for {self._moudle}.{self._qualname}")
-        selected_func = None
-        if len(self._functions[num_args]) == 1:
-            selected_func = self._functions[num_args][0]
-        else:
-            for func in self._functions[num_args]:
-                signature = inspect.signature(func)
-                for i, tup in enumerate(signature.parameters.items()):
-                    param_name, param_type = tup
-                    if param_name in overload.__SKIP_SET:
-                        continue
 
-                    if not isoftype(args[i], param_type.annotation):
-                        break
+        if num_args == 0:
+            return self._functions[num_args][0](*args, **kwargs)
+
+        max_score = 0
+        winner = self._functions[num_args][0]
+        EXACT_MATCH = 1 / num_args
+        SUBCLASS = 1 / num_args
+        for func in self._functions[num_args]:
+            score = 0
+            signature = inspect.signature(func)
+            for i, tup in enumerate(signature.parameters.items()):
+                param_name, param_type = tup
+                if param_name in overload.__SKIP_SET:
+                    continue
+
+                if type(args[i]) == param_type.annotation:
+                    score += EXACT_MATCH
+
+                elif isoftype(args[i], param_type.annotation):
+                    score += SUBCLASS
                 else:
-                    # reaching here means current function matches perfectly the annotation
-                    selected_func = func
                     break
-            else:
-                raise AttributeError("No overload found")
 
-        return selected_func(*args, **kwargs)
+            else:
+                # reaching here means current function matches perfectly the annotation
+                if score > max_score:
+                    max_score = score
+                    winner = func
+        # raise AttributeError("No overload found")
+
+        return winner(*args, **kwargs)
 
 
 __all__ = [

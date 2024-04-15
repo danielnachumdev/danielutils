@@ -1,4 +1,4 @@
-class MockModule:
+class MockImportObject:
     def __init__(self, msg: str):
         self._msg = msg
 
@@ -9,5 +9,5 @@ class MockModule:
         raise ImportError(self._msg)
 
 __all__=[
-    "MockModule"
+    "MockImportObject"
 ]

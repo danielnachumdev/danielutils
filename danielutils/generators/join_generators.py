@@ -5,6 +5,7 @@ from ..data_structures import AtomicQueue, Queue
 from ..classes import AtomicCounter
 # from ..Print import aprint
 from ..reflection import get_python_version
+
 if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple  # type:ignore
 
@@ -15,7 +16,7 @@ def join_generators_busy_waiting(*generators) -> Generator[t_tuple[int, Any], No
     Yields:
         Generator[tuple[int, Any], None, None]: resulting generator
     """
-    q = AtomicQueue()
+    q: AtomicQueue[t_tuple[int, Any]] = AtomicQueue()
     threads_status = [False for _ in range(len(generators))]
 
     @threadify

@@ -1,25 +1,28 @@
-from typing import Callable, Union
+from typing import Callable, Union, Any
 
 
 def is_default_implementation(func: Callable) -> bool:
     return type(func).__qualname__ == "wrapper_descriptor"
 
+
 def usable(func: Callable) -> bool:
     return func is not None and not is_default_implementation(func)
+
+
 def total_ordering(cls: type) -> type:
-    funcs: dict[str, Union[Callable, None]] = {
-        '__eq__': getattr(cls, '__eq__', None),
-        '__ne__': getattr(cls, '__ne__', None),
-        '__gt__': getattr(cls, '__gt__', None),
-        '__ge__': getattr(cls, '__ge__', None),
-        '__lt__': getattr(cls, '__lt__', None),
-        '__le__': getattr(cls, '__le__', None),
+    funcs: dict[str, Callable[[Any, Any], Any]] = {
+        '__eq__': getattr(cls, '__eq__'),
+        '__ne__': getattr(cls, '__ne__'),
+        '__gt__': getattr(cls, '__gt__'),
+        '__ge__': getattr(cls, '__ge__'),
+        '__lt__': getattr(cls, '__lt__'),
+        '__le__': getattr(cls, '__le__'),
     }
-    g1 = [funcs["__eq__"], funcs["__ne__"]]
+    g1: list[Callable[[Any, Any], Any]] = [funcs["__eq__"], funcs["__ne__"]]
     u1 = any(map(usable, g1))
-    g2 = [funcs["__ge__"], funcs["__gt__"]]
+    g2: list[Callable[[Any, Any], Any]] = [funcs["__ge__"], funcs["__gt__"]]
     u2 = any(map(usable, g2))
-    g3 = [funcs["__lt__"], funcs["__le__"]]
+    g3: list[Callable[[Any, Any], Any]] = [funcs["__lt__"], funcs["__le__"]]
     u3 = any(map(usable, g3))
     if sum(map(int, [u1, u2, u3])) < 2:
         raise ValueError("There are not enough functions from different groups implemented")
@@ -73,6 +76,7 @@ def total_ordering(cls: type) -> type:
         setattr(cls, name, f)
     return cls
 
-__all__=[
+
+__all__ = [
     "total_ordering"
 ]

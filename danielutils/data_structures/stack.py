@@ -32,10 +32,16 @@ class Stack(Generic[T]):
             Any: poped item
         """
         if not self.is_empty():
-            res = self.head.data
+            res = self.head.data  # type:ignore
             self.size -= 1
-            self.head = self.head.next
+            self.head = self.head.next  # type:ignore
             return res
+        raise RuntimeError("Can't pop from an empty stack")
+
+    def peek(self) -> Optional[T]:
+        if self.is_empty():
+            return None
+        return self.head.data
 
     def __len__(self) -> int:
         return self.size

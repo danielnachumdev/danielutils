@@ -1,7 +1,6 @@
 from typing import Optional, IO
 from .decorators import validate
 
-
 RESET = "\033[0m"
 
 
@@ -16,15 +15,16 @@ class ColoredText:
         white,
         black
     """
+
     @staticmethod
     @validate
     def from_rgb(red: int, green: int, blue: int, text: str) -> str:
         """Applies an RGB color to the given text.
 
         Args:
-            r (int): The red component of the color.
-            g (int): The green component of the color.
-            b (int): The blue component of the color.
+            red (int): The red component of the color.
+            green (int): The green component of the color.
+            blue (int): The blue component of the color.
             text (str): The text to apply the color to.
 
         Returns:
@@ -178,7 +178,7 @@ def error(*args, sep: str = " ", end: str = "\n"):
 
 
 def info(*args, sep: str = " ", end: str = "\n"):
-    """print an error message
+    """print an info message
 
     Args:
         sep (str, optional): print separator. Defaults to " ".
