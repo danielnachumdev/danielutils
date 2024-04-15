@@ -8,9 +8,9 @@ else:
 try:
     from tqdm import tqdm
 except ImportError:
-    from .imports import MockModule
+    from .imports import MockImportObject
 
-    tqdm = MockModule("`tqdm` is not installed")
+    tqdm = MockImportObject("`tqdm` is not installed")
 
 
 class ProgressBarPool:
