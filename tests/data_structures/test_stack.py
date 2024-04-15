@@ -5,7 +5,7 @@ from danielutils import Stack
 
 class TestStack(unittest.TestCase):
     def test_simple(self):
-        s = Stack()
+        s: Stack[int] = Stack()
         n = 10
         for i in range(n):
             s.push(i)
