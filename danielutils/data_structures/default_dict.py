@@ -1,9 +1,8 @@
-"""
-My implementation to collections.defaultdict
-"""
-
-
 class DefaultDict(dict):
+    """
+    My implementation to `collections.defaultdict`
+    """
+
     def __init__(self, cls):
         self._cls = cls
 

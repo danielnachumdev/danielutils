@@ -21,4 +21,4 @@ class TestTotalOrdering(unittest.TestCase):
         self.assertLessEqual(A(1), A(1))
         self.assertLessEqual(A(1), A(2))
         self.assertGreater(A(2), A(1))
-        self.assertGreaterEqual(A(2), A(2))
+        self.assertGreaterEqual(A(2), A(2))  # type:ignore

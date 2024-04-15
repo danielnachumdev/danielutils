@@ -13,7 +13,6 @@ from .aliases import *
 from .exceptions import PrintCatchOne
 from .snippets import *
 from .abstractions import *
-from .patterns import *
 from .imports import *
 # =================================================================
 # ========================= ORDER MATTERS =========================

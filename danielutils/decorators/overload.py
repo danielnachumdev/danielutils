@@ -1,6 +1,5 @@
 from typing import Callable, cast, Any, TypeVar, Dict as t_dict, List as t_list
 import inspect
-import platform
 import functools
 from ..reflection import is_function_annotated_properly
 from ..functions import isoftype, isoneof, isoneof_strict
@@ -182,7 +181,7 @@ class overload:
                 if param_name in overload.__SKIP_SET:
                     continue
 
-                if type(args[i]) == param_type.annotation:
+                if type(args[i]) == param_type.annotation:  # pylint :disable=unidiomatic-typecheck
                     score += EXACT_MATCH
 
                 elif isoftype(args[i], param_type.annotation):

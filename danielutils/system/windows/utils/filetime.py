@@ -10,7 +10,8 @@ class FileTime:
     access: Optional[datetime] = None
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(\n\tcreation={str(self.creation)},\n\tmodification={str(self.modification)},\n\taceess={str(self.access)}\n)"
+        return f"{self.__class__.__name__}(\n\tcreation={str(self.creation)},\n" \
+               f"\tmodification={str(self.modification)},\n\taceess={str(self.access)}\n)"
 
 
 __all__ = [

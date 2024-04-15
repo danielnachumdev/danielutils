@@ -1,6 +1,5 @@
 import threading
 import functools
-import platform
 from typing import Callable, TypeVar, Union
 from .validate import validate
 from ..reflection import get_python_version
@@ -44,7 +43,7 @@ def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[Func
             def timeout_wrapper() -> None:
                 try:
                     res[0] = func(*args, **kwargs)
-                except Exception as function_error:
+                except Exception as function_error:  # pylint : disable=broad-exception-caught
                     res[0] = function_error
 
             t = threading.Thread(target=timeout_wrapper, daemon=True)

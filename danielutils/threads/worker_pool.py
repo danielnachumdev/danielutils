@@ -1,12 +1,11 @@
 from queue import Queue
-from typing import Optional, Any
+from typing import Optional, Any, Type as t_type, Tuple as t_tuple, List as t_list
 from threading import Semaphore
 from .worker import Worker
 from ..reflection import get_python_version
+
 if get_python_version() >= (3, 9):
     from builtins import type as t_type, tuple as t_tuple, list as t_list  # type:ignore
-else:
-    from typing import Type as t_type, Tuple as t_tuple, List as t_list
 
 
 class WorkerPool:
@@ -63,6 +62,11 @@ class WorkerPool:
             self.sem.release(self.num_workers)
 
     def join(self) -> None:
+        """
+        waits for all the workers to finish and will return afterwards
+        Returns:
+            None
+        """
         for w in self.workers:
             w.thread.join()
 

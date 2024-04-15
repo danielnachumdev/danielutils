@@ -1,7 +1,6 @@
 import math
 import decimal
-from abc import abstractmethod
-from typing import Iterable, Callable, Optional, Iterator, Sequence, overload, Union
+from typing import Callable, Optional, Iterator, Sequence, overload, Union
 
 
 class frange(Sequence[float]):
@@ -10,6 +9,7 @@ class frange(Sequence[float]):
 
     @staticmethod
     def from_range(r: range) -> 'frange':
+        """will "downcast" `range` to `frange` correctly"""
         return frange(r.start, r.stop, r.step)
 
     def __init__(self, start: float, stop: Optional[float] = None,
@@ -25,23 +25,33 @@ class frange(Sequence[float]):
 
     @property
     def is_finite(self) -> bool:
+        """
+        Returns `True` if the range is finite
+        inverse if `is_infinite`
+        Returns:
+            bool
+        """
         return self._is_finite
 
     @property
     def is_infinite(self) -> bool:
+        """
+        Returns `True` if the range is infinite
+        inverse if `is_finite`
+        Returns:
+            bool
+        """
         return not self.is_finite
 
     @overload
-    @abstractmethod
     def __getitem__(self, index: int) -> float:
         ...
 
     @overload
-    @abstractmethod
     def __getitem__(self, index: slice) -> 'frange':
         ...
 
-    def __getitem__(self, index: Union[float, 'frange']) -> Union[float, 'frange']:
+    def __getitem__(self, index: Union[float, slice]) -> Union[float, 'frange']:
         if isinstance(index, slice):
             index = slice(
                 index.start if index.start is not None else 0,
@@ -53,12 +63,13 @@ class frange(Sequence[float]):
                 start = self.start + step * index.start
                 stop = self.start + step * index.stop
                 return frange(start, stop, step)
-            return reversed(self[index.start:index.stop:abs(index.step)])
+            s = slice(index.start, index.stop, abs(index.step))
+            return reversed(self[s])
         if index < 0:
             raise ValueError(f"At {self.__class__.__qualname__}.__getitem__ 'index' must be a positive integer")
         return self.start + self.step * index
 
-    def __reversed__(self) -> Iterator[float]:
+    def __reversed__(self) -> 'frange':
         return frange(self.stop - 1, self.start - 1, -self.step)
 
     def __eq__(self, other):
@@ -114,6 +125,11 @@ class frange(Sequence[float]):
         return item / self.step - item // self.step == 0
 
     def normalize(self) -> 'frange':
+        """
+        will normalize the `frange` object
+        Returns:
+            frange
+        """
         return frange(self.start / self.step, self.stop / self.step, 1)
 
     # def _normalize_with(self, other: 'frange') -> 'frange':
@@ -128,6 +144,15 @@ class frange(Sequence[float]):
 
     @staticmethod
     def _find_min_step(s1: float, s2: float) -> float:
+        """
+        returns the minimum LCM for two step values
+        Args:
+            s1 (float): first step value:
+            s2 (float): second step value:
+
+        Returns:
+            float: minimum LCM
+        """
         M = max(s1, s2)
         m = min(s1, s2)
         if float.is_integer(M / m):

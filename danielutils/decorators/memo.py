@@ -1,6 +1,6 @@
-from typing import Callable, Any, TypeVar, Dict as t_dict
 import functools
-import platform
+from typing import Callable, Any, TypeVar, Dict as t_dict
+from copy import deepcopy
 from .validate import validate
 
 from ..reflection import get_python_version
@@ -9,7 +9,6 @@ if get_python_version() < (3, 9):
 else:
     from builtins import dict as t_dict
     from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
-from copy import deepcopy
 T = TypeVar("T")
 P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore

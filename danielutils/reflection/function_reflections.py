@@ -39,10 +39,32 @@ def get_prev_func(steps_back: int) -> Optional[Callable]:
 
 
 def get_current_func() -> Optional[Callable]:
+    """returns the current func
+    Example:
+        >>> def foo():
+        >>>     return get_current_func()
+
+        >>> foo is foo()
+        True
+        >>> foo is foo()()()
+        True     
+    """
     return get_prev_func(1)
 
 
 def get_caller() -> Optional[Callable]:
+    """returns the caller to the current function
+
+    Example:
+        >>> def foo():
+        >>>     print(get_caller())
+
+        >>> def bar():
+        >>>     foo()
+
+        >>> bar()
+        "bar"
+    """
     return get_prev_func(2)
 
 

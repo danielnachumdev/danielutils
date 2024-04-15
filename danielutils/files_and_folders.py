@@ -185,6 +185,13 @@ def create_directory(path: str) -> None:
 
 @validate
 def create_file(path: str) -> None:
+    """
+    Will create a file at the specified path if it doesn't already exists
+    Args:
+        path (str): the path to create a file at
+    Returns:
+        None
+    """
     if not file_exists(path):
         with open(path, "w", encoding='utf8') as f:
             pass

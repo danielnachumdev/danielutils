@@ -11,11 +11,11 @@ class InMemoryDatabase(Database):
     """
 
     def _on_notify(self, updater: 'Database', obj: Any) -> None:
-        pass
+        assert False
 
     def __init__(self) -> None:
         super().__init__()
-        self._db: dict = dict()
+        self._db: dict = {}
 
     def get(self, key: K, default: Any = Database.DEFAULT) -> Optional[V]:
         return self._db.get(key, default)
@@ -37,7 +37,7 @@ class MockDatabase(InMemoryDatabase):
 
     def __init__(self, min_delay: float = 0, max_delay: float = 0) -> None:
         super().__init__()
-        if not (0 <= min_delay <= max_delay):
+        if not (0 <= min_delay <= max_delay):  # pylint: disable=superfluous-parens
             raise ValueError("min_delay must be smaller than max_delay and they must be non-negative")
         self._min_delay = min_delay
         self._max_delay = max_delay

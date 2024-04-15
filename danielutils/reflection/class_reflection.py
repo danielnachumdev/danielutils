@@ -1,11 +1,9 @@
 import inspect
-from typing import Any
+from typing import Any, List as t_list
 from .interpreter import get_python_version
 
 if get_python_version() >= (3, 9):
     from builtins import list as t_list  # type:ignore
-else:
-    from typing import List as t_list
 
 
 def get_explicitly_declared_functions(cls: type) -> t_list[str]:

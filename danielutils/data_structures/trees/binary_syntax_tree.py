@@ -4,6 +4,10 @@ from ..graph import BinaryNode
 
 
 class BinarySyntaxTree(BinaryTree):
+    """
+    Binary tree data structure to represent syntax of expressions
+    """
+
     @staticmethod
     def _evaluate_node(v: BinaryNode, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]):
         if v.left is None and v.right is None:

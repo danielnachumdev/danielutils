@@ -1,4 +1,3 @@
-import platform
 import functools
 import inspect
 from typing import Callable, get_type_hints, cast, TypeVar, Union

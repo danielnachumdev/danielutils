@@ -1,13 +1,11 @@
 from threading import Thread
 from abc import ABC, abstractmethod
-from typing import Optional, Any
+from typing import Optional, Any,Tuple as t_tuple
 from logging import error
 import danielutils # this is explicitly this way to prevent circular import
 from ..reflection import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple  # type:ignore
-else:
-    from typing import Tuple as t_tuple
 
 
 class Worker(ABC):

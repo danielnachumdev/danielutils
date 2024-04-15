@@ -1,4 +1,4 @@
-from typing import Optional, Generator, Any, cast, TypeVar, Generic
+from typing import Optional, Generator, TypeVar, Generic
 from .graph import Node
 
 T = TypeVar('T')
@@ -39,6 +39,11 @@ class Stack(Generic[T]):
         raise RuntimeError("Can't pop from an empty stack")
 
     def peek(self) -> Optional[T]:
+        """
+        Returns the top element of the stack
+        Returns:
+            Optional[T]
+        """
         if self.is_empty():
             return None
         return self.head.data

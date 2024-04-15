@@ -1,4 +1,3 @@
-import platform
 from typing import Callable, TypeVar
 from ..colors import warning, ColoredText
 

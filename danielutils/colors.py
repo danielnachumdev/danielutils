@@ -16,7 +16,7 @@ class ColoredText:
         black
     """
 
-    @staticmethod
+    @staticmethod  # type:ignore
     @validate
     def from_rgb(red: int, green: int, blue: int, text: str) -> str:
         """Applies an RGB color to the given text.

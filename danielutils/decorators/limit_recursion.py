@@ -1,7 +1,6 @@
 import functools
 import re
 import traceback
-import platform
 from typing import Any, Callable, TypeVar
 from .validate import validate
 from ..colors import warning

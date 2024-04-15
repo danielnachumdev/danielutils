@@ -1,20 +1,22 @@
-from typing import Any, Generic, TypeVar, Optional, TypeGuard
+from typing import Any, TypeVar, Optional
 
-from .database import Database, K, V
+from .database import Database
 
-I = TypeVar('I')
-O = TypeVar('O')
+K = TypeVar('K')
+V = TypeVar('V')
 
-
-class CachedDatabase(Database, Generic[I, O]):
+class CachedDatabase(Database[K, V]):
     """
     A database that is composed of two types of databases.
     Args:
         primary (Database): is intended to be the "real" database which is usually slower than the `cache`
         cache (Database): is intended to be a cache layer over `primary` which will be faster when reading
         *
-        notify_primary (bool): if a single Database instance is as `primary` for multiple CachedDatabase and the current CachedDatabase instance 'set' method is used, it will also update the cache on different CachedDatabase instances. Defaults to False
-        notify_cache (bool): same as `notify_primary` but will update other primaries on different CachedDatabase instances
+        notify_primary (bool): if a single Database instance is as `primary` for multiple CachedDatabase and the
+            current CachedDatabase instance 'set' method is used, it will also update the cache on different
+            CachedDatabase instances. Defaults to False
+        notify_cache (bool): same as `notify_primary` but will update other primaries on different
+            CachedDatabase instances
     Returns:
         None
     """
@@ -38,7 +40,7 @@ class CachedDatabase(Database, Generic[I, O]):
         self._notify_primary = notify_primary
         self._notify_cache = notify_cache
 
-    def get(self, key: I, default: Any = Database.DEFAULT) -> Optional[O]:
+    def get(self, key: K, default: Any = Database.DEFAULT) -> Optional[V]:
         res = self._cache.get(key, default)
         if res is not default:
             return res
@@ -47,19 +49,19 @@ class CachedDatabase(Database, Generic[I, O]):
             self._cache.set(key, res)
         return res
 
-    def set(self, key: I, value: O) -> None:
+    def set(self, key: K, value: V) -> None:
         self._cache.set(key, value)
         if self._notify_cache:
-            self._cache._notify_subscribers((key, value))
+            self._cache._notify_subscribers((key, value))  # pylint: disable=protected-access
         self._primary.set(key, value)
         if self._notify_primary:
-            self._primary._notify_subscribers((key, value))
+            self._primary._notify_subscribers((key, value))  # pylint: disable=protected-access
 
-    def delete(self, key: I) -> None:
+    def delete(self, key: K) -> None:
         self._cache.delete(key)
         self._primary.delete(key)
 
-    def contains(self, key: I) -> bool:
+    def contains(self, key: K) -> bool:
         if self._cache.contains(key):
             return True
         if (res := self.get(key)) is not Database.DEFAULT:

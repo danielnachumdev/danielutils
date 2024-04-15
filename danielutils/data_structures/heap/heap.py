@@ -1,4 +1,4 @@
-from typing import Any, Union, TypeVar, Generic
+from typing import Union, TypeVar, Generic
 from ..comparer import Comparer
 
 T = TypeVar("T")

@@ -1,6 +1,8 @@
+import copy
 from typing import Any, Callable, Union, Tuple as t_tuple, List as t_list, Dict as t_dict
 import re
-from ..reflection import get_python_version
+from ..reflection import get_python_version  # pylint :disable=relative-beyond-top-level
+
 if get_python_version() >= (3, 9):
     from builtins import tuple as t_tuple, list as t_list, dict as t_dict  # type:ignore
 
@@ -39,9 +41,10 @@ class REPL:
     """a class to easily create a shell application and get functionality for free
     """
 
+    # pylint: disable=dangerous-default-value
     def __init__(self, routes: t_list[Command], *, prompt_symbol: str = ">>> ", exit_keywords: set = {"exit", "quit"}):
         self.prompt_symbol = prompt_symbol
-        self.exit_keywords = exit_keywords
+        self.exit_keywords = copy.copy(exit_keywords)
         self.routes: t_dict[str, Command] = {
             com.command.name: com for com in routes}
 
@@ -58,7 +61,7 @@ class REPL:
 
             if prompt == "help":
                 print("Available commands:")
-                for com in list(self.routes.keys())+list(self.exit_keywords):
+                for com in list(self.routes.keys()) + list(self.exit_keywords):
                     print(f"\t{com}")
                 continue
 
@@ -70,9 +73,9 @@ class REPL:
                 except TypeError as e:
                     msg = str(e)
                     if re.match(r".*missing.*required.*argument.*", msg):
-                        print(f"'{command}' "+msg[msg.find("missing"):])
+                        print(f"'{command}' " + msg[msg.find("missing"):])
                     elif re.match(r".*takes.*arguments but.*given", msg):
-                        print(f"'{command}' "+msg[msg.find("takes"):])
+                        print(f"'{command}' " + msg[msg.find("takes"):])
                     else:
                         raise e
 

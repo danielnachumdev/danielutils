@@ -1,5 +1,4 @@
 from typing import Callable, TypeVar, Union
-import platform
 import time
 import functools
 from .decorate_conditionally import decorate_conditionally

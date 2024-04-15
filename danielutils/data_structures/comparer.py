@@ -1,5 +1,5 @@
 """Comparer class"""
-from typing import Callable, Any, Union, Generic, TypeVar
+from typing import Callable,  Union, Generic, TypeVar
 from .functions import default_weight_function
 
 U = TypeVar("U")

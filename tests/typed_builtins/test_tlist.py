@@ -1,4 +1,3 @@
-
 import random
 import unittest
 from typing import Union, Any, List as t_list, Tuple as t_tuple
@@ -40,17 +39,17 @@ class TestTlist(unittest.TestCase):
             tlist[t_tuple[int]]([[1], [2], [3], ["4"]])
 
     def test_isinstance(self):
-        self.assertTrue(isinstance([1, 2, 3, 4], tlist[int]))
-        self.assertTrue(isinstance([0.1, 0.1, 0.2], tlist[float]))
-        self.assertTrue(isinstance([1, 2, 3, 0.1, 0.2], tlist[Union[int, float]]))
-        self.assertTrue(isinstance([1, 23, 3, 0.1, 0.2], tlist[Union[int, float]]))
-        self.assertTrue(isinstance([1, 2, 0.2, 0.63, [], [1]], tlist[Any]))
+        self.assertTrue(isinstance([1, 2, 3, 4], tlist[int]))  # type: ignore
+        self.assertTrue(isinstance([0.1, 0.1, 0.2], tlist[float]))  # type: ignore
+        self.assertTrue(isinstance([1, 2, 3, 0.1, 0.2], tlist[Union[int, float]]))  # type: ignore
+        self.assertTrue(isinstance([1, 23, 3, 0.1, 0.2], tlist[Union[int, float]]))  # type: ignore
+        self.assertTrue(isinstance([1, 2, 0.2, 0.63, [], [1]], tlist[Any]))  # type: ignore
 
     def test_isinstanse_fail(self):
-        self.assertFalse(isinstance([1, 2, 3, "4"], tlist[int]))
-        self.assertFalse(isinstance([0.1, 0.1, " 0.2"], tlist[float]))
-        self.assertFalse(isinstance([1, 2, 3, 0.1, "0.2"], tlist[Union[int, float]]))
-        self.assertFalse(isinstance([1, 23, 3, 0.1, " 0.2"], tlist[Union[int, float]]))
+        self.assertFalse(isinstance([1, 2, 3, "4"], tlist[int]))  # type: ignore
+        self.assertFalse(isinstance([0.1, 0.1, " 0.2"], tlist[float]))  # type: ignore
+        self.assertFalse(isinstance([1, 2, 3, 0.1, "0.2"], tlist[Union[int, float]]))  # type: ignore
+        self.assertFalse(isinstance([1, 23, 3, 0.1, " 0.2"], tlist[Union[int, float]]))  # type: ignore
 
     def test_isinstance_with_regular_list(self):
         a = tlist[int]([1, 2, 3])

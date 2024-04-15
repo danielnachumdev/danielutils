@@ -1,5 +1,4 @@
 from typing import Callable, TypeVar
-import platform
 import functools
 import threading
 

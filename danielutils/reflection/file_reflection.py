@@ -33,6 +33,7 @@ def get_caller_filename() -> Optional[str]:
 
 
 def get_current_directory() -> str:
+    """returns the name of the directory of main script"""
     return os.path.dirname(os.path.abspath(get_caller_filename()))  # type:ignore # noqa
 
 

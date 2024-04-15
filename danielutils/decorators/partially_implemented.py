@@ -1,6 +1,5 @@
 from typing import Callable, Any, TypeVar
 import functools
-import platform
 from .validate import validate
 from ..colors import warning
 

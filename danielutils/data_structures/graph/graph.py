@@ -1,10 +1,11 @@
-from typing import Optional, Generator, List as t_list, Set as t_set,Dict as t_dict, Generic, TypeVar, Iterable, Iterator
+from typing import Optional, Generator, List as t_list, Set as t_set, Dict as t_dict, Generic, \
+    TypeVar, Iterable, Iterator
 from ..queue import Queue
 from .multinode import MultiNode
 from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list, set as t_set,dict as t_dict
+    from builtins import list as t_list, set as t_set, dict as t_dict
 
 T = TypeVar("T")
 
@@ -30,6 +31,11 @@ class Graph(Generic[T]):
     """
 
     def to_dict(self) -> t_dict[T, t_set[T]]:
+        """
+        converts the graph to a dictionary.
+        Returns:
+            dict: A dictionary representing the graph.
+        """
         dct: t_dict[T, t_set[T]] = {}
         for node in self:
             v = dct.get(node.data, set())
@@ -40,6 +46,14 @@ class Graph(Generic[T]):
 
     @staticmethod
     def from_dict(dct: t_dict[T, Iterable[T]]) -> "Graph[T]":
+        """
+        converts a dictionary to a graph.
+        Args:
+            dct: A dictionary representing the graph.
+
+        Returns:
+            Graph[T]: A graph representing the given dictionary.
+        """
         g: Graph[T] = Graph()
         seen: t_dict[T, MultiNode[T]] = {}
         for k, v in dct.items():

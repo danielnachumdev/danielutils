@@ -17,17 +17,17 @@ class TestFunctionReflections(unittest.TestCase):
         foo()
 
     def test_get_function_return_type(self):
-        def foo(): ...
+        def foo1(): ...
 
-        self.assertEqual(type(None), get_function_return_type(foo))
+        self.assertEqual(type(None), get_function_return_type(foo1))
 
-        def foo() -> None: ...
+        def foo2() -> None: ...
 
-        self.assertEqual(type(None), get_function_return_type(foo))
+        self.assertEqual(type(None), get_function_return_type(foo2))
 
-        def foo() -> int: ...
+        def foo3() -> int: ...  # type:ignore
 
-        self.assertEqual(int, get_function_return_type(foo))
+        self.assertEqual(int, get_function_return_type(foo3))
 
     def test_is_function_annotated_properly(self):
         def foo1(): ...
@@ -38,7 +38,7 @@ class TestFunctionReflections(unittest.TestCase):
 
         self.assertTrue(is_function_annotated_properly(foo2))
 
-        def foo3() -> int: ...
+        def foo3() -> int: ...  # type:ignore
 
         self.assertTrue(is_function_annotated_properly(foo3))
 

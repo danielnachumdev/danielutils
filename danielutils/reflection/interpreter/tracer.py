@@ -1,4 +1,3 @@
-import functools
 import sys
 from abc import ABC, abstractmethod
 from enum import Enum
@@ -7,13 +6,17 @@ from typing import Any, Callable, Optional
 
 
 # from danielutils import singleton
-
-
 # @singleton
 class Tracer(ABC):
+    """
+    A class to trace (during runtime) the flow of the currently executing code
+    """
     _INSTANCE = None
 
     class EventType(Enum):
+        """
+        An enum class to represent all the types of possible events
+        """
         CALL = "call"
         C_CALL = "c_call"
         RETURN = "return"
@@ -21,6 +24,9 @@ class Tracer(ABC):
 
         @staticmethod
         def from_value(value: str):
+            """
+            Converts the given value to a Tracer.EventType instance
+            """
             if value not in Tracer.EventType._value2member_map_:
                 raise KeyError("Unknown value")
             return Tracer.EventType._value2member_map_[value]

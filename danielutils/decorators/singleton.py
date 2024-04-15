@@ -18,6 +18,7 @@ def singleton(og_class):
     setattr(og_class, "__new__", __new__)
     return og_class
 
-__all__=[
+
+__all__ = [
     "singleton"
 ]
