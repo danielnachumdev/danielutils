@@ -11,7 +11,7 @@ def main() -> None:
         min_python=Version(3, 8, 0),
         homepage="https://github.com/danielnachumdev/danielutils",
         keywords=['functions', 'decorators', 'methods', 'classes', 'metaclasses'],
-        dependencies=["tqdm"]
+        dependencies=[]
     )
 
 
