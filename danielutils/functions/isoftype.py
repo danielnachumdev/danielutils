@@ -1,5 +1,7 @@
+import inspect
+import re
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
-    ForwardRef, Literal, Optional, Tuple as t_tuple
+    ForwardRef, Literal, Optional, Tuple as t_tuple, Protocol
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
 
@@ -243,6 +245,18 @@ def __handle_type_origin(params: tuple) -> bool:
     return isinstance(V, T)
 
 
+def __handle_protocol(params: tuple) -> bool:
+    from ..reflection import FunctionDeclaration
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    if not isoftype(V, type):
+        return False
+
+    declared_funcs: set[FunctionDeclaration] = set(FunctionDeclaration.get_declared_functions(V))
+    required_funcs: set[FunctionDeclaration] = set(FunctionDeclaration.get_declared_functions(t_origin))
+
+    return len(required_funcs - declared_funcs) == 0
+
+
 HANDLERS = {
     list: __handle_list_set_iterable,
     tuple: __handle_tuple,
@@ -253,7 +267,8 @@ HANDLERS = {
     # implicit_union_type: __handle_union,
     Generator: __handle_generator,
     Literal: __handle_literal,
-    Callable: __handle_callable
+    Callable: __handle_callable,
+    Protocol: __handle_protocol,
 }
 
 
@@ -288,6 +303,8 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
         return False
 
     if t_origin is not None:
+        if getattr(t_origin, "_is_protocol", False):
+            t_origin = Protocol
         if t_origin in HANDLERS:
             if t_origin in (list, tuple, dict, set, dict, Iterable):
                 if not isinstance(V, t_origin):

@@ -1,6 +1,6 @@
 import unittest
 from typing import Union, Callable, Any, Optional, TypeVar, Iterable, ForwardRef, Literal, \
-    AnyStr, Generator, List as t_list, Dict as t_dict, Tuple as t_tuple
+    AnyStr, Generator, List as t_list, Dict as t_dict, Tuple as t_tuple, Protocol, runtime_checkable
 from danielutils.functions import isoftype  # type:ignore
 from danielutils.reflection import get_python_version  # type:ignore
 
@@ -281,3 +281,27 @@ class TestIsOfType(unittest.TestCase):
         self.assertTrue(isoftype(data1_, Person))
         self.assertTrue(isoftype(data2_, Person))
         self.assertTrue(isoftype(data3_, Person))
+
+    def test_protocol(self):
+        T = TypeVar('T')
+
+        @runtime_checkable
+        class Fooable(Protocol):
+            def foo(self): ...
+
+        @runtime_checkable
+        class Barable(Protocol[T]):
+            def bar(self) -> T: ...
+
+        class A:
+            def foo(self): ...
+
+        class B:
+            def bar(self) -> int: ...  # type:ignore
+
+        self.assertTrue(isoftype(A, Fooable))
+        self.assertFalse(isoftype(A, Barable))
+        self.assertFalse(isoftype(B, Fooable))
+        self.assertTrue(isoftype(B, Barable))
+        self.assertTrue(isoftype(B, Barable[int]))
+        self.assertTrue(isoftype(B, Barable[float]))

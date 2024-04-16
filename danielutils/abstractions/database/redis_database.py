@@ -12,10 +12,11 @@ K = TypeVar('K')
 V = TypeVar('V')
 
 
-class RedisDatabase(Database):
+class RedisDatabase(Database[K, V]):
     """
     An implementation of the `Database` interface using Redis.
     """
+
     def __init__(self) -> None:
         super().__init__()
         self._db = redis.StrictRedis(host='localhost', port=6379, db=0)

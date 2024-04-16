@@ -130,6 +130,7 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     return True
 
 
+
 __all__ = [
     "get_caller_name",
     'get_prev_func',
