@@ -4,18 +4,19 @@ from typing import Callable, Any
 from ..expressions import ProbabilityExpression, AccumulationExpression
 from ..operator import Operator
 from ..supp import Supp
+from ..protocols import Evaluable
 
 
 class ConditionalVariable(ABC):
     OPERATOR_TYPE = Callable[['ConditionalVariable', Any], ProbabilityExpression]
 
     @staticmethod
-    def _create_operator(op, reverse: bool = False) -> Callable[['ConditionalVariable', Any], ProbabilityExpression]:
-        cls = AccumulationExpression
-        # if op in {Operator.AND, Operator.GIVEN}:
-        #     cls = AccumulationExpression
+    def _create_operator(op, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Evaluable]:
+        cls = ProbabilityExpression
+        if op in {Operator.AND, Operator.GIVEN}:
+            cls = AccumulationExpression
 
-        def operator(self, other: Any) -> ProbabilityExpression:
+        def operator(self, other: Any) -> Evaluable:
             return cls(self, op, other)
 
         return operator

@@ -19,7 +19,6 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
         """return the next node after self
         """
         return self._children[0]  # type:ignore
-
     @left.setter
     def left(self, value: "BinaryNode[T]") -> None:
         self._children[0] = value

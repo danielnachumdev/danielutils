@@ -3,9 +3,10 @@ from fractions import Fraction
 from .discrete import DiscreteConditionalVariable
 from ...supp import DiscreteSupp
 from ...operator import Operator
+from ...protocols import ExpectedValueCalculable, VariableCalculable
 
 
-class Bernoulli(DiscreteConditionalVariable):
+class Bernoulli(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCalculable):
     def evaluate(self, n: int, op: Operator) -> Fraction:
         if n not in self.supp:
             return 0
@@ -18,6 +19,12 @@ class Bernoulli(DiscreteConditionalVariable):
 
     def __init__(self, p) -> None:
         super().__init__(p, DiscreteSupp(range(0, 2)))
+
+    def expected_value(self) -> Fraction:
+        return self.p
+
+    def variance(self) -> Fraction:
+        return self.p * (1 - self.p)
 
 
 __all__ = ['Bernoulli']

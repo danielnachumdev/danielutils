@@ -12,12 +12,38 @@ class Operator(Enum):
     LT = "<"
     LE = "<="
 
+    @staticmethod
+    def strong_inequalities() -> set['Operator']:
+        return {Operator.GT, Operator.LT}
+
+    @staticmethod
+    def weak_inequalities() -> set['Operator']:
+        return {Operator.GE, Operator.LE}
+
+    @staticmethod
+    def inequalities() -> set['Operator']:
+        return Operator.strong_inequalities().union(Operator.weak_inequalities())
+
+    @staticmethod
+    def equalities() -> set['Operator']:
+        return {Operator.EQ, Operator.NE}
+
+    @staticmethod
+    def greater_than_inequalities() -> set['Operator']:
+        return {Operator.GE, Operator.GT}
+
+    @staticmethod
+    def less_than_inequalities() -> set['Operator']:
+        return {Operator.LE, Operator.LT}
+
     MUL = "*"
     DIV = "/"
     MODULUS = "%"
     GIVEN = '|'
     AND = '&'
     POW = '**'
+    ADD = "+"
+    SUB = "-"
 
     @property
     def inverse(self) -> 'Operator':
@@ -26,14 +52,17 @@ class Operator(Enum):
         Returns:
             Operator (Enum): the inverse of the operator.
         """
-        return {
+        dct = {
             Operator.EQ: Operator.NE,
             Operator.NE: Operator.EQ,
             Operator.GT: Operator.LE,
             Operator.LE: Operator.GT,
             Operator.GE: Operator.LT,
             Operator.LT: Operator.GE
-        }[self]
+        }
+        if self not in dct:
+            raise ValueError(f"Operator.{self.name} does not support 'inverse'.")
+        return dct[self]
 
 
 __all__ = [

@@ -13,6 +13,9 @@ class Supp(ABC, Iterator[T]):
     def is_infinite(self) -> bool:
         return not self.is_finite
 
+    @abstractmethod
+    def __contains__(self, item) -> bool: ...
+
 
 class DiscreteSupp(Supp[int]):
     @property
@@ -29,6 +32,21 @@ class DiscreteSupp(Supp[int]):
 
     def __iter__(self) -> Iterator[int]:
         return iter(self._r)
+
+    def __contains__(self, item) -> bool:
+        return item in self._r
+
+    @property
+    def start(self) -> float:
+        return self._r.start
+
+    @property
+    def stop(self) -> float:
+        return self._r.stop
+
+    @property
+    def step(self) -> float:
+        return self._r.step
 
 
 class ContinuseSupp(Supp[float]):
