@@ -251,10 +251,20 @@ def __handle_protocol(params: tuple) -> bool:
     if not isoftype(V, type):
         return False
 
-    declared_funcs: set[FunctionDeclaration] = set(FunctionDeclaration.get_declared_functions(V))
-    required_funcs: set[FunctionDeclaration] = set(FunctionDeclaration.get_declared_functions(t_origin))
+    declared_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
+    required_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
 
-    return len(required_funcs - declared_funcs) == 0
+    for i, req_func in enumerate(required_funcs):
+        if req_func.has_generics:
+            if req_func.return_type in req_func.generics:
+                new_req_func = req_func.duplicate(
+                    return_type=t_args[req_func.generics.index(req_func.return_type)].__name__)
+                required_funcs[i] = new_req_func
+            for arg in required_funcs[i].arguments:
+                for generic in req_func.generics:
+                    if arg.type is not None and generic in arg.type:
+                        pass
+    return len(set(required_funcs) - set(declared_funcs)) == 0
 
 
 HANDLERS = {

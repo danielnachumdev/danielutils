@@ -50,6 +50,7 @@ func_pattern = re.compile(
     flags=re.MULTILINE)
 not_whitespace_pattern = re.compile(r"\S+", flags=re.MULTILINE)
 arg_pattern = re.compile(r"([\w\*\/]+)(?:\s*?:\s*?([\w\[\]\(\)\,]+))?(?:\s*?=\s*?(.+))?")
+class_pattern = re.compile(r"\s*class\s+?\w+\s*?(?:\((.*)\))?\s*?:")
 
 
 def split_args(args: str) -> list[str]:
@@ -83,6 +84,22 @@ class FunctionDeclaration:
     arguments: tuple[Argument, ...]
     return_type: Optional[str]
     decorators: Optional[list[str]] = None
+    generics: Optional[tuple[str]] = None
+
+    def duplicate(self, **override_kwargs) -> 'FunctionDeclaration':
+        dct = dict(
+            name=self.name,
+            arguments=self.arguments,
+            return_type=self.return_type,
+            decorators=self.decorators,
+            generics=self.generics,
+        )
+        dct.update(override_kwargs)
+        return FunctionDeclaration(**dct)
+
+    @property
+    def has_generics(self) -> bool:
+        return self.generics is not None and len(self.generics) > 0
 
     @staticmethod
     def get_declared_functions(cls) -> list['FunctionDeclaration']:
@@ -94,6 +111,14 @@ class FunctionDeclaration:
         if not isinstance(cls, type):
             raise TypeError('cls must be a Class')
         src = inspect.getsource(cls)
+        bases = [o for o in map(remove_whitespace, class_pattern.findall(src)) if len(o) > 0]
+        parameters = []
+        for base in bases:
+            if '[' in base and ']' in base:
+                s = base[base.index('[') + 1:base.rindex(']')]
+                for arg in split_args(s):
+                    if len(arg) == 1:
+                        parameters.append(arg)
         res = []
         for code, name, args, ret in func_pattern.findall(src):
             name: str = name.strip()
@@ -103,10 +128,18 @@ class FunctionDeclaration:
                 for arg in split_args(args):
                     arguments.append(Argument(*arg_pattern.match(remove_whitespace(arg)).groups()))
             ret: Optional[str] = ret.strip() if ret is not None and len(ret) != 0 else None
-            res.append(FunctionDeclaration(name, tuple(arguments), ret))
+            res.append(FunctionDeclaration(name, tuple(arguments), ret, decorators=None, generics=tuple(parameters)))
 
         return res
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, FunctionDeclaration):
+            return False
+
+        return self.name == other.name and self.arguments == self.arguments and self.return_type == other.return_type
+
+    def __hash__(self) -> int:
+        return hash((self.name, self.arguments, self.return_type))
 
     def __repr__(self) -> str:
         args = ",\n\t\t".join(map(str, self.arguments))

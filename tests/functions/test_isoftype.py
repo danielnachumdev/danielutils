@@ -304,4 +304,4 @@ class TestIsOfType(unittest.TestCase):
         self.assertFalse(isoftype(B, Fooable))
         self.assertTrue(isoftype(B, Barable))
         self.assertTrue(isoftype(B, Barable[int]))
-        self.assertTrue(isoftype(B, Barable[float]))
+        self.assertFalse(isoftype(B, Barable[float]))
