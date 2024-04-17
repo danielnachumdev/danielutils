@@ -2,20 +2,25 @@ from enum import Enum
 
 
 class Operator(Enum):
-    GIVEN = "|"
-    AND = "&"
-    EQ = "=="
-    LT = "<"
-    LE = "<="
-    GT = ">"
-    GE = ">="
-    NE = "!="
-    ADD = "+"
-    SUB = "-"
-    POW = "**"
+    EQ = "EQ"
+    NE = "NE"
+    GT = "GT"
+    GE = "GE"
+    LT = "LT"
+    LE = "LE"
 
-    # def __repr__(self):
-    #     return f"Operators.{self.name} '{self.value}'"
+    _INVERSE_MAP: dict['Operator', 'Operator'] = {
+        EQ: NE,
+        NE: EQ,
+        GT: LE,
+        LE: GT,
+        GE: LT,
+        LT: GE
+    }
+
+    @property
+    def inverse(self) -> 'Operator':
+        return Operator._INVERSE_MAP[self]
 
 
 __all__ = [
