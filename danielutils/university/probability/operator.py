@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class Operator(Enum):
+    """
+    Operator Enum to define the types of operators.
+    """
     EQ = "EQ"
     NE = "NE"
     GT = "GT"
@@ -9,18 +12,21 @@ class Operator(Enum):
     LT = "LT"
     LE = "LE"
 
-    _INVERSE_MAP: dict['Operator', 'Operator'] = {
-        EQ: NE,
-        NE: EQ,
-        GT: LE,
-        LE: GT,
-        GE: LT,
-        LT: GE
-    }
-
     @property
     def inverse(self) -> 'Operator':
-        return Operator._INVERSE_MAP[self]
+        """
+        Returns the inverse of the operator.
+        Returns:
+            Operator (Enum): the inverse of the operator.
+        """
+        return {
+            Operator.EQ: Operator.NE,
+            Operator.NE: Operator.EQ,
+            Operator.GT: Operator.LE,
+            Operator.LE: Operator.GT,
+            Operator.GE: Operator.LT,
+            Operator.LT: Operator.GE
+        }[self]
 
 
 __all__ = [
