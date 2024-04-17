@@ -21,7 +21,6 @@ class frange(Sequence[float]):
         self.stop = stop
         self.step = step
         self.method = round_method
-        self._is_finite = len(self) != float("inf")
 
     @property
     def is_finite(self) -> bool:
@@ -31,7 +30,7 @@ class frange(Sequence[float]):
         Returns:
             bool
         """
-        return self._is_finite
+        return len(self) != float("inf")
 
     @property
     def is_infinite(self) -> bool:

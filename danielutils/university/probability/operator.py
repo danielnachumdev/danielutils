@@ -5,12 +5,19 @@ class Operator(Enum):
     """
     Operator Enum to define the types of operators.
     """
-    EQ = "EQ"
-    NE = "NE"
-    GT = "GT"
-    GE = "GE"
-    LT = "LT"
-    LE = "LE"
+    EQ = "=="
+    NE = "!="
+    GT = ">"
+    GE = ">="
+    LT = "<"
+    LE = "<="
+
+    MUL = "*"
+    DIV = "/"
+    MODULUS = "%"
+    GIVEN = '|'
+    AND = '&'
+    POW = '**'
 
     @property
     def inverse(self) -> 'Operator':

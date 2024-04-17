@@ -6,9 +6,9 @@ from ...operator import Operator
 
 
 class ConditionalFromDiscreteProbabilityFunc(DiscreteConditionalVariable):
-    def evaluate(self, n: int, op: Operator) -> float:
+    def evaluate(self, n: int, op: Operator) -> Fraction:
         if op == Operator.EQ:
-            return self.p(n)
+            return self.f(n)
         if op == Operator.LT:
             res = 0
             for k in range(n):
@@ -20,13 +20,15 @@ class ConditionalFromDiscreteProbabilityFunc(DiscreteConditionalVariable):
         return 1 - self.evaluate(n, op.inverse)
 
     def __init__(self, p: Callable[[int], Fraction], supp: DiscreteSupp) -> None:
-        self.p = p
-        self._supp = supp
+        super().__init__(None, supp)
+        self.f = p
 
     @property
-    def supp(self) -> DiscreteSupp:
-        return self._supp
+    def p(self):
+        raise AttributeError(f"{self.__class__.__name__} has no attribute 'p'")
 
+    def __repr__(self):
+        return self.__class__.__name__
 
 __all__ = [
     'ConditionalFromDiscreteProbabilityFunc',

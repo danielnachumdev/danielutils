@@ -1,5 +1,6 @@
 import unittest
-from danielutils.university.probability import Bernoulli as B, ProbabilityFunction as P, frange, ExpectedValue as E
+from danielutils import frange
+from danielutils.university.probability import Bernoulli as B, probability_function as P, expected_value as E
 
 
 class TestBernoulli(unittest.TestCase):

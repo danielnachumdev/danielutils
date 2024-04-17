@@ -13,5 +13,6 @@ class ProbabilityExpression(Evaluable):
     def evaluate(self) -> Fraction:
         return self.lhs.evaluate(self.rhs, self.op)
 
-
+    def __repr__(self)->str:
+        return f"ProbabilityExpression({self.lhs} {self.op.value} {self.rhs})"
 __all__ = ['ProbabilityExpression']

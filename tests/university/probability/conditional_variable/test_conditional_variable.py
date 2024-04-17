@@ -1,5 +1,5 @@
 import unittest
-from danielutils.university.probability import Unif as U
+from danielutils.university.probability import Uniform as U
 
 
 class TestConditionalVariable(unittest.TestCase):

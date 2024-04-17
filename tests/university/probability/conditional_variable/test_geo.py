@@ -1,6 +1,6 @@
 import unittest
 
-from danielutils.university.probability import Geo as G, ProbabilityFunction as P
+from danielutils.university.probability import Geometric as G, probability_function as P
 
 X = G(0.5)
 
@@ -18,7 +18,7 @@ class TestGeo(unittest.TestCase):
 
     def test_and(self):
         # self.assertEqual(P(X > 0 & X > 0), P(X > 0))
-        self.assertEqual(P(0 < X < 2), P(X == 1))
+        self.assertEqual(P((0 < X) < 2), P(X == 1))
         self.assertEqual(P(X > 0 & X < 2), P(X == 1))
         self.assertEqual(P(X >= 1 & X <= 1), P(X == 1))
         self.assertEqual(P(X >= 1 & X <= 1), P(X == 1))

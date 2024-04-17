@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from fractions import Fraction
 from typing import Callable, Any
 from ..probability_expression import ProbabilityExpression
 from ..operator import Operator
@@ -9,7 +10,7 @@ class ConditionalVariable(ABC):
     OPERATOR_TYPE = Callable[['ConditionalVariable', Any], ProbabilityExpression]
 
     @staticmethod
-    def _create_operator(op) -> Callable[['ConditionalVariable', Any], ProbabilityExpression]:
+    def _create_operator(op, reverse: bool = False) -> Callable[['ConditionalVariable', Any], ProbabilityExpression]:
         def operator(self, other: Any) -> ProbabilityExpression:
             return ProbabilityExpression(self, op, other)
 
@@ -22,13 +23,22 @@ class ConditionalVariable(ABC):
     __lt__: OPERATOR_TYPE = _create_operator(Operator.LT)
     __le__: OPERATOR_TYPE = _create_operator(Operator.LE)
 
+    __mul__: OPERATOR_TYPE = _create_operator(Operator.MUL)
+    __truediv__: OPERATOR_TYPE = _create_operator(Operator.DIV)
+    __and__: OPERATOR_TYPE = _create_operator(Operator.AND)
+    __or__: OPERATOR_TYPE = _create_operator(Operator.GIVEN)
+    __mod__: OPERATOR_TYPE = _create_operator(Operator.MODULUS)
+    __pow__: OPERATOR_TYPE = _create_operator(Operator.POW)
+
     @abstractmethod
-    def evaluate(self, other: Any, operator: Operator) -> float: ...
+    def evaluate(self, other: Any, operator: Operator) -> Fraction: ...
 
     @property
     @abstractmethod
     def supp(self) -> Supp: ...
 
+    def __repr__(self)->str:
+        return f"{self.__class__.__name__}"
 
 __all__ = [
     "ConditionalVariable"
