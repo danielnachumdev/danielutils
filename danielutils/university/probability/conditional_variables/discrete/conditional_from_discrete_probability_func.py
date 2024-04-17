@@ -10,7 +10,7 @@ class ConditionalFromDiscreteProbabilityFunc(DiscreteConditionalVariable):
         if op == Operator.EQ:
             return self.f(n)
         if op == Operator.LT:
-            res = 0
+            res = Fraction(0, 1)
             for k in range(n):
                 res += self.evaluate(k, Operator.EQ)
             return res
@@ -29,6 +29,7 @@ class ConditionalFromDiscreteProbabilityFunc(DiscreteConditionalVariable):
 
     def __repr__(self):
         return self.__class__.__name__
+
 
 __all__ = [
     'ConditionalFromDiscreteProbabilityFunc',

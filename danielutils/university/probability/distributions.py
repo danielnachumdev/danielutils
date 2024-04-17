@@ -20,7 +20,7 @@ class ContinuousDistribution(Enum):
     Normal = None
 
 
-class Distribution(Enum):
+class Distribution:
     Discrete = DiscreteDistribution
     Continuous = ContinuousDistribution
     #     def __getattr__(self, item):

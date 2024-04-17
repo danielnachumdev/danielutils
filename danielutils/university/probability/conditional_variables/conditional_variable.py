@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from fractions import Fraction
 from typing import Callable, Any
-from ..probability_expression import ProbabilityExpression
+from ..expressions import ProbabilityExpression, AccumulationExpression
 from ..operator import Operator
 from ..supp import Supp
 
@@ -11,8 +11,12 @@ class ConditionalVariable(ABC):
 
     @staticmethod
     def _create_operator(op, reverse: bool = False) -> Callable[['ConditionalVariable', Any], ProbabilityExpression]:
+        cls = AccumulationExpression
+        # if op in {Operator.AND, Operator.GIVEN}:
+        #     cls = AccumulationExpression
+
         def operator(self, other: Any) -> ProbabilityExpression:
-            return ProbabilityExpression(self, op, other)
+            return cls(self, op, other)
 
         return operator
 
@@ -31,14 +35,17 @@ class ConditionalVariable(ABC):
     __pow__: OPERATOR_TYPE = _create_operator(Operator.POW)
 
     @abstractmethod
-    def evaluate(self, other: Any, operator: Operator) -> Fraction: ...
+    def evaluate(self, other: Any, operator: Operator) -> Fraction:
+        ...
 
     @property
     @abstractmethod
-    def supp(self) -> Supp: ...
+    def supp(self) -> Supp:
+        ...
 
-    def __repr__(self)->str:
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}"
+
 
 __all__ = [
     "ConditionalVariable"

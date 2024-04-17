@@ -3,7 +3,7 @@ from typing import Union
 from fractions import Fraction
 from ..conditional_variables import ConditionalVariable
 from .probability_function import probability_function as P
-from ..probability_expression import ProbabilityExpression
+from ..expressions import ProbabilityExpression
 from ..operator import Operator
 
 
