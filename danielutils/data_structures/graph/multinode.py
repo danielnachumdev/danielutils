@@ -48,10 +48,24 @@ class MultiNode(Generic[T]):
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, MultiNode):
+            return False
+
+        return self.data == other.data and len(self) == len(other) and all(
+            [a.data == b.data for a, b in zip(self, other)])
+
+    def __hash__(self) -> int:
+        return hash((self.__class__, self.data, len(self),(c.data for c in self)))
+
     def add_child(self, child: "MultiNode[T]") -> None:
         """adds a child to current node
         """
         self._children.append(child)
+
+    @property
+    def is_leaf(self) -> bool:
+        return len(self._children) == 0
 
 
 __all__ = [

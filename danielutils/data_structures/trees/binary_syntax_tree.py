@@ -11,7 +11,7 @@ class BinarySyntaxTree(BinaryTree):
 
     @staticmethod
     def _evaluate_node(v: BinaryNode, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]):
-        if not isinstance(v,BinaryNode) or v.left is None and v.right is None:
+        if not isinstance(v, BinaryNode) or v.left is None and v.right is None:
             return v
 
         lres = BinarySyntaxTree._evaluate_node(v.left, operator_func_dict)
@@ -70,8 +70,10 @@ class BinarySyntaxTree(BinaryTree):
     def evaluate(self, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]) -> Any:
         return BinarySyntaxTree._evaluate_node(self.root, operator_func_dict)
 
-    def depth(self):
-        def helper(n: BinaryNode) -> int:
+    def depth(self)->int:
+        def helper(n: Any) -> int:
+            if not isinstance(n, BinaryNode):
+                return 0
             l = 0
             if n.left is not None:
                 l = helper(n.left)

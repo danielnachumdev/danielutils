@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional, TypeVar
-from ...metaclasses import ImplicitDataDeleterMeta
 from .multinode import MultiNode
+from ...metaclasses import ImplicitDataDeleterMeta
 
 T = TypeVar("T")
 
@@ -12,13 +12,15 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
 
     def __init__(self, data: T, l: Optional[BinaryNode[T]] = None,
                  r: Optional[BinaryNode[T]] = None):  # pylint: disable=redefined-builtin
-        super().__init__(data, [l, r])
+        # intentionally can be None
+        super().__init__(data, [l, r])  # type:ignore
 
     @property
     def left(self) -> "BinaryNode[T]":
         """return the next node after self
         """
         return self._children[0]  # type:ignore
+
     @left.setter
     def left(self, value: "BinaryNode[T]") -> None:
         self._children[0] = value
@@ -41,6 +43,10 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
 
     def __repr__(self):
         return str(self)
+
+    @property
+    def is_leaf(self) -> bool:
+        return self.left is None and self.right is None
 
 
 __all__ = [

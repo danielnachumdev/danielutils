@@ -8,27 +8,25 @@ from ..protocols import Evaluable
 
 
 class ConditionalVariable(ABC):
-    OPERATOR_TYPE = Callable[['ConditionalVariable', Any], ProbabilityExpression]
+    OPERATOR_TYPE = Callable[['ConditionalVariable', Any], Evaluable]
 
     @staticmethod
-    def _create_operator(op: Operator, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Any]:
-        def operator(self, other):
-            if isinstance(other, AccumulationExpression):
-                other.add_left(self, op)
-                return other
+    def _create_operator(op: Operator, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Evaluable]:
+        def operator(self, other) -> Evaluable:
+            lhs, rhs = self, other
+            if reverse:
+                lhs, rhs = rhs, lhs
 
-            if op in {Operator.AND, Operator.GIVEN}:
-                lhs, rhs = self, other
-                return AccumulationExpression.from_raw(self, op, rhs)
+            if isinstance(other, (int, float, Fraction)):
+                return ProbabilityExpression(lhs, op, rhs)
 
-            if op in Operator.order_operators():
-                return ProbabilityExpression(self, op, other)
+            if isinstance(rhs, ProbabilityExpression):
+                l = ProbabilityExpression(lhs, op, rhs.lhs)
+                r = ProbabilityExpression(rhs.rhs, None, None)
+                o = other.op
+                return AccumulationExpression(l, o, r)
 
-            # if isinstance(other, (int, float)):
-            #     return ConditionalWithValue(self, op, other)
-            # elif isinstance(other, ConditionalVariable):
-            #     return ConditionalWithConditional(self, op, other)
-            raise NotImplementedError("Illegal state (?)")
+            raise NotImplementedError("Not Implemented")
 
         return operator
 
@@ -53,6 +51,10 @@ class ConditionalVariable(ABC):
     def evaluate(self, other: Any, operator: Operator) -> Fraction:
         ...
 
+    @abstractmethod
+    def between(self, a, b) -> Fraction:
+        ...
+
     @property
     @abstractmethod
     def supp(self) -> Supp:
@@ -60,6 +62,14 @@ class ConditionalVariable(ABC):
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}"
+
+    def is_dependent(self, other) -> bool:
+        if not isinstance(other, ConditionalVariable):
+            return False
+        return self is other
+
+    def is_independent(self, other) -> bool:
+        return not self.is_dependent(other)
 
 
 __all__ = [

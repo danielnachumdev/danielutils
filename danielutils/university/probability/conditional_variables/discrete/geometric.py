@@ -25,7 +25,7 @@ class Geometric(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCa
         del tup
 
         if op == Operator.EQ:
-            return (Fraction(1 - self.p) ** n) * self.p
+            return (Fraction(1 - self.p) ** (n - 1)) * self.p
         if op == Operator.GT:
             return Fraction(1 - self.p) ** n
         if op == Operator.GE:

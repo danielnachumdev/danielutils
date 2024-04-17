@@ -16,6 +16,14 @@ class Supp(ABC, Iterator[T]):
     @abstractmethod
     def __contains__(self, item) -> bool: ...
 
+    @property
+    @abstractmethod
+    def start(self) -> float: ...
+
+    @property
+    @abstractmethod
+    def stop(self) -> float: ...
+
 
 class DiscreteSupp(Supp[int]):
     @property
