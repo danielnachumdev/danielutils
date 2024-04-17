@@ -6,48 +6,60 @@ from ....data_structures import BinarySyntaxTree as BST
 
 
 class AccumulationExpression(Evaluable):
-    OPERATOR_TYPE = Callable[['AccumulationExpression', Any], 'AccumulationExpression']
+    @classmethod
+    def from_raw(cls, lhs: Any, op: Operator, rhs: Any):
+        return cls(BST.Node(lhs), op, BST.Node(rhs))
 
-    def __init__(self, lhs: 'ProbabilityExpression', op: Operator, rhs: 'ProbabilityExpression'):
-        N = BST.Node
-        l = N(lhs.op, N(lhs.lhs), N(lhs.rhs))
-        r = N(rhs.op, N(rhs.lhs), N(rhs.rhs))
-        self._tree = BST(N(op, l, r))
+    def __init__(self, lhs: BST.Node, op: Operator, rhs: BST.Node) -> None:
+        root = BST.Node(
+            op,
+            lhs,
+            rhs
+        )
+        self._tree = BST(root)
 
     @staticmethod
-    def _create_operator(op, reverse: bool = False) -> Callable[
-        ['AccumulationExpression', Any], 'AccumulationExpression']:
-        def operator(self, other: Any) -> 'AccumulationExpression':
-            op
-            assert False
+    def _create_operator(op) -> Callable[['AccumulationExpression', Any], 'AccumulationExpression']:
+        def operator(self, other) -> 'AccumulationExpression':
+            self._add_right(other, op)
             return self
 
         return operator
 
-    __gt__: OPERATOR_TYPE = _create_operator(Operator.GT)
-    __ge__: OPERATOR_TYPE = _create_operator(Operator.GE)
-    __lt__: OPERATOR_TYPE = _create_operator(Operator.LT)
-    __le__: OPERATOR_TYPE = _create_operator(Operator.LE)
-    __and__: OPERATOR_TYPE = _create_operator(Operator.AND)
-    __or__: OPERATOR_TYPE = _create_operator(Operator.GIVEN)
+    __eq__ = _create_operator(Operator.EQ)
+    __ne__ = _create_operator(Operator.NE)
+    __gt__ = _create_operator(Operator.GT)
+    __ge__ = _create_operator(Operator.GE)
+    __lt__ = _create_operator(Operator.LT)
+    __le__ = _create_operator(Operator.LE)
+
+    def _add_right(self, right, op) -> None:
+        replacement = BST.Node(
+            op,
+            BST.Node(self._tree.bottom_right.data),
+            BST.Node(right)
+        )
+        self._tree.bottom_right = replacement
+
+    def add_left(self, left, op) -> None:
+        replacement = BST.Node(
+            op,
+            BST.Node(left),
+            BST.Node(self._tree.bottom_left.data),
+        )
+        self._tree.bottom_left = replacement
 
     def evaluate(self) -> Fraction:
-        # self._tree.evaluate({
-        #     Operator.GT: lambda X, n: X.evaluate(n, Operator.GT),
-        #     Operator.GE: lambda X, n: X.evaluate(n, Operator.GE),
-        #     Operator.LT: lambda X, n: X.evaluate(n, Operator.LT),
-        #     Operator.LE: lambda X, n: X.evaluate(n, Operator.LE),
-        #     Operator.EQ: lambda X, n: X.evaluate(n, Operator.EQ),
-        #     Operator.NE: lambda X, n: X.evaluate(n, Operator.NE),
-        # })
-        if self._tree.root.data==Operator.AND:
-            pass
-
-    def _insert_right(self, obj) -> None:
-        pass
-
-    def _insert_left(self, obj) -> None:
-        pass
+        return self._tree.evaluate({
+            Operator.GIVEN: lambda lhs, rhs: (lhs & rhs).evaluate | rhs.evaluate(),
+            Operator.AND: lambda lhs, rhs: (lhs & rhs).evaluate,
+            Operator.EQ: lambda lhs, rhs: lhs == rhs,
+            Operator.GE: lambda lhs, rhs: lhs >= rhs,
+            Operator.GT: lambda lhs, rhs: lhs > rhs,
+            Operator.LE: lambda lhs, rhs: lhs <= rhs,
+            Operator.LT: lambda lhs, rhs: lhs < rhs,
+            Operator.NE: lambda lhs, rhs: lhs != rhs,
+        })
 
 
 __all__ = [

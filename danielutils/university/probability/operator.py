@@ -36,6 +36,10 @@ class Operator(Enum):
     def less_than_inequalities() -> set['Operator']:
         return {Operator.LE, Operator.LT}
 
+    @staticmethod
+    def order_operators() -> set['Operator']:
+        return Operator.inequalities().union(Operator.equalities())
+
     MUL = "*"
     DIV = "/"
     MODULUS = "%"
