@@ -251,6 +251,9 @@ def __handle_protocol(params: tuple) -> bool:
     if not isoftype(V, type):
         return False
 
+    if not isinstance(V, t_origin):
+        return False
+
     declared_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
     required_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
 
