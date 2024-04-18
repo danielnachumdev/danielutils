@@ -7,11 +7,16 @@ from ...operator import Operator
 
 
 class DiscreteConditionalVariable(ConditionalVariable):
+    def is_equal(self, other) -> bool:
+        if not isinstance(other, DiscreteConditionalVariable):
+            return False
+        return self.__class__ == other.__class__ and self.p == other.p
+
     def __init__(self, p: Union[float, Fraction], supp: DiscreteSupp):
         self._p: Fraction = p if isinstance(p, Fraction) else Fraction.from_float(p)
         self._supp: DiscreteSupp = supp
 
-    def between(self, a, op1: Operator, b, op2: Operator) -> Fraction:
+    def between(self, a, b, op1: Operator, op2: Operator) -> Fraction:
         a, b = min(a, b), max(a, b)
         if not (float(a).is_integer() and float(b).is_integer()):
             # a = a - (a % self.supp.step)

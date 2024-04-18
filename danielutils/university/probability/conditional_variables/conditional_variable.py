@@ -47,19 +47,6 @@ class ConditionalVariable(ABC):
     __mod__: OPERATOR_TYPE = _create_operator(Operator.MODULUS)
     __pow__: OPERATOR_TYPE = _create_operator(Operator.POW)
 
-    @abstractmethod
-    def evaluate(self, other: Any, operator: Operator) -> Fraction:
-        ...
-
-    @abstractmethod
-    def between(self, a, b) -> Fraction:
-        ...
-
-    @property
-    @abstractmethod
-    def supp(self) -> Supp:
-        ...
-
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}"
 
@@ -70,6 +57,23 @@ class ConditionalVariable(ABC):
 
     def is_independent(self, other) -> bool:
         return not self.is_dependent(other)
+
+    @abstractmethod
+    def evaluate(self, other: Any, operator: Operator) -> Fraction:
+        ...
+
+    @abstractmethod
+    def between(self, a, b, *args) -> Fraction:
+        ...
+
+    @property
+    @abstractmethod
+    def supp(self) -> Supp:
+        ...
+
+    @abstractmethod
+    def is_equal(self, other) -> bool:
+        ...
 
 
 __all__ = [

@@ -1,4 +1,5 @@
 from typing import Optional, Generator, TypeVar, Generic, List as t_list
+
 from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
@@ -56,7 +57,13 @@ class MultiNode(Generic[T]):
             [a.data == b.data for a, b in zip(self, other)])
 
     def __hash__(self) -> int:
-        return hash((self.__class__, self.data, len(self),(c.data for c in self)))
+        return hash((self.__class__, self.data, len(self), (c.data for c in self)))
+
+    def reverse(self) -> 'MultiNode[T]':
+        return MultiNode(self.data, self._children[::-1])
+
+    def __reversed__(self) -> 'MultiNode[T]':
+        return self.reverse()
 
     def add_child(self, child: "MultiNode[T]") -> None:
         """adds a child to current node

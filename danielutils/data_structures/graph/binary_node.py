@@ -48,6 +48,20 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
     def is_leaf(self) -> bool:
         return self.left is None and self.right is None
 
+    def reverse(self) -> 'BinaryNode[T]':
+        new_left = self.right.reverse() if self.right is not None else None
+        new_right = self.left.reverse() if self.left is not None else None
+        return BinaryNode(self.data, new_left, new_right)
+
+    def __reversed__(self) -> 'BinaryNode[T]':
+        return self.reverse()
+
+    def __eq__(self, other):
+        return MultiNode.__eq__(self, other)
+
+    def __iter__(self):
+        return MultiNode.__iter__(self)
+
 
 __all__ = [
     "BinaryNode"

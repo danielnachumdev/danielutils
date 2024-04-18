@@ -1,5 +1,6 @@
+import copy
 from fractions import Fraction
-from typing import Callable, Any, Union
+from typing import Callable, Any, Union, Optional
 from .probability_expression import ProbabilityExpression
 from ..protocols import Evaluable
 from ..operator import Operator
@@ -57,7 +58,7 @@ class AccumulationExpression(Evaluable):
         op2 = expr2.op
         X = expr1.lhs
         if op1 in Operator.greater_than_inequalities() and op2 in Operator.less_than_inequalities():
-            return X.between(a, op1, b, op2)
+            return X.between(a, b,op1, op2)
 
         if op1 in Operator.greater_than_inequalities() and op2 in Operator.greater_than_inequalities():
             op = op1
@@ -122,12 +123,50 @@ class AccumulationExpression(Evaluable):
     def __eq__(self, other) -> bool:
         if not isinstance(other, AccumulationExpression):
             return False
-        return self._tree == other._tree
+        from ..conditional_variables import ConditionalVariable
+        # I have to create a custom comparer because the BST can't (and shouldn't) know to compare using
+        # ConditionalVariable.is_equal
+        def are_nodes_equal(a: Any, b: Any) -> bool:
+            if not (isinstance(a, BST.Node) and isinstance(b, BST.Node)):
+                if a is None and b is None:
+                    return True
+                return False
+            if isinstance(a.data, Operator) and isinstance(b.data, Operator):
+                if not (a.data == b.data):
+                    return False
+            elif isinstance(a.data, ConditionalVariable) and isinstance(b.data, ConditionalVariable):
+                if not a.data.is_equal(b.data):
+                    return False
+            else:
+                return a.data == b.data
+
+            return are_nodes_equal(a.left, b.left) and are_nodes_equal(a.right, b.right)
+
+        return are_nodes_equal(self.standardize()._tree.root, other.standardize()._tree.root)
+
+    def duplicate(self) -> 'AccumulationExpression':
+        return copy.deepcopy(self)
+
+    def reverse(self) -> 'AccumulationExpression':
+        res = self.duplicate()
+        res._tree = res._tree.reverse()
+        return res
+
+    def __reversed__(self) -> 'AccumulationExpression':
+        return self.reverse()
+
+    def standardize(self) -> 'AccumulationExpression':
+        for n in self._tree.traverse(self._tree.TraversalMode.Middle):
+            if n is self._tree.root:
+                break
+            if isinstance(n.data, Operator):
+                if n.data in Operator.greater_than_inequalities():
+                    return self.reverse()
+        return self.duplicate()
 
     def __ne__(self, other) -> bool:
         return not self.__eq__(other)
 
-
-__all__ = [
-    'AccumulationExpression'
-]
+    __all__ = [
+        'AccumulationExpression'
+    ]

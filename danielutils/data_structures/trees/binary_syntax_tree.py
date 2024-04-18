@@ -7,7 +7,6 @@ class BinarySyntaxTree(BinaryTree):
     """
     Binary tree data structure to represent syntax of expressions
     """
-    Node = BinaryNode
 
     @staticmethod
     def _evaluate_node(v: BinaryNode, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]):
@@ -70,7 +69,7 @@ class BinarySyntaxTree(BinaryTree):
     def evaluate(self, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]) -> Any:
         return BinarySyntaxTree._evaluate_node(self.root, operator_func_dict)
 
-    def depth(self)->int:
+    def depth(self) -> int:
         def helper(n: Any) -> int:
             if not isinstance(n, BinaryNode):
                 return 0
