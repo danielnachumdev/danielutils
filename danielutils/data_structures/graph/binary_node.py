@@ -15,6 +15,24 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
         # intentionally can be None
         super().__init__(data, [l, r])  # type:ignore
 
+    def __str__(self):
+        return MultiNode.__str__(self).replace(
+            self.__class__.__mro__[1].__name__,
+            self.__class__.__name__
+        ).replace("[", "").replace("]", "")
+
+    def __repr__(self):
+        return str(self)
+
+    def __reversed__(self) -> 'BinaryNode[T]':
+        return self.reverse()
+
+    def __eq__(self, other):
+        return MultiNode.__eq__(self, other)
+
+    def __iter__(self):
+        return MultiNode.__iter__(self)
+
     @property
     def left(self) -> "BinaryNode[T]":
         """return the next node after self
@@ -35,15 +53,6 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
     def right(self, value: "BinaryNode[T]") -> None:
         self._children[1] = value
 
-    def __str__(self):
-        return MultiNode.__str__(self).replace(
-            self.__class__.__mro__[1].__name__,
-            self.__class__.__name__
-        ).replace("[", "").replace("]", "")
-
-    def __repr__(self):
-        return str(self)
-
     @property
     def is_leaf(self) -> bool:
         return self.left is None and self.right is None
@@ -52,15 +61,6 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
         new_left = self.right.reverse() if self.right is not None else None
         new_right = self.left.reverse() if self.left is not None else None
         return BinaryNode(self.data, new_left, new_right)
-
-    def __reversed__(self) -> 'BinaryNode[T]':
-        return self.reverse()
-
-    def __eq__(self, other):
-        return MultiNode.__eq__(self, other)
-
-    def __iter__(self):
-        return MultiNode.__iter__(self)
 
 
 __all__ = [

@@ -59,20 +59,20 @@ class MultiNode(Generic[T]):
     def __hash__(self) -> int:
         return hash((self.__class__, self.data, len(self), (c.data for c in self)))
 
-    def reverse(self) -> 'MultiNode[T]':
-        return MultiNode(self.data, self._children[::-1])
-
     def __reversed__(self) -> 'MultiNode[T]':
         return self.reverse()
+
+    @property
+    def is_leaf(self) -> bool:
+        return len(self._children) == 0
+
+    def reverse(self) -> 'MultiNode[T]':
+        return MultiNode(self.data, self._children[::-1])
 
     def add_child(self, child: "MultiNode[T]") -> None:
         """adds a child to current node
         """
         self._children.append(child)
-
-    @property
-    def is_leaf(self) -> bool:
-        return len(self._children) == 0
 
 
 __all__ = [

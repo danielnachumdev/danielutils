@@ -17,6 +17,21 @@ class BinaryTree(Generic[T]):
     def __init__(self, root: BinaryNode[T]):
         self._root = root
 
+    def __reversed__(self) -> 'BinaryTree[T]':
+        return self.reverse()
+
+    def __iter__(self) -> Iterator[BinaryNode[T]]:
+        yield from self.traverse(BinaryTree.TraversalMode.First)
+
+    def __eq__(self, other):
+        if not isinstance(other, BinaryTree):
+            return False
+
+        for a, b in zip(self, other):
+            if not (a == b):
+                return False
+        return True
+
     @property
     def root(self) -> BinaryNode[T]:
         return self._root
@@ -38,21 +53,6 @@ class BinaryTree(Generic[T]):
 
     def reverse(self) -> "BinaryTree[T]":
         return BinaryTree(self.root.reverse())
-
-    def __reversed__(self) -> 'BinaryTree[T]':
-        return self.reverse()
-
-    def __iter__(self) -> Iterator[BinaryNode[T]]:
-        yield from self.traverse(BinaryTree.TraversalMode.First)
-
-    def __eq__(self, other):
-        if not isinstance(other, BinaryTree):
-            return False
-
-        for a, b in zip(self, other):
-            if not (a == b):
-                return False
-        return True
 
 
 __all__ = [

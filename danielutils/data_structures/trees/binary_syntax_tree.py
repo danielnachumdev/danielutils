@@ -66,6 +66,12 @@ class BinarySyntaxTree(BinaryTree):
             cur = cur.left
         cur.left = v
 
+    def reverse(self) -> "BinarySyntaxTree":
+        return BinarySyntaxTree(self.root.reverse())
+
+    def __reversed__(self) -> "BinarySyntaxTree":
+        return self.reverse()
+
     def evaluate(self, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]) -> Any:
         return BinarySyntaxTree._evaluate_node(self.root, operator_func_dict)
 

@@ -12,12 +12,6 @@ class AccumulationExpression(Evaluable):
     def _probability_expression_to_nodes(expr: ProbabilityExpression) -> BST.Node:
         return BST.Node(expr.op, BST.Node(expr.lhs), BST.Node(expr.rhs))
 
-    def __init__(self, lhs: ProbabilityExpression, op: Operator, rhs: ProbabilityExpression) -> None:
-        l = AccumulationExpression._probability_expression_to_nodes(lhs)
-        r = AccumulationExpression._probability_expression_to_nodes(rhs)
-        root = BST.Node(op, l, r)
-        self._tree = BST(root)
-
     @staticmethod
     def _create_operator(op: Operator, reverse: bool = False) -> Callable[['AccumulationExpression', Any], Evaluable]:
         def operator(self, other) -> Evaluable:
@@ -27,25 +21,6 @@ class AccumulationExpression(Evaluable):
             raise NotImplementedError("Not Implemented")
 
         return operator
-
-    __gt__ = _create_operator(Operator.GT)
-    __ge__ = _create_operator(Operator.GE)
-    __lt__ = _create_operator(Operator.LT)
-    __le__ = _create_operator(Operator.LE)
-
-    def _is_valid_tree(self) -> bool:
-        q = [self._tree.root]
-        i = 0
-        while i < len(q):
-            if isinstance(q[i], BST.Node):
-                if not isinstance(q[i].data, Operator):
-                    if not q[i].is_leaf:
-                        return False
-                else:
-                    q.append(q[i].left)
-                    q.append(q[i].right)
-            i += 1
-        return True
 
     @staticmethod
     def _expression_intersection(expr1: ProbabilityExpression, expr2: ProbabilityExpression) -> Fraction:
@@ -58,7 +33,7 @@ class AccumulationExpression(Evaluable):
         op2 = expr2.op
         X = expr1.lhs
         if op1 in Operator.greater_than_inequalities() and op2 in Operator.less_than_inequalities():
-            return X.between(a, b,op1, op2)
+            return X.between(a, b, op1, op2)
 
         if op1 in Operator.greater_than_inequalities() and op2 in Operator.greater_than_inequalities():
             op = op1
@@ -78,6 +53,50 @@ class AccumulationExpression(Evaluable):
         if op1 in Operator.equalities():
             return expr1.evaluate()
         return expr2.evaluate()
+
+    def __init__(self, lhs: ProbabilityExpression, op: Operator, rhs: ProbabilityExpression) -> None:
+        l = AccumulationExpression._probability_expression_to_nodes(lhs)
+        r = AccumulationExpression._probability_expression_to_nodes(rhs)
+        root = BST.Node(op, l, r)
+        self._tree = BST(root)
+
+    __gt__ = _create_operator(Operator.GT)
+    __ge__ = _create_operator(Operator.GE)
+    __lt__ = _create_operator(Operator.LT)
+    __le__ = _create_operator(Operator.LE)
+
+    def __reversed__(self) -> 'AccumulationExpression':
+        return self.reverse()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(lhs={self._tree.root.left}, op={self._tree.root.data}, rhs={self._tree.root.right})"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, AccumulationExpression):
+            return False
+        from ..conditional_variables import ConditionalVariable
+        # I have to create a custom comparer because the BST can't (and shouldn't) know to compare using
+        # ConditionalVariable.is_equal
+        def are_nodes_equal(a: Any, b: Any) -> bool:
+            if not (isinstance(a, BST.Node) and isinstance(b, BST.Node)):
+                if a is None and b is None:
+                    return True
+                return False
+            if isinstance(a.data, Operator) and isinstance(b.data, Operator):
+                if not (a.data == b.data):
+                    return False
+            elif isinstance(a.data, ConditionalVariable) and isinstance(b.data, ConditionalVariable):
+                if not a.data.is_equal(b.data):
+                    return False
+            else:
+                return a.data == b.data
+
+            return are_nodes_equal(a.left, b.left) and are_nodes_equal(a.right, b.right)
+
+        return are_nodes_equal(self.standardize()._tree.root, other.standardize()._tree.root)
+
+    def __ne__(self, other) -> bool:
+        return not self.__eq__(other)
 
     def evaluate(self) -> Fraction:
         if not self._is_valid_tree():
@@ -117,33 +136,6 @@ class AccumulationExpression(Evaluable):
         # example: a < X < Y < b
         raise NotImplementedError("This part is not implemented yet")
 
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(lhs={self._tree.root.left}, op={self._tree.root.data}, rhs={self._tree.root.right})"
-
-    def __eq__(self, other) -> bool:
-        if not isinstance(other, AccumulationExpression):
-            return False
-        from ..conditional_variables import ConditionalVariable
-        # I have to create a custom comparer because the BST can't (and shouldn't) know to compare using
-        # ConditionalVariable.is_equal
-        def are_nodes_equal(a: Any, b: Any) -> bool:
-            if not (isinstance(a, BST.Node) and isinstance(b, BST.Node)):
-                if a is None and b is None:
-                    return True
-                return False
-            if isinstance(a.data, Operator) and isinstance(b.data, Operator):
-                if not (a.data == b.data):
-                    return False
-            elif isinstance(a.data, ConditionalVariable) and isinstance(b.data, ConditionalVariable):
-                if not a.data.is_equal(b.data):
-                    return False
-            else:
-                return a.data == b.data
-
-            return are_nodes_equal(a.left, b.left) and are_nodes_equal(a.right, b.right)
-
-        return are_nodes_equal(self.standardize()._tree.root, other.standardize()._tree.root)
-
     def duplicate(self) -> 'AccumulationExpression':
         return copy.deepcopy(self)
 
@@ -151,9 +143,6 @@ class AccumulationExpression(Evaluable):
         res = self.duplicate()
         res._tree = res._tree.reverse()
         return res
-
-    def __reversed__(self) -> 'AccumulationExpression':
-        return self.reverse()
 
     def standardize(self) -> 'AccumulationExpression':
         for n in self._tree.traverse(self._tree.TraversalMode.Middle):
@@ -164,9 +153,21 @@ class AccumulationExpression(Evaluable):
                     return self.reverse()
         return self.duplicate()
 
-    def __ne__(self, other) -> bool:
-        return not self.__eq__(other)
+    def _is_valid_tree(self) -> bool:
+        q = [self._tree.root]
+        i = 0
+        while i < len(q):
+            if isinstance(q[i], BST.Node):
+                if not isinstance(q[i].data, Operator):
+                    if not q[i].is_leaf:
+                        return False
+                else:
+                    q.append(q[i].left)
+                    q.append(q[i].right)
+            i += 1
+        return True
 
-    __all__ = [
-        'AccumulationExpression'
-    ]
+
+__all__ = [
+    'AccumulationExpression'
+]

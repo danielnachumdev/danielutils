@@ -7,11 +7,6 @@ from ..operator import Operator
 class ProbabilityExpression(Evaluable):
     OPERATOR_TYPE = Callable[['ProbabilityExpression', Any], 'AccumulationExpression']
 
-    def __init__(self, lhs: Evaluable, op: Optional[Operator] = None, rhs: Optional[Any] = None):
-        self._lhs = lhs
-        self._op = op
-        self._rhs = rhs
-
     @staticmethod
     def _create_operator(op: Operator, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Evaluable]:
         def operator(self: 'ProbabilityExpression', other: Any) -> Evaluable:
@@ -37,6 +32,11 @@ class ProbabilityExpression(Evaluable):
 
         return operator
 
+    def __init__(self, lhs: Evaluable, op: Optional[Operator] = None, rhs: Optional[Any] = None):
+        self._lhs = lhs
+        self._op = op
+        self._rhs = rhs
+
     __gt__: OPERATOR_TYPE = _create_operator(Operator.GT)
     __ge__: OPERATOR_TYPE = _create_operator(Operator.GE)
     __lt__: OPERATOR_TYPE = _create_operator(Operator.LT)
@@ -45,9 +45,6 @@ class ProbabilityExpression(Evaluable):
     __ror__: OPERATOR_TYPE = _create_operator(Operator.GIVEN, reverse=True)
     __and__: OPERATOR_TYPE = _create_operator(Operator.AND)
     __rand__: OPERATOR_TYPE = _create_operator(Operator.AND, reverse=True)
-
-    def evaluate(self) -> Fraction:
-        return self.lhs.evaluate(self.rhs, self.op)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.lhs} {self.op.value} {self.rhs})"
@@ -99,6 +96,9 @@ class ProbabilityExpression(Evaluable):
     @property
     def is_partial(self) -> bool:
         return self.op is not None and self.rhs is not None
+
+    def evaluate(self) -> Fraction:
+        return self.lhs.evaluate(self.rhs, self.op)
 
 
 __all__ = [
