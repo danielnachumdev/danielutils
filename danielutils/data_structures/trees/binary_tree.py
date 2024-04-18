@@ -54,6 +54,8 @@ class BinaryTree(Generic[T]):
     def reverse(self) -> "BinaryTree[T]":
         return BinaryTree(self.root.reverse())
 
+    def depth(self) -> int:
+        return self.root.depth()
 
 __all__ = [
     'BinaryTree'

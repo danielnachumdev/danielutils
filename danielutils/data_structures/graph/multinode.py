@@ -11,9 +11,9 @@ class MultiNode(Generic[T]):
     """A node class with no limit to children amount
     """
 
-    def __init__(self, data: T, children: Optional[t_list["MultiNode[T]"]] = None):
+    def __init__(self, data: T, children: Optional[t_list[Optional['MultiNode[T]']]] = None):
         self.data: T = data
-        self._children: t_list[MultiNode[T]] = children if children is not None else []
+        self._children: t_list[Optional[MultiNode[T]]] = children if children is not None else []
 
     def __getitem__(self, index) -> T:
         return self._children[index]
@@ -42,7 +42,8 @@ class MultiNode(Generic[T]):
                 else:
                     if child is not None:
                         tmp.append(handle_node(child))
-            return f"{node.__class__.__name__}({node.data}, [" + ", ".join(tmp) + "])"
+            child_str = ", [" + ", ".join(tmp) + "]" if len(tmp) > 0 else ""
+            return f"{node.__class__.__name__}({node.data}{child_str})"
 
         return handle_node(self)
 
@@ -73,6 +74,26 @@ class MultiNode(Generic[T]):
         """adds a child to current node
         """
         self._children.append(child)
+
+    def depth(self) -> int:
+        """
+        Returns the depth of the current node (including).
+        Returns:
+            int
+        """
+
+        def helper(cur: MultiNode, seen: Optional[set[MultiNode]] = None) -> int:
+            if not isinstance(cur, MultiNode):
+                return 0
+            if seen is None:
+                seen = set()
+            elif cur in seen:
+                return 0
+            seen.add(cur)
+            seq = [helper(child, seen) for child in cur if ((child is not None) and (child not in seen))]
+            return 1 + (max(seq) if len(seq) > 0 else 0)
+
+        return helper(self)
 
 
 __all__ = [

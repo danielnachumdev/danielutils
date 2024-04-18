@@ -62,6 +62,9 @@ class BinaryNode(MultiNode[T], metaclass=ImplicitDataDeleterMeta):
         new_right = self.left.reverse() if self.left is not None else None
         return BinaryNode(self.data, new_left, new_right)
 
+    def depth(self) -> int:
+        return MultiNode.depth(self)
+
 
 __all__ = [
     "BinaryNode"

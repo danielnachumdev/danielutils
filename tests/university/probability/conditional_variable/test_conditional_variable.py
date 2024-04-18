@@ -5,5 +5,5 @@ from danielutils.university.probability import Uniform as U
 class TestConditionalVariable(unittest.TestCase):
     def test_equality(self):
         X = U(50)
-        self.assertEqual(X > 10, 10 < X)
-        self.assertEqual(X >= 10, 10 <= X)
+        self.assertTrue((X > 10).is_equal(10 < X))
+        self.assertTrue((X >= 10).is_equal(10 <= X))

@@ -2,7 +2,7 @@ import copy
 from fractions import Fraction
 from typing import Callable, Any, Union, Optional
 from .probability_expression import ProbabilityExpression
-from ..protocols import Evaluable
+from ..protocols import Evaluable, Equatable
 from ..operator import Operator
 from ....data_structures import BinarySyntaxTree as BST
 
@@ -15,6 +15,7 @@ class AccumulationExpression(Evaluable):
     @staticmethod
     def _create_operator(op: Operator, reverse: bool = False) -> Callable[['AccumulationExpression', Any], Evaluable]:
         def operator(self, other) -> Evaluable:
+            op
             lhs, rhs = self, other
             if reverse:
                 lhs, rhs = rhs, lhs
@@ -24,7 +25,7 @@ class AccumulationExpression(Evaluable):
 
     @staticmethod
     def _expression_intersection(expr1: ProbabilityExpression, expr2: ProbabilityExpression) -> Fraction:
-        if expr1 == expr2:
+        if expr1.is_equal(expr2):
             return expr1.evaluate()
 
         a = expr1.rhs
@@ -60,10 +61,26 @@ class AccumulationExpression(Evaluable):
         root = BST.Node(op, l, r)
         self._tree = BST(root)
 
+    __eq__ = _create_operator(Operator.EQ)
+    __ne__ = _create_operator(Operator.NE)
     __gt__ = _create_operator(Operator.GT)
     __ge__ = _create_operator(Operator.GE)
     __lt__ = _create_operator(Operator.LT)
     __le__ = _create_operator(Operator.LE)
+
+    def __bool__(self) -> bool:
+        if self._tree.root.data != Operator.EQ:
+            return False
+
+        def node_to_equatable(n: BST.Node) -> Equatable:
+            if n.depth() == 2:
+                return ProbabilityExpression(n.left.data, n.data, n.right.data)
+            pass
+
+        if (d := self._tree.depth()) == 3:
+            return node_to_equatable(self._tree.root.left).is_equal(node_to_equatable(self._tree.root.right))
+
+        return NotImplemented
 
     def __reversed__(self) -> 'AccumulationExpression':
         return self.reverse()
@@ -71,7 +88,7 @@ class AccumulationExpression(Evaluable):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(lhs={self._tree.root.left}, op={self._tree.root.data}, rhs={self._tree.root.right})"
 
-    def __eq__(self, other) -> bool:
+    def is_equal(self, other) -> bool:
         if not isinstance(other, AccumulationExpression):
             return False
         from ..conditional_variables import ConditionalVariable
@@ -95,14 +112,10 @@ class AccumulationExpression(Evaluable):
 
         return are_nodes_equal(self.standardize()._tree.root, other.standardize()._tree.root)
 
-    def __ne__(self, other) -> bool:
-        return not self.__eq__(other)
-
     def evaluate(self) -> Fraction:
         if not self._is_valid_tree():
             raise AttributeError("Expression is not valid")
-        depth = self._tree.depth()
-        if depth == 3:
+        if (d := self._tree.depth()) == 3:
             # example: a < X < b
             # =>       ____&____          1
             #         /         \

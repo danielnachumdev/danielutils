@@ -17,12 +17,16 @@ class ProbabilityExpression(Evaluable):
 
             if op in Operator.order_operators():
                 if isinstance(rhs, (int, float, Fraction)):
-                    rhs = ProbabilityExpression(lhs.lhs, op, rhs)
-                    return AccumulationExpression(lhs, Operator.AND, rhs)
+                    if op in Operator.inequalities():
+                        rhs = ProbabilityExpression(lhs.lhs, op, rhs)
+                        return AccumulationExpression(lhs, Operator.AND, rhs)
+                    elif op == Operator.EQ:
+                        return AccumulationExpression(lhs, op, ProbabilityExpression(rhs))
                 elif isinstance(rhs, (ProbabilityExpression, AccumulationExpression)):
-                    # TODO P((0<X)<(Y<5))
-                    pass
-                    raise NotImplementedError("This part is not Implemented yet")
+                    if isinstance(other, ProbabilityExpression):
+                        # TODO P((0<X)<(Y<5))
+                        # I think that this is the solution
+                        return AccumulationExpression(self, op, other)
                 raise NotImplementedError("Illegal state")
             if op in {Operator.AND, Operator.GIVEN}:
                 if not isinstance(other, ProbabilityExpression):
@@ -37,6 +41,7 @@ class ProbabilityExpression(Evaluable):
         self._op = op
         self._rhs = rhs
 
+    __eq__: OPERATOR_TYPE = _create_operator(Operator.EQ)
     __gt__: OPERATOR_TYPE = _create_operator(Operator.GT)
     __ge__: OPERATOR_TYPE = _create_operator(Operator.GE)
     __lt__: OPERATOR_TYPE = _create_operator(Operator.LT)
@@ -49,7 +54,29 @@ class ProbabilityExpression(Evaluable):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.lhs} {self.op.value} {self.rhs})"
 
-    def __eq__(self, other) -> bool:
+    def __hash__(self) -> int:
+        return hash((self.__class__, self.lhs, self.op, self.rhs))
+
+    @property
+    def lhs(self):
+        return self._lhs
+
+    @property
+    def op(self):
+        return self._op
+
+    @property
+    def rhs(self):
+        return self._rhs
+
+    @property
+    def is_partial(self) -> bool:
+        return self.op is not None and self.rhs is not None
+
+    def evaluate(self) -> Fraction:
+        return self.lhs.evaluate(self.rhs, self.op)
+
+    def is_equal(self, other) -> bool:
         if not isinstance(other, ProbabilityExpression):
             raise TypeError(
                 f"Cant compare equality between {self.__class__.__qualname__} and non ConditionalExpression")
@@ -77,28 +104,6 @@ class ProbabilityExpression(Evaluable):
                 return False
 
         return self.op == other.op
-
-    def __hash__(self) -> int:
-        return hash((self.__class__, self.lhs, self.op, self.rhs))
-
-    @property
-    def lhs(self):
-        return self._lhs
-
-    @property
-    def op(self):
-        return self._op
-
-    @property
-    def rhs(self):
-        return self._rhs
-
-    @property
-    def is_partial(self) -> bool:
-        return self.op is not None and self.rhs is not None
-
-    def evaluate(self) -> Fraction:
-        return self.lhs.evaluate(self.rhs, self.op)
 
 
 __all__ = [

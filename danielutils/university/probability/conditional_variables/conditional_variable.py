@@ -26,6 +26,9 @@ class ConditionalVariable(ABC):
                 o = other.op
                 return AccumulationExpression(l, o, r)
 
+            # if isinstance(rhs, ConditionalVariable):
+            #     return AccumulationExpression(ProbabilityExpression(lhs), op, ProbabilityExpression(rhs))
+
             raise NotImplementedError("Not Implemented")
 
         return operator
@@ -46,6 +49,10 @@ class ConditionalVariable(ABC):
     __truediv__: OPERATOR_TYPE = _create_operator(Operator.DIV)
     __mod__: OPERATOR_TYPE = _create_operator(Operator.MODULUS)
     __pow__: OPERATOR_TYPE = _create_operator(Operator.POW)
+    __add__: OPERATOR_TYPE = _create_operator(Operator.ADD)
+    __radd__: OPERATOR_TYPE = _create_operator(Operator.ADD, reverse=True)
+    __sub__: OPERATOR_TYPE = _create_operator(Operator.SUB)
+    __rsub__: OPERATOR_TYPE = _create_operator(Operator.SUB, reverse=True)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}"

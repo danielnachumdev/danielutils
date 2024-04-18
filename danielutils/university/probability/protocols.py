@@ -19,8 +19,14 @@ class VariableCalculable(Protocol):
     def variance(self) -> Fraction: ...
 
 
+@runtime_checkable
+class Equatable(Protocol):
+    def is_equal(self, other) -> bool: ...
+
+
 __all__ = [
     'Evaluable',
     'VariableCalculable',
-    "ExpectedValueCalculable"
+    "ExpectedValueCalculable",
+    'Equatable',
 ]

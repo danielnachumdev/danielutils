@@ -75,19 +75,6 @@ class BinarySyntaxTree(BinaryTree):
     def evaluate(self, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]) -> Any:
         return BinarySyntaxTree._evaluate_node(self.root, operator_func_dict)
 
-    def depth(self) -> int:
-        def helper(n: Any) -> int:
-            if not isinstance(n, BinaryNode):
-                return 0
-            l = 0
-            if n.left is not None:
-                l = helper(n.left)
-            r = 0
-            if n.right is not None:
-                r = helper(n.right)
-            return 1 + max(l, r)
-
-        return helper(self.root)
 
 
 __all__ = [

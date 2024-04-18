@@ -5,9 +5,28 @@ from danielutils.university.probability import Bernoulli as B, probability_funct
 
 class TestBernoulli(unittest.TestCase):
     def test_simple(self):
-        self.assertEqual(0.5, P(B(0.5) == 1))
-        self.assertEqual(0.5, P(B(0.5) == 0))
+        X = B(0.5)
+        self.assertEqual(0.5, P(X == 1))
+        self.assertEqual(0.5, P(X == 0))
 
     def test_expected_value(self):
         for p in frange(0.1, 0.9, 0.01):
-            self.assertEqual(p, E(B(p)))
+            X = B(p)
+            self.assertEqual(p, E(X))
+            self.assertEqual(P(X == 1), E(X))
+            self.assertEqual(1 - P(X == 0), E(X))
+
+    def test_addition_easy(self):
+        X = B(0.5)
+        self.assertEqual(P(X == 1), P(X + 1 == 2))
+        self.assertEqual(P(X == 1), P(1 + X == 2))
+        self.assertEqual(P(X == 1), P(1 - X == 0))
+        self.assertEqual(P(X == 1), P(X - 1 == 0))
+
+    def test_addition_hard(self):
+        for p in frange(0.1, 0.9, 0.01):
+            X = B(p)
+            self.assertEqual(P(X == 1), P(X + 1 == 2))
+            self.assertEqual(P(X == 1), P(1 + X == 2))
+            self.assertEqual(P(X == 1), P(1 - X == 0))
+            self.assertEqual(P(X == 1), P(X - 1 == 0))
