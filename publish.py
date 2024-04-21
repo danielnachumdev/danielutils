@@ -4,7 +4,7 @@ from quickpub import publish, Version
 def main() -> None:
     publish(
         name="danielutils",
-        version="0.9.74",
+        version="0.9.75",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
