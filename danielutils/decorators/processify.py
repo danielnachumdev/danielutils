@@ -3,8 +3,7 @@ import functools
 import multiprocessing
 
 from ..reflection import get_prev_frame
-from ..multi_x import process_id
-import pickle
+from ..abstractions.multiprogramming import process_id
 
 
 def processify(func):

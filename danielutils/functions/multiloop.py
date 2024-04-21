@@ -1,27 +1,5 @@
 from typing import Iterable, Generator
-
-
-def flatten(iterable: Iterable) -> list:
-    """
-    Flattens a given iterable into a list.
-
-    This function takes as input an iterable that may contain nested iterables (like lists or tuples),
-    and returns a flat list where all elements of the input are expanded.
-    Non-iterable elements in the input iterable are appended as they are.
-
-    Args:
-        iterable (Iterable): The iterable to flatten. Can contain nested iterables.
-
-    Returns:
-        list: A flat list containing all elements of the input iterable.
-    """
-    result = []
-    for i in iterable:
-        if isinstance(i, Iterable):
-            result.extend(flatten(i))
-        else:
-            result.append(i)
-    return result
+from .flatten import flatten
 
 
 def _combine2(iter1: Iterable, iter2: Iterable) -> Generator:
@@ -60,6 +38,5 @@ def multiloop(*iterables: Iterable, pre_load: bool = False) -> Generator:
 
 
 __all__ = [
-    "flatten",
     "multiloop"
 ]

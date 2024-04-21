@@ -2,7 +2,7 @@ from queue import Queue
 from typing import Optional, Any, Type as t_type, Tuple as t_tuple, List as t_list
 from threading import Semaphore
 from .worker import Worker
-from ..reflection import get_python_version
+from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
     from builtins import type as t_type, tuple as t_tuple, list as t_list  # type:ignore
