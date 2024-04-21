@@ -1,4 +1,4 @@
-"""file with math symbols constants"""
+"""file with math_ symbols constants"""
 from typing import Union, Dict as t_dict
 from ..reflection import get_python_version
 if get_python_version() >= (3, 9):

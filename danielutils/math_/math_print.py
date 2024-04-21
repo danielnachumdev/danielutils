@@ -5,7 +5,7 @@ def mprint_parse_one(s: str) -> str:
     """a helper function that parses "mathematically" one string
 
     Args:
-        s (str): the string to parse with math symbols
+        s (str): the string to parse with math_ symbols
 
     Returns:
         str: the result

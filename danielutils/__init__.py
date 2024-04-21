@@ -24,13 +24,13 @@ from .decorators import *
 
 # ========== NEEDS REFLECTION ==========
 from .threads import *
-from .my_tqdm import *
+from .tqdm_ import *
 # ========== NEEDS DECORATORS ==========
 from .colors import *
 # ========== NEEDS BOTH ==========
 
 from .functions import *
-from .files_and_folders import *
+from .io_ import *
 from .system import *
 from .text import *
 from .conversions import *
@@ -38,9 +38,9 @@ from .classes import *
 from .time import *
 from .date import *
 from .data_structures import *
-from .math import *
+from .math_ import *
 from .system import *
-from .d_print import *
+from .print_ import *
 from .metaclasses import *
 from .generators import *
 from .university import *

@@ -1,6 +1,6 @@
 import sys
 from .functions.areoneof import areoneof
-from .math.math_print import mprint_parse_one
+from .math_.math_print import mprint_parse_one
 from .decorators import atomic, deprecate
 
 

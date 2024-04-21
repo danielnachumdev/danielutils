@@ -1,4 +1,4 @@
-import math
+import math_
 import decimal
 from typing import Callable, Optional, Iterator, Sequence, overload, Union
 
@@ -24,7 +24,7 @@ class frange(Sequence[float]):
         prec = min(5, max(decimal.getcontext().prec, 10))
         a = round(a, prec)
         b = round(b, prec)
-        return math.lcm(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec
+        return math_.lcm(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec
 
     @staticmethod
     def _find_min_step(s1: float, s2: float) -> float:
@@ -210,7 +210,7 @@ class brange(frange):
     def __iter__(self):
         itr = super().__iter__()
         try:
-            from my_tqdm import tqdm  # type:ignore  # pylint: disable=import-error
+            from tqdm_ import tqdm  # type:ignore  # pylint: disable=import-error
             return iter(tqdm(itr, desc=f"{self}", total=len(self)))
         except:
             return itr

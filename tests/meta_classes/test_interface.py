@@ -1,6 +1,6 @@
 import unittest
 
-import math
+import math_
 from typing import Union, List as t_list
 from danielutils.metaclasses.interface import Interface  # type:ignore
 from danielutils.reflection import get_python_version  # type:ignore
@@ -117,10 +117,10 @@ class TestInterface(unittest.TestCase):
                 return "Circle"
 
             def get_area(self):
-                return math.pi * self.radius ** 2
+                return math_.pi * self.radius ** 2
 
             def get_circumfarence(self) -> float:
-                return 2 * math.pi * self.radius
+                return 2 * math_.pi * self.radius
 
         class ColoredObject(metaclass=Interface):
             def get_color(self) -> str:  # type:ignore
@@ -210,13 +210,13 @@ class TestInterface(unittest.TestCase):
                 self.r = r
 
             def area(self) -> float:
-                return self.r ** 2 * math.pi
+                return self.r ** 2 * math_.pi
 
             def circumfarence(self) -> float:
-                return 2 * math.pi * self.r
+                return 2 * math_.pi * self.r
 
             def sum_inner_angle(self) -> float:
-                return math.inf
+                return math_.inf
 
         class Quadrilateral(Shape):
             def __init__(self, name: str):
@@ -287,10 +287,10 @@ class TestInterface(unittest.TestCase):
                 self.radius = radius
 
             def area(self):
-                return math.pi * (self.radius ** 2)
+                return math_.pi * (self.radius ** 2)
 
             def circumference(self):
-                return 2 * math.pi * self.radius
+                return 2 * math_.pi * self.radius
 
             def angles(self):
                 return -1

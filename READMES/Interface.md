@@ -51,6 +51,7 @@ Given the following classic example code:
 from math import pi
 from danielutils import Interface
 
+
 # although here it's actually an abstract class
 class Shape(metaclass=Interface):
     def __init__(self, name):
@@ -60,7 +61,7 @@ class Shape(metaclass=Interface):
     @Interface.abstractmethod
     def area(self):
         pass
-    
+
     # implicit invocation
     def circumference(self):
         ...
@@ -78,10 +79,10 @@ class Circle(Shape):
         self.r = r
 
     def area(self):
-        return pi*self.r**2
+        return pi * self.r ** 2
 
     def circumference(self):
-        return 2*pi*self.r
+        return 2 * pi * self.r
 
     def angles(self):
         return -1
@@ -99,10 +100,10 @@ class Rectangle(Quadrilateral):
         self.b = b
 
     def area(self):
-        return self.a*self.b
+        return self.a * self.b
 
     def circumference(self):
-        return 2*(self.a+self.b)
+        return 2 * (self.a + self.b)
 
 
 class Square(Rectangle):

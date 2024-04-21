@@ -1,6 +1,6 @@
 from fractions import Fraction
 from typing import Union
-from math import factorial
+from math_ import factorial
 from .discrete import DiscreteConditionalVariable
 from ...supp import DiscreteSupp
 from ...operator import Operator
