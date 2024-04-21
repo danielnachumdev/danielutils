@@ -4,9 +4,9 @@ import pkgutil
 from pathlib import Path
 from collections import defaultdict
 from typing import Set as t_set, List as t_list, Dict as t_dict
-from ..io_ import is_directory, file_exists
-from ..data_structures import Graph, MultiNode
-from ..reflection import get_python_version
+from ...io_ import is_directory, file_exists
+from ...data_structures import Graph, MultiNode
+from ..interpreter import get_python_version
 
 if get_python_version() >= (3, 9):
     from builtins import list as t_list, set as t_set, dict as t_dict

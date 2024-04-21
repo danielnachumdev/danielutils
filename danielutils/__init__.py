@@ -43,5 +43,4 @@ from .print_ import *
 from .metaclasses import *
 from .generators import *
 from .university import *
-from .package_utils import *
 from .mock_ import *
