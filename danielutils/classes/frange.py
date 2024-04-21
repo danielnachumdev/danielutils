@@ -12,6 +12,37 @@ class frange(Sequence[float]):
         """will "downcast" `range` to `frange` correctly"""
         return frange(r.start, r.stop, r.step)
 
+    @staticmethod
+    def _is_int(n: Union[int, float]) -> bool:
+        if isinstance(n, int):
+            return True
+
+        return n.is_integer()
+
+    @staticmethod
+    def _lcm_float(a: float, b: float) -> float:
+        prec = min(5, max(decimal.getcontext().prec, 10))
+        a = round(a, prec)
+        b = round(b, prec)
+        return math.lcm(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec
+
+    @staticmethod
+    def _find_min_step(s1: float, s2: float) -> float:
+        """
+        returns the minimum LCM for two step values
+        Args:
+            s1 (float): first step value:
+            s2 (float): second step value:
+
+        Returns:
+            float: minimum LCM
+        """
+        M = max(s1, s2)
+        m = min(s1, s2)
+        if float.is_integer(M / m):
+            return M
+        return frange._lcm_float(s1, s2)
+
     def __init__(self, start: float, stop: Optional[float] = None,
                  step: float = 1, round_method: Callable[[float], float] = lambda f: round(f, 3)):
         if stop is None:
@@ -21,26 +52,6 @@ class frange(Sequence[float]):
         self.stop = stop
         self.step = step
         self.method = round_method
-
-    @property
-    def is_finite(self) -> bool:
-        """
-        Returns `True` if the range is finite
-        inverse if `is_infinite`
-        Returns:
-            bool
-        """
-        return len(self) != float("inf")
-
-    @property
-    def is_infinite(self) -> bool:
-        """
-        Returns `True` if the range is infinite
-        inverse if `is_finite`
-        Returns:
-            bool
-        """
-        return not self.is_finite
 
     @overload
     def __getitem__(self, index: int) -> float:
@@ -77,9 +88,9 @@ class frange(Sequence[float]):
         return self.start == other.start and self.stop == other.stop and self.step == other.step
 
     def __iter__(self) -> Iterator[float]:
-        if self.stop < self.start:
+        if self.stop < self.start and self.step > 0:
             return
-        if self.start > self.stop:
+        if self.start > self.stop and self.step > 0:
             return
         if abs(self.stop - self.start) < abs(self.step):
             return
@@ -89,27 +100,20 @@ class frange(Sequence[float]):
             return
 
         cur = self.start
-        while cur < self.stop:
+        while (cur < self.stop and self.step > 0) or (cur > self.stop and self.step < 0):
             yield self.method(cur)
             cur += self.step
 
     def __len__(self) -> int:
         if self.stop in {float("inf"), -float("inf")}:
             return float("inf")
-        return int((self.stop - self.start) // self.step)
+        return int(abs(self.stop - self.start) // abs(self.step))
 
     def __str__(self) -> str:
         return repr(self)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.start}, {self.stop}, {self.step})"
-
-    @staticmethod
-    def _is_int(n: Union[int, float]) -> bool:
-        if isinstance(n, int):
-            return True
-
-        return n.is_integer()
 
     def __contains__(self, item):
         if item < self.start:
@@ -123,6 +127,26 @@ class frange(Sequence[float]):
 
         return item / self.step - item // self.step == 0
 
+    @property
+    def is_finite(self) -> bool:
+        """
+        Returns `True` if the range is finite
+        inverse if `is_infinite`
+        Returns:
+            bool
+        """
+        return len(self) != float("inf")
+
+    @property
+    def is_infinite(self) -> bool:
+        """
+        Returns `True` if the range is infinite
+        inverse if `is_finite`
+        Returns:
+            bool
+        """
+        return not self.is_finite
+
     def normalize(self) -> 'frange':
         """
         will normalize the `frange` object
@@ -130,33 +154,6 @@ class frange(Sequence[float]):
             frange
         """
         return frange(self.start / self.step, self.stop / self.step, 1)
-
-    # def _normalize_with(self, other: 'frange') -> 'frange':
-    #     return frange(self.start / (self.step * other.step), self.stop / (self.step * other.step), 1)
-
-    @staticmethod
-    def _lcm_float(a: float, b: float) -> float:
-        prec = min(5, max(decimal.getcontext().prec, 10))
-        a = round(a, prec)
-        b = round(b, prec)
-        return math.lcm(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec
-
-    @staticmethod
-    def _find_min_step(s1: float, s2: float) -> float:
-        """
-        returns the minimum LCM for two step values
-        Args:
-            s1 (float): first step value:
-            s2 (float): second step value:
-
-        Returns:
-            float: minimum LCM
-        """
-        M = max(s1, s2)
-        m = min(s1, s2)
-        if float.is_integer(M / m):
-            return M
-        return frange._lcm_float(s1, s2)
 
     def intersect(self, other: 'frange') -> 'frange':
         if not isinstance(other, frange):
