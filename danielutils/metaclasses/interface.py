@@ -144,7 +144,7 @@ class InterfaceHelper:
 
 
 class Interface(type):
-    """This is a metaclass that will enable classes that inherit it directly (or indirectly)
+    """This is a metaclass that will enable better_builtins that inherit it directly (or indirectly)
         to behave like interfaces in OOP languages like java
     """
     IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*\w+)?:\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"

@@ -1,6 +1,5 @@
-import copy
+import copy, re
 from typing import Any, Callable, Union, Tuple as t_tuple, List as t_list, Dict as t_dict
-import re
 from ..reflection import get_python_version  # pylint :disable=relative-beyond-top-level
 
 if get_python_version() >= (3, 9):

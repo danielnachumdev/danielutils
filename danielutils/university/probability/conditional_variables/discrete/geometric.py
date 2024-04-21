@@ -3,7 +3,7 @@ from typing import Union
 
 from .discrete import DiscreteConditionalVariable
 from ...operator import Operator
-from .....classes import frange
+from .....better_builtins import frange
 from ...supp import DiscreteSupp
 from ...protocols import ExpectedValueCalculable, VariableCalculable
 

@@ -1,5 +1,3 @@
-import inspect
-import re
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
     ForwardRef, Literal, Optional, Tuple as t_tuple, Protocol
 from collections.abc import Callable, Generator, Iterable
@@ -325,7 +323,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
             return HANDLERS[t_origin](params)
 
         from ..colors import warning  # pylint: disable=cyclic-import
-        from ..reflection.get_traceback import get_traceback
+        from reflection.interpreter.get_traceback import get_traceback
         warning(
             f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")
         print(*get_traceback())

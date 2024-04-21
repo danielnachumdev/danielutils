@@ -3,10 +3,10 @@ from typing import Any, Optional, TypeVar
 try:
     import redis
 except ImportError:
-    from ...imports import MockImportObject
+    from mock_ import MockImportObject
 
     redis = MockImportObject("`redis` is not installed")
-from .database import Database
+from abstractions.database.database import Database
 
 K = TypeVar('K')
 V = TypeVar('V')

@@ -1,8 +1,10 @@
 import random
-from typing import Any, Optional
+from typing import Any, Optional, TypeVar
 from time import sleep
-from ..database import Database
-from ..database.database import K, V
+from ..abstractions.database import Database
+
+K = TypeVar('K')
+V = TypeVar('V')
 
 
 class InMemoryDatabase(Database):

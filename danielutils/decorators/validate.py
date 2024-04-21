@@ -119,7 +119,7 @@ def validate(strict: Union[FuncT, bool] = True) -> FuncT:
     # value of a function.
 
     #     * 'None' is allowed as default value for everything
-    #     * Because of their use in classes, the generally accepted keywords 'self' and 'cls'
+    #     * Because of their use in better_builtins, the generally accepted keywords 'self' and 'cls'
     #     are not validated to not break intellisense when using 'Any'
 
     # Args:

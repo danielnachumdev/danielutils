@@ -1,5 +1,5 @@
 import traceback
-from .interpreter import get_python_version
+from .python_version import get_python_version
 if get_python_version() < (3, 9):
     from typing import List as t_list
 else:

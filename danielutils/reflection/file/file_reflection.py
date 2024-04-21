@@ -2,7 +2,7 @@ import inspect
 import os
 from typing import Optional, cast
 from types import FrameType
-from .callstack import _get_prev_frame_from
+from ..interpreter.callstack import _get_prev_frame_from
 
 
 def get_filename() -> Optional[str]:

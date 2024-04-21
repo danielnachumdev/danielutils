@@ -1,11 +1,11 @@
 from fractions import Fraction
 from typing import Union
-from math_ import e, factorial
+from math import e, factorial
 
 from .discrete import DiscreteConditionalVariable
 from ...supp import DiscreteSupp
 from ...operator import Operator
-from .....classes import frange
+from .....better_builtins import frange
 from ...protocols import ExpectedValueCalculable, VariableCalculable
 
 

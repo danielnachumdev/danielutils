@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from typing import Iterator, TypeVar, Union
-from ...classes import frange
+from ...better_builtins import frange
 
 T = TypeVar('T')
 

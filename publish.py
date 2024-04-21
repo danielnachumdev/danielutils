@@ -10,7 +10,7 @@ def main() -> None:
         description="A python utils library for things I find useful",
         min_python=Version(3, 8, 0),
         homepage="https://github.com/danielnachumdev/danielutils",
-        keywords=['functions', 'decorators', 'methods', 'classes', 'metaclasses'],
+        keywords=['functions', 'decorators', 'methods', 'better_builtins', 'metaclasses'],
         dependencies=[]
     )
 

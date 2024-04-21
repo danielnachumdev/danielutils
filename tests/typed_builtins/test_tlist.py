@@ -1,7 +1,7 @@
 import random
 import unittest
 from typing import Union, Any, List as t_list, Tuple as t_tuple
-from danielutils.classes.typed_builtins import tlist  # type:ignore
+from danielutils.better_builtins.typed_builtins import tlist  # type:ignore
 from danielutils import isoftype  # type:ignore
 from danielutils.reflection import get_python_version  # type:ignore
 

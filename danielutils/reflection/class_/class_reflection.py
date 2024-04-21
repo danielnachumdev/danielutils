@@ -1,6 +1,6 @@
 import inspect, re
 from typing import Any, List as t_list, Optional
-from .interpreter import get_python_version
+from ..interpreter import get_python_version
 
 if get_python_version() >= (3, 9):
     from builtins import list as t_list  # type:ignore

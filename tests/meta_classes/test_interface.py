@@ -1,6 +1,6 @@
 import unittest
 
-import math_
+import math
 from typing import Union, List as t_list
 from danielutils.metaclasses.interface import Interface  # type:ignore
 from danielutils.reflection import get_python_version  # type:ignore

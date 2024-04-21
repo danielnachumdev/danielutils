@@ -2,7 +2,7 @@ from typing import Generator, Any, Tuple as t_tuple
 from threading import Semaphore  # , Condition
 from ..decorators import threadify
 from ..data_structures import AtomicQueue, Queue
-from ..classes import AtomicCounter
+from ..better_builtins import AtomicCounter
 # from ..Print import aprint
 from ..reflection import get_python_version
 

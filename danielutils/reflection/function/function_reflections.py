@@ -1,7 +1,6 @@
 import inspect
 from typing import Optional, Callable
-from .callstack import get_prev_frame
-from .interpreter import get_python_version
+from ..interpreter import get_python_version, get_prev_frame
 
 if get_python_version() < (3, 9):
     from typing import Set as t_set  # pylint: disable=ungrouped-imports
@@ -98,7 +97,7 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     Returns:
         bool: result of validation
     """
-    from ..functions.isoftype import isoftype
+    from ...functions.isoftype import isoftype
     if not inspect.isfunction(func):
         raise ValueError("param should be a function")
 
@@ -128,7 +127,6 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     if check_return:
         pass
     return True
-
 
 
 __all__ = [
