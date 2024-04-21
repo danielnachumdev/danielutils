@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "danielutils"
-version = "0.9.75"
+version = "0.9.76"
 authors = [
     { name = "danielnachumdev", email = "danielnachumdev@gmail.com" },
 ]
@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 [tool.setuptools]
-packages = ["danielutils"]
+packages=["danielutils"]
 [tool.setuptools.package-data]
 "danielutils" = ["py.typed"]
 
