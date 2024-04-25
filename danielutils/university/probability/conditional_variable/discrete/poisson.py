@@ -3,7 +3,7 @@ from typing import Union
 from math import e, factorial
 
 from .discrete import DiscreteConditionalVariable
-from ...supp import DiscreteSupp
+from ...supp import FrangeSupp
 from ...operator import Operator
 from .....better_builtins import frange
 from ...protocols import ExpectedValueCalculable, VariableCalculable
@@ -11,7 +11,7 @@ from ...protocols import ExpectedValueCalculable, VariableCalculable
 
 class Poisson(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCalculable):
     def __init__(self, p: Union[float, Fraction]):
-        super().__init__(p, DiscreteSupp(frange(1, float("inf"))))
+        super().__init__(p, FrangeSupp(frange(1, float("inf"))))
 
     def evaluate(self, n: int, op: Operator) -> Fraction:
         if n < 0:

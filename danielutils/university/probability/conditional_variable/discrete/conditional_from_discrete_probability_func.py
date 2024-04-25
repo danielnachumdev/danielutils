@@ -1,7 +1,7 @@
 from typing import Callable
 from fractions import Fraction
 from .discrete import DiscreteConditionalVariable
-from ...supp import DiscreteSupp
+from ...supp import FrangeSupp
 from ...operator import Operator
 
 
@@ -19,7 +19,7 @@ class ConditionalFromDiscreteProbabilityFunc(DiscreteConditionalVariable):
 
         return 1 - self.evaluate(n, op.inverse)
 
-    def __init__(self, p: Callable[[int], Fraction], supp: DiscreteSupp) -> None:
+    def __init__(self, p: Callable[[int], Fraction], supp: FrangeSupp) -> None:
         super().__init__(None, supp)
         self.f = p
 

@@ -2,7 +2,7 @@ from fractions import Fraction
 from typing import Union
 from math import factorial
 from .discrete import DiscreteConditionalVariable
-from ...supp import DiscreteSupp
+from ...supp import FrangeSupp
 from ...operator import Operator
 from .....better_builtins import frange
 from ...protocols import ExpectedValueCalculable, VariableCalculable
@@ -14,7 +14,7 @@ def choose(n: int, k: int) -> Fraction:
 
 class Binomial(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCalculable):
     def __init__(self, n: int, p: Union[float, Fraction]):
-        super().__init__(p, DiscreteSupp(frange(0, float("inf"))))
+        super().__init__(p, FrangeSupp(frange(0, float("inf"))))
         self._n = n
 
     @property

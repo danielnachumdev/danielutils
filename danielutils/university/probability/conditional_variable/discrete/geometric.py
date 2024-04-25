@@ -4,13 +4,13 @@ from typing import Union
 from .discrete import DiscreteConditionalVariable
 from ...operator import Operator
 from .....better_builtins import frange
-from ...supp import DiscreteSupp
+from ...supp import FrangeSupp
 from ...protocols import ExpectedValueCalculable, VariableCalculable
 
 
 class Geometric(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCalculable):
     def __init__(self, p: Union[float, Fraction]):
-        super().__init__(Fraction(p), DiscreteSupp(frange(1, float("inf"), 1)))
+        super().__init__(Fraction(p), FrangeSupp(frange(1, float("inf"), 1)))
 
     def _is_edge_case(self, n: int, op: Operator) -> tuple[bool, Fraction]:
         if n <= 0 and op in Operator.greater_than_inequalities():

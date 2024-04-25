@@ -57,13 +57,36 @@ class ConditionalVariable(ABC):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}"
 
-    def is_dependent(self, other) -> bool:
+    def is_identical(self, other) -> bool:
         if not isinstance(other, ConditionalVariable):
             return False
         return self is other
 
     def is_independent(self, other) -> bool:
-        return not self.is_dependent(other)
+        if not isinstance(other, ConditionalVariable):
+            return False
+        if not self.supp.is_finite and not other.supp.is_finite:
+            raise ValueError("Can't check if two variables are independent if their supp is not finite")
+
+        if self.supp != other.supp:
+            return False
+        from ..funcs import probability_function as P
+        for k in self.supp:
+            if not (P((self == k) & (other == k)) == P(self == k) * P(other == k)):
+                return False
+        return True
+
+    def is_dependent(self, other) -> bool:
+        return not self.is_independent(other)
+
+    def is_correlated(self, other) -> bool:
+        if not isinstance(other, ConditionalVariable):
+            return False
+        from ..funcs import covariance as cov
+        return cov(self, other) == 0
+
+    def is_uncorrelated(self, other) -> bool:
+        return not self.is_correlated(other)
 
     @abstractmethod
     def evaluate(self, other: Any, operator: Operator) -> Fraction:

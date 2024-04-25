@@ -1,4 +1,4 @@
-from .conditional_variables import *
+from .conditional_variable import *
 from .funcs import *
 from .distributions import *
 from .operator import *

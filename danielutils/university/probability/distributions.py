@@ -1,6 +1,6 @@
 from enum import Enum
-from .conditional_variables import ConditionalVariable
-from .conditional_variables.discrete import Bernoulli, Geometric, Uniform, Binomial, Poisson
+from .conditional_variable import ConditionalVariable
+from .conditional_variable.discrete import Bernoulli, Geometric, Uniform, Binomial, Poisson
 
 
 class DiscreteDistribution(Enum):

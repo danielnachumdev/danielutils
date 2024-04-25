@@ -1,7 +1,7 @@
 from typing import Union
 
 from fractions import Fraction
-from ..conditional_variables import ConditionalVariable
+from ..conditional_variable import ConditionalVariable
 from .probability_function import probability_function as P
 from ..expressions import ProbabilityExpression
 from ..operator import Operator

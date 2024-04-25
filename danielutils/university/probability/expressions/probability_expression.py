@@ -80,7 +80,7 @@ class ProbabilityExpression(Evaluable):
         if not isinstance(other, ProbabilityExpression):
             raise TypeError(
                 f"Cant compare equality between {self.__class__.__qualname__} and non ConditionalExpression")
-        from ..conditional_variables import ConditionalVariable
+        from ..conditional_variable import ConditionalVariable
         if isinstance(self.lhs, ConditionalVariable) and not isinstance(other.lhs, ConditionalVariable):
             return False
         if not isinstance(self.lhs, ConditionalVariable) and isinstance(other.lhs, ConditionalVariable):

@@ -91,7 +91,7 @@ class AccumulationExpression(Evaluable):
     def is_equal(self, other) -> bool:
         if not isinstance(other, AccumulationExpression):
             return False
-        from ..conditional_variables import ConditionalVariable
+        from ..conditional_variable import ConditionalVariable
         # I have to create a custom comparer because the BST can't (and shouldn't) know to compare using
         # ConditionalVariable.is_equal
         def are_nodes_equal(a: Any, b: Any) -> bool:

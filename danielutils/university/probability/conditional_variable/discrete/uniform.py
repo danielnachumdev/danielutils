@@ -1,6 +1,6 @@
 from fractions import Fraction
 
-from ...supp import DiscreteSupp
+from ...supp import FrangeSupp
 from ...operator import Operator
 
 from .discrete import DiscreteConditionalVariable
@@ -19,14 +19,14 @@ class Uniform(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCalc
         return self.evaluate(n, op.inverse)
 
     def __init__(self, size) -> None:
-        super().__init__(Fraction(1, size), DiscreteSupp(range(1, size + 1)))
+        super().__init__(Fraction(1, size), FrangeSupp(range(1, size + 1)))
 
     def expected_value(self) -> Fraction:
-        return Fraction(Fraction.from_float(self.supp.start + self.supp.stop), 2)
+        return Fraction(Fraction.from_float(self.supp.minimum + self.supp.maximum), 2)
 
     def variance(self) -> Fraction:
         return Fraction(
-            Fraction.from_float((self.supp.stop - self.supp.start - 1) ** 2 - 1),
+            Fraction.from_float((self.supp.maximum - self.supp.minimum - 1) ** 2 - 1),
             12
         )
 

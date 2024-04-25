@@ -2,21 +2,21 @@ from fractions import Fraction
 from typing import Union
 
 from ..conditional_variable import ConditionalVariable
-from ...supp import DiscreteSupp
+from ...supp import FrangeSupp
 from ...operator import Operator
 
 
 class DiscreteConditionalVariable(ConditionalVariable):
 
-    def __init__(self, p: Union[float, Fraction], supp: DiscreteSupp):
+    def __init__(self, p: Union[float, Fraction], supp: FrangeSupp):
         self._p: Fraction = p if isinstance(p, Fraction) else Fraction.from_float(p)
-        self._supp: DiscreteSupp = supp
+        self._supp: FrangeSupp = supp
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.p})"
 
     @property
-    def supp(self) -> DiscreteSupp:
+    def supp(self) -> FrangeSupp:
         return self._supp
 
     @property

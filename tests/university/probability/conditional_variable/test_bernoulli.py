@@ -30,3 +30,14 @@ class TestBernoulli(unittest.TestCase):
             self.assertEqual(P(X == 1), P(1 + X == 2))
             self.assertEqual(P(X == 1), P(1 - X == 0))
             self.assertEqual(P(X == 1), P(X - 1 == 0))
+
+    def test_probability_function(self):
+        for p in frange(0.1, 0.9, 0.01):
+            X = B(p)
+            self.assertEqual(1, P(X <= 1))
+            self.assertEqual(1, P(X <= 50))
+            self.assertEqual(p, P(X >= 1))
+            self.assertEqual(P(X == 1), P(X >= 1))
+            self.assertEqual(1, P(X >= 0))
+            self.assertEqual(1, P(X > -50))
+            self.assertEqual(1, P(X < 70))
