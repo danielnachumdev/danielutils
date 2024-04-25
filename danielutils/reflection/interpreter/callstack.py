@@ -12,7 +12,7 @@ def get_current_frame() -> Optional[FrameType]:
     return _get_prev_frame_from(inspect.currentframe())
 
 
-def get_prev_frame(n_steps: int) -> Optional[FrameType]:
+def get_prev_frame(n_steps: int = 1) -> Optional[FrameType]:
     if (f := get_current_frame()) is None:
         return None
     i = 0
@@ -23,7 +23,18 @@ def get_prev_frame(n_steps: int) -> Optional[FrameType]:
     return f
 
 
+def get_prev_line_of_code(n_steps: int = 1) -> Optional[str]:
+    frame = get_prev_frame(n_steps + 1)
+    file = frame.f_back.f_code.co_filename
+    line_number = frame.f_back.f_lineno - 1
+    with open(file, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+    line = lines[line_number]
+    return line
+
+
 __all__ = [
     "get_current_frame",
-    "get_prev_frame"
+    "get_prev_frame",
+    "get_prev_line_of_code"
 ]
