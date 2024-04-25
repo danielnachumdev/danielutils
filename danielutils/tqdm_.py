@@ -6,7 +6,7 @@ if get_python_version() >= (3, 9):
 try:
     from tqdm import tqdm
 except ImportError:
-    from .imports import MockImportObject
+    from .mock_ import MockImportObject
 
     tqdm = MockImportObject("`tqdm` is not installed")  # type:ignore
 
