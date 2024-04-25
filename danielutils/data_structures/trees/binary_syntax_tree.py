@@ -1,7 +1,9 @@
-from typing import Union, Any, Callable
+from typing import Union, Any, Callable,Dict as t_dict
 from .binary_tree import BinaryTree
 from ..graph import BinaryNode
-
+from ...reflection import get_python_version
+if get_python_version()>=(3,9):
+    from builtins import dict as t_dict
 
 class BinarySyntaxTree(BinaryTree):
     """
@@ -9,7 +11,7 @@ class BinarySyntaxTree(BinaryTree):
     """
 
     @staticmethod
-    def _evaluate_node(v: BinaryNode, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]):
+    def _evaluate_node(v: BinaryNode, operator_func_dict: t_dict[Any, Callable[[Any, Any], Any]]):
         if not isinstance(v, BinaryNode) or v.left is None and v.right is None:
             return v
 
@@ -72,7 +74,7 @@ class BinarySyntaxTree(BinaryTree):
     def __reversed__(self) -> "BinarySyntaxTree":
         return self.reverse()
 
-    def evaluate(self, operator_func_dict: dict[Any, Callable[[Any, Any], Any]]) -> Any:
+    def evaluate(self, operator_func_dict: t_dict[Any, Callable[[Any, Any], Any]]) -> Any:
         return BinarySyntaxTree._evaluate_node(self.root, operator_func_dict)
 
 

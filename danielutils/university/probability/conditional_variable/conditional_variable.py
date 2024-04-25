@@ -6,32 +6,31 @@ from ..operator import Operator
 from ..supp import Supp
 from ..protocols import Evaluable
 
+def _create_operator(op: Operator, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Evaluable]:
+    def operator(self, other) -> Evaluable:
+        lhs, rhs = self, other
+        if reverse:
+            lhs, rhs = rhs, lhs
+
+        if isinstance(other, (int, float, Fraction)):
+            return ProbabilityExpression(lhs, op, rhs)
+
+        if isinstance(rhs, ProbabilityExpression):
+            l = ProbabilityExpression(lhs, op, rhs.lhs)
+            r = ProbabilityExpression(rhs.rhs, None, None)
+            o = other.op
+            return AccumulationExpression(l, o, r)
+
+        # if isinstance(rhs, ConditionalVariable):
+        #     return AccumulationExpression(ProbabilityExpression(lhs), op, ProbabilityExpression(rhs))
+
+        raise NotImplementedError("Not Implemented")
+
+    return operator
 
 class ConditionalVariable(ABC):
     OPERATOR_TYPE = Callable[['ConditionalVariable', Any], Evaluable]
 
-    @staticmethod
-    def _create_operator(op: Operator, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Evaluable]:
-        def operator(self, other) -> Evaluable:
-            lhs, rhs = self, other
-            if reverse:
-                lhs, rhs = rhs, lhs
-
-            if isinstance(other, (int, float, Fraction)):
-                return ProbabilityExpression(lhs, op, rhs)
-
-            if isinstance(rhs, ProbabilityExpression):
-                l = ProbabilityExpression(lhs, op, rhs.lhs)
-                r = ProbabilityExpression(rhs.rhs, None, None)
-                o = other.op
-                return AccumulationExpression(l, o, r)
-
-            # if isinstance(rhs, ConditionalVariable):
-            #     return AccumulationExpression(ProbabilityExpression(lhs), op, ProbabilityExpression(rhs))
-
-            raise NotImplementedError("Not Implemented")
-
-        return operator
 
     __eq__: OPERATOR_TYPE = _create_operator(Operator.EQ)
     __ne__: OPERATOR_TYPE = _create_operator(Operator.NE)

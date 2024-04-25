@@ -1,9 +1,15 @@
 import inspect, re
-from typing import Any, List as t_list, Optional
+from typing import Any, List as t_list, Optional,Tuple as t_tuple
+from dataclasses import dataclass
 from ..interpreter import get_python_version
 
+argument_kwargs = dict(frozen=True)
+FunctionDeclaration_kwargs = dict(frozen=True)
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list  # type:ignore
+    from builtins import list as t_list,tuple as t_tuple  # type:ignore
+
+    argument_kwargs.update(slots=True)
+    FunctionDeclaration_kwargs.update(slots=True)
 
 
 def get_explicitly_declared_functions(cls: type) -> t_list[str]:
@@ -35,10 +41,7 @@ def get_mro(obj: Any) -> t_list[type]:
     return get_mro(obj.__class__)
 
 
-from dataclasses import dataclass
-
-
-@dataclass(frozen=True, slots=True)
+@dataclass(**argument_kwargs)
 class Argument:
     name: str
     type: Optional[str]
@@ -53,7 +56,7 @@ arg_pattern = re.compile(r"([\w\*\/]+)(?:\s*?:\s*?([\w\[\]\(\)\,]+))?(?:\s*?=\s*
 class_pattern = re.compile(r"\s*class\s+?\w+\s*?(?:\((.*)\))?\s*?:")
 
 
-def split_args(args: str) -> list[str]:
+def split_args(args: str) -> t_list[str]:
     from danielutils import Stack
     res = []
     s: Stack[str] = Stack()
@@ -78,13 +81,13 @@ def remove_whitespace(text: str) -> str:
     return "".join(not_whitespace_pattern.findall(text.strip())).replace("\\", "")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(**FunctionDeclaration_kwargs)
 class FunctionDeclaration:
     name: str
-    arguments: tuple[Argument, ...]
+    arguments: t_tuple[Argument, ...]
     return_type: Optional[str]
-    decorators: Optional[list[str]] = None
-    generics: Optional[tuple[str]] = None
+    decorators: Optional[t_list[str]] = None
+    generics: Optional[t_tuple[str]] = None
 
     def duplicate(self, **override_kwargs) -> 'FunctionDeclaration':
         dct = dict(
@@ -102,7 +105,7 @@ class FunctionDeclaration:
         return self.generics is not None and len(self.generics) > 0
 
     @staticmethod
-    def get_declared_functions(cls) -> list['FunctionDeclaration']:
+    def get_declared_functions(cls) -> t_list['FunctionDeclaration']:
         """will yield the names of all the functions declared inside a class
 
         Yields:

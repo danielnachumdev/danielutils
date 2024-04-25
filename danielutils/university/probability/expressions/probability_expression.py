@@ -4,37 +4,36 @@ from ..protocols import Evaluable
 from ..operator import Operator
 
 
+def _create_operator(op: Operator, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Evaluable]:
+    def operator(self: 'ProbabilityExpression', other: Any) -> Evaluable:
+        lhs, rhs = self, other
+        if reverse:
+            lhs, rhs = rhs, lhs
+        from .accumulation_expression import AccumulationExpression
+
+        if op in Operator.order_operators():
+            if isinstance(rhs, (int, float, Fraction)):
+                if op in Operator.inequalities():
+                    rhs = ProbabilityExpression(lhs.lhs, op, rhs)
+                    return AccumulationExpression(lhs, Operator.AND, rhs)
+                elif op == Operator.EQ:
+                    return AccumulationExpression(lhs, op, ProbabilityExpression(rhs))
+            elif isinstance(rhs, (ProbabilityExpression, AccumulationExpression)):
+                if isinstance(other, ProbabilityExpression):
+                    # TODO P((0<X)<(Y<5))
+                    # I think that this is the solution
+                    return AccumulationExpression(self, op, other)
+            raise NotImplementedError("Illegal state")
+        if op in {Operator.AND, Operator.GIVEN}:
+            if not isinstance(other, ProbabilityExpression):
+                raise NotImplementedError("Illegal state")
+            return AccumulationExpression(lhs, op, rhs)
+        raise NotImplementedError("Illegal state 2")
+
+    return operator
 class ProbabilityExpression(Evaluable):
     OPERATOR_TYPE = Callable[['ProbabilityExpression', Any], 'AccumulationExpression']
 
-    @staticmethod
-    def _create_operator(op: Operator, reverse: bool = False) -> Callable[['ConditionalVariable', Any], Evaluable]:
-        def operator(self: 'ProbabilityExpression', other: Any) -> Evaluable:
-            lhs, rhs = self, other
-            if reverse:
-                lhs, rhs = rhs, lhs
-            from .accumulation_expression import AccumulationExpression
-
-            if op in Operator.order_operators():
-                if isinstance(rhs, (int, float, Fraction)):
-                    if op in Operator.inequalities():
-                        rhs = ProbabilityExpression(lhs.lhs, op, rhs)
-                        return AccumulationExpression(lhs, Operator.AND, rhs)
-                    elif op == Operator.EQ:
-                        return AccumulationExpression(lhs, op, ProbabilityExpression(rhs))
-                elif isinstance(rhs, (ProbabilityExpression, AccumulationExpression)):
-                    if isinstance(other, ProbabilityExpression):
-                        # TODO P((0<X)<(Y<5))
-                        # I think that this is the solution
-                        return AccumulationExpression(self, op, other)
-                raise NotImplementedError("Illegal state")
-            if op in {Operator.AND, Operator.GIVEN}:
-                if not isinstance(other, ProbabilityExpression):
-                    raise NotImplementedError("Illegal state")
-                return AccumulationExpression(lhs, op, rhs)
-            raise NotImplementedError("Illegal state 2")
-
-        return operator
 
     def __init__(self, lhs: Evaluable, op: Optional[Operator] = None, rhs: Optional[Any] = None):
         self._lhs = lhs

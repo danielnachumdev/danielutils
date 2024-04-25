@@ -6,14 +6,7 @@ from ..protocols import Evaluable, Equatable
 from ..operator import Operator
 from ....data_structures import BinarySyntaxTree as BST
 
-
-class AccumulationExpression(Evaluable):
-    @staticmethod
-    def _probability_expression_to_nodes(expr: ProbabilityExpression) -> BST.Node:
-        return BST.Node(expr.op, BST.Node(expr.lhs), BST.Node(expr.rhs))
-
-    @staticmethod
-    def _create_operator(op: Operator, reverse: bool = False) -> Callable[['AccumulationExpression', Any], Evaluable]:
+def _create_operator(op: Operator, reverse: bool = False) -> Callable[['AccumulationExpression', Any], Evaluable]:
         def operator(self, other) -> Evaluable:
             op
             lhs, rhs = self, other
@@ -22,6 +15,12 @@ class AccumulationExpression(Evaluable):
             raise NotImplementedError("Not Implemented")
 
         return operator
+
+class AccumulationExpression(Evaluable):
+    @staticmethod
+    def _probability_expression_to_nodes(expr: ProbabilityExpression) -> BST.Node:
+        return BST.Node(expr.op, BST.Node(expr.lhs), BST.Node(expr.rhs))
+
 
     @staticmethod
     def _expression_intersection(expr1: ProbabilityExpression, expr2: ProbabilityExpression) -> Fraction:

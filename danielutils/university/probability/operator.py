@@ -1,4 +1,9 @@
 from enum import Enum
+from typing import Set as t_set
+from ...reflection import get_python_version
+
+if get_python_version() >= (3, 9):
+    from builtins import set as t_set
 
 
 class Operator(Enum):
@@ -13,31 +18,31 @@ class Operator(Enum):
     LE = "<="
 
     @staticmethod
-    def strong_inequalities() -> set['Operator']:
+    def strong_inequalities() -> t_set['Operator']:
         return {Operator.GT, Operator.LT}
 
     @staticmethod
-    def weak_inequalities() -> set['Operator']:
+    def weak_inequalities() -> t_set['Operator']:
         return {Operator.GE, Operator.LE}
 
     @staticmethod
-    def inequalities() -> set['Operator']:
+    def inequalities() -> t_set['Operator']:
         return Operator.strong_inequalities().union(Operator.weak_inequalities())
 
     @staticmethod
-    def equalities() -> set['Operator']:
+    def equalities() -> t_set['Operator']:
         return {Operator.EQ, Operator.NE}
 
     @staticmethod
-    def greater_than_inequalities() -> set['Operator']:
+    def greater_than_inequalities() -> t_set['Operator']:
         return {Operator.GE, Operator.GT}
 
     @staticmethod
-    def less_than_inequalities() -> set['Operator']:
+    def less_than_inequalities() -> t_set['Operator']:
         return {Operator.LE, Operator.LT}
 
     @staticmethod
-    def order_operators() -> set['Operator']:
+    def order_operators() -> t_set['Operator']:
         return Operator.inequalities().union(Operator.equalities())
 
     MUL = "*"
