@@ -1,11 +1,16 @@
 import unittest
 from typing import Union, Callable, Any, Optional, TypeVar, Iterable, ForwardRef, Literal, \
-    AnyStr, Generator, List as t_list, Dict as t_dict, Tuple as t_tuple, Protocol, runtime_checkable
-from danielutils.functions import isoftype  # type:ignore
-from danielutils.reflection import get_python_version  # type:ignore
+    AnyStr, Generator, Protocol, runtime_checkable
 
-if get_python_version() >= (3, 9):
-    from builtins import list as t_list, dict as t_dict, tuple as t_tuple  # type:ignore
+try:
+    from danielutils.functions import isoftype  # type:ignore
+    from danielutils.reflection import get_python_version  # type:ignore
+    from danielutils.versioned_imports import t_dict, t_list, t_tuple
+except:
+    # python == 3.9.0
+    from ...danielutils.functions import isoftype  # type:ignore
+    from ...danielutils.reflection import get_python_version  # type:ignore
+    from ...danielutils.versioned_imports import t_dict, t_list, t_tuple
 
 
 class TestIsOfType(unittest.TestCase):

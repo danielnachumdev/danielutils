@@ -1,5 +1,9 @@
 import unittest
-from danielutils import MockImportObject
+try:
+    from danielutils import MockImportObject
+except:
+    # python == 3.9.0
+    from ...danielutils import MockImportObject
 
 
 class TestMockImportObject(unittest.TestCase):

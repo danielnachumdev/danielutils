@@ -1,6 +1,11 @@
 import unittest
-from danielutils.university.probability import DiscreteDistribution as D, probability_function as P
-from danielutils import frange
+try:
+    from danielutils.university.probability import DiscreteDistribution as D, probability_function as P
+    from danielutils import frange
+except:
+    # python == 3.9.0
+    from .....danielutils.university.probability import DiscreteDistribution as D, probability_function as P
+    from .....danielutils import frange
 
 
 class TestBinomial(unittest.TestCase):

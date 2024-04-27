@@ -1,7 +1,11 @@
 import unittest
 from typing import Generator
 import time
-from danielutils.generators.join_generators import join_generators, join_generators_busy_waiting  # type:ignore
+try:
+    from danielutils.generators.join_generators import join_generators, join_generators_busy_waiting  # type:ignore
+except:
+    # python == 3.9.0
+    from ...danielutils.generators.join_generators import join_generators, join_generators_busy_waiting  # type:ignore
 
 EXPECTED = [(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (0, 4), (0, 5), (1, 1), (0, 6),
             (1, 2), (0, 7), (1, 3), (0, 8), (1, 4), (1, 5), (0, 9), (1, 6), (1, 7), (1, 8),

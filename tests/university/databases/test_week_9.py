@@ -1,7 +1,12 @@
 import unittest
 
-from danielutils import Attribute as AT, FunctionalDependencyGroup as FDG, Relation as RE, \
-    FunctionDependency as FD  # type:ignore
+try:
+    from danielutils import Attribute as AT, FunctionalDependencyGroup as FDG, Relation as RE, \
+        FunctionDependency as FD  # type:ignore
+except:
+    # python == 3.9.0
+    from ....danielutils import Attribute as AT, FunctionalDependencyGroup as FDG, Relation as RE, \
+        FunctionDependency as FD  # type:ignore
 
 A, B, C, D, E = AT.create_many(5)
 

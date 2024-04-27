@@ -1,12 +1,14 @@
 import unittest
+from typing import Union
+try:
+    from danielutils.metaclasses.interface import Interface  # type:ignore
+    from danielutils.versioned_imports import t_list
+except:
+    # python == 3.9.0
+    from ...danielutils.metaclasses.interface import Interface  # type:ignore
+    from ...danielutils.versioned_imports import t_list
 
-import math
-from typing import Union, List as t_list
-from danielutils.metaclasses.interface import Interface  # type:ignore
-from danielutils.reflection import get_python_version  # type:ignore
 
-if get_python_version() >= (3, 9):
-    from builtins import list as t_list
 Number = Union[int, float]
 
 

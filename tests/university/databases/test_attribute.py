@@ -1,7 +1,10 @@
 import functools
 import unittest
-
-from danielutils import Attribute  # type:ignore
+try:
+    from danielutils import Attribute  # type:ignore
+except:
+    # python == 3.9.0
+    from ....danielutils import Attribute
 
 
 class TestAttribute(unittest.TestCase):

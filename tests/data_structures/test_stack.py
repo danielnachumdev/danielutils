@@ -1,6 +1,10 @@
 import unittest
+try:
+    from danielutils import Stack
+except:
+    # python == 3.9.0
+    from ...danielutils import Stack
 
-from danielutils import Stack
 
 
 class TestStack(unittest.TestCase):

@@ -1,9 +1,16 @@
 # type:ignore
 import unittest
 from typing import Any, Union
-from danielutils import validate
-from danielutils.exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, \
-    InvalidReturnValueException
+try:
+    from danielutils import validate
+    from danielutils.exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, \
+        InvalidReturnValueException
+except:
+    # python == 3.9.0
+    from ...danielutils import validate
+    from ...danielutils.exceptions import EmptyAnnotationException, InvalidDefaultValueException, ValidationException, \
+        InvalidReturnValueException
+
 
 
 class TestValidate(unittest.TestCase):

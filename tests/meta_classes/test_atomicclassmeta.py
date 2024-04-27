@@ -1,6 +1,11 @@
-from danielutils.metaclasses.atomic_class_meta import AtomicClassMeta  # type:ignore
-from danielutils import threadify  # type:ignore
 import time
+try:
+    from danielutils.metaclasses.atomic_class_meta import AtomicClassMeta  # type:ignore
+    from danielutils import threadify  # type:ignore
+except:
+    # python == 3.9.0
+    from ...danielutils.metaclasses.atomic_class_meta import AtomicClassMeta  # type:ignore
+    from ...danielutils import threadify  # type:ignore
 
 
 class A():

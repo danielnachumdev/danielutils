@@ -1,5 +1,9 @@
 import unittest
-from danielutils.data_structures import MultiNode as N
+try:
+    from danielutils.data_structures import MultiNode as N
+except:
+    # python == 3.9.0
+    from ...danielutils.data_structures import MultiNode as N
 
 
 class TestMultiNode(unittest.TestCase):

@@ -1,12 +1,16 @@
 import random
 import unittest
-from typing import Union, Any, List as t_list, Tuple as t_tuple
-from danielutils.better_builtins.typed_builtins import tlist  # type:ignore
-from danielutils import isoftype  # type:ignore
-from danielutils.reflection import get_python_version  # type:ignore
+from typing import Union, Any
 
-if get_python_version() >= (3, 9):
-    from builtins import list as t_list, tuple as t_tuple  # type:ignore
+try:
+    from danielutils.better_builtins.typed_builtins import tlist  # type:ignore
+    from danielutils import isoftype  # type:ignore
+    from danielutils.versioned_imports import t_list, t_tuple
+except:
+    # python == 3.9.0
+    from ...danielutils.better_builtins.typed_builtins import tlist  # type:ignore
+    from ...danielutils import isoftype  # type:ignore
+    from ...danielutils.versioned_imports import t_list, t_tuple
 
 
 class TestTlist(unittest.TestCase):

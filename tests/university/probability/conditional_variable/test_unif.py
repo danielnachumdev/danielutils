@@ -1,5 +1,9 @@
 import unittest
-from danielutils.university.probability import Uniform as Unif, probability_function as P
+try:
+    from danielutils.university.probability import Uniform as Unif, probability_function as P
+except:
+    # python == 3.9.0
+    from .....danielutils.university.probability import Uniform as Unif, probability_function as P
 
 N = 100
 X = Unif(N)

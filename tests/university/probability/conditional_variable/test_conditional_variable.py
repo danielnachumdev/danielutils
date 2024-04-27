@@ -1,5 +1,9 @@
 import unittest
-from danielutils.university.probability import Uniform as U
+try:
+    from danielutils.university.probability import Uniform as U
+except:
+    # python == 3.9.0
+    from .....danielutils.university.probability import Uniform as U
 
 
 class TestConditionalVariable(unittest.TestCase):

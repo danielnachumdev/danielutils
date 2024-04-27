@@ -1,6 +1,10 @@
 import unittest
+try:
+    from danielutils.university.probability import Geometric as G, probability_function as P
+except:
+    # python == 3.9.0
+    from .....danielutils.university.probability import Geometric as G, probability_function as P
 
-from danielutils.university.probability import Geometric as G, probability_function as P
 
 X = G(0.5)
 

@@ -1,5 +1,9 @@
 import unittest
-from danielutils import total_ordering
+try:
+    from danielutils import total_ordering
+except:
+    # python == 3.9.0
+    from ...danielutils import total_ordering
 
 
 class TestTotalOrdering(unittest.TestCase):

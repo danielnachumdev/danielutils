@@ -1,5 +1,10 @@
 import unittest
-from danielutils.reflection import *
+
+try:
+    from danielutils.reflection import *
+except:
+    # python == 3.9.0
+    from ...danielutils.reflection import *
 
 
 class TestFunctionReflections(unittest.TestCase):
