@@ -1,12 +1,8 @@
 import time
 from datetime import datetime
 from typing import Callable, TypeVar
-from .reflection import get_python_version
+from .versioned_imports import ParamSpec
 
-if get_python_version() < (3, 9):
-    from typing_extensions import ParamSpec
-else:
-    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
 T = TypeVar("T")
 P = ParamSpec("P")
 

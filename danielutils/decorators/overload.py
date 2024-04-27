@@ -5,13 +5,8 @@ from ..reflection import is_function_annotated_properly
 from ..functions import isoftype, isoneof, isoneof_strict
 from ..exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
-from ..reflection import get_python_version
+from ..versioned_imports import ParamSpec, t_dict, t_list
 
-if get_python_version() < (3, 9):
-    from typing_extensions import ParamSpec
-else:
-    from typing import ParamSpec  # type:ignore# pylint: disable=ungrouped-imports
-    from builtins import dict as t_dict, list as t_list
 T = TypeVar("T")
 P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore

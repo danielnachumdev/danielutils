@@ -1,11 +1,8 @@
 import functools
 from typing import Callable, Optional, TypeVar
 from .validate import validate
-from ..reflection import get_python_version
-if get_python_version() < (3, 9):
-    from typing_extensions import ParamSpec
-else:
-    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
+from ..versioned_imports import ParamSpec
+
 T = TypeVar("T")
 P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
@@ -41,7 +38,9 @@ def attach(before: Optional[Callable] = None, after: Optional[Callable] = None) 
             if after is not None:
                 after()
             return res
+
         return wrapper
+
     return attach_deco
 
 

@@ -4,12 +4,8 @@ import traceback
 from typing import Any, Callable, TypeVar
 from .validate import validate
 from ..colors import warning
+from ..versioned_imports import ParamSpec
 
-from ..reflection import get_python_version
-if get_python_version() < (3, 9):
-    from typing_extensions import ParamSpec
-else:
-    from typing import ParamSpec  # type:ignore # pylint: disable=ungrouped-imports
 T = TypeVar("T")
 P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
@@ -27,12 +23,12 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
     """
 
     def deco(func: FuncT) -> FuncT:
-        @ functools.wraps(func)
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             depth = functools.reduce(
                 lambda count, line:
-                    count + 1 if re.search(rf"{func.__name__}\(.*\)$", line)
-                    else count,
+                count + 1 if re.search(rf"{func.__name__}\(.*\)$", line)
+                else count,
                 traceback.format_stack(), 0
             )
             if depth >= max_depth:
@@ -44,7 +40,9 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
                     return return_value
                 return args, kwargs
             return func(*args, **kwargs)
+
         return wrapper
+
     return deco
 
 
