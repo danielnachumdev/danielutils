@@ -1,13 +1,14 @@
 import inspect, re
-from typing import Any, List as t_list, Optional,Tuple as t_tuple
+from typing import Any, List as t_list, Optional, Tuple as t_tuple
 from dataclasses import dataclass
 from ..interpreter import get_python_version
 
 argument_kwargs = dict(frozen=True)
 FunctionDeclaration_kwargs = dict(frozen=True)
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list,tuple as t_tuple  # type:ignore
+    from builtins import list as t_list, tuple as t_tuple  # type:ignore
 
+elif get_python_version() >= (3, 10):
     argument_kwargs.update(slots=True)
     FunctionDeclaration_kwargs.update(slots=True)
 
