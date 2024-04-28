@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import subprocess
-from typing import IO, Iterator, Generator, Optional, cast, Union, List as t_list
+from typing import IO, Iterator, Generator, Optional, cast, Union, List as List
 # import shutil
 from pathlib import Path
 import os
 from .decorators import validate
 from .reflection import get_python_version
-if get_python_version() >= (3, 9):
-    from builtins import list as t_list
 
-@validate
+if get_python_version() >= (3, 9):
+    from builtins import list as List
+
+
+@validate  # type:ignore
 def path_exists(path: str) -> bool:
     """checks whether a path exists
 
@@ -22,7 +24,7 @@ def path_exists(path: str) -> bool:
     return os.path.exists(path)
 
 
-@validate
+@validate  # type:ignore
 def file_exists(path: str) -> bool:
     """checks whether a file exists at specified path
 
@@ -35,7 +37,7 @@ def file_exists(path: str) -> bool:
     return path_exists(path) and is_file(path)
 
 
-@validate
+@validate  # type:ignore
 def directory_exists(path: str) -> bool:
     """checks whether a directory exists at specified path
 
@@ -48,7 +50,7 @@ def directory_exists(path: str) -> bool:
     return path_exists(path) and is_directory(path)
 
 
-@validate
+@validate  # type:ignore
 def delete_file(path: str) -> None:
     """deletes a file if it exists
 
@@ -59,9 +61,9 @@ def delete_file(path: str) -> None:
         os.remove(path)
 
 
-@validate
+@validate  # type:ignore
 # type:ignore
-def read_file(path: str, read_bytes: bool = False) -> Union[t_list[str], t_list[bytes]]:
+def read_file(path: str, read_bytes: bool = False) -> Union[List[str], List[bytes]]:
     """read all lines from a file
 
     Args:
@@ -84,7 +86,7 @@ def read_file(path: str, read_bytes: bool = False) -> Union[t_list[str], t_list[
         raise e
 
 
-@validate
+@validate  # type:ignore
 def is_file(path: str) -> bool:
     """return whether a path represents a file
 
@@ -94,7 +96,7 @@ def is_file(path: str) -> bool:
     return os.path.isfile(path)
 
 
-@validate
+@validate  # type:ignore
 def is_directory(path: str) -> bool:
     """return whether a path represents a directory
 
@@ -104,8 +106,8 @@ def is_directory(path: str) -> bool:
     return os.path.isdir(path)
 
 
-@validate
-def get_files(path: str) -> t_list[str]:
+@validate  # type:ignore
+def get_files(path: str) -> List[str]:
     """return a list of names of all files inside specified directory
 
     Args:
@@ -119,8 +121,8 @@ def get_files(path: str) -> t_list[str]:
         filter(lambda name: is_file(os.path.join(path, name)), files_and_directories))
 
 
-@validate
-def get_files_and_directories(path: str) -> t_list[str]:
+@validate  # type:ignore
+def get_files_and_directories(path: str) -> List[str]:
     """get a list of all files and directories in specified path
 
     Args:
@@ -132,8 +134,8 @@ def get_files_and_directories(path: str) -> t_list[str]:
     return os.listdir(path)
 
 
-@validate
-def get_directories(path: str) -> t_list[str]:
+@validate  # type:ignore
+def get_directories(path: str) -> List[str]:
     """get all directories in specified path
 
     Args:
@@ -147,7 +149,7 @@ def get_directories(path: str) -> t_list[str]:
         filter(lambda name: is_directory(os.path.join(path, name)), files_and_directories))
 
 
-@ validate
+@validate
 def delete_directory(path: str) -> None:
     """delete a directory and all its contents
 
@@ -159,7 +161,7 @@ def delete_directory(path: str) -> None:
         os.rmdir(path)
 
 
-@validate
+@validate  # type:ignore
 def clear_directory(path: str) -> None:
     """clears the content of a directory
 
@@ -172,7 +174,7 @@ def clear_directory(path: str) -> None:
         delete_directory(os.path.join(path, subdir))
 
 
-@validate
+@validate  # type:ignore
 def create_directory(path: str) -> None:
     """create a directory at the specified path if it doesn't already exists
 
@@ -183,7 +185,7 @@ def create_directory(path: str) -> None:
         os.makedirs(path)
 
 
-@validate
+@validate  # type:ignore
 def create_file(path: str) -> None:
     """
     Will create a file at the specified path if it doesn't already exists
@@ -197,7 +199,7 @@ def create_file(path: str) -> None:
             pass
 
 
-@validate
+@validate  # type:ignore
 def get_file_type_from_directory(path: str, file_type: str) -> Iterator[str]:
     """returns all file with specific type from a directory
 
@@ -214,7 +216,7 @@ def get_file_type_from_directory(path: str, file_type: str) -> Iterator[str]:
     )
 
 
-@validate
+@validate  # type:ignore
 def get_file_type_from_directory_recursively(path: str, file_type: str) -> Generator[str, None, None]:
     """_summary_
 
@@ -234,7 +236,7 @@ def get_file_type_from_directory_recursively(path: str, file_type: str) -> Gener
             yield os.path.join(subdir, v)
 
 
-@validate
+@validate  # type:ignore
 def rename_file(path: str, new_name: str) -> None:
     """renames a file
 
@@ -243,11 +245,11 @@ def rename_file(path: str, new_name: str) -> None:
         new_name (str): the desired new name
     """
     new_path = "./" + \
-        "/".join(Path(path).parts[:-1])+"/"+new_name+Path(path).suffix
+               "/".join(Path(path).parts[:-1]) + "/" + new_name + Path(path).suffix
     move_file(path, new_path)
 
 
-@validate
+@validate  # type:ignore
 def move_file(old_path: str, new_path: str) -> None:
     """moves a file
 
@@ -258,7 +260,7 @@ def move_file(old_path: str, new_path: str) -> None:
     os.rename(old_path, new_path)
 
 
-@validate
+@validate  # type:ignore
 async def open_file(file_path: str, application_path: str) -> int:
     """open a file with the specified application
 
@@ -272,7 +274,7 @@ async def open_file(file_path: str, application_path: str) -> int:
         return p.wait()
 
 
-# @validate
+# @validate  # type:ignore
 # def move_directory(old_path: str, new_path: str) -> None:
 #     """moves a directory
 #
@@ -283,7 +285,7 @@ async def open_file(file_path: str, application_path: str) -> int:
 #     shutil.move(old_path, new_path)
 #
 #
-# @validate
+# @validate  # type:ignore
 # def copy_file(src: str, dest: str) -> None:
 #     """copies file from src to dest
 #
@@ -294,7 +296,7 @@ async def open_file(file_path: str, application_path: str) -> int:
 #     shutil.copy(src, dest)
 #
 #
-# @validate
+# @validate  # type:ignore
 # def copy_directory(src: str, dest: str) -> None:
 #     """copies a directory from src to dest
 #
@@ -339,7 +341,7 @@ class IndentedWriter:
                 "Can't write to an empty stream. the stream must not be None:"
                 " either by set_stream or by initialization")
         self.output_stream.write(
-            str(self.indent_level*self.indent_value + sep.join(args)+end))
+            str(self.indent_level * self.indent_value + sep.join(args) + end))
 
     def set_stream(self, stream: IO) -> None:
         """explicitly sets the stream
@@ -359,7 +361,7 @@ class IndentedWriter:
         """un-dents the preceding output with write() by one quantity less
             has a minimum value of 0
         """
-        self.indent_level = max(0, self.indent_level-1)
+        self.indent_level = max(0, self.indent_level - 1)
 
 
 class IndentedWriter2:
@@ -400,7 +402,7 @@ class IndentedWriter2:
             ValueError: _description_
         """
         self.buffer += str(self.indent_level *
-                           self.indent_value + sep.join(args)+end)
+                           self.indent_value + sep.join(args) + end)
 
     def indent(self) -> None:
         """indents the preceding output with write() by one quantity more
@@ -411,7 +413,7 @@ class IndentedWriter2:
         """un-dents the preceding output with write() by one quantity less
             has a minimum value of 0
         """
-        self.indent_level = max(0, self.indent_level-1)
+        self.indent_level = max(0, self.indent_level - 1)
 
 
 __all__ = [

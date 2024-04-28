@@ -1,4 +1,4 @@
-from typing import IO, Optional, cast, Union, Generator, Tuple as t_tuple, List as t_list
+from typing import IO, Optional, cast, Union, Generator, Tuple as Tuple, List as List
 from pathlib import Path
 import subprocess
 import time
@@ -6,11 +6,12 @@ from ..decorators import timeout, validate
 from ..conversions import str_to_bytes
 from ..generators import join_generators, generator_from_stream
 from ..reflection import get_python_version
+
 if get_python_version() >= (3, 9):
-    from builtins import tuple as t_tuple, list as t_list  # type:ignore
+    from builtins import tuple as Tuple, list as List  # type:ignore
 
 
-def cm(*args, shell: bool = True) -> t_tuple[int, bytes, bytes]:
+def cm(*args: str, shell: bool = True) -> Tuple[int, bytes, bytes]:
     """Execute windows shell command and return output
 
     Args:
@@ -31,13 +32,13 @@ def cm(*args, shell: bool = True) -> t_tuple[int, bytes, bytes]:
     for i, arg in enumerate(args):
         path_obj = Path(args[i])
         if path_obj.is_file() or path_obj.is_dir():
-            args = (*args[:i], f"\"{arg}\"", *args[i+1:])
+            args = (*args[:i], f"\"{arg}\"", *args[i + 1:])
     res = subprocess.run(" ".join(args), shell=shell,
                          capture_output=True, check=False)
     return res.returncode, res.stdout, res.stderr
 
 
-@validate
+@validate  # type:ignore
 def sleep(seconds: Union[int, float]) -> None:
     """make current thread sleep
 
@@ -54,14 +55,14 @@ def __acm_write(*args, p: subprocess.Popen, sep=" ", end="\n") -> None:
     p.stdin = cast(IO[bytes], p.stdin)
     b_args = str_to_bytes(sep).join(str_to_bytes(v) for v in args)
     b_end = str_to_bytes(end)
-    p.stdin.write(b_args+b_end)
+    p.stdin.write(b_args + b_end)
     p.stdin.flush()
 
 
-@validate
-def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0.01,
+@validate  # type:ignore
+def acm(command: str, inputs: Optional[List[str]] = None, i_timeout: float = 0.01,
         shell: bool = False, use_write_helper: bool = True, cwd: Optional[str] = None) \
-        -> t_tuple[int, Optional[t_list[bytes]], Optional[t_list[bytes]]]:
+        -> Tuple[int, Optional[List[bytes]], Optional[List[bytes]]]:
     """Advanced command
 
     Args:
@@ -111,8 +112,8 @@ def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0
                 except BaseException as e1:
                     raise e1
 
-        stdout: t_list[bytes] = []
-        stderr: t_list[bytes] = []
+        stdout: List[bytes] = []
+        stderr: List[bytes] = []
         for curr_input in inputs:
             if p.stdin.writable():
                 if use_write_helper:
@@ -142,7 +143,7 @@ def acm(command: str, inputs: Optional[t_list[str]] = None, i_timeout: float = 0
                 p.stdout.close()
 
 
-def cmrt(*args, shell: bool = True) -> Generator[t_tuple[int, bytes], None, None]:
+def cmrt(*args, shell: bool = True) -> Generator[Tuple[int, bytes], None, None]:
     """Executes a command and yields stdout and stderr in real-time.
 
     Args:
@@ -164,7 +165,7 @@ def cmrt(*args, shell: bool = True) -> Generator[t_tuple[int, bytes], None, None
     for i, arg in enumerate(args):
         path_obj = Path(args[i])
         if path_obj.is_file() or path_obj.is_dir():
-            args = (*args[:i], f"\"{arg}\"", *args[i+1:])
+            args = (*args[:i], f"\"{arg}\"", *args[i + 1:])
 
     # Join the arguments into a command string and execute the command.
     cmd = " ".join(args)

@@ -1,11 +1,11 @@
-from typing import Generator, Iterable, Optional, Union, List as t_list, Set as t_set, Tuple as t_tuple, Dict as t_dict
+from typing import Generator, Iterable, Optional, Union, List as List, Set as Set, Tuple as Tuple, Dict as Dict
 from ...functions import powerset
 from ...generators import generate_except
 from ...data_structures import Queue
 from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list, set as t_set, tuple as t_tuple, dict as t_dict  # type:ignore
+    from builtins import list as List, set as Set, tuple as Tuple, dict as Dict  # type:ignore
 
 
 class Attribute:
@@ -13,7 +13,7 @@ class Attribute:
     """
 
     @classmethod
-    def create_many(cls, amount: int, offset: int = 0) -> t_list["Attribute"]:
+    def create_many(cls, amount: int, offset: int = 0) -> List["Attribute"]:
         """Create multiple Attribute instances.
 
         Args:
@@ -159,7 +159,7 @@ class Attribute:
         """
         return self & other
 
-    def to_set(self) -> t_set["Attribute"]:
+    def to_set(self) -> Set["Attribute"]:
         """Convert the attribute to a set of individual attributes.
 
         Returns:
@@ -212,7 +212,7 @@ class Relation:
         """
         return Relation.from_strings(s.split())
 
-    def __init__(self, attributes: t_list[Attribute]):
+    def __init__(self, attributes: List[Attribute]):
         self.attributes = attributes
 
     def __contains__(self, attribute) -> bool:
@@ -255,7 +255,7 @@ class Relation:
             # res.update(self.attributes[i])
         return res
 
-    def is_decomposition_lossless(self, R: t_list["Relation"], F: "FunctionalDependencyGroup") -> bool:
+    def is_decomposition_lossless(self, R: List["Relation"], F: "FunctionalDependencyGroup") -> bool:
         """Check if a decomposition is lossless according to a given functional dependency group.
 
         Args:
@@ -274,7 +274,7 @@ class Relation:
             return False
         raise NotImplementedError()
 
-    def is_decomposition_dependency_preserving(self, R: t_list["Relation"], F: "FunctionalDependencyGroup") -> bool:
+    def is_decomposition_dependency_preserving(self, R: List["Relation"], F: "FunctionalDependencyGroup") -> bool:
         """Check if a decomposition is dependency-preserving according to a given functional dependency group.
 
         Args:
@@ -406,7 +406,7 @@ class Relation:
         """
         return self.to_attribute().minimize(F)
 
-    def find_all_keys(self, F: "FunctionalDependencyGroup") -> t_set[Attribute]:
+    def find_all_keys(self, F: "FunctionalDependencyGroup") -> Set[Attribute]:
         """Find all keys for the Relation instance.
 
         Args:
@@ -435,7 +435,7 @@ class Relation:
                         Keys.add(S_)
         return Keys
 
-    def find_3NF_decomposition(self, F: "FunctionalDependencyGroup") -> t_list["Relation"]:
+    def find_3NF_decomposition(self, F: "FunctionalDependencyGroup") -> List["Relation"]:
         """Find the 3NF decomposition of the Relation instance based on a given functional dependency group.
 
         Args:
@@ -465,7 +465,7 @@ class Relation:
         # TODO
         return [Relation.from_string(attr.symbol) for attr in res]
 
-    def find_BCNF_decomposition(self, F: "FunctionalDependencyGroup") -> t_list["Relation"]:
+    def find_BCNF_decomposition(self, F: "FunctionalDependencyGroup") -> List["Relation"]:
         """Find the BCNF decomposition of the Relation instance based on a given functional dependency group.
             week 10 page 16 slide 2
         Args:
@@ -475,7 +475,7 @@ class Relation:
             List[Relation]: A list of decomposed relations in BCNF.
         """
 
-        def get_violation() -> t_tuple[Attribute, Attribute]:
+        def get_violation() -> Tuple[Attribute, Attribute]:
             for f in F:
                 X, Y = f.tuple()
                 if not (f.is_trivial() or self.is_superkey(X, F)):
@@ -572,7 +572,7 @@ class FunctionDependency:
         """
         return self.Y in self.X
 
-    def tuple(self) -> t_tuple[Attribute, Attribute]:
+    def tuple(self) -> Tuple[Attribute, Attribute]:
         """Get the tuple representation of the FunctionDependency.
 
         Returns:
@@ -580,7 +580,7 @@ class FunctionDependency:
         """
         return self.X, self.Y
 
-    def follows_from(self, s: t_set["FunctionDependency"]) -> bool:
+    def follows_from(self, s: Set["FunctionDependency"]) -> bool:
         """Check if the FunctionDependency follows from a set of other FunctionDependency instances.
 
         Args:
@@ -600,7 +600,7 @@ class FunctionalDependencyGroup:
     """
 
     @classmethod
-    def from_dict(cls, dct: t_dict[str, str]) -> "FunctionalDependencyGroup":
+    def from_dict(cls, dct: Dict[str, str]) -> "FunctionalDependencyGroup":
         """Create a FunctionalDependencyGroup instance from a dictionary.
 
         Args:
@@ -612,7 +612,7 @@ class FunctionalDependencyGroup:
         return cls([FunctionDependency(k, v) for k, v in dct.items()])
 
     def __init__(self, dependencies: Iterable[FunctionDependency]):
-        self.dct: t_dict[Attribute, Attribute] = {}
+        self.dct: Dict[Attribute, Attribute] = {}
         for dep in dependencies:
             X, Y = dep.tuple()
             if X not in self.dct:
@@ -654,13 +654,13 @@ class FunctionalDependencyGroup:
         self.dct[X] = Y
         return self
 
-    def minimal_cover(self) -> t_list[FunctionDependency]:
+    def minimal_cover(self) -> List[FunctionDependency]:
         """week 10 page 5 slide 6
 
         Returns:
             list[FunctionDependency]: result of minimal cover
         """
-        G: t_set[FunctionDependency] = set()
+        G: Set[FunctionDependency] = set()
         for X, Y in self.tuples():
             for A in Y:
                 G.add(FunctionDependency.from_attributes(X, A))
@@ -695,7 +695,7 @@ class FunctionalDependencyGroup:
         del G_
         minimal_g: set = set(range(len(G) + 1))
 
-        def backtracking_helper(G: t_set[FunctionDependency], excluded: set):
+        def backtracking_helper(G: Set[FunctionDependency], excluded: set):
             nonlocal minimal_g
             OG = set(G)
             for f in OG:
@@ -715,7 +715,7 @@ class FunctionalDependencyGroup:
 
         return list(sorted(minimal_g))  # type:ignore
 
-    def tuples(self) -> Generator[t_tuple[Attribute, Attribute], None, None]:
+    def tuples(self) -> Generator[Tuple[Attribute, Attribute], None, None]:
         """Generate tuples (X, Y) of functional dependencies in the FunctionalDependencyGroup.
 
         Yields:
@@ -724,7 +724,7 @@ class FunctionalDependencyGroup:
         for dep in self:
             yield dep.tuple()
 
-    def to_set(self) -> t_set[Attribute]:
+    def to_set(self) -> Set[Attribute]:
         """Convert the FunctionalDependencyGroup to a set of attributes.
 
         Returns:

@@ -9,7 +9,7 @@ P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
 
 
-@validate
+@validate  # type:ignore
 def PartiallyImplemented(func: FuncT) -> FuncT:
     """decorator to mark function as not fully implemented for development purposes
 

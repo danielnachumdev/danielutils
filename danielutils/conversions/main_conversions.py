@@ -1,7 +1,7 @@
 from ..decorators import validate
 
 
-@validate
+@validate  # type:ignore
 def char_to_int(c: str) -> int:
     """convert char to its representing int value
 
@@ -14,7 +14,7 @@ def char_to_int(c: str) -> int:
     return ord(c)
 
 
-@validate
+@validate  # type:ignore
 def int_to_char(num: int) -> str:
     """convert int to its corresponding char
 
@@ -27,7 +27,7 @@ def int_to_char(num: int) -> str:
     return chr(num)
 
 
-@validate
+@validate  # type:ignore
 def hex_to_char(h: str) -> str:
     """convert hex number to char
 
@@ -40,7 +40,7 @@ def hex_to_char(h: str) -> str:
     return int_to_char(hex_to_dec(h))
 
 
-@validate
+@validate  # type:ignore
 def hex_to_dec(h: str) -> int:
     """convert hex to dec
 
@@ -53,7 +53,7 @@ def hex_to_dec(h: str) -> int:
     return int(h, 16)
 
 
-@validate
+@validate  # type:ignore
 def char_to_hex(c: str) -> str:
     """convert char to hex
 
@@ -66,7 +66,7 @@ def char_to_hex(c: str) -> str:
     return int_to_hex(char_to_int(c))
 
 
-@validate
+@validate  # type:ignore
 def dec_to_hex(num: int) -> str:
     """convert decimal number to hex
 
@@ -79,7 +79,7 @@ def dec_to_hex(num: int) -> str:
     return int_to_hex(num)
 
 
-@validate
+@validate  # type:ignore
 def int_to_hex(num: int) -> str:
     """converts an int to it's hex representation
 
@@ -92,7 +92,7 @@ def int_to_hex(num: int) -> str:
     return hex(num)
 
 
-@validate
+@validate  # type:ignore
 def bytes_to_str(b: bytes) -> str:
     """decodes bytes to str
 
@@ -105,7 +105,7 @@ def bytes_to_str(b: bytes) -> str:
     return b.decode("utf-8")
 
 
-@validate
+@validate  # type:ignore
 def str_to_bytes(s: str) -> bytes:
     """encodes a string to bytes
 

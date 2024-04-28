@@ -1,15 +1,15 @@
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
-    ForwardRef, Literal, Optional, Protocol
+    ForwardRef, Literal, Optional, Protocol, Tuple
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
-from ..versioned_imports import ParamSpec, Concatenate, t_tuple
+from ..versioned_imports import ParamSpec, Concatenate
 
 # implicit_union_type = type(int | str)
 concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
 
 
-def __isoftype_inquire(obj: Any) -> t_tuple[Optional[type], Optional[tuple], Optional[dict]]:
+def __isoftype_inquire(obj: Any) -> Tuple[Optional[type], Optional[tuple], Optional[dict]]:
     """
     Inquires the origin, arguments, and type hints of an object.
 
@@ -238,6 +238,7 @@ def __handle_type_origin(params: tuple) -> bool:
 
 
 def __handle_protocol(params: tuple) -> bool:
+    #TODO is_protocol, _is_runtime_protocol
     from ..reflection import FunctionDeclaration
     V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
     if not isoftype(V, type):

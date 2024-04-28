@@ -7,12 +7,12 @@ def _get_python_version_untyped() -> tuple:
 
 
 if _get_python_version_untyped() < (3, 9):
-    from typing import Tuple as t_tuple
+    from typing import Tuple as Tuple
 else:
-    from builtins import tuple as t_tuple  # type:ignore
+    from builtins import tuple as Tuple  # type:ignore
 
 
-def get_python_version() -> t_tuple[int, int, int]:
+def get_python_version() -> Tuple[int, int, int]:
     """return the version of python that is currently running this code
 
     Returns:

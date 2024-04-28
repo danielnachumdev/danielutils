@@ -1,8 +1,8 @@
 """file with math_ symbols constants"""
-from typing import Union, Dict as t_dict
+from typing import Union, Dict as Dict
 from ..reflection import get_python_version
 if get_python_version() >= (3, 9):
-    from builtins import dict as t_dict
+    from builtins import dict as Dict
 # https://unicode-table.com/en/sets/mathematical-signs/
 SPECIAL_DOUBLE_N = "ℕ"
 SPECIAL_DOUBLE_Q = "ℚ"
@@ -56,7 +56,7 @@ SUPERSCRIPT_SMALL_LETTERS = ['ᵃ', 'ᵇ', 'ᶜ', 'ᵈ', 'ᵉ', 'ᶠ', 'ᵍ', '�
 # superscript_big_case_z = 'ⁱ'
 
 
-superscript_dict: t_dict[Union[str, int], str] = {}
+superscript_dict: Dict[Union[str, int], str] = {}
 superscript_dict.update(
     {chr(i+ord('a')): SUPERSCRIPT_SMALL_LETTERS[i] for i in range(26)}
 )
@@ -101,7 +101,7 @@ SUBSCRIPT_SMALL_LETTERS = ['ₐ', '', '', '', 'ₑ', '', '', 'ₕ', 'ᵢ', 'ⱼ'
 # subscript_big_case_x = 'ⁱ'
 # subscript_big_case_y = 'ⁱ'
 # subscript_big_case_z = 'ⁱ'
-subscript_dict: t_dict[Union[str, int], str] = {}
+subscript_dict: Dict[Union[str, int], str] = {}
 subscript_dict.update(
     {chr(i+ord('a')): SUBSCRIPT_SMALL_LETTERS[i]
      for i in range(len(SUBSCRIPT_SMALL_LETTERS))}

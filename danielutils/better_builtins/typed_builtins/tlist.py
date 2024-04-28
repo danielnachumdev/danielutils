@@ -7,7 +7,7 @@ from .factory import create_typed_class
 T = TypeVar("T", bound=Any)
 
 
-# class ptlist(t_list[T], Generic[T]):
+# class ptlist(List[T], Generic[T]):
 #     """like 'list' but with runtime type safety
 #     """
 
@@ -18,7 +18,7 @@ T = TypeVar("T", bound=Any)
 #     def __instancecheck__(self, instance: Any) -> bool:
 #         if isinstance(instance, ptlist):
 #             return types_subseteq(instance._params, self._params)
-#         return isoftype(instance, t_list[self._params])  # type: ignore
+#         return isoftype(instance, List[self._params])  # type: ignore
 
 #     def __init__(self, item) -> None:
 #         if not get_caller_name(0) == "__class_getitem__":

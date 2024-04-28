@@ -1,9 +1,9 @@
 import copy, re
-from typing import Any, Callable, Union, Tuple as t_tuple, List as t_list, Dict as t_dict
+from typing import Any, Callable, Union, Tuple as Tuple, List as List, Dict as Dict
 from ..reflection import get_python_version  # pylint :disable=relative-beyond-top-level
 
 if get_python_version() >= (3, 9):
-    from builtins import tuple as t_tuple, list as t_list, dict as t_dict  # type:ignore
+    from builtins import tuple as Tuple, list as List, dict as Dict  # type:ignore
 
 
 class Argument:
@@ -20,7 +20,7 @@ class Command:
     """
 
     def __init__(self, command: Union[Argument, str], callback: Callable,
-                 explanation: str = "", *, options: t_tuple[Argument, ...] = tuple()) -> None:
+                 explanation: str = "", *, options: Tuple[Argument, ...] = tuple()) -> None:
         self.command = command if isinstance(
             command, Argument) else Argument(command)
         self.callback = callback
@@ -41,10 +41,10 @@ class REPL:
     """
 
     # pylint: disable=dangerous-default-value
-    def __init__(self, routes: t_list[Command], *, prompt_symbol: str = ">>> ", exit_keywords: set = {"exit", "quit"}):
+    def __init__(self, routes: List[Command], *, prompt_symbol: str = ">>> ", exit_keywords: set = {"exit", "quit"}):
         self.prompt_symbol = prompt_symbol
         self.exit_keywords = copy.copy(exit_keywords)
-        self.routes: t_dict[str, Command] = {
+        self.routes: Dict[str, Command] = {
             com.command.name: com for com in routes}
 
     def run(self) -> None:

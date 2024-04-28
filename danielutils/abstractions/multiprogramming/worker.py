@@ -1,11 +1,11 @@
 from threading import Thread
 from abc import ABC, abstractmethod
-from typing import Optional, Any,Tuple as t_tuple
+from typing import Optional, Any,Tuple as Tuple
 from logging import error
 import danielutils # this is explicitly this way to prevent circular import
 from ...reflection import get_python_version
 if get_python_version() >= (3, 9):
-    from builtins import tuple as t_tuple  # type:ignore
+    from builtins import tuple as Tuple  # type:ignore
 
 
 class Worker(ABC):
@@ -59,7 +59,7 @@ class Worker(ABC):
         """
         self.pool._notify_subscribers()  # pylint: disable=protected-access
 
-    def acquire(self) -> Optional[t_tuple[Any]]:
+    def acquire(self) -> Optional[Tuple[Any]]:
         """acquire a new job object to work on from the pool
         will return a tuple of only one object (the job) or None if there are no more jobs
         Returns:

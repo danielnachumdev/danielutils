@@ -1,12 +1,12 @@
 """functions that convert values to int"""
-from typing import Union, List as t_list
+from typing import Union, List as List
 from ..main_conversions import char_to_int
 from ...reflection import get_python_version
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list
+    from builtins import list as List
 
 
-def to_int(value: str) -> Union[int, t_list[int]]:
+def to_int(value: str) -> Union[int, List[int]]:
     """converts a single character or a full string to an int or list of int respectively
     """
     if len(value) == 1:

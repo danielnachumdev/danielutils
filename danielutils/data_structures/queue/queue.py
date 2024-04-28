@@ -1,8 +1,8 @@
-from typing import Generic, TypeVar, Iterator, List as t_list
+from typing import Generic, TypeVar, Iterator, List as List
 from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list
+    from builtins import list as List
 T = TypeVar("T")
 
 
@@ -57,7 +57,7 @@ class Queue(Generic[T]):
     def __iter__(self) -> Iterator[T]:
         return iter(self.data)
 
-    def push_many(self, arr: t_list[T]):
+    def push_many(self, arr: List[T]):
         """will push many objects to the Queue
 
         Args:

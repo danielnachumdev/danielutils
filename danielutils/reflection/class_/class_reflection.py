@@ -1,19 +1,19 @@
 import inspect, re
-from typing import Any, List as t_list, Optional, Tuple as t_tuple
+from typing import Any, List as List, Optional, Tuple as Tuple
 from dataclasses import dataclass
 from ..interpreter import get_python_version
 
 argument_kwargs = dict(frozen=True)
 FunctionDeclaration_kwargs = dict(frozen=True)
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list, tuple as t_tuple  # type:ignore
+    from builtins import list as List, tuple as Tuple  # type:ignore
 
 elif get_python_version() >= (3, 10):
     argument_kwargs.update(slots=True)
     FunctionDeclaration_kwargs.update(slots=True)
 
 
-def get_explicitly_declared_functions(cls: type) -> t_list[str]:
+def get_explicitly_declared_functions(cls: type) -> List[str]:
     """
     Returns the names of the functions that are explicitly declared in a class.
 
@@ -28,7 +28,7 @@ def get_explicitly_declared_functions(cls: type) -> t_list[str]:
     return [func for func, val in inspect.getmembers(cls, predicate=inspect.isfunction)]
 
 
-def get_mro(obj: Any) -> t_list[type]:
+def get_mro(obj: Any) -> List[type]:
     """returns the mro of an object
 
     Args:
@@ -57,7 +57,7 @@ arg_pattern = re.compile(r"([\w\*\/]+)(?:\s*?:\s*?([\w\[\]\(\)\,]+))?(?:\s*?=\s*
 class_pattern = re.compile(r"\s*class\s+?\w+\s*?(?:\((.*)\))?\s*?:")
 
 
-def split_args(args: str) -> t_list[str]:
+def split_args(args: str) -> List[str]:
     from danielutils import Stack
     res = []
     s: Stack[str] = Stack()
@@ -85,10 +85,10 @@ def remove_whitespace(text: str) -> str:
 @dataclass(**FunctionDeclaration_kwargs)
 class FunctionDeclaration:
     name: str
-    arguments: t_tuple[Argument, ...]
+    arguments: Tuple[Argument, ...]
     return_type: Optional[str]
-    decorators: Optional[t_list[str]] = None
-    generics: Optional[t_tuple[str]] = None
+    decorators: Optional[List[str]] = None
+    generics: Optional[Tuple[str]] = None
 
     def duplicate(self, **override_kwargs) -> 'FunctionDeclaration':
         dct = dict(
@@ -106,7 +106,7 @@ class FunctionDeclaration:
         return self.generics is not None and len(self.generics) > 0
 
     @staticmethod
-    def get_declared_functions(cls) -> t_list['FunctionDeclaration']:
+    def get_declared_functions(cls) -> List['FunctionDeclaration']:
         """will yield the names of all the functions declared inside a class
 
         Yields:

@@ -2,11 +2,11 @@ import sys
 from abc import ABC, abstractmethod
 from enum import Enum
 from types import FrameType
-from typing import Any, Callable, Optional, Set as t_set, Dict as t_dict
+from typing import Any, Callable, Optional, Set as Set, Dict as Dict
 from .python_version import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import set as t_set, dict as t_dict
+    from builtins import set as Set, dict as Dict
 
 
 # from danielutils import singleton
@@ -47,10 +47,10 @@ class Tracer(ABC):
             instance_methods: bool = True,
             static_methods: bool = True,
             class_methods: bool = True,
-            exclude: Optional[t_set[str]] = None
+            exclude: Optional[Set[str]] = None
     ) -> None:
 
-        self._call_dict: t_dict[Tracer.EventType, Callable] = {
+        self._call_dict: Dict[Tracer.EventType, Callable] = {
             Tracer.EventType.CALL: self.on_call,
             Tracer.EventType.C_CALL: self.on_call_c,
             Tracer.EventType.RETURN: self.on_return,

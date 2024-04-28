@@ -1,13 +1,13 @@
-from typing import Iterable, get_args, Union, Set as t_set
+from typing import Iterable, get_args, Union, Set as Set
 from ..reflection import get_python_version
 if get_python_version() >= (3, 9):
-    from builtins import set as t_set
+    from builtins import set as Set
 
 
-def to_set(x: Union[type, Iterable[type]]) -> t_set[int]:
+def to_set(x: Union[type, Iterable[type]]) -> Set[int]:
     """converts type/types to a set representing them
     """
-    res: t_set[int] = set()
+    res: Set[int] = set()
     if hasattr(x, "__origin__") and x.__origin__ is Union:
         for xi in get_args(x):
             res.update(to_set(xi))

@@ -1,11 +1,11 @@
-from typing import Optional, Generator, List as t_list, Set as t_set, Dict as t_dict, Generic, \
+from typing import Optional, Generator, List as List, Set as Set, Dict as Dict, Generic, \
     TypeVar, Iterable, Iterator
 from ..queue import Queue
 from .multinode import MultiNode
 from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list, set as t_set, dict as t_dict
+    from builtins import list as List, set as Set, dict as Dict
 
 T = TypeVar("T")
 
@@ -16,11 +16,11 @@ class Graph(Generic[T]):
     This class represents a directed graph, where nodes can be connected through edges.
 
     Attributes:
-        nodes (Optional[t_list[MultiNode]]): A list of MultiNode instances representing the nodes in the graph.
+        nodes (Optional[List[MultiNode]]): A list of MultiNode instances representing the nodes in the graph.
                                              Default is an empty list.
 
     Methods:
-        __init__(self, nodes: Optional[t_list[MultiNode]] = None): Initialize the Graph with given nodes.
+        __init__(self, nodes: Optional[List[MultiNode]] = None): Initialize the Graph with given nodes.
         add_node(self, node): Add a node to the graph.
         _extended_dfs(self) -> Generator: Perform an extended depth-first search on the graph.
         dfs(self) -> Generator: Perform a depth-first search on the graph.
@@ -30,13 +30,13 @@ class Graph(Generic[T]):
 
     """
 
-    def to_dict(self) -> t_dict[T, t_set[T]]:
+    def to_dict(self) -> Dict[T, Set[T]]:
         """
         converts the graph to a dictionary.
         Returns:
             dict: A dictionary representing the graph.
         """
-        dct: t_dict[T, t_set[T]] = {}
+        dct: Dict[T, Set[T]] = {}
         for node in self:
             v = dct.get(node.data, set())
             for child in node:
@@ -45,7 +45,7 @@ class Graph(Generic[T]):
         return dct
 
     @staticmethod
-    def from_dict(dct: t_dict[T, Iterable[T]]) -> "Graph[T]":
+    def from_dict(dct: Dict[T, Iterable[T]]) -> "Graph[T]":
         """
         converts a dictionary to a graph.
         Args:
@@ -55,7 +55,7 @@ class Graph(Generic[T]):
             Graph[T]: A graph representing the given dictionary.
         """
         g: Graph[T] = Graph()
-        seen: t_dict[T, MultiNode[T]] = {}
+        seen: Dict[T, MultiNode[T]] = {}
         for k, v in dct.items():
             seen[k] = seen.get(k, MultiNode(k))
 
@@ -66,8 +66,8 @@ class Graph(Generic[T]):
             g.add_node(seen[k])
         return g
 
-    def __init__(self, nodes: Optional[t_list[MultiNode[T]]] = None):
-        self.nodes: t_list[MultiNode[T]] = nodes if nodes is not None else []
+    def __init__(self, nodes: Optional[List[MultiNode[T]]] = None):
+        self.nodes: List[MultiNode[T]] = nodes if nodes is not None else []
 
     def add_node(self, node: MultiNode[T]) -> None:
         """Add a node to the graph.
@@ -77,7 +77,7 @@ class Graph(Generic[T]):
         """
         self.nodes.append(node)
 
-    def _extended_dfs(self) -> Generator[MultiNode[T], None, t_list[MultiNode[T]]]:
+    def _extended_dfs(self) -> Generator[MultiNode[T], None, List[MultiNode[T]]]:
         """Perform an extended depth-first search on the graph.
 
         This private method performs an extended depth-first search (DFS) on the graph,
@@ -91,7 +91,7 @@ class Graph(Generic[T]):
         enter_times: dict = {}
         exit_times: dict = {}
         travel_index: int = 1
-        all_nodes: t_list[MultiNode] = []
+        all_nodes: List[MultiNode] = []
 
         def handle_node(node: MultiNode[T]) -> Generator[MultiNode[T], None, None]:
             nonlocal travel_index
@@ -143,7 +143,7 @@ class Graph(Generic[T]):
         """
         yield from self._extended_dfs()
 
-    def topological_sort(self) -> t_list[MultiNode[T]]:
+    def topological_sort(self) -> List[MultiNode[T]]:
         """Get a topological sort of the graph nodes.
 
         This method performs a topological sort on the graph using the private _extended_dfs method.
@@ -169,7 +169,7 @@ class Graph(Generic[T]):
         q: Queue[MultiNode[T]] = Queue()
         for node in self.nodes:
             q.push(node)
-        seen: t_set[MultiNode] = set()
+        seen: Set[MultiNode] = set()
         for node in q:
             if node not in seen:
                 seen.add(node)

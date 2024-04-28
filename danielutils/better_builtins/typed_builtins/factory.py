@@ -1,17 +1,17 @@
 import types
 from abc import abstractmethod
-from typing import Any, Iterable, List as t_list, Set as t_set, Dict as t_dict, Tuple as t_tuple
+from typing import Any, Iterable, List as List, Set as Set, Dict as Dict, Tuple as Tuple
 from ...functions import types_subseteq, isoftype
 from ...reflection import get_caller_name, get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list, set as t_set, dict as t_dict, tuple as t_tuple  # type:ignore
+    from builtins import list as List, set as Set, dict as Dict, tuple as Tuple  # type:ignore
 # needed for python 3.8
 class_to_type = {
-    list: t_list,
-    set: t_set,
-    dict: t_dict,
-    t_tuple: t_tuple,
+    list: List,
+    set: Set,
+    dict: Dict,
+    Tuple: Tuple,
 }
 
 

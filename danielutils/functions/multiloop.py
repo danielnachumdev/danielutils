@@ -1,4 +1,4 @@
-from typing import Iterable, Generator
+from typing import Iterable, Generator, List
 from .flatten import flatten
 
 
@@ -26,7 +26,7 @@ def multiloop(*iterables: Iterable, pre_load: bool = False) -> Generator:
         yield from iterables[0]
         return
 
-    arr: list[Iterable] = list(iterables)
+    arr: List[Iterable] = list(iterables)
     if pre_load:
         arr = [list(itr) for itr in iterables]
 

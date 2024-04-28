@@ -2,17 +2,17 @@ import urllib.request
 import urllib.parse
 from urllib.parse import urlparse
 import urllib
-from typing import Tuple as t_tuple
+from typing import Tuple as Tuple
 from .decorators import validate
 from .reflection import get_python_version
 if get_python_version() >= (3, 9):
-    from builtins import tuple as t_tuple  # type:ignore
+    from builtins import tuple as Tuple  # type:ignore
 
 # def prettify_html(html: str) -> str:
 #     return html
 
 
-@validate
+@validate  # type:ignore
 def get_html(url: str) -> str:
     """returns the html for a given url
 
@@ -31,8 +31,8 @@ def get_html(url: str) -> str:
     return html
 
 
-@validate
-def get_url_details(url: str) -> "t_tuple[str, str, str, str, str, str]":
+@validate  # type:ignore
+def get_url_details(url: str) -> "Tuple[str, str, str, str, str, str]":
     """returns details about a url
 
     Args:
@@ -45,7 +45,7 @@ def get_url_details(url: str) -> "t_tuple[str, str, str, str, str, str]":
     return scheme, netloc, path, params, query, fragment
 
 
-@validate
+@validate  # type:ignore
 def url_encode(s: str) -> str:
     """encodes a string for url
 
@@ -58,7 +58,7 @@ def url_encode(s: str) -> str:
     return urllib.parse.quote(s)
 
 
-@validate
+@validate  # type:ignore
 def url_decode(s: str) -> str:
     """decodes a url encoded string back to normal string
 

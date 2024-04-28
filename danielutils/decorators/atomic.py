@@ -10,7 +10,7 @@ P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
 
 
-@validate
+@validate  # type:ignore
 def atomic(func: FuncT) -> FuncT:
     """will make function thread safe by making it
     accessible for only one thread at one time

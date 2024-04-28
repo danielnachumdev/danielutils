@@ -3,10 +3,10 @@ import re
 import traceback
 import functools
 from typing import Callable, Iterable, Any, Generator, Optional, Union,\
-    List as t_list, Set as t_set, Type as t_type, Dict as t_dict
+    List as List, Set as Set, Type as t_type, Dict as Dict
 from ..reflection import get_python_version
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list, set as t_set, type as t_type, dict as t_dict  # type:ignore
+    from builtins import list as List, set as Set, type as t_type, dict as Dict  # type:ignore
 # from ..decorators.decorate_conditionally import decorate_conditionally
 
 
@@ -96,8 +96,8 @@ class InterfaceHelper:
                 yield func_name
 
     @staticmethod
-    def create_init_handler(cls_name, missing: Optional[Union[t_list[str],
-                            t_set[str]]] = None, original: Optional[Callable] = None):
+    def create_init_handler(cls_name, missing: Optional[Union[List[str],
+                            Set[str]]] = None, original: Optional[Callable] = None):
         """this function will create the default interface __init__ function with the wanted behavior"""
         # @decorate_conditionally(functools.wraps, original
         # is not None, [original])  # TODO implement this decorator
@@ -163,7 +163,7 @@ class Interface(type):
         return mcs._handle_new_subclass(mcs, name, bases, namespace)
 
     @staticmethod
-    def _handle_new_interface(mcs, name: str, bases: tuple, namespace: t_dict[str, Any]) -> type:
+    def _handle_new_interface(mcs, name: str, bases: tuple, namespace: Dict[str, Any]) -> type:
         namespace[InterfaceHelper.ORIGINAL_INIT] = None
         if "__init__" in namespace:
             namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
@@ -177,7 +177,7 @@ class Interface(type):
         return type.__new__(mcs, name, bases, namespace)
 
     @staticmethod
-    def _handle_new_subclass(mcs: t_type['Interface'], name: str, bases: tuple, namespace: t_dict[str, Any]) -> type:
+    def _handle_new_subclass(mcs: t_type['Interface'], name: str, bases: tuple, namespace: Dict[str, Any]) -> type:
         need_to_be_implemented: set = set()
         ancestry = set()
         for base in bases:

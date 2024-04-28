@@ -3,9 +3,9 @@ from typing import Optional, Callable
 from ..interpreter import get_python_version, get_prev_frame
 
 if get_python_version() < (3, 9):
-    from typing import Set as t_set  # pylint: disable=ungrouped-imports
+    from typing import Set as Set  # pylint: disable=ungrouped-imports
 else:
-    from builtins import set as t_set
+    from builtins import set as Set
 
 
 def get_caller_name(steps_back: int) -> Optional[str]:
@@ -103,7 +103,7 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
 
     if ignore is None:
         ignore = {"self", "cls", "args", "kwargs"}
-    if not isoftype(ignore, t_set[str]):
+    if not isoftype(ignore, Set[str]):
         raise ValueError("ignore must be a set of str")
 
     # get the signature of the function

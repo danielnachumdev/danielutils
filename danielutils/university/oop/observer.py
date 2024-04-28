@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar, Set
 
 EventType = TypeVar('EventType')
 
 
 class Publisher(Generic[EventType]):
     def __init__(self):
-        self._subscribers: set[Subscriber[EventType]] = set()
+        self._subscribers: Set[Subscriber[EventType]] = set()
 
     def register(self, subscriber: 'Subscriber') -> None:
         self._subscribers.add(subscriber)

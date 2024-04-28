@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, TypeVar, Generic, Optional
+from typing import Any, TypeVar, Generic, Optional, Set
 
 K = TypeVar('K')
 V = TypeVar('V')
@@ -12,7 +12,7 @@ class Database(ABC, Generic[K, V]):
     DEFAULT = None
 
     def __init__(self) -> None:
-        self._subscribers: set[Database] = set()
+        self._subscribers: Set[Database] = set()
 
     def _register_subscriber(self, subscriber: 'Database') -> None:
         self._subscribers.add(subscriber)

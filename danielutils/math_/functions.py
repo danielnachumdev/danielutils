@@ -2,7 +2,7 @@ from typing import Union
 from ..decorators import validate
 
 
-@validate
+@validate  # type:ignore
 def sign(v: Union[int, float]) -> int:
     """return the sign of the number
 

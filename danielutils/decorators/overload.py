@@ -1,11 +1,11 @@
-from typing import Callable, cast, Any, TypeVar, Dict as t_dict, List as t_list
+from typing import Callable, cast, Any, TypeVar, Dict
 import inspect
 import functools
 from ..reflection import is_function_annotated_properly
 from ..functions import isoftype, isoneof, isoneof_strict
 from ..exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
-from ..versioned_imports import ParamSpec, t_dict, t_list
+from ..versioned_imports import ParamSpec
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -14,7 +14,7 @@ T2 = TypeVar("T2")
 P2 = ParamSpec("P2")
 FuncT2 = Callable[P2, T2]  # type:ignore
 
-__overload_dict: t_dict[str, t_dict[tuple, Callable]] = {}
+__overload_dict: Dict[str, Dict[tuple, Callable]] = {}
 
 
 @deprecate("'explicit_global_overload' is a legacy decorator please use 'overload' instead")
@@ -122,7 +122,7 @@ class overload:
         overload._validate(func)
         self._qualname = func.__qualname__
         self._moudle = func.__module__
-        self._functions: t_dict[int, t_list[Callable]] = {}
+        self._functions: Dict[int, Dict[Callable]] = {}
         self._functions[overload._get_key(func)] = [func]
         functools.wraps(func)(self)
 

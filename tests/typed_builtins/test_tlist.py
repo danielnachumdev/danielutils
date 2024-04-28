@@ -1,16 +1,14 @@
 import random
 import unittest
-from typing import Union, Any
+from typing import Union, Any, List, Tuple
 
 try:
     from danielutils.better_builtins.typed_builtins import tlist  # type:ignore
     from danielutils import isoftype  # type:ignore
-    from danielutils.versioned_imports import t_list, t_tuple
 except:
     # python == 3.9.0
     from ...danielutils.better_builtins.typed_builtins import tlist  # type:ignore
     from ...danielutils import isoftype  # type:ignore
-    from ...danielutils.versioned_imports import t_list, t_tuple
 
 
 class TestTlist(unittest.TestCase):
@@ -40,7 +38,7 @@ class TestTlist(unittest.TestCase):
         with self.assertRaises(TypeError):
             tlist[Union[int, float]]([1, 2.2, 3, "4"])
         with self.assertRaises(TypeError):
-            tlist[t_tuple[int]]([[1], [2], [3], ["4"]])
+            tlist[Tuple[int]]([[1], [2], [3], ["4"]])
 
     def test_isinstance(self):
         self.assertTrue(isinstance([1, 2, 3, 4], tlist[int]))  # type: ignore
@@ -58,8 +56,8 @@ class TestTlist(unittest.TestCase):
     def test_isinstance_with_regular_list(self):
         a = tlist[int]([1, 2, 3])
         self.assertTrue(isinstance(a, list))
-        self.assertTrue(isoftype(a, t_list[int]))
-        self.assertTrue(isoftype(a, t_list[Union[int, float]]))
+        self.assertTrue(isoftype(a, List[int]))
+        self.assertTrue(isoftype(a, List[Union[int, float]]))
 
     def test_extend(self):
         for _ in range(100):

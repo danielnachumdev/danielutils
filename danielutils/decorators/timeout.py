@@ -9,7 +9,7 @@ P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
 
 
-@validate
+@validate  # type:ignore
 def timeout(duration: Union[int, float], silent: bool = False) -> Callable[[FuncT], FuncT]:
     """A decorator to limit runtime for a function
 

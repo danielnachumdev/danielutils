@@ -199,7 +199,7 @@ def validate(strict: Union[FuncT, bool] = True) -> FuncT:
 #     return result
 # return wrapper
 
-# @validate
+# @validate  # type:ignore
 # def NotImplemented(func: Callable) -> Callable:
 #     """decorator to mark function as not implemented for development purposes
 

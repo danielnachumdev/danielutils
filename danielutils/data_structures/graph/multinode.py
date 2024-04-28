@@ -1,9 +1,9 @@
-from typing import Optional, Generator, TypeVar, Generic, List as t_list
+from typing import Optional, Generator, TypeVar, Generic, List as List
 
 from ...reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import list as t_list
+    from builtins import list as List
 T = TypeVar("T")
 
 
@@ -11,9 +11,9 @@ class MultiNode(Generic[T]):
     """A node class with no limit to children amount
     """
 
-    def __init__(self, data: T, children: Optional[t_list[Optional['MultiNode[T]']]] = None):
+    def __init__(self, data: T, children: Optional[List[Optional['MultiNode[T]']]] = None):
         self.data: T = data
-        self._children: t_list[Optional[MultiNode[T]]] = children if children is not None else []
+        self._children: List[Optional[MultiNode[T]]] = children if children is not None else []
 
     def __getitem__(self, index) -> T:
         return self._children[index]

@@ -2,7 +2,7 @@ import json
 from .decorators import validate
 
 
-@validate
+@validate  # type:ignore # type:ignore
 def dict_to_json(dct: dict) -> str:
     """converts a python dict to a json object
 
@@ -15,7 +15,7 @@ def dict_to_json(dct: dict) -> str:
     return json.dumps(dct, indent=4)
 
 
-@validate
+@validate  # type:ignore
 def json_to_dict(json_str: str) -> dict:
     """converts a json object from a string to a python dict
 

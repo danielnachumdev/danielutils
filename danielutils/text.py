@@ -28,7 +28,7 @@ ENGLISH_LETTERS_DEC = [ord(v) for v in ENGLISH_LETTERS]
 ENGLISH_LETTERS_HEX = [hex(v) for v in ENGLISH_LETTERS_DEC]
 
 
-@validate
+@validate  # type:ignore
 def is_english(s: str) -> bool:
     """returns whether the specified string is in the english language
 
@@ -41,7 +41,7 @@ def is_english(s: str) -> bool:
     return check_foreach(s, lambda c: c in ENGLISH_LETTERS)
 
 
-@validate
+@validate  # type:ignore
 def is_number(s: str) -> bool:
     """checks if a string is a number
 
@@ -54,7 +54,7 @@ def is_number(s: str) -> bool:
     return s.isnumeric()
 
 
-@validate
+@validate  # type:ignore
 def is_int(num: Union[int, float]) -> bool:
     """_summary_
 
@@ -70,7 +70,7 @@ def is_int(num: Union[int, float]) -> bool:
     return int(num) == num
 
 
-@validate
+@validate  # type:ignore
 def is_float(s: str) -> bool:
     """checks whether a string has a float value
 
@@ -87,7 +87,7 @@ def is_float(s: str) -> bool:
         return False
 
 
-@validate
+@validate  # type:ignore
 def is_hebrew(s: str) -> bool:
     """checks if a string is in hebrew
 
@@ -100,7 +100,7 @@ def is_hebrew(s: str) -> bool:
     return check_foreach(s, lambda c: c in HEBREW_LETTERS)
 
 
-@validate
+@validate  # type:ignore
 def is_binary(s: str) -> bool:
     """checks if s string has a binary value
 
@@ -113,7 +113,7 @@ def is_binary(s: str) -> bool:
     return check_foreach(s, lambda c: c in {0, 1})
 
 
-@validate
+@validate  # type:ignore
 def is_decimal(s: str) -> bool:
     """checks if a string has a decimal number
 
@@ -126,7 +126,7 @@ def is_decimal(s: str) -> bool:
     return check_foreach(s, lambda c: c in range(10))
 
 
-@validate
+@validate  # type:ignore
 def is_hex(s: str) -> bool:
     """checks if a string has a hexadecimal value
 

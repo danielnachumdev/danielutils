@@ -11,7 +11,7 @@ P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
 
 
-@validate
+@validate  # type:ignore
 def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True) -> Callable[[FuncT], FuncT]:
     """decorator to limit recursion of functions
 

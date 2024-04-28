@@ -1,4 +1,4 @@
-from typing import Generator, Any, Tuple as t_tuple
+from typing import Generator, Any, Tuple as Tuple
 from threading import Semaphore  # , Condition
 from ..decorators import threadify
 from ..data_structures import AtomicQueue, Queue
@@ -7,16 +7,16 @@ from ..better_builtins import AtomicCounter
 from ..reflection import get_python_version
 
 if get_python_version() >= (3, 9):
-    from builtins import tuple as t_tuple  # type:ignore
+    from builtins import tuple as Tuple  # type:ignore
 
 
-def join_generators_busy_waiting(*generators) -> Generator[t_tuple[int, Any], None, None]:
+def join_generators_busy_waiting(*generators) -> Generator[Tuple[int, Any], None, None]:
     """joins an arbitrary amount of generators to yield objects as soon someone yield an object
 
     Yields:
         Generator[tuple[int, Any], None, None]: resulting generator
     """
-    q: AtomicQueue[t_tuple[int, Any]] = AtomicQueue()
+    q: AtomicQueue[Tuple[int, Any]] = AtomicQueue()
     threads_status = [False for _ in range(len(generators))]
 
     @threadify
@@ -37,7 +37,7 @@ def join_generators_busy_waiting(*generators) -> Generator[t_tuple[int, Any], No
         yield from q
 
 
-def join_generators(*generators) -> Generator[t_tuple[int, Any], None, None]:
+def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
     """will join generators to yield from all of them simultaneously 
     without busy waiting, using semaphores and multithreading 
 

@@ -1,13 +1,11 @@
 import unittest
-from typing import Union
+from typing import Union, List
+
 try:
     from danielutils.metaclasses.interface import Interface  # type:ignore
-    from danielutils.versioned_imports import t_list
 except:
     # python == 3.9.0
     from ...danielutils.metaclasses.interface import Interface  # type:ignore
-    from ...danielutils.versioned_imports import t_list
-
 
 Number = Union[int, float]
 
@@ -139,7 +137,7 @@ class TestInterface(unittest.TestCase):
             def __str__(self) -> str:
                 return super().__str__() + f" color-{self.color}"
 
-        shapes: t_list[Shape] = [
+        shapes: List[Shape] = [
             Circle(2),
             Square(2),
             Rectangel(2, 3),

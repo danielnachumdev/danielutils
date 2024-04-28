@@ -1,12 +1,12 @@
 import traceback
 from .python_version import get_python_version
 if get_python_version() < (3, 9):
-    from typing import List as t_list
+    from typing import List as List
 else:
-    from builtins import list as t_list
+    from builtins import list as List
 
 
-def get_traceback() -> t_list[str]:
+def get_traceback() -> List[str]:
     """returns the traceback of the stack until current frame
 
     Returns:
