@@ -1,12 +1,11 @@
+import time
 from typing import Optional, Iterable, Sized
 
-import time
-
-from ..progress_bar import ProgressBar
+from .progress_bar import ProgressBar
 from ..print_ import bprint
 
 
-class MockProgressBar(ProgressBar):
+class AsciiProgressBar(ProgressBar):
 
     def __init__(
             self,
@@ -101,5 +100,5 @@ class MockProgressBar(ProgressBar):
 
 
 __all__ = [
-    'MockProgressBar'
+    'AsciiProgressBar'
 ]
