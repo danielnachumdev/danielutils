@@ -7,3 +7,4 @@ from .powerset import *
 from .multiloop import *
 from .flatten import *
 from .subseteq import *
+from .parallel_for import *
