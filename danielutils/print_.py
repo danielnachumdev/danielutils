@@ -64,13 +64,6 @@ class BetterPrinter:
         self._current_row: int = 0
         self.rows: list[str] = []
 
-    def remove(self, num_lines: int = 1, stream: IO = sys.stdout, flush: bool = True) -> None:
-        if not stream.isatty():
-            warning(f"Cannot clear because {stream} is not a terminal stream")
-            return
-        for _ in range(num_lines):
-            self("\r\033[F\r", end="", stream=stream, flush=flush)
-
     def clear(self, stream: IO = sys.stdout, flush: bool = True) -> None:
         if not stream.isatty():
             warning(f"Cannot clear because {stream} is not a terminal stream")
