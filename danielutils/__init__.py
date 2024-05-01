@@ -17,9 +17,8 @@ from .protocols import *
 
 from .reflection import *
 from .decorators import *
-
 # ========== NEEDS REFLECTION ==========
-from .tqdm_ import *
+from .progress_bar import *
 # ========== NEEDS DECORATORS ==========
 from .colors import *
 # ========== NEEDS BOTH ==========

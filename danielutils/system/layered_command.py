@@ -12,6 +12,14 @@ class LayeredCommand:
     _class_prev_instance: Optional['LayeredCommand'] = None
     _id: int = 0
 
+    @property
+    def prev(self):
+        return self._prev_instance
+
+    @prev.setter
+    def prev(self, value: Optional['LayeredCommand'] = None):
+        self._prev_instance = value
+
     def __init__(
             self,
             command: Optional[str] = None,
@@ -37,17 +45,17 @@ class LayeredCommand:
         self._open()
         return self
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.prev is self._cur_class_prev_instance:
+            LayeredCommand._class_prev_instance = self.prev
+
     def _open(self) -> None:
         self._has_entered = True
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self._prev_instance is self._cur_class_prev_instance:
-            LayeredCommand._class_prev_instance = self._prev_instance
-
     def _build_command(self, *commands: str) -> str:
         res = ""
-        if self._prev_instance is not None:
-            prev = self._prev_instance._build_command()
+        if self.prev is not None:
+            prev = self.prev._build_command()
             res += f"{prev} & " if prev != "" else ""
         if self._command != "":
             return res + " & ".join([self._command, *commands])
