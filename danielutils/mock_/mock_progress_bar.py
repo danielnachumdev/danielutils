@@ -49,9 +49,10 @@ class MockProgressBar(ProgressBar):
             yield v
             bprint.move_up()
             bprint.clear_line()
-        self.reset()
-        # if self.leave:
-        #     self.draw()
+        if self.position > 0:
+            self.reset()
+        else:
+            self.draw()
 
     def draw(self) -> None:
         percent = self.current_value / self.total

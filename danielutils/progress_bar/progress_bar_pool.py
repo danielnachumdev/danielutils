@@ -21,11 +21,13 @@ class ProgressBarPool:
         for i in range(num_of_bars):
             if individual_options[i] is None:
                 individual_options[i] = {}
+        max_desc_length: int = max([len(individual_options[i].get("desc", f"pbar {i}")) for i in range(num_of_bars)])
         for i in range(num_of_bars):
             final_options: dict = global_options.copy()
             final_options.update(individual_options[i])  # type:ignore
             if "desc" not in final_options:
                 final_options["desc"] = f"pbar {i}"
+            final_options["desc"] = final_options["desc"].ljust(max_desc_length, " ")
             t = pbar_class(
                 position=i,
                 **final_options
