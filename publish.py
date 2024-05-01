@@ -4,7 +4,7 @@ from quickpub import publish, Version, AdditionalConfiguration, MypyRunner, Pyli
 def main() -> None:
     publish(
         name="danielutils",
-        version="0.9.81",
+        version="0.9.82",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
