@@ -1,5 +1,6 @@
 from typing import Type, List, Optional
 from .progress_bar import ProgressBar
+from ..print_ import bprint
 
 
 class ProgressBarPool:
@@ -30,15 +31,29 @@ class ProgressBarPool:
             final_options["desc"] = final_options["desc"].ljust(max_desc_length, " ")
             t = pbar_class(
                 position=i,
+                pool=self,
                 **final_options
             )
             self.bars.append(t)
+        self.writes: list[str] = []
 
     def __getitem__(self, index: int) -> ProgressBar:
         return self.bars[index]
 
-    def write(self, *args, sep=" ", end="\n") -> None:
-        self.bars[0].write(sep.join((str(a) for a in args)), end=end)
+    def write(self, msg: str, end: str = "\n") -> None:
+        prev_rows = bprint.rows.copy()
+        for w in self.writes:
+            prev_rows.remove(w)
+        self.writes.append(msg + end)
+        rows = self.writes.copy() + prev_rows
+        for _ in bprint.rows:
+            bprint.move_up()
+            bprint.clear_line()
+        bprint.rows.clear()
+
+        for row in rows:
+            bprint(row, end="")
+        pass
 
 
 __all__ = [

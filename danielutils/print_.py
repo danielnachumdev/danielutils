@@ -96,11 +96,13 @@ class BetterPrinter:
         return self._current_row
 
     def insert(self, text: str, row: int) -> None:
+        for _ in range(len(self.rows)):
+            bprint.move_up()
+            bprint.clear_line()
         self.rows.insert(row, text)
-        num_rows = len(self.rows)
-        self.clear()
-        self.write(*self.rows)
-        for _ in range(num_rows):
+        num = len(self.rows)
+        self.write(*self.rows,end="")
+        for _ in range(num):
             self.rows.pop()
 
 

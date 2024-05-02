@@ -25,7 +25,11 @@ class ProgressBar(ABC):
         self.position = position
         self.unit = unit
         self.bar_format = bar_format
-        self.num_writes = 0
+        self.writes: list[str] = []
+
+    @property
+    def num_writes(self):
+        return len(self.writes)
 
     @abstractmethod
     def update(self, amount: float = 1) -> None:
@@ -39,7 +43,7 @@ class ProgressBar(ABC):
         """A function to write additional text with the progress bar
         """
         self._write(*args, sep=sep, end=end)
-        self.num_writes += 1
+        self.writes.append(sep.join(args) + end)
 
     @abstractmethod
     def reset(self) -> None:
