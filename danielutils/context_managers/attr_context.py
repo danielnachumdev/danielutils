@@ -1,4 +1,5 @@
-class AttrContext:
+from typing import ContextManager
+class AttrContext(ContextManager):
     def __init__(self, obj: object, attr: str, new_value: object, *, nonexistent_is_error: bool = True) -> None:
         self.obj = obj
         self.attr = attr

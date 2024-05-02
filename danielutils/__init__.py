@@ -18,11 +18,11 @@ from .protocols import *
 from .reflection import *
 from .decorators import *
 # ========== NEEDS REFLECTION ==========
-from .progress_bar import *
 # ========== NEEDS DECORATORS ==========
 from .colors import *
 # ========== NEEDS BOTH ==========
 
+from .progress_bar import *
 from .functions import *
 from .io_ import *
 from .system import *

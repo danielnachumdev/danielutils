@@ -1,8 +1,9 @@
+from typing import ContextManager
 from ..io_ import file_exists, delete_file
 import atexit
 
 
-class TemporaryFile:
+class TemporaryFile(ContextManager):
     _instances: set['TemporaryFile'] = set()
 
     def __init__(self, path: str):
