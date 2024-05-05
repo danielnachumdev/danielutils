@@ -93,7 +93,6 @@ class AsciiProgressBar(ProgressBar):
         self.draw(refresh=refresh)
 
     def _write(self, *args: str, sep: str = " ", end: str = "\n") -> None:
-
         if not end.endswith("\n"):
             end += "\n"
         if self.pool is not None and len(self.pool.bars) > 0:
