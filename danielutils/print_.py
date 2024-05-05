@@ -26,7 +26,7 @@ def mprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
     stream.write(sep.join([mprint_parse_one(s) for s in args]) + end)
 
 
-@deprecate("The built-in 'print' function has an argument called 'file', use this instead")
+@deprecate("The built-in 'print' function has an argument called 'file', use this instead")  # type:ignore
 def sprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
     """Writes a string representation of the given arguments to the specified stream.
 
@@ -42,7 +42,7 @@ def sprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
     stream.write(sep.join(args) + end)
 
 
-@atomic
+@atomic  # type:ignore
 def aprint(*args, sep=" ", end="\n") -> None:
     """Prints a string representation of the given arguments to the console.
 
@@ -58,17 +58,18 @@ def aprint(*args, sep=" ", end="\n") -> None:
 
 
 class BetterPrinter:
-    def __init__(self, thread_safe: bool = False):
+    def __init__(self, stream: IO = sys.stdout, thread_safe: bool = False):
+        self.stream: IO = stream
         if thread_safe:
-            self.__call__ = atomic(self.__call__)
+            self.__call__ = atomic(self.__call__)  # type:ignore
         self._current_row: int = 0
         self.rows: list[str] = []
 
-    def clear(self, stream: IO = sys.stdout, flush: bool = True) -> None:
-        if not stream.isatty():
-            warning(f"Cannot clear because {stream} is not a terminal stream")
+    def clear(self, flush: bool = True) -> None:
+        if not self.stream.isatty():
+            warning(f"Cannot clear because {self.stream} is not a terminal stream")
             return
-        self.write("\033[2J", stream=stream, flush=flush)
+        self.write("\033[2J", flush=flush)
         self.rows.pop()
 
     def clear_line(self) -> None:
@@ -80,16 +81,16 @@ class BetterPrinter:
         self.rows.pop()
         self._current_row -= 1
 
-    def write(self, *args, sep: str = " ", end: str = "\n", stream: IO = sys.stdout, flush: bool = True):
+    def write(self, *args, sep: str = " ", end: str = "\n", flush: bool = True):
         text = sep.join(args) + end
         self._current_row += text.count("\n")
         self.rows.extend([f"{s}\n" for s in text.splitlines() if len(s) > 0])
-        stream.write(text)
+        self.stream.write(text)
         if flush:
-            stream.flush()
+            self.stream.flush()
 
-    def __call__(self, *args, **kwargs) -> None:
-        self.write(*args, **kwargs)
+    def __call__(self, *args, sep: str = " ", end: str = "\n", flush: bool = True) -> None:
+        self.write(*args, sep=sep, end=end, flush=flush)
 
     @property
     def current_row(self) -> int:
@@ -101,7 +102,7 @@ class BetterPrinter:
             bprint.clear_line()
         self.rows.insert(row, text)
         num = len(self.rows)
-        self.write(*self.rows,end="")
+        self.write(*self.rows, end="")
         for _ in range(num):
             self.rows.pop()
 

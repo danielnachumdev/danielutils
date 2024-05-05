@@ -1,4 +1,4 @@
-from typing import Type, List, Optional
+from typing import Type, List, Optional, Iterator
 from .progress_bar import ProgressBar
 from ..print_ import bprint
 
@@ -54,6 +54,9 @@ class ProgressBarPool:
         for row in rows:
             bprint(row, end="")
         pass
+
+    def __iter__(self) -> Iterator[ProgressBar]:
+        return iter(self.bars)
 
 
 __all__ = [

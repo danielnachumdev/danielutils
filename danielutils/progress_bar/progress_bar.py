@@ -1,7 +1,7 @@
 import math
 import time
 from abc import ABC, abstractmethod
-from typing import Optional, Type, List, Iterable
+from typing import Optional, Type, List, Iterable, Any
 
 try:
     from tqdm import tqdm
@@ -39,11 +39,12 @@ class ProgressBar(ABC):
     @abstractmethod
     def _write(self, *args: str, sep: str = " ", end: str = "\n") -> None: ...
 
-    def write(self, *args: str, sep: str = " ", end: str = "\n") -> None:
+    def write(self, *args: Any, sep: str = " ", end: str = "\n") -> None:
         """A function to write additional text with the progress bar
         """
-        self._write(*args, sep=sep, end=end)
-        self.writes.append(sep.join(args) + end)
+        processed = list(map(str, args))
+        self._write(*processed, sep=sep, end=end)
+        self.writes.append(sep.join(processed) + end)
 
     @abstractmethod
     def reset(self) -> None:
