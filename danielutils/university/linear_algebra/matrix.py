@@ -1,5 +1,7 @@
 import math
-from typing import Tuple, Iterator, Union, Iterable, Protocol, runtime_checkable
+import random
+from fractions import Fraction
+from typing import Tuple, Iterator, Union, Iterable, Protocol, runtime_checkable, Optional
 from copy import copy, deepcopy
 
 
@@ -30,12 +32,12 @@ class Matrix:
         return res
 
     @classmethod
-    def from_array(cls, arr: list[list[float]]) -> 'Matrix':
+    def from_array(cls, arr: list[list[Fraction]]) -> 'Matrix':
         res = Matrix(len(arr), len(arr[0]))
         res._data = deepcopy(arr)
         return res
 
-    def __init__(self, height: int, width: int, default: float = 0.0) -> None:
+    def __init__(self, height: int, width: int, default: Fraction = Fraction(0, 1)) -> None:
         self._height = height
         self._width = width
         self._data = [[default for _ in range(self.width)] for _ in range(self.height)]
@@ -81,10 +83,12 @@ class Matrix:
                 res._data[res_i][res_j] = self._data[cur_i][cur_j]
         return res
 
-    def __setitem__(self, tup: Tuple[Union[slice, int], Union[slice, int]], value: float) -> None:
+    def __setitem__(self, tup: Tuple[Union[slice, int], Union[slice, int]],
+                    value: Union[int, float, Fraction, complex]) -> None:
+        v: Fraction = Fraction(value, 1) if not isinstance(value, Fraction) else value
         row, col = tup
         if isinstance(row, int) and isinstance(col, int):
-            self._data[row][col] = value
+            self._data[row][col] = v
             return
 
         if isinstance(row, int):
@@ -105,12 +109,12 @@ class Matrix:
             )
         for res_i, cur_i in enumerate(range(row.start, row.stop, row.step)):
             for res_j, cur_j in enumerate(range(col.start, col.stop, col.step)):
-                self._data[cur_i][cur_j] = value
+                self._data[cur_i][cur_j] = v
 
     def __copy__(self) -> 'Matrix':
         return self[:, :]
 
-    def __mul__(self, other: float) -> 'Matrix':
+    def __mul__(self, other: Union[int, float, Fraction, complex]) -> 'Matrix':
         if isinstance(other, Matrix):
             raise ValueError("For Matrix Multiplication use '@' operator instead of '*' operator")
         res = self.__copy__()
@@ -119,13 +123,13 @@ class Matrix:
                 res._data[i][j] *= other
         return res
 
-    def __rmul__(self, other: float) -> 'Matrix':
+    def __rmul__(self, other: Union[int, float, Fraction, complex]) -> 'Matrix':
         return self * other
 
-    def __truediv__(self, value: float) -> 'Matrix':
-        return self * (1 / value)
+    def __truediv__(self, value: Union[int, float, Fraction, complex]) -> 'Matrix':
+        return self * (Fraction(1, value) if not isinstance(value, Fraction) else 1 / value)
 
-    def __floordiv__(self, other: float) -> 'Matrix':
+    def __floordiv__(self, other: Union[int, float, Fraction, complex]) -> 'Matrix':
         return (self / other).__floor__()
 
     def __floor__(self) -> 'Matrix':
@@ -172,10 +176,13 @@ class Matrix:
                     res._data[i][j] += self._data[i][k] * other._data[k][j]
         return res
 
-    def __iter__(self) -> Iterator[float]:
+    def __iter__(self) -> Iterator[Fraction]:
         for row in range(self.height):
             for col in range(self.width):
                 yield self._data[row][col]
+
+    def __neg__(self) -> 'Matrix':
+        return -1 * self  # type:ignore
 
     def __repr__(self) -> str:
         return f'Matrix({self._width}, {self._height})'
@@ -213,11 +220,30 @@ class Matrix:
     def characteristic_polynomial(self) -> 'Polynomial':
         I = Matrix.identity(max(self.width, self.height))
         x = Polynomial([1, 0])
-        return (x * I - self).determinant()
+        return (x * I - self).determinant()  # type:ignore
+
+    def eigen_values(self) -> list[Fraction]:
+        return self.characteristic_polynomial().roots()  # type:ignore
+
+    @classmethod
+    def random(cls, height: int, width: int, a: int = 0, b: int = 100, seed: Optional[int] = None) -> 'Matrix':
+        try:
+            if seed is not None:
+                prev_seed = random.getstate()
+                random.seed(seed)
+
+            res = Matrix(height, width)
+            for i in range(height):
+                for j in range(width):
+                    res._data[i][j] = random.randint(a, b)
+            return res
+        finally:
+            if seed is not None:
+                random.setstate(prev_seed)
 
 
 class Vector(Matrix):
-    def __init__(self, size: int, default: float = 0.0) -> None:
+    def __init__(self, size: int, default: Fraction = Fraction(0, 1)) -> None:
         super().__init__(size, 1, default)
 
     @property
