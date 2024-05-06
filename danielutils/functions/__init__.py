@@ -8,3 +8,4 @@ from .multiloop import *
 from .flatten import *
 from .subseteq import *
 from .parallel_for import *
+from .foreach import *
