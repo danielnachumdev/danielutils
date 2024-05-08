@@ -52,7 +52,12 @@ class ProgressBar(ABC):
        """
 
 
-ProgressBar.register(tqdm)
+try:
+    from tqdm import tqdm
+
+    ProgressBar.register(tqdm)
+except ImportError:
+    pass
 
 __all__ = [
     'ProgressBar',
