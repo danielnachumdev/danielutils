@@ -1,5 +1,5 @@
 import time
-from typing import Optional, Iterable, Sized
+from typing import Optional, Iterable, Sized, Iterator
 
 from .progress_bar import ProgressBar
 from .progress_bar_pool import ProgressBarPool
@@ -10,7 +10,7 @@ class AsciiProgressBar(ProgressBar):
 
     def __init__(
             self,
-            iterable: Iterable,
+            iterator: Iterator,
             position: int,
             *,
             total: Optional[float] = None,
@@ -22,12 +22,12 @@ class AsciiProgressBar(ProgressBar):
             **kwargs
     ):
         total_ = 1
-        if isinstance(iterable, Sized):
-            total_ = len(iterable)
+        if isinstance(iterator, Sized):
+            total_ = len(iterator)
         if total is not None:
             total_ = total
         ProgressBar.__init__(self, total_, position)
-        self.iterable: Iterable = iterable
+        self.iterator: Iterator = iterator
         self.pool: ProgressBarPool = pool
         self.num_bars: int = num_bars
         self.leave: bool = leave
@@ -47,16 +47,18 @@ class AsciiProgressBar(ProgressBar):
 
     def __iter__(self):
         self.bprint_row_index = bprint.current_row
-        for v in self.iterable:
+        for v in self.iterator:
             self.update(0)
             yield v
             bprint.move_up()
             bprint.clear_line()
-            bprint.rows.pop()
+            if len(bprint.rows) > 0:
+                bprint.rows.pop()
             self.update(1)
             bprint.move_up()
             bprint.clear_line()
-            bprint.rows.pop()
+            if len(bprint.rows) > 0:
+                bprint.rows.pop()
         if self.position > 0:
             self.reset()
         else:

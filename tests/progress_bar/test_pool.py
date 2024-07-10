@@ -7,9 +7,9 @@ pool = ProgressBarPool(
     AsciiProgressBar,
     3,
     individual_options=[
-        dict(iterable=range(3), desc="deco"),
-        dict(iterable=range(3), desc="wrapper"),
-        dict(iterable=range(3), desc="inner")
+        dict(iterator=range(3), desc="deco"),
+        dict(iterator=range(3), desc="wrapper"),
+        dict(iterator=range(3), desc="inner")
     ]
 )
 
