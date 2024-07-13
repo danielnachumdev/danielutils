@@ -51,6 +51,27 @@ class DiscreteFiniteAutomaton(Generic[State, Symbol]):
     def random_word(self, k: int) -> Sequence[Symbol]:
         return tuple(random.choices(self.sigma, k=k))
 
+    def is_described_by(self, language_indicator: Callable[[Sequence[Symbol]], bool], max_word_length: int = 100,
+                        num_repeats_for_length: int = 1000) -> bool:
+        """
+        This function will randomly generate work of all lengths up to k and will check whether this DFA acceptance
+         of the word is the same as the result of a function that describes the behaviour of the language
+        Args:
+            language_indicator: An indicator function to check if a word is a member of a language
+            max_word_length: the maximum length of a word to check
+            num_repeats_for_length: how many times to repeat the check of any one length (as the words are randomly generated)
+
+        Returns:
+            A boolean result
+        """
+        for k in range(max_word_length):
+            for _ in range(num_repeats_for_length):
+                word = self.random_word(k)
+                if not (self.run(word) == language_indicator(word)):
+                    return False
+
+        return True
+
     @staticmethod
     def delta_from_dict(dct: Dict[Tuple[State, Symbol], State]) -> TransitionFunction:
         return lambda state, letter: dct[(state, letter)]
