@@ -9,3 +9,5 @@ from .flatten import *
 from .subseteq import *
 from .parallel_for import *
 from .foreach import *
+from .factorial import *
+from .partition import *
