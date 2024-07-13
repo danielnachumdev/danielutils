@@ -1,6 +1,6 @@
+import atexit
 from typing import ContextManager
 from ..io_ import file_exists, delete_file
-import atexit
 
 
 class TemporaryFile(ContextManager):
@@ -18,12 +18,6 @@ class TemporaryFile(ContextManager):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    @atexit.register
-    @staticmethod
-    def _global_close():
-        for inst in TemporaryFile._instances:
-            inst.close()
-
     def close(self) -> None:
         delete_file(self.path)
 
@@ -40,6 +34,12 @@ class TemporaryFile(ContextManager):
     def clear(self):
         with open(self.path, 'w') as _:
             pass
+
+
+@atexit.register
+def __close_all():
+    for inst in TemporaryFile._instances:  # type:ignore #pylint: disable=all
+        inst.close()
 
 
 __all__ = [
