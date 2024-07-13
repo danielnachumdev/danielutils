@@ -32,7 +32,7 @@ class ProgressBar(ABC):
         return len(self.writes)
 
     @abstractmethod
-    def update(self, amount: float = 1) -> None:
+    def update(self, amount: float = 1, **kwargs) -> None:
         """A function to update the progress-bar's value by a positive relative amount
         """
 
