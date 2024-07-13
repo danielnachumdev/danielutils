@@ -51,6 +51,8 @@ class ProgressBar(ABC):
         """A function to reset the progress-bar's progress
        """
 
+    @abstractmethod
+    def __iter__(self): ...
 
 try:
     from tqdm import tqdm
