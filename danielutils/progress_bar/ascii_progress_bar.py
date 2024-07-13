@@ -81,9 +81,19 @@ class AsciiProgressBar(ProgressBar):
             unit=self.unit
         )
         if refresh and self.pool is not None and len(self.pool.bars) > 1:
-            for w in self.writes:
-                bprint(w, end="")
-        bprint(to_print)
+            i = bprint.rows.index(f"{self.prev_print}\n")
+            rows = [to_print]
+            for j, row in enumerate(bprint.rows[i + 1:]):
+                rows.append(row)
+            for row in rows:
+                bprint.move_up(1)
+                bprint.clear_line()
+                bprint.rows.pop()
+            for row in rows:
+                bprint(row)
+        else:
+            bprint(to_print)
+        self.prev_print = to_print
 
     def update(self, amount: float = 1, refresh: bool = False):
         self.prev_value = self.current_value
