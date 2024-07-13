@@ -417,9 +417,9 @@ class Relation:
         """
         # week 9 page 1 slide 3
         K: Attribute = self.find_key(F)
-        KeyQueue = Queue()
+        KeyQueue: Queue = Queue()
         KeyQueue.push(K)
-        Keys = set([K])
+        Keys: Set[Attribute] = set([K])
         while not KeyQueue.is_empty():
             K = KeyQueue.pop()
             for X, Y in F.tuples():

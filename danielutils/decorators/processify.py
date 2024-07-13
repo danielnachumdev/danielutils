@@ -35,12 +35,14 @@ def processify(func):
     return wrapper
 
 
-
 def _run_func(main_pid: int, dct: dict, func_name: str, args, kwargs) -> None:
     return dct[func_name](*args, __main_pid=main_pid, **kwargs)
 
+
 def debug_info(include_builtins: bool = False) -> dict:
     f = get_prev_frame(2)
+    if f is None:
+        raise RuntimeError("Failed to get frame")
     g = {k: v for k, v in f.f_globals.items() if k != "__builtins__"} if not include_builtins else dict(f.f_globals)
     return {
         "file": f.f_code.co_filename,

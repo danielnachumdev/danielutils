@@ -1,4 +1,4 @@
-from typing import Callable, cast, Any, TypeVar, Dict
+from typing import Callable, cast, Any, TypeVar, Dict, List
 import inspect
 import functools
 from ..reflection import is_function_annotated_properly
@@ -122,7 +122,7 @@ class overload:
         overload._validate(func)
         self._qualname = func.__qualname__
         self._moudle = func.__module__
-        self._functions: Dict[int, Dict[Callable]] = {}
+        self._functions: Dict[int, List[Callable]] = {}
         self._functions[overload._get_key(func)] = [func]
         functools.wraps(func)(self)
 

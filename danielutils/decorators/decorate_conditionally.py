@@ -3,7 +3,7 @@ from typing import Callable, Optional, Union
 from .validate import validate
 
 
-@validate  # type:ignore(strict=False)
+@validate(strict=False)  # type:ignore
 def decorate_conditionally(decorator: Callable, predicate: Union[bool, Callable[[], bool]], *,
                            decorator_args: Optional[list] = None, decorator_kwargs: Optional[dict] = None):
     """will decorate a function iff the predicate is True or returns True

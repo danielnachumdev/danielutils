@@ -18,7 +18,7 @@ class AsciiProgressBar(ProgressBar):
             leave: bool = True,
             num_bars: int = 1,
             ncols: int = 50,
-            pool: Optional = None,
+            pool: Optional[ProgressBarPool] = None,
             **kwargs
     ):
         total_ = 1
