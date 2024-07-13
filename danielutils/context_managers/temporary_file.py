@@ -1,10 +1,10 @@
 import atexit
-from typing import ContextManager
+from typing import ContextManager, Set, List
 from ..io_ import file_exists, delete_file
 
 
 class TemporaryFile(ContextManager):
-    _instances: set['TemporaryFile'] = set()
+    _instances: Set['TemporaryFile'] = set()
 
     def __init__(self, path: str):
         if file_exists(path):
@@ -21,13 +21,13 @@ class TemporaryFile(ContextManager):
     def close(self) -> None:
         delete_file(self.path)
 
-    def read(self) -> list[str]:
+    def read(self) -> List[str]:
         if not file_exists(self.path):
             return []
         with open(self.path, 'r') as f:
             return f.readlines()
 
-    def write(self, lines: list[str]) -> None:
+    def write(self, lines: List[str]) -> None:
         with open(self.path, 'a') as f:
             f.writelines(lines)
 
