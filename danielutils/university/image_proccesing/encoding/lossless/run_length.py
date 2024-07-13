@@ -1,4 +1,4 @@
-from typing import Generator, Sequence
+from typing import Generator, Sequence, List
 from .lossless_encoding import LosslessEncoding
 from ..encoding import Decodeable, Encodeable
 
@@ -6,7 +6,7 @@ from ..encoding import Decodeable, Encodeable
 class RunLengthEncoding(LosslessEncoding):
     @staticmethod
     def encode_online(obj: Encodeable) -> Generator[bytes, None, None]:
-        buffer: list[int] = []
+        buffer: List[int] = []
         for c in obj:
             if len(buffer) > 0:
                 if c != buffer[0]:
@@ -17,6 +17,7 @@ class RunLengthEncoding(LosslessEncoding):
 
     @staticmethod
     def decode_online(obj: Decodeable) -> Generator[bytes, None, None]:
+        # TODO
         pass
 
     SEPERATOR = b","

@@ -19,13 +19,13 @@ class Transformation:
         return self.image()
 
     def image(self) -> Supp:
+        # TODO
         if isinstance(self.var, ConditionalVariable):
             if self.var.supp.is_finite:
                 for s in self.var.supp:
                     pass
 
-
-    def _transform_one(self, n):
+    def _transform_one(self, n: Union[int, float, Fraction]) -> Union[int, float, Fraction]:
         return {
             Operator.ADD: lambda k: k + self.value,
             Operator.SUB: lambda k: k - self.value,

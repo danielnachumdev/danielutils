@@ -12,7 +12,7 @@ class Worker(ABC):
     """A Worker Interface
     """
 
-    def __init__(self, id: int, pool: "danielutils.Threading.worker_pool.WorkerPool") -> None:  # pylint: disable=redefined-builtin #noqa
+    def __init__(self, id: int, pool: "danielutils.abstractions.multiprogramming.worker_pool.WorkerPool") -> None:  # pylint: disable=redefined-builtin #noqa
         self.id = id
         self.pool = pool
         self.thread: Thread = Thread(target=self._loop)
@@ -57,6 +57,7 @@ class Worker(ABC):
         to signal actions if needed
         will call 'notification_function'
         """
+        # TODO
         self.pool._notify_subscribers()  # pylint: disable=protected-access
 
     def acquire(self) -> Optional[Tuple[Any]]:

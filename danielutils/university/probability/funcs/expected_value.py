@@ -22,7 +22,7 @@ def expected_value(obj: Union[ConditionalVariable, ProbabilityExpression]) -> Fr
         op = obj.op
         X = obj.lhs
 
-        def f(n):
+        def f(n: Union[int, float, Fraction]) -> Union[int, float, Fraction]:
             return {
                 Operator.POW: lambda n: n ** const,
                 Operator.MUL: lambda n: n * const,

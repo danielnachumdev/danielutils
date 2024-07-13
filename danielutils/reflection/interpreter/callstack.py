@@ -25,8 +25,10 @@ def get_prev_frame(n_steps: int = 1) -> Optional[FrameType]:
 
 def get_prev_line_of_code(n_steps: int = 1) -> Optional[str]:
     frame = get_prev_frame(n_steps + 1)
-    file = frame.f_back.f_code.co_filename
-    line_number = frame.f_back.f_lineno - 1
+    if frame is None:
+        return None
+    file = frame.f_back.f_code.co_filename  # type:ignore
+    line_number = frame.f_back.f_lineno - 1  # type:ignore
     with open(file, "r", encoding="utf-8") as f:
         lines = f.readlines()
     line = lines[line_number]

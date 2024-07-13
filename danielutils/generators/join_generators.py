@@ -44,7 +44,7 @@ def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
     Yields:
         Generator[Any, None, None]: one generator that combines all of the given ones
     """
-    queue = Queue()
+    queue: Queue = Queue()
     edit_queue_semaphore = Semaphore(1)
     queue_status_semaphore = Semaphore(0)
     finished_threads_counter = AtomicCounter()
