@@ -1,5 +1,5 @@
 import functools
-from typing import Callable, Any, TypeVar, Dict
+from typing import Callable, Any, TypeVar, Dict, Generator, List, Set, Optional
 from copy import deepcopy
 from .validate import validate
 from ..versioned_imports import ParamSpec
@@ -27,6 +27,25 @@ def memo(func: FuncT) -> FuncT:
     return wrapper
 
 
+def memo_generator(func: Callable[[...], Generator]) -> Callable[[...], Generator]:
+    cache: Dict[tuple, Any] = {}
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs) -> Generator:
+        args = tuple(args)
+        if (args, *kwargs.items()) not in cache:
+            lst = []
+            for v in func(*args, **kwargs):
+                lst.append(v)
+                yield v
+            cache[(args, *kwargs.items())] = lst
+        else:
+            yield from cache[(args, *kwargs.items())]
+
+    return wrapper
+
+
 __all__ = [
-    "memo"
+    "memo",
+    "memo_generator"
 ]
