@@ -27,11 +27,11 @@ def memo(func: FuncT) -> FuncT:
     return wrapper
 
 
-def memo_generator(func: Callable[[...], Generator]) -> Callable[[...], Generator]:
+def memo_generator(func: Callable[P, Generator]) -> Callable[P, Generator]:
     cache: Dict[tuple, Any] = {}
 
     @functools.wraps(func)
-    def wrapper(*args, **kwargs) -> Generator:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> Generator:
         args = tuple(args)
         if (args, *kwargs.items()) not in cache:
             lst = []

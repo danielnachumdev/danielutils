@@ -1,4 +1,9 @@
-from typing import TypeAlias, Callable, TypeVar, Generic
+from typing import Callable, TypeVar, Generic
+
+try:
+    from typing import TypeAlias
+except ImportError:
+    from typing_extensions import TypeAlias
 
 T = TypeVar('T')
 U = TypeVar('U')

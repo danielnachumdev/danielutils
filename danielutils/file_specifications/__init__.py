@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, List
 from enum import Enum
 
 
@@ -29,12 +29,13 @@ class Field:
 class Section:
     name: str
     prefix: bytes
-    fields: Optional[list[Field]]
+    fields: Optional[List[Field]]
     is_optional: bool = False
 
 
 class FileSpecification:
-    def __init__(self, long_name: str, short_name: str, extension: str, specification: str, sections: list[Section]):
+    def __init__(self, long_name: str, short_name: str, extension: str, specification: str,
+                 sections: List[Section]) -> None:
         """
 
         Args:

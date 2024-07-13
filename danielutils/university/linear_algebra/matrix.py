@@ -1,7 +1,7 @@
 import math
 import random
 from fractions import Fraction
-from typing import Tuple, Iterator, Union, Iterable, Protocol, runtime_checkable, Optional
+from typing import Tuple, Iterator, Union, Iterable, Protocol, runtime_checkable, Optional, List
 from copy import copy, deepcopy
 
 
@@ -32,7 +32,7 @@ class Matrix:
         return res
 
     @classmethod
-    def from_array(cls, arr: list[list[Fraction]]) -> 'Matrix':
+    def from_array(cls, arr: List[List[Fraction]]) -> 'Matrix':
         res = Matrix(len(arr), len(arr[0]))
         res._data = deepcopy(arr)
         return res
@@ -222,7 +222,7 @@ class Matrix:
         x = Polynomial([1, 0])
         return (x * I - self).determinant()  # type:ignore
 
-    def eigen_values(self) -> list[Fraction]:
+    def eigen_values(self) -> List[Fraction]:
         return self.characteristic_polynomial().roots()  # type:ignore
 
     @classmethod
@@ -283,7 +283,7 @@ class Polynomial:
         self._coefficients = list(coefficients)
 
     @property
-    def coefficients(self) -> list[float]:
+    def coefficients(self) -> List[float]:
         return self._coefficients
 
     @property
@@ -346,7 +346,7 @@ class Polynomial:
     def __getitem__(self, index: int) -> float:
         return self.coefficients[index]
 
-    def roots(self, known_roots: list[int]) -> list[float]:
+    def roots(self, known_roots: List[int]) -> List[float]:
         cur = self.__copy__()
         for root in known_roots:
             cur /= Polynomial(1) - root

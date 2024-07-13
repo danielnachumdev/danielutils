@@ -1,5 +1,5 @@
 import sys, os
-from typing import Optional
+from typing import Optional, Tuple, List
 from ..context_managers import TemporaryFile
 import random
 
@@ -79,7 +79,7 @@ class LayeredCommand:
             command_flush_stderr: Optional[bool] = None,
             command_raise_on_fail: Optional[bool] = None,
             command_verbose: Optional[bool] = None
-    ) -> tuple[int, list[str], list[str]]:
+    ) -> Tuple[int, List[str], List[str]]:
         if not self._has_entered:
             raise RuntimeError(
                 "LayeredCommand must be used with a context manager. Use as: `with LayeredCommand(...) as l1:`")
@@ -109,7 +109,7 @@ class LayeredCommand:
                 self._error(raise_on_fail and code != 0, command, code, command_verbose)
                 return code, stdout.read(), stderr.read()
 
-    def __call__(self, *args, **kwargs) -> tuple[int, list[str], list[str]]:
+    def __call__(self, *args, **kwargs) -> Tuple[int, List[str], List[str]]:
         return self.execute(*args, **kwargs)
 
 
