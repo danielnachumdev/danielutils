@@ -7,7 +7,7 @@ class ExponentialBackOffStrategy(BackOffStrategy):
             raise ValueError("initial must be positive")
         if not multiplier >= 0:
             raise ValueError("multiplier must be positive")
-        prev = 1
+        prev: float = 1.0
 
         def inner() -> int:
             nonlocal prev

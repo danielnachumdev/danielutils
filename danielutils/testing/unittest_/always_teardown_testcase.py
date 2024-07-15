@@ -33,5 +33,5 @@ class AlwaysTeardownTestCase(unittest.TestCase):
 
 
 __all__ = [
-
+    "AlwaysTeardownTestCase"
 ]

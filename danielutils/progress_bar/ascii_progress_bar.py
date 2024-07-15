@@ -94,7 +94,7 @@ class AsciiProgressBar(ProgressBar):
             bprint(to_print)
         self.prev_print = to_print
 
-    def update(self, amount: float = 1, refresh: bool = False):
+    def update(self, amount: float = 1, refresh: bool = False):  # type:ignore
         self.prev_value = self.current_value
         self.current_value = min(
             self.current_value + amount, self.total)  # type:ignore
