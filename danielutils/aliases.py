@@ -150,16 +150,15 @@ T = TypeVar("T")
 
 Supplier = Callable[[], T]
 Runnable = Supplier[None]
-
+Consumer = Callable[[T], None]
 UnaryFunction = Callable[[U], T]
-UnaryOperator = UnaryFunction[T, T]
-Predicate = UnaryFunction[T, bool]
-Consumer = UnaryFunction[T, None]
+UnaryOperator = Callable[[T], T]
+Predicate = Callable[[T], bool]
 
 BinaryFunction = Callable[[A, B], T]
-BinaryOperator = BinaryFunction[T, T, T]
-Comparator = BinaryFunction[A, B, int]
-BinaryConsumer = BinaryFunction[T, T, None]
+BinaryOperator = Callable[[T, T], T]
+Comparator = Callable[[A, B], int]
+BinaryConsumer = Callable[[T, T], None]
 
 __all__ = [
     "UnaryFunction",
