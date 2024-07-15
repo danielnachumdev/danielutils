@@ -1,7 +1,7 @@
 import functools
 import os
 import unittest
-from typing import Optional, Callable
+from typing import Callable, Type
 
 from danielutils import create_directory, get_current_working_directory, set_current_working_directory, delete_directory
 
@@ -32,11 +32,11 @@ def improved_teardown(func: Callable) -> Callable:
 
 class AutoCWDTestCase(unittest.TestCase):
     @staticmethod
-    def _dummy():
+    def _dummy(*args, **kwargs):
         pass
 
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls: Type, **kwargs) -> None:
         dct = dict(cls.__dict__)
         impl_setUp = dct.get("setUp", cls._dummy)
         impl_tearDown = dct.get("tearDown", cls._dummy)
