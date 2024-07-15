@@ -1,4 +1,7 @@
+import functools
 import unittest
+from typing import Optional, Callable
+from unittest import TestResult
 
 
 class AlwaysTeardownTestCase(unittest.TestCase):
@@ -7,7 +10,7 @@ class AlwaysTeardownTestCase(unittest.TestCase):
     They should be.
     """
 
-    def run(self, result=None):
+    def run(self, result=None) -> Optional[TestResult]:
         test_method = getattr(self, self._testMethodName)
         wrapped_test = self._cleanup_wrapper(test_method, KeyboardInterrupt)
         setattr(self, self._testMethodName, wrapped_test)
@@ -16,8 +19,9 @@ class AlwaysTeardownTestCase(unittest.TestCase):
 
         return super().run(result)
 
-    def _cleanup_wrapper(self, method, exception):
-        def wrapped(*args, **kwargs):
+    def _cleanup_wrapper(self, method: Callable, exception) -> Callable:
+        @functools.wraps(method)
+        def wrapper(*args, **kwargs):
             try:
                 return method(*args, **kwargs)
             except exception:
@@ -25,8 +29,9 @@ class AlwaysTeardownTestCase(unittest.TestCase):
                 self.doCleanups()
                 raise
 
-        return wrapped
+        return wrapper
 
-__all__=[
+
+__all__ = [
 
 ]
