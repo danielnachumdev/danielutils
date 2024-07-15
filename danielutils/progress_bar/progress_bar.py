@@ -20,7 +20,9 @@ class ProgressBar(ABC):
     DEFAULT_BAR_FORMAT = "{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}"
 
     @abstractmethod
-    def __init__(self, total, position: int, unit="it", bar_format: str = DEFAULT_BAR_FORMAT, **kwargs) -> None:
+    def __init__(self, total, position: int, unit="it", bar_format: str = DEFAULT_BAR_FORMAT, *, desc: str,
+                 **kwargs) -> None:
+        self.desc: str = desc
         self.total = total
         self.position = position
         self.unit = unit
@@ -53,6 +55,7 @@ class ProgressBar(ABC):
 
     @abstractmethod
     def __iter__(self): ...
+
 
 try:
     from tqdm import tqdm

@@ -26,12 +26,11 @@ class AsciiProgressBar(ProgressBar):
             total_ = len(iterator)
         if total is not None:
             total_ = total
-        ProgressBar.__init__(self, total_, position)
+        ProgressBar.__init__(self, total_, position, desc=desc)
         self.iterator: Iterator = iterator
         self.pool: ProgressBarPool = pool
         self.num_bars: int = num_bars
         self.leave: bool = leave
-        self.desc: str = desc
         self.initial_value: float = 0
         self.current_value: float = 0
         self.ncols: int = ncols
