@@ -32,7 +32,7 @@ def improved_teardown(func: Callable) -> Callable:
 
 class AutoCWDTestCase(unittest.TestCase):
     @staticmethod
-    def _dummy(*args, **kwargs):
+    def _dummy(*args, **kwargs) -> None:
         pass
 
     @classmethod
