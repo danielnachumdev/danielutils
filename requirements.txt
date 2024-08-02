@@ -3,4 +3,4 @@ pylint
 tqdm==4.66.1
 types-tqdm==4.66.0.1
 twine
-quickpub>=1.0.1
+quickpub==1.0.1
