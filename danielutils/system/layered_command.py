@@ -5,8 +5,8 @@ import random
 
 
 class LayeredCommand:
-    class_flush_stdout: bool = True
-    class_flush_stderr: bool = True
+    class_capture_stdout: bool = False
+    class_capture_stderr: bool = False
     class_raise_on_fail: bool = True
     class_verbose: bool = False
     _class_prev_instance: Optional['LayeredCommand'] = None
@@ -25,14 +25,14 @@ class LayeredCommand:
             command: Optional[str] = None,
             *,
             prev_instance: Optional['LayeredCommand'] = None,
-            instance_flush_stdout: Optional[bool] = None,
-            instance_flush_stderr: Optional[bool] = None,
+            instance_capture_stdout: Optional[bool] = None,
+            instance_capture_stderr: Optional[bool] = None,
             instance_raise_on_fail: Optional[bool] = None,
             instance_verbose: Optional[bool] = None
     ):
         self._command = command if command is not None else ""
-        self._instance_flush_stdout = instance_flush_stdout
-        self._instance_flush_stderr = instance_flush_stderr
+        self._instance_capture_stdout = instance_capture_stdout
+        self._instance_capture_stderr = instance_capture_stderr
         self._instance_raise_on_fail = instance_raise_on_fail
         self._instance_verbose = instance_verbose
         self._prev_instance = prev_instance if prev_instance is not None else LayeredCommand._class_prev_instance
@@ -75,16 +75,18 @@ class LayeredCommand:
     def execute(
             self,
             *commands: str,
-            command_flush_stdout: Optional[bool] = None,
-            command_flush_stderr: Optional[bool] = None,
+            command_capture_stdout: Optional[bool] = None,
+            command_capture_stderr: Optional[bool] = None,
             command_raise_on_fail: Optional[bool] = None,
             command_verbose: Optional[bool] = None
     ) -> Tuple[int, List[str], List[str]]:
         if not self._has_entered:
             raise RuntimeError(
                 "LayeredCommand must be used with a context manager. Use as: `with LayeredCommand(...) as l1:`")
-        flush_stdout = self._merge_values(command_flush_stdout, self._instance_flush_stdout, self.class_flush_stdout)
-        flush_stderr = self._merge_values(command_flush_stderr, self._instance_flush_stderr, self.class_flush_stderr)
+        flush_stdout = self._merge_values(command_capture_stdout, self._instance_capture_stdout,
+                                          self.class_capture_stdout)
+        flush_stderr = self._merge_values(command_capture_stderr, self._instance_capture_stderr,
+                                          self.class_capture_stderr)
         raise_on_fail = self._merge_values(command_raise_on_fail, self._instance_raise_on_fail,
                                            self.class_raise_on_fail)
 
@@ -95,19 +97,17 @@ class LayeredCommand:
             return code, [], []
 
         letters = "abcdefghijklmnopqrstuvwxyz"
-        temp_name = "".join(random.choices(letters, k=50)) + f"_{LayeredCommand._id}"
-        stdout_path = f"./{temp_name}_stdout.log"
-        stderr_path = f"./{temp_name}_stderr.log"
+        prefix = "".join(random.choices(letters, k=10)) + f"_{LayeredCommand._id}"
         LayeredCommand._id += 1
-        with TemporaryFile(stdout_path) as stdout:
-            with TemporaryFile(stderr_path) as stderr:
+        with TemporaryFile.random(prefix=prefix, suffix="stdout.log") as stdout:
+            with TemporaryFile.random(prefix=prefix, suffix="stderr.log") as stderr:
                 if not flush_stdout:
-                    command += f" > {stdout_path}"
+                    command += f" > {stdout}"
                 if not flush_stderr:
-                    command += f" 2> {stderr_path}"
+                    command += f" 2> {stderr}"
                 code = self._executor(command)
                 self._error(raise_on_fail and code != 0, command, code, command_verbose)
-                return code, stdout.read(), stderr.read()
+                return code, stdout.readlines(), stderr.readlines()
 
     def __call__(self, *args, **kwargs) -> Tuple[int, List[str], List[str]]:
         return self.execute(*args, **kwargs)

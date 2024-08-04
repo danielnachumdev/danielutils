@@ -1,6 +1,6 @@
 import atexit
 import random
-from typing import ContextManager, Set, List, Literal
+from typing import ContextManager, Set, List, Literal, Optional
 from ..io_ import file_exists, delete_file
 
 
@@ -8,9 +8,15 @@ class TemporaryFile(ContextManager):
     _instances: Set['TemporaryFile'] = set()
 
     @classmethod
-    def random(cls, type: Literal["file", "folder"] = "file") -> 'TemporaryFile':
+    def random(cls, length: int = 10, /, type: Literal["file", "folder"] = "file", prefix: Optional[str] = None,
+               suffix: Optional[str] = None) -> 'TemporaryFile':
         letters = "abcdefghijklmnopqrstuvwxyz"
-        temp_name = f"{type}_" + "".join(random.choices(letters, k=50))
+        temp_name = f"{type}_"
+        if prefix is not None:
+            temp_name += f"{prefix}_"
+        temp_name += "".join(random.choices(letters, k=length))
+        if suffix is not None:
+            temp_name += f"_{suffix}"
         return TemporaryFile(temp_name)
 
     def __init__(self, path: str):
@@ -24,6 +30,9 @@ class TemporaryFile(ContextManager):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    def __str__(self) -> str:
+        return self.path
 
     def close(self) -> None:
         delete_file(self.path)
