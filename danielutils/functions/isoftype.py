@@ -21,7 +21,10 @@ class _tmp(Generic[T]): ...
 _GenericAlias = type(_tmp[int])
 del _tmp, T
 cmethod = type(getattr(1, "__lt__"))
-# implicit_union_type = type(int | str)
+try:
+    implicit_union_type = type(int | str)
+except:
+    implicit_union_type = Union
 concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
 
@@ -348,7 +351,7 @@ HANDLERS = {
     Type: __handle_type,
     Iterable: __handle_list_set_iterable,
     Union: __handle_union,
-    # implicit_union_type: __handle_union,
+    implicit_union_type: __handle_union,
     Generator: __handle_generator,
     Literal: __handle_literal,
     Callable: __handle_callable,
