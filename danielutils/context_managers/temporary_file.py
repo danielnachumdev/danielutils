@@ -8,7 +8,7 @@ class TemporaryFile(ContextManager):
     _instances: Set['TemporaryFile'] = set()
 
     @classmethod
-    def random(cls, type: Literal["file", "folder"]) -> 'TemporaryFile':
+    def random(cls, type: Literal["file", "folder"] = "file") -> 'TemporaryFile':
         letters = "abcdefghijklmnopqrstuvwxyz"
         temp_name = f"{type}_" + "".join(random.choices(letters, k=50))
         return TemporaryFile(temp_name)
