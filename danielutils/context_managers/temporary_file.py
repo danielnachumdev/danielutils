@@ -28,13 +28,23 @@ class TemporaryFile(ContextManager):
     def close(self) -> None:
         delete_file(self.path)
 
-    def read(self) -> List[str]:
+    def read(self) -> str:
+        if not file_exists(self.path):
+            return ""
+        with open(self.path, 'r') as f:
+            return f.read()
+
+    def readlines(self) -> List[str]:
         if not file_exists(self.path):
             return []
         with open(self.path, 'r') as f:
             return f.readlines()
 
-    def write(self, lines: List[str]) -> None:
+    def write(self, s: str) -> None:
+        with open(self.path, 'a') as f:
+            f.write(s)
+
+    def writelines(self, lines: List[str]) -> None:
         with open(self.path, 'a') as f:
             f.writelines(lines)
 
