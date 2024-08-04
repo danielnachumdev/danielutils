@@ -1,10 +1,17 @@
 import atexit
-from typing import ContextManager, Set, List
+import random
+from typing import ContextManager, Set, List, Literal
 from ..io_ import file_exists, delete_file
 
 
 class TemporaryFile(ContextManager):
     _instances: Set['TemporaryFile'] = set()
+
+    @classmethod
+    def random(cls, type: Literal["file", "folder"]) -> 'TemporaryFile':
+        letters = "abcdefghijklmnopqrstuvwxyz"
+        temp_name = f"{type}_" + "".join(random.choices(letters, k=50))
+        return TemporaryFile(temp_name)
 
     def __init__(self, path: str):
         if file_exists(path):
