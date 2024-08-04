@@ -1,9 +1,26 @@
+import inspect
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
-    ForwardRef, Literal, Optional, Protocol, Tuple
+    ForwardRef, Literal, Optional, Protocol, Tuple, Generic, Type, List, Tuple, Set, Dict
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
 from ..versioned_imports import ParamSpec, Concatenate
 
+
+class _tmp(Protocol): ...
+
+
+_ProtocolMeta = type(_tmp)
+del _tmp
+
+T = TypeVar('T')
+
+
+class _tmp(Generic[T]): ...
+
+
+_GenericAlias = type(_tmp[int])
+del _tmp, T
+cmethod = type(getattr(1, "__lt__"))
 # implicit_union_type = type(int | str)
 concatenate_t = type(Concatenate[str, ParamSpec("P_")])
 ellipsis_ = ...
@@ -237,16 +254,25 @@ def __handle_type_origin(params: tuple) -> bool:
     return isinstance(V, T)
 
 
-def __handle_protocol(params: tuple) -> bool:
-    #TODO is_protocol, _is_runtime_protocol
-    from ..reflection import FunctionDeclaration
+def __handle_protocol(params: tuple, /, allow_classes: bool = False) -> bool:
+    # TODO is_protocol, _is_runtime_protocol
+    from ..reflection import FunctionDeclaration, ClassDeclaration
     V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
-    if not isoftype(V, type):
-        return False
 
-    if not isinstance(V, t_origin):
+    if T is Protocol:
+        return Protocol in getattr(V, "__mro__", [])
+    if T in getattr(V, "__mro__", []):
         return False
+    if type(V) == type and type(T) == _GenericAlias and not allow_classes:
+        return False
+    if type(V) == type and len(t_args) == 0:
+        return isinstance(V, T)
+    if type(V) != type:
+        V = type(V)
+    if t_origin is None:
+        t_origin = T
 
+    cls = ClassDeclaration.from_cls(t_origin)
     declared_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
     required_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
 
@@ -256,11 +282,57 @@ def __handle_protocol(params: tuple) -> bool:
                 new_req_func = req_func.duplicate(
                     return_type=t_args[req_func.generics.index(req_func.return_type)].__name__)
                 required_funcs[i] = new_req_func
-            for arg in required_funcs[i].arguments:
+            for aindex, arg in enumerate(required_funcs[i].arguments):
                 for generic in req_func.generics:
                     if arg.type is not None and generic in arg.type:
-                        pass
-    return len(set(required_funcs) - set(declared_funcs)) == 0
+                        if generic not in cls.generics:
+                            return False
+                        correct_type = t_args[cls.generics.index(generic)]
+                        new_name = correct_type.__name__
+                        if new_name == "Union":
+                            new_name = str(correct_type).replace("typing.Union", "Union")
+                        changed_argument = required_funcs[i].arguments[aindex].duplicate(type=new_name)
+                        new_arguments = list(required_funcs[i].arguments)[::]
+                        new_arguments[aindex] = changed_argument
+                        required_funcs[i] = required_funcs[i].duplicate(arguments=tuple(new_arguments))
+
+    for req in required_funcs:
+        for dec in declared_funcs:
+            if not len(req.arguments) == len(dec.arguments):
+                return False
+
+            if not req.return_type == dec.return_type: return False
+
+            for rarg in req.arguments:
+                for darg in dec.arguments:
+                    a = rarg.type
+                    if a is not None and ("[" in a or "]" in a):
+                        a = set([s.strip() for s in a[a.index("[") + 1:a.rindex("]")].split(",")])
+                    else:
+                        a = set([a])
+                    b = darg.type
+                    if b is not None and ("[" in b or "]" in b):
+                        b = set([s.strip() for s in b[b.index("[") + 1:b.rindex("]")].split(",")])
+                    else:
+                        b = set([b])
+                    if (len(list(b - a))) == 0: break
+                else:
+                    return False
+
+    return True
+
+
+def __handle_type(params: tuple) -> bool:
+    V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
+    if type(V) != type:
+        return False
+    if t_args[0] in V.__mro__:
+        return True
+    t_origin, t_args, t_hints = __isoftype_inquire(t_args[0])
+    if type(t_origin) is _ProtocolMeta:
+        return __handle_protocol((V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints),
+                                 allow_classes=True)
+    return False
 
 
 HANDLERS = {
@@ -268,6 +340,12 @@ HANDLERS = {
     tuple: __handle_tuple,
     dict: __handle_dict,
     set: __handle_list_set_iterable,
+    type: __handle_type,
+    List: __handle_list_set_iterable,
+    Tuple: __handle_tuple,
+    Dict: __handle_dict,
+    Set: __handle_list_set_iterable,
+    Type: __handle_type,
     Iterable: __handle_list_set_iterable,
     Union: __handle_union,
     # implicit_union_type: __handle_union,
@@ -308,17 +386,24 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
             "using an ellipsis (as in '...') with isoftype is ambiguous returning False")
         return False
 
+    if T is Union:
+        t_origin = Union
+    elif T is Protocol or Protocol in getattr(T, "__mro__", []):
+        t_origin = Protocol
+    elif Protocol in getattr(V, "__mro__", []):
+        t_origin = Protocol
+
     if t_origin is not None:
-        if getattr(t_origin, "_is_protocol", False):
+        if getattr(t_origin, "_is_protocol", False) or isinstance(t_origin, _ProtocolMeta):
             t_origin = Protocol
+
         if t_origin in HANDLERS:
             if t_origin in (list, tuple, dict, set, dict, Iterable):
                 if not isinstance(V, t_origin):
                     return False
             return HANDLERS[t_origin](params)
-
-        from ..colors import warning  # pylint: disable=cyclic-import
-        from reflection.interpreter.get_traceback import get_traceback
+        # These imports must explicitly be specifically here and not at the top
+        from danielutils import warning, get_traceback
         warning(
             f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")
         print(*get_traceback())

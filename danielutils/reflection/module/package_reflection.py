@@ -4,8 +4,6 @@ import pkgutil
 from pathlib import Path
 from collections import defaultdict
 from typing import Set as Set, List as List, Dict as Dict
-from ...io_ import is_directory, file_exists
-from ...data_structures import Graph, MultiNode
 from ..interpreter import get_python_version
 
 if get_python_version() >= (3, 9):
@@ -39,6 +37,7 @@ ALL_MODULES: set = get_all_modules()
 
 
 def get_imports_helper(path: str):
+    from danielutils import file_exists
     if not file_exists(path):
         raise ValueError(f"Can't find file {path}")
     is_in_multiline_comment = False
@@ -67,6 +66,7 @@ def resolve_relative(base_path: str, statement: str) -> str:
         else:
             res = os.path.join(res, s)
             break
+    from danielutils import is_directory
     if not is_directory(res):
         res = f"{res}.py"
     return res
@@ -96,6 +96,7 @@ def resolve_path(base_path, statement: str) -> str:
 
 
 def normalize_path(path: str) -> str:
+    from danielutils import is_directory
     if is_directory(path):
         path = os.path.join(path, '__init__.py')
     return str(Path(path).absolute())
@@ -113,6 +114,7 @@ def get_imports(path: str) -> Dict[str, Set[str]]:
         for sub_path in paths:
             if sub_path in res:
                 continue
+            from danielutils import file_exists, is_directory
             if not (file_exists(sub_path) or is_directory(sub_path)):
                 res[cur].add(sub_path)
             else:
@@ -124,7 +126,8 @@ def get_imports(path: str) -> Dict[str, Set[str]]:
     return res
 
 
-def create_dependency_graph(path: str) -> Graph[str]:
+def create_dependency_graph(path: str) -> 'Graph[str]':
+    from danielutils import Graph, MultiNode
     res = dict(get_imports(path))
     g: Graph[str] = Graph()
     dct: Dict[str, MultiNode[str]] = {}
@@ -138,6 +141,7 @@ def create_dependency_graph(path: str) -> Graph[str]:
 
 
 def get_dependencies(path: str, topological_sort: bool = True) -> List[str]:
+    from danielutils import Graph
     g: Graph[str] = create_dependency_graph(path)
 
     if topological_sort:

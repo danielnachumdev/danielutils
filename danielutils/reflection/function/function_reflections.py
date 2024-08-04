@@ -129,6 +129,10 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     return True
 
 
+def get_source_code(func: Callable):
+    return inspect.getsource(func)
+
+
 __all__ = [
     "get_caller_name",
     'get_prev_func',
@@ -136,4 +140,5 @@ __all__ = [
     'get_caller',
     "get_function_return_type",
     "is_function_annotated_properly",
+    "get_source_code"
 ]

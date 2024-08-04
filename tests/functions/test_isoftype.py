@@ -1,14 +1,16 @@
 import unittest
 from typing import Union, Callable, Any, Optional, TypeVar, Iterable, ForwardRef, Literal, \
-    AnyStr, Generator, Protocol, runtime_checkable, Dict, List, Tuple
+    AnyStr, Generator, Protocol, runtime_checkable, Dict, List, Tuple, Generic, Type
 
 try:
     from danielutils.functions import isoftype  # type:ignore
     from danielutils.reflection import get_python_version  # type:ignore
+    from danielutils import JavaInterface  # type:ignore
 except:
     # python == 3.9.0
     from ...danielutils.functions import isoftype  # type:ignore
     from ...danielutils.reflection import get_python_version  # type:ignore
+    from ...danielutils import JavaInterface  # type:ignore
 
 
 class TestIsOfType(unittest.TestCase):
@@ -285,7 +287,7 @@ class TestIsOfType(unittest.TestCase):
         self.assertTrue(isoftype(data2_, Person))
         self.assertTrue(isoftype(data3_, Person))
 
-    def test_protocol(self):
+    def test_protocol1(self):
         T = TypeVar('T')
 
         @runtime_checkable
@@ -306,5 +308,43 @@ class TestIsOfType(unittest.TestCase):
         self.assertFalse(isoftype(A, Barable))
         self.assertFalse(isoftype(B, Fooable))
         self.assertTrue(isoftype(B, Barable))
-        self.assertTrue(isoftype(B, Barable[int]))
+        self.assertFalse(isoftype(B, Barable[int]))
         self.assertFalse(isoftype(B, Barable[float]))
+        self.assertTrue(isoftype(B, Type[Barable[int]]))
+        self.assertFalse(isoftype(B, Type[Barable[float]]))
+
+    def test_protocol2(self):
+        class A(JavaInterface):
+            def foo(self): ...
+
+        class B(A):
+            def foo(self):
+                pass
+
+        self.assertTrue(isoftype(A, Protocol))
+        self.assertTrue(issubclass(B, A))
+        self.assertFalse(isoftype(B, A))
+        self.assertTrue(isoftype(B(), A))
+
+        class B:
+            def foo(self):
+                pass
+
+        self.assertFalse(isoftype(B, A))
+        self.assertTrue(isoftype(B(), A))
+
+    def test_protocol3(self):
+        T = TypeVar('T')
+
+        class A(Protocol, Generic[T]):
+            def foo(self, a: T) -> None: ...
+
+        class B:
+            def foo(self, a: float) -> None:
+                pass
+
+
+        self.assertFalse(isoftype(B, A[int]))
+        self.assertFalse(isoftype(B(), A[int]))
+        self.assertTrue(isoftype(B(), A[float]))
+        self.assertTrue(isoftype(B(), A[Union[int, float]]))

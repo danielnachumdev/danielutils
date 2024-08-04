@@ -1,5 +1,5 @@
 import inspect, re
-from typing import Any, List as List, Optional, Tuple as Tuple
+from typing import Any, List as List, Optional, Tuple as Tuple, Type, Protocol
 from dataclasses import dataclass
 from ..interpreter import get_python_version
 
@@ -47,6 +47,22 @@ class Argument:
     name: str
     type: Optional[str]
     default: Optional[str]
+
+    def __hash__(self) -> int:
+        t = self.type
+        if self.type is not None and "Union" in self.type:
+            t = set(self.type[self.type.index("[") + 1:self.type.rindex("]")].split(","))
+            t = tuple(sorted(t))
+        return hash((self.name, t, self.default))
+
+    def duplicate(self, **override_kwargs) -> 'Argument':
+        dct = dict(
+            name=self.name,
+            type=self.type,
+            default=self.default,
+        )
+        dct.update(override_kwargs)
+        return Argument(**dct)
 
 
 func_pattern = re.compile(
@@ -145,7 +161,7 @@ class FunctionDeclaration:
     def __hash__(self) -> int:
         return hash((self.name, self.arguments, self.return_type))
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         args = ",\n\t\t".join(map(str, self.arguments))
         return f"{self.__class__.__name__}(\n" \
                f"\tname='{self.name}',\n" \
@@ -157,8 +173,54 @@ class FunctionDeclaration:
                f")"
 
 
+class _tmp(Protocol): ...
+
+
+_ProtocolMeta = type(_tmp)
+del _tmp
+
+
+@dataclass
+class ClassDeclaration:
+    cls: Type
+    name: str
+    module: str
+    bases: Tuple[Type]
+    generics: Optional[Tuple[str]]
+    functions: List[FunctionDeclaration]
+
+    @staticmethod
+    def from_cls(cls) -> 'ClassDeclaration':
+        if type(cls) not in {type, _ProtocolMeta}:
+            raise TypeError('obj must be a Class')
+
+        src = "\n".join([l for l in inspect.getsource(cls).splitlines() if not remove_whitespace(l).startswith("@")])
+        bases = class_pattern.match(src).group(1).split(",")
+        parameters = []
+        for base in bases:
+            if '[' in base and ']' in base:
+                s = base[base.index('[') + 1:base.rindex(']')]
+                for arg in split_args(s):
+                    if len(arg) == 1:
+                        parameters.append(arg)
+
+        return ClassDeclaration(
+            cls,
+            cls.__name__,
+            cls.__module__,
+            getattr(cls, "__orig_bases__", getattr(cls, "__args__", ())),
+            tuple(parameters) or None,
+            FunctionDeclaration.get_declared_functions(cls)
+        )
+
+    @property
+    def is_generic(self) -> bool:
+        return self.generics is not None and len(self.generics) > 0
+
+
 __all__ = [
     "get_explicitly_declared_functions",
     "get_mro",
-    "FunctionDeclaration"
+    "FunctionDeclaration",
+    "ClassDeclaration"
 ]
