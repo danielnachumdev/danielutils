@@ -29,6 +29,18 @@ class RandomDataGenerator:
     def directory_name(length: int) -> str:
         return "directory_" + RandomDataGenerator.name(length)
 
+    @staticmethod
+    def number(minimum: int, exclusive_maximum: int) -> int:
+        return random.randint(minimum, exclusive_maximum)
+
+    @staticmethod
+    def integer(minimum: int, exclusive_maximum: int) -> int:
+        return random.randint(minimum, exclusive_maximum)
+
+    @staticmethod
+    def float(minimum: float, exclusive_maximum: float) -> float:
+        return random.uniform(minimum, exclusive_maximum)
+
 
 __all__ = [
     "RandomDataGenerator",
