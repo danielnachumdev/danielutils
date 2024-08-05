@@ -18,7 +18,7 @@ def _create_operator(op: Operator, reverse: bool = False) -> Callable[['Accumula
 
 class AccumulationExpression(Evaluable):
     @staticmethod
-    def _probability_expression_to_nodes(expr: ProbabilityExpression) -> BST.Node:
+    def _probability_expression_to_nodes(expr: ProbabilityExpression) -> BST.Node:  # type:ignore
         return BST.Node(expr.op, BST.Node(expr.lhs), BST.Node(expr.rhs))
 
 
@@ -60,8 +60,8 @@ class AccumulationExpression(Evaluable):
         root = BST.Node(op, l, r)
         self._tree = BST(root)
 
-    __eq__ = _create_operator(Operator.EQ)
-    __ne__ = _create_operator(Operator.NE)
+    __eq__ = _create_operator(Operator.EQ)  # type:ignore
+    __ne__ = _create_operator(Operator.NE)  # type:ignore
     __gt__ = _create_operator(Operator.GT)
     __ge__ = _create_operator(Operator.GE)
     __lt__ = _create_operator(Operator.LT)
@@ -71,9 +71,9 @@ class AccumulationExpression(Evaluable):
         if self._tree.root.data != Operator.EQ:
             return False
 
-        def node_to_equatable(n: BST.Node) -> Equatable:
-            if n.depth() == 2:
-                return ProbabilityExpression(n.left.data, n.data, n.right.data)
+        def node_to_equatable(n: BST.Node) -> Equatable:  # type:ignore
+            if n.depth() == 2:  # type:ignore
+                return ProbabilityExpression(n.left.data, n.data, n.right.data)  # type:ignore
             pass
 
         if (d := self._tree.depth()) == 3:
@@ -98,16 +98,16 @@ class AccumulationExpression(Evaluable):
                 if a is None and b is None:
                     return True
                 return False
-            if isinstance(a.data, Operator) and isinstance(b.data, Operator):
-                if not (a.data == b.data):
+            if isinstance(a.data, Operator) and isinstance(b.data, Operator):  # type:ignore
+                if not (a.data == b.data):  # type:ignore
                     return False
-            elif isinstance(a.data, ConditionalVariable) and isinstance(b.data, ConditionalVariable):
-                if not a.data.is_equal(b.data):
+            elif isinstance(a.data, ConditionalVariable) and isinstance(b.data, ConditionalVariable):  # type:ignore
+                if not a.data.is_equal(b.data):  # type:ignore
                     return False
             else:
-                return a.data == b.data
+                return a.data == b.data  # type:ignore
 
-            return are_nodes_equal(a.left, b.left) and are_nodes_equal(a.right, b.right)
+            return are_nodes_equal(a.left, b.left) and are_nodes_equal(a.right, b.right)  # type:ignore
 
         return are_nodes_equal(self.standardize()._tree.root, other.standardize()._tree.root)
 

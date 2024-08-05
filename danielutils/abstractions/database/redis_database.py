@@ -1,11 +1,13 @@
 from typing import Any, Optional, TypeVar
 
+from danielutils import serialize, deserialize
+
 try:
     import redis
 except ImportError:
     from ...mock_ import MockImportObject
 
-    redis = MockImportObject("`redis` is not installed")
+    redis = MockImportObject("`redis` is not installed")  # type:ignore
 from .database import Database
 
 K = TypeVar('K')
@@ -27,16 +29,16 @@ class RedisDatabase(Database[K, V]):
     def get(self, key: K, default: Any = Database.DEFAULT) -> Optional[V]:
         if key not in self:
             return default
-        return self._db.get(key)
+        return deserialize(self._db.get(serialize(key)))  # type: ignore
 
     def set(self, key: K, value: V) -> None:
-        self._db.set(key, value)
+        self._db.set(serialize(key), serialize(value))
 
     def delete(self, key: K) -> None:
-        self._db.delete(key)
+        self._db.delete(serialize(key))
 
     def contains(self, key: K) -> bool:
-        return self._db.exists(key)
+        return bool(self._db.exists(serialize(key)))
 
 
 __all__ = [

@@ -1,6 +1,7 @@
 import inspect
 import functools
 import multiprocessing
+from typing import Any, Dict
 
 from ..reflection import get_prev_frame
 from ..abstractions.multiprogramming import process_id
@@ -23,8 +24,8 @@ def processify(func):
     def wrapper(*args, **kwargs):
         main_pid = kwargs.get("__main_pid", process_id())
         if process_id() == main_pid:
-            frame = get_prev_frame(2)
-            dct = {k: v for k, v in frame.f_globals.items() if type(v) != type(inspect)}
+            frame = get_prev_frame(2)  # type:ignore
+            dct = {k: v for k, v in frame.f_globals.items() if type(v) != type(inspect)}   # type:ignore
             p = multiprocessing.Process(target=_run_func, args=(main_pid, dct, func.__name__, args, kwargs))
             p.start()
             p.join()  # Optionally wait for the process to finish
@@ -39,14 +40,14 @@ def _run_func(main_pid: int, dct: dict, func_name: str, args, kwargs) -> None:
     return dct[func_name](*args, __main_pid=main_pid, **kwargs)
 
 
-def debug_info(include_builtins: bool = False) -> dict:
+def debug_info(include_builtins: bool = False) -> Dict[str, Any]:
     f = get_prev_frame(2)
     if f is None:
         raise RuntimeError("Failed to get frame")
     g = {k: v for k, v in f.f_globals.items() if k != "__builtins__"} if not include_builtins else dict(f.f_globals)
     return {
         "file": f.f_code.co_filename,
-        "function": f.f_code.co_qualname,
+        "function": f.f_code.co_qualname,  # type:ignore
         "line": f.f_lineno,
         "globals": g,
         "locals": dict(f.f_locals)

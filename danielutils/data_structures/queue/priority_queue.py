@@ -42,8 +42,8 @@ class PriorityQueue(Queue[T]):
 
     def __init__(self, weight_func: Callable[[Any], Union[int, float]] = default_weight_function):
         super().__init__()
-        comparer = CompareGreater if weight_func is default_weight_function else Comparer(
-            lambda a, b: weight_func(a) - weight_func(b))
+        comparer = CompareGreater if weight_func is default_weight_function else Comparer(  # type:ignore
+            lambda a, b: weight_func(a) - weight_func(b))  # type:ignore
         self.data: Heap = Heap(comparer)  # type:ignore
         self.weight_func = weight_func
         self.dct: dict = {}

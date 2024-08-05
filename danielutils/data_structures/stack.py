@@ -46,7 +46,7 @@ class Stack(Generic[T]):
         """
         if self.is_empty():
             return None
-        return self.head.data
+        return self.head.data  # type:ignore
 
     def __len__(self) -> int:
         return self.size

@@ -19,7 +19,7 @@ def join_generators_busy_waiting(*generators) -> Generator[Tuple[int, Any], None
     q: AtomicQueue[Tuple[int, Any]] = AtomicQueue()
     threads_status = [False for _ in range(len(generators))]
 
-    @threadify
+    @threadify  # type:ignore
     def yield_from_one(thread_id: int, generator: Generator):
         nonlocal threads_status
         for v in generator:
@@ -49,7 +49,7 @@ def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
     queue_status_semaphore = Semaphore(0)
     finished_threads_counter = AtomicCounter()
 
-    @threadify
+    @threadify  # type:ignore
     def thread_entry_point(index: int, generator: Generator) -> None:
         for value in generator:
             with edit_queue_semaphore:

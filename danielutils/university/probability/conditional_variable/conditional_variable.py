@@ -32,8 +32,8 @@ class ConditionalVariable(ABC):
     OPERATOR_TYPE = Callable[['ConditionalVariable', Any], Evaluable]
 
 
-    __eq__: OPERATOR_TYPE = _create_operator(Operator.EQ)
-    __ne__: OPERATOR_TYPE = _create_operator(Operator.NE)
+    __eq__: OPERATOR_TYPE = _create_operator(Operator.EQ)  # type:ignore
+    __ne__: OPERATOR_TYPE = _create_operator(Operator.NE)  # type:ignore
     __gt__: OPERATOR_TYPE = _create_operator(Operator.GT)
     __ge__: OPERATOR_TYPE = _create_operator(Operator.GE)
     __lt__: OPERATOR_TYPE = _create_operator(Operator.LT)

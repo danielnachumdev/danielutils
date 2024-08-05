@@ -23,7 +23,7 @@ class tset(parent, Generic[T]):  # type:ignore
         Raises:
             TypeError: if item is if the wrong type
         """
-        if not isoftype(value, self.get_params()):
+        if not isoftype(value, self.get_params()):  # type:ignore
             raise TypeError(
                 f"Can't add. Expected {self.get_params()} but got '{value}' which is {type(value)}")
         set.add(self, value)

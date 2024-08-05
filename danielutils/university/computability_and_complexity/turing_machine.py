@@ -1,4 +1,4 @@
-from typing import TypeVar, Collection, Callable, Set, List, Sequence, Tuple, Union, Literal
+from typing import TypeVar, Collection, Callable, Set, List, Sequence, Tuple, Union, Literal, Generic
 
 State = TypeVar('State')
 Symbol = TypeVar('Symbol')
@@ -7,7 +7,7 @@ Direction = Union[Literal["L"], Literal["R"]]
 TransitionFunction = Callable[[State, Symbol], Tuple[State, Symbol, Direction]]
 
 
-class TuringMachine:
+class TuringMachine(Generic[State, Symbol]):
     def __init__(self, Q: Collection[State], Gamma: Alphabet, Sigma: Alphabet, delta: TransitionFunction, q0: State,
                  F_acc: Collection[State], F_rej: Collection[State]) -> None:
         self.Q: Set[State] = set(Q)

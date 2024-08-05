@@ -6,7 +6,8 @@ from ..decorators import overload
 class OverloadMeta(type):
     """A meta-class for overloading functions in a class
     """
-    @staticmethod
+
+    @staticmethod  # type:ignore
     def overload(func: Callable) -> overload:
         """overloads a function
 
@@ -16,7 +17,7 @@ class OverloadMeta(type):
         Returns:
             overload: _description_
         """
-        return overload(func)
+        return overload(func)  # type:ignore
 
     def __new__(mcs, name, bases, namespace):
         # og_getattribute = None
@@ -39,13 +40,14 @@ class OverloadMeta(type):
         #     return wrapper
 
         def create_wrapper(v: overload):
-            @functools.wraps(next(iter(v._functions.values()))[0])  # pylint: disable=protected-access
+            @functools.wraps(next(iter(v._functions.values()))[0])  # type:ignore# pylint: disable=protected-access
             def wrapper(*args, **kwargs):
                 return v(*args, **kwargs)
+
             return wrapper
 
         for k, v in namespace.items():
-            if isinstance(v, overload):
+            if isinstance(v, overload):  # type:ignore
                 namespace[k] = create_wrapper(v)
         # namespace["__getattribute__"] = __getattribute__
 

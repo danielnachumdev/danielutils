@@ -8,7 +8,7 @@ def to_hex(v: int) -> str:
     return int_to_hex(v)
 
 
-@to_hex.overload
+@to_hex.overload  # type:ignore
 def to_hex2(v: str) -> str:
     """to_hex has several options:\n
     1. type(v) == int\n

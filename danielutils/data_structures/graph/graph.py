@@ -175,7 +175,7 @@ class Graph(Generic[T]):
                 seen.add(node)
                 yield node
                 for child in node._children:  # pylint: disable=protected-access
-                    q.push(child)
+                    q.push(child)  # type:ignore
 
     def __str__(self) -> str:
         tmp = []

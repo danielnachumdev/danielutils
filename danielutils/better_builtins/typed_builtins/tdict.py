@@ -24,9 +24,9 @@ class tdict(parent, Generic[K, V]):
         return self.get_params()[1]
 
     def __setitem__(self, key: K, value: V):
-        if not isoftype(key, self._key_t):
+        if not isoftype(key, self._key_t):  # type:ignore
             raise TypeError("")
-        if not isoftype(value, self._value_t):
+        if not isoftype(value, self._value_t):  # type:ignore
             raise TypeError("")
         dict.__setitem__(self, key, value)
 

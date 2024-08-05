@@ -97,7 +97,7 @@ def acm(command: str, inputs: Optional[List[str]] = None, i_timeout: float = 0.0
         p.stdout = cast(IO[bytes], p.stdout)
         p.stderr = cast(IO[bytes], p.stderr)
 
-        @timeout(i_timeout)
+        @timeout(i_timeout)  # type:ignore
         def readlines(s: IO, l: list):
             l.extend(s.readlines())
 
@@ -171,10 +171,10 @@ def cmrt(*args, shell: bool = True) -> Generator[Tuple[int, bytes], None, None]:
     cmd = " ".join(args)
 
     with subprocess.Popen(cmd, shell=shell, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-        combined = join_generators(
-            generator_from_stream(process.stdout),
-            generator_from_stream(process.stderr)
-        )
+        combined = join_generators(  # type:ignore
+            generator_from_stream(process.stdout),  # type:ignore
+            generator_from_stream(process.stderr)   # type:ignore
+        )  # type:ignore
         for tup in combined:
             yield tup
 

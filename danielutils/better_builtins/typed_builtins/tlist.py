@@ -140,7 +140,7 @@ class tlist(parent, Generic[T]):
         """
         type(self)._additional_init(self, *args, **kwargs)
 
-    @overload
+    @overload  # type:ignore
     def _additional_init(self, lst: Union[list, "tlist"]):
         self.extend(lst)
 

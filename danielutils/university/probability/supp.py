@@ -2,6 +2,7 @@ from abc import abstractmethod, ABC
 from typing import Iterator, TypeVar, Union
 from ...better_builtins import frange
 from ...decorators import memo
+
 T = TypeVar('T')
 
 
@@ -32,33 +33,33 @@ class DiscreteSupp(Supp[int]):
 class FrangeSupp(DiscreteSupp):
     @property
     def is_finite(self) -> bool:
-        if isinstance(self._r, frange):
-            return self._r.is_finite
+        if isinstance(self._r, frange):  # type:ignore
+            return self._r.is_finite  # type:ignore
         return True
 
     def __next__(self):
         yield from self
 
-    def __init__(self, r: Union[range, frange]):
-        self._r: frange = r if isinstance(r, frange) else frange.from_range(r)
+    def __init__(self, r: Union[range, frange]): # type:ignore
+        self._r: frange = r if isinstance(r, frange) else frange.from_range(r)  # type:ignore
 
     def __iter__(self) -> Iterator[int]:
         return iter(self._r)
 
     def __contains__(self, item) -> bool:
-        return item in self._r
+        return item in self._r  # type:ignore
 
     @property
     def minimum(self) -> float:
-        return self._r.start
+        return self._r.start  # type:ignore
 
     @property
     def maximum(self) -> float:
-        return self._r.stop
+        return self._r.stop  # type:ignore
 
     @property
     def step(self) -> float:
-        return self._r.step
+        return self._r.step  # type:ignore
 
 
 class SetSupp(DiscreteSupp):
@@ -67,12 +68,12 @@ class SetSupp(DiscreteSupp):
         return True
 
     @property
-    @memo
+    @memo  # type:ignore
     def minimum(self) -> float:
         return min(self._s)
 
     @property
-    @memo
+    @memo  # type:ignore
     def maximum(self) -> float:
         return max(self._s)
 

@@ -1,5 +1,5 @@
 import inspect
-from typing import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable, Any
 
 
 # from ..reflection import is_function_annotated_properly
@@ -8,7 +8,7 @@ from typing import Protocol, runtime_checkable
 @runtime_checkable
 class JavaInterface(Protocol):
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> Any:
         # print(cls.__qualname__)
         for func in cls.__dict__.values():
             if not callable(func): continue

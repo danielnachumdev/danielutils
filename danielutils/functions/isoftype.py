@@ -1,6 +1,6 @@
 import inspect
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
-    ForwardRef, Literal, Optional, Protocol, Tuple, Generic, Type, List, Tuple, Set, Dict
+    ForwardRef, Literal, Optional, Protocol, Generic, Type, List, Tuple, Set, Dict, Mapping
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
 from ..versioned_imports import ParamSpec, Concatenate
@@ -338,7 +338,7 @@ def __handle_type(params: tuple) -> bool:
     return False
 
 
-HANDLERS = {
+HANDLERS: Dict[type, Callable] = {
     list: __handle_list_set_iterable,
     tuple: __handle_tuple,
     dict: __handle_dict,
@@ -404,7 +404,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
             if t_origin in (list, tuple, dict, set, dict, Iterable):
                 if not isinstance(V, t_origin):
                     return False
-            return HANDLERS[t_origin](params)
+            return HANDLERS[t_origin](params)  # type:ignore
         # These imports must explicitly be specifically here and not at the top
         from danielutils import warning, get_traceback
         warning(

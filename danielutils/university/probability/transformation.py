@@ -1,9 +1,17 @@
 from fractions import Fraction
-from typing import Union
+from typing import Union, Callable, Any, Dict
 
 from .conditional_variable import ConditionalVariable
 from .supp import Supp, FrangeSupp, ContinuseSupp
 from .operator import Operator
+
+_mapping: Callable[[Any], Dict[Operator, Callable]] = lambda self: {
+    Operator.ADD: lambda k: k + self.value,
+    Operator.SUB: lambda k: k - self.value,
+    Operator.MUL: lambda k: k * self.value,
+    Operator.POW: lambda k: k ** self.value,
+    Operator.DIV: lambda k: k / self.value,
+}
 
 
 class Transformation:
@@ -24,15 +32,11 @@ class Transformation:
             if self.var.supp.is_finite:
                 for s in self.var.supp:
                     pass
+        # TODO
+        return None  # type:ignore
 
     def _transform_one(self, n: Union[int, float, Fraction]) -> Union[int, float, Fraction]:
-        return {
-            Operator.ADD: lambda k: k + self.value,
-            Operator.SUB: lambda k: k - self.value,
-            Operator.MUL: lambda k: k * self.value,
-            Operator.POW: lambda k: k ** self.value,
-            Operator.DIV: lambda k: k / self.value,
-        }[self.op](n)
+        return _mapping(self)[self.op](n)
 
 
 __all__ = [

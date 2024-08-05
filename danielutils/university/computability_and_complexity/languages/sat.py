@@ -16,8 +16,9 @@ class CNFVariable:
     def __bool__(self):
         return self.value
 
-    def get_id(self) -> CNFVariable_id_type:
-        pass
+    def get_id(self) -> CNFVariable_id_type:  # type:ignore
+        # TODO
+        assert False
 
 
 class CNFLiteral:
@@ -27,8 +28,9 @@ class CNFLiteral:
     def __call__(self, var: CNFVariable) -> bool:
         return not bool(var) if self.negation else bool(var)
 
-    def get_corresponding_variable_id(self) -> CNFVariable_id_type:
-        pass
+    def get_corresponding_variable_id(self) -> CNFVariable_id_type:  # type:ignore
+        # TODO
+        assert False
 
 
 class CNFClause:

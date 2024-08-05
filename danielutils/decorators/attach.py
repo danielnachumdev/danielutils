@@ -8,7 +8,7 @@ P = ParamSpec("P")
 FuncT = Callable[P, T]  # type:ignore
 
 
-@validate  # type:ignore(strict=False)
+@validate(strict=False)  # type:ignore
 def attach(before: Optional[Callable] = None, after: Optional[Callable] = None) -> Callable[[FuncT], FuncT]:
     """attaching functions to a function
 

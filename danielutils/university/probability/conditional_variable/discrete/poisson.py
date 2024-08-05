@@ -17,10 +17,10 @@ class Poisson(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCalc
         if n < 0:
             return Fraction(0, 1)
         if op == Operator.EQ:
-            return Fraction((e ** (-self.p)) * (self.p ** n), factorial(n))
+            return Fraction((e ** (-self.p)) * (self.p ** n), factorial(n))  # type:ignore
 
         assert False  # TODO
-        return 1 - self.evaluate(n, op.inverse)
+        return 1 - self.evaluate(n, op.inverse)  # type:ignore
 
     def expected_value(self) -> Fraction:
         return self.p

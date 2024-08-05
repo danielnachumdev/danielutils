@@ -149,7 +149,7 @@ def get_directories(path: str) -> List[str]:
         filter(lambda name: is_directory(os.path.join(path, name)), files_and_directories))
 
 
-@validate
+@validate  # type:ignore
 def delete_directory(path: str) -> None:
     """delete a directory and all its contents
 

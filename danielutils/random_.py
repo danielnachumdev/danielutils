@@ -8,7 +8,7 @@ ALL = LETTERS + DIGITS
 
 
 def builder(length: int, letters: str) -> str:
-    return random.choices(letters, k=length)
+    return "".join(random.choices(letters, k=length))
 
 
 class RandomDataGenerator:

@@ -4,7 +4,7 @@ from ..conditional_variable import ConditionalVariable
 
 def covariance(X: ConditionalVariable, Y: ConditionalVariable) -> Fraction:
     # alternative = E((X - E(X)) * (Y - E(Y)))
-    return E(X * Y) - E(X) * E(Y)
+    return E(X * Y) - E(X) * E(Y)   # type:ignore
 
 
 __all__ = [

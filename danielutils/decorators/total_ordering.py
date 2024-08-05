@@ -1,4 +1,4 @@
-from typing import Callable, Any, Dict, List
+from typing import Callable, Any, Dict, List, Tuple
 
 
 def is_default_implementation(func: Callable) -> bool:
@@ -26,7 +26,7 @@ def total_ordering(cls: type) -> type:
     u3 = any(map(usable, g3))
     if sum(map(int, [u1, u2, u3])) < 2:
         raise ValueError("There are not enough functions from different groups implemented")
-    mapping = {
+    mapping: Dict[str, Dict[Tuple, Callable]] = {
         '__eq__': {
             # a==b <=> not a!=b
             ('__ne__',): lambda self, other: not funcs['__eq__'](self, other),

@@ -1,9 +1,10 @@
 from threading import Thread
 from abc import ABC, abstractmethod
-from typing import Optional, Any,Tuple as Tuple
+from typing import Optional, Any, Tuple as Tuple
 from logging import error
-import danielutils # this is explicitly this way to prevent circular import
+import danielutils  # this is explicitly this way to prevent circular import
 from ...reflection import get_python_version
+
 if get_python_version() >= (3, 9):
     from builtins import tuple as Tuple  # type:ignore
 
@@ -12,7 +13,8 @@ class Worker(ABC):
     """A Worker Interface
     """
 
-    def __init__(self, id: int, pool: "danielutils.abstractions.multiprogramming.worker_pool.WorkerPool") -> None:  # pylint: disable=redefined-builtin #noqa
+    def __init__(self, id: int,
+                 pool: "danielutils.abstractions.multiprogramming.worker_pool.WorkerPool") -> None:  # pylint: disable=redefined-builtin #noqa
         self.id = id
         self.pool = pool
         self.thread: Thread = Thread(target=self._loop)
@@ -58,7 +60,7 @@ class Worker(ABC):
         will call 'notification_function'
         """
         # TODO
-        self.pool._notify_subscribers()  # pylint: disable=protected-access
+        self.pool._notify_subscribers()  # type:ignore  # pylint: disable=protected-access
 
     def acquire(self) -> Optional[Tuple[Any]]:
         """acquire a new job object to work on from the pool

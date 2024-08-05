@@ -11,14 +11,13 @@ class Serializable(Protocol):
 def serialize(obj: Any) -> bytes:
     if isinstance(obj, Serializable):
         return obj.serialize()
-
-    pass
+    #TODO
+    return b""
 
 
 def deserialize(obj: bytes) -> Any:
-    if isinstance(obj, Serializable):
-        return obj.deserialize()
-    pass
+    #TODO
+    return None
 
 
 __all__ = [

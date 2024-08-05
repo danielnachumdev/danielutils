@@ -14,7 +14,7 @@ def default_weight_function(v: Any) -> Union[int, float]:
     Returns:
         Union[int, float]: the object's weight
     """
-    if isoftype(v, Union[int, float]):
+    if isoftype(v, Union[int, float]):  # type:ignore
         return v
     if hasattr(v, "__weight__"):
         return v.__weight__()

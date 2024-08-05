@@ -177,10 +177,10 @@ class overload:
                     continue
 
                 if type(args[i]) == param_type.annotation:  # pylint :disable=unidiomatic-typecheck
-                    score += EXACT_MATCH
+                    score += EXACT_MATCH  # type:ignore
 
                 elif isoftype(args[i], param_type.annotation):
-                    score += SUBCLASS
+                    score += SUBCLASS # type:ignore
                 else:
                     break
 

@@ -1,5 +1,5 @@
 from fractions import Fraction
-from typing import Union, Tuple as Tuple
+from typing import Union, Tuple
 
 from .discrete import DiscreteConditionalVariable
 from ...operator import Operator
@@ -7,10 +7,6 @@ from .....better_builtins import frange
 from ...supp import FrangeSupp
 from ...protocols import ExpectedValueCalculable, VariableCalculable
 from .....reflection import get_python_version
-
-
-if get_python_version() >= (3, 9):
-    from builtins import tuple as Tuple
 
 
 class Geometric(DiscreteConditionalVariable, ExpectedValueCalculable, VariableCalculable):

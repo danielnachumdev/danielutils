@@ -5,9 +5,9 @@ import random
 
 
 class LayeredCommand:
-    class_capture_stdout: bool = False
-    class_capture_stderr: bool = False
-    class_raise_on_fail: bool = True
+    class_capture_stdout: bool = True
+    class_capture_stderr: bool = True
+    class_raise_on_fail: bool = False
     class_verbose: bool = False
     _class_prev_instance: Optional['LayeredCommand'] = None
     _id: int = 0
@@ -83,15 +83,15 @@ class LayeredCommand:
         if not self._has_entered:
             raise RuntimeError(
                 "LayeredCommand must be used with a context manager. Use as: `with LayeredCommand(...) as l1:`")
-        flush_stdout = self._merge_values(command_capture_stdout, self._instance_capture_stdout,
+        capture_stdout = self._merge_values(command_capture_stdout, self._instance_capture_stdout,
                                           self.class_capture_stdout)
-        flush_stderr = self._merge_values(command_capture_stderr, self._instance_capture_stderr,
+        capture_stderr = self._merge_values(command_capture_stderr, self._instance_capture_stderr,
                                           self.class_capture_stderr)
         raise_on_fail = self._merge_values(command_raise_on_fail, self._instance_raise_on_fail,
                                            self.class_raise_on_fail)
 
         command = self._build_command(*commands)
-        if flush_stdout and flush_stderr:
+        if not capture_stdout and not capture_stderr:
             code = self._executor(command)
             self._error(raise_on_fail and code != 0, command, code, command_verbose)
             return code, [], []
@@ -101,9 +101,9 @@ class LayeredCommand:
         LayeredCommand._id += 1
         with TemporaryFile.random(prefix=prefix, suffix="stdout.log") as stdout:
             with TemporaryFile.random(prefix=prefix, suffix="stderr.log") as stderr:
-                if not flush_stdout:
+                if capture_stdout:
                     command += f" > {stdout}"
-                if not flush_stderr:
+                if capture_stderr:
                     command += f" 2> {stderr}"
                 code = self._executor(command)
                 self._error(raise_on_fail and code != 0, command, code, command_verbose)

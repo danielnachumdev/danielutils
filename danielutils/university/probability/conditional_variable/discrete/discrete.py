@@ -23,7 +23,7 @@ class DiscreteConditionalVariable(ConditionalVariable):
     def p(self) -> Fraction:
         return self._p
 
-    def between(self, a, b, op1: Operator, op2: Operator) -> Fraction:
+    def between(self, a, b, op1: Operator, op2: Operator) -> Fraction:   # type:ignore
         a, b = min(a, b), max(a, b)
         if not (float(a).is_integer() and float(b).is_integer()):
             # a = a - (a % self.supp.step)

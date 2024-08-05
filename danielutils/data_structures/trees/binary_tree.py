@@ -7,7 +7,7 @@ T = TypeVar("T")
 
 
 class BinaryTree(Generic[T]):
-    Node = BinaryNode
+    Node: type = BinaryNode
 
     class TraversalMode(Enum):
         First = 1
@@ -56,6 +56,7 @@ class BinaryTree(Generic[T]):
 
     def depth(self) -> int:
         return self.root.depth()
+
 
 __all__ = [
     'BinaryTree'

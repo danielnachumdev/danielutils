@@ -25,10 +25,10 @@ class AsciiProgressBar(ProgressBar):
         if isinstance(iterator, Sized):
             total_ = len(iterator)
         if total is not None:
-            total_ = total
+            total_ = total  # type:ignore
         ProgressBar.__init__(self, total_, position, desc=desc)
         self.iterator: Iterator = iterator
-        self.pool: ProgressBarPool = pool
+        self.pool: ProgressBarPool = pool  # type:ignore
         self.num_bars: int = num_bars
         self.leave: bool = leave
         self.initial_value: float = 0
@@ -80,7 +80,7 @@ class AsciiProgressBar(ProgressBar):
             unit=self.unit
         )
         if refresh and self.pool is not None and len(self.pool.bars) > 1:
-            i = bprint.rows.index(f"{self.prev_print}\n")
+            i = bprint.rows.index(f"{self.prev_print}\n")  # type:ignore
             rows = [to_print]
             for j, row in enumerate(bprint.rows[i + 1:]):
                 rows.append(row)

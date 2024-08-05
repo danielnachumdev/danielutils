@@ -89,7 +89,7 @@ def create_typed_class(name: str, fallback_class: type = object) -> type:
         return self._params
 
     def __eq__(self, other: Any) -> bool:
-        if isoftype(other, cls):
+        if isoftype(other, cls):   # type:ignore
             return self.get_params() == other.get_params()
         return False
 

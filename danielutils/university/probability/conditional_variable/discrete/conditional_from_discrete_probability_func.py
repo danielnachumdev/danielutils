@@ -20,7 +20,7 @@ class ConditionalFromDiscreteProbabilityFunc(DiscreteConditionalVariable):
         return 1 - self.evaluate(n, op.inverse)
 
     def __init__(self, p: Callable[[int], Fraction], supp: FrangeSupp) -> None:
-        super().__init__(None, supp)
+        super().__init__(None, supp)   # type:ignore
         self.f = p
 
     @property

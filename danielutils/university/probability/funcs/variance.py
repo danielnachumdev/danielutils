@@ -9,7 +9,7 @@ def variance(obj: ConditionalVariable) -> Fraction:
         return obj.variance()
     X = obj
     # alternative = E((X - E(X)) ** 2)
-    return E(X ** 2) - E(X) ** 2
+    return E(X ** 2) - E(X) ** 2   # type:ignore
 
 
 __all__ = [
