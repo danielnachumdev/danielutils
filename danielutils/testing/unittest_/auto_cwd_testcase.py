@@ -9,10 +9,10 @@ from danielutils import create_directory, get_current_working_directory, set_cur
 def improved_setup(func: Callable) -> Callable:
     @functools.wraps(func)
     def wrapper(self):
-        self.test_folder = f"./{self.__class__.__name__}_test_folder"
-        create_directory(self.test_folder)
+        self.cwd = f"./{self.__class__.__name__}_test_folder"
+        create_directory(self.cwd)
         self.prev_cwd = get_current_working_directory()
-        set_current_working_directory(os.path.join(self.prev_cwd, self.test_folder))
+        set_current_working_directory(os.path.join(self.prev_cwd, self.cwd))
         if func is not None:
             func(self)
 
@@ -25,7 +25,7 @@ def improved_teardown(func: Callable) -> Callable:
         if func is not None:
             func(self)
         set_current_working_directory(self.prev_cwd)
-        delete_directory(self.test_folder)
+        delete_directory(self.cwd)
 
     return wrapper
 
