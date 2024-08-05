@@ -10,11 +10,12 @@ class TemporaryFile(ContextManager):
     @classmethod
     def random(cls, length: int = 10, /, type: Literal["file", "folder"] = "file", prefix: Optional[str] = None,
                suffix: Optional[str] = None) -> 'TemporaryFile':
-        letters = "abcdefghijklmnopqrstuvwxyz"
+        from danielutils import RandomDataGenerator
         temp_name = f"{type}_"
         if prefix is not None:
             temp_name += f"{prefix}_"
-        temp_name += "".join(random.choices(letters, k=length))
+
+        temp_name += RandomDataGenerator.name(length)
         if suffix is not None:
             temp_name += f"_{suffix}"
         return TemporaryFile(temp_name)
