@@ -7,7 +7,7 @@ from .argument_info import ArgumentInfo
 
 class FunctionInfo:
     FUNCTION_DEFINITION_REGEX: re.Pattern = re.compile(
-        r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>.+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\w\d]*)\s*)?:",
+        r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>.+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]*)\s*)?:[\s\S]*",
         re.MULTILINE)
 
     def __init__(self, func: Callable) -> None:
@@ -23,6 +23,7 @@ class FunctionInfo:
             raise TypeError(f"'{func.__name__}' is not a user defined function")
         self._func = func
         self._decorators: List[DecorationInfo] = []
+        self._arguments: List[ArgumentInfo] = []
         self._return_type: str = ""
         self._parse_src_code()
 
@@ -31,7 +32,7 @@ class FunctionInfo:
         code = inspect.getsource(f).strip()
         m = FunctionInfo.FUNCTION_DEFINITION_REGEX.match(code)
         if m is None:
-            raise ValueError("Invalid source code")
+            raise ValueError("Invalid function source code")
         decorators, name, arguments, return_type = m.groups()
         if decorators is not None:
             for substr in decorators.strip().splitlines():
@@ -81,7 +82,7 @@ class FunctionInfo:
 
     @property
     def arguments(self) -> List[ArgumentInfo]:
-        pass
+        return self._arguments
 
     @property
     def decorations(self) -> List[DecorationInfo]:

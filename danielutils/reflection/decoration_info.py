@@ -35,7 +35,9 @@ class DecorationInfo:
         return repr(self)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(name=\"{self.name}\", arguments={self.arguments})"
+        if self.arguments:
+            return f"{self.__class__.__name__}(name=\"{self.name}\", arguments={self.arguments})"
+        return f"{self.__class__.__name__}(name=\"{self.name}\")"
 
 
 __all__ = [

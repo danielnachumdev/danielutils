@@ -18,7 +18,7 @@ class ClassInfo:
         self._cls = cls
         self._src_code: str = ""
         self._name: str = ""
-        self._bases: Optional[List] = None
+        self._bases: List[ArgumentInfo] = []
         self._functions: List[FunctionInfo] = []
         self._decorations: List[DecorationInfo] = []
         self._parse_src_code()
@@ -43,20 +43,25 @@ class ClassInfo:
     def _parse_body(self) -> None:
         for attr in dir(self._cls):
             obj = getattr(self._cls, attr)
-            if not (inspect.isroutine(obj) or inspect.isdatadescriptor(obj)):
-                continue
+            if inspect.isbuiltin(obj): continue
             try:
-                inspect.getsource(obj)
+                if inspect.isroutine(obj):
+                    inspect.getsource(obj)
+                elif inspect.isdatadescriptor(obj):
+                    inspect.getsource(obj.fget)
+                else:
+                    raise 1
             except:
                 continue
-            self._functions.append(FunctionInfo(obj))
+            f = FunctionInfo(obj)
+            self._functions.append(f)
             pass
 
     def __str__(self) -> str:
-        return repr(self)
+        return f"{self.__class__.__name__}(name=\"{self.name}\", bases={self.bases}, decorations={self.decorations}, static_methods={self.static_methods}, class_methods={self.class_methods}, isntance_methods={self.instance_methods})"
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(name=\"{self.name}\", bases={self.bases}, decorations={self.decorations}, static_methods={self.static_methods}, class_methods={self.class_methods}, isntance_methods={self.instance_methods})"
+        return f"{self.__class__.__name__}(name=\"{self.name}\")"
 
     @property
     def name(self) -> str:
