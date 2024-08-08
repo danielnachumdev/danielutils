@@ -3,7 +3,10 @@ from .file import *
 from .function import *
 from .class_ import *
 from .module import *
-
+from .argument_info import *
+from .decoration_info import *
+from .function_info import *
+from .class_info import *
 # def get_class(module_name: str, class_name: str) -> type:
 #     """dynammically loads the module and returns the class from this file
 
