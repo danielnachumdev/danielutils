@@ -30,15 +30,12 @@ class ClassInfo:
             raise SyntaxError()
         decorators, name, bases, _ = m.groups()
         self._name = name
-        self._parse_bases(bases)
+        self._bases = ArgumentInfo.from_str(bases)
         self._parse_body()
 
         if decorators is not None:
             for substr in decorators.strip().splitlines():
                 self._decorations.append(DecorationInfo.from_str(substr.strip()))
-
-    def _parse_bases(self, bases_string: Optional[str]) -> None:
-        pass
 
     def _parse_body(self) -> None:
         for attr in dir(self._cls):
@@ -48,14 +45,12 @@ class ClassInfo:
                 if inspect.isroutine(obj):
                     inspect.getsource(obj)
                 elif inspect.isdatadescriptor(obj):
-                    inspect.getsource(obj.fget)
+                    inspect.getsource(obj.fget)  # type:ignore
                 else:
                     raise 1
             except:
                 continue
-            f = FunctionInfo(obj)
-            self._functions.append(f)
-            pass
+            self._functions.append(FunctionInfo(obj))
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(name=\"{self.name}\", bases={self.bases}, decorations={self.decorations}, static_methods={self.static_methods}, class_methods={self.class_methods}, isntance_methods={self.instance_methods})"

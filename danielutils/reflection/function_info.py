@@ -7,7 +7,7 @@ from .argument_info import ArgumentInfo
 
 class FunctionInfo:
     FUNCTION_DEFINITION_REGEX: re.Pattern = re.compile(
-        r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>.+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]*)\s*)?:[\s\S]*",
+        r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>.+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
         re.MULTILINE)
 
     def __init__(self, func: Callable) -> None:
@@ -28,37 +28,36 @@ class FunctionInfo:
         self._parse_src_code()
 
     def _parse_src_code(self) -> None:
-        f = self._func if not self.is_property else self._func.fget
+        f = self._func if not self.is_property else self._func.fget  # type:ignore
         code = inspect.getsource(f).strip()
         m = FunctionInfo.FUNCTION_DEFINITION_REGEX.match(code)
         if m is None:
             raise ValueError("Invalid function source code")
-        decorators, name, arguments, return_type = m.groups()
+        decorators, name, arguments, return_type, body = m.groups()
         if decorators is not None:
             for substr in decorators.strip().splitlines():
                 self._decorators.append(DecorationInfo.from_str(substr.strip()))
         self._name = name
         if arguments is not None:
-            # TODO
-            pass
+            self._arguments = ArgumentInfo.from_str(arguments)
 
         self._return_type = "None"
         if return_type is not None:
             self._return_type = return_type
 
     def __str__(self) -> str:
-        return repr(self)
+        return f"{self.__class__.__name__}(name=\"{self.name}\", decorators={self.decorators}, arguments={self.arguments})"
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name=\"{self.name}\")"
 
     @property
     def is_class_method(self) -> bool:
-        return "classmethod" in set(d.name for d in self.decorations)
+        return "classmethod" in set(d.name for d in self.decorators)
 
     @property
     def is_static_method(self) -> bool:
-        return "staticmethod" in set(d.name for d in self.decorations)
+        return "staticmethod" in set(d.name for d in self.decorators)
 
     @property
     def is_instance_method(self) -> bool:
@@ -85,7 +84,7 @@ class FunctionInfo:
         return self._arguments
 
     @property
-    def decorations(self) -> List[DecorationInfo]:
+    def decorators(self) -> List[DecorationInfo]:
         return self._decorators
 
 

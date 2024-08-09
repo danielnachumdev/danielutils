@@ -27,9 +27,8 @@ class DecorationInfo:
             raise ValueError()
 
         name, arguments = m.groups()
-        arg_infos = []
-        # TODO
-        return DecorationInfo(name, arg_infos)
+        args = ArgumentInfo.from_str(arguments)
+        return DecorationInfo(name, args)
 
     def __str__(self) -> str:
         return repr(self)
