@@ -39,7 +39,7 @@ class ClassInfo:
 
     def _parse_body(self) -> None:
         for attr in dir(self._cls):
-            obj = getattr(self._cls, attr)
+            obj = getattr(self._cls, attr, None)
             if inspect.isbuiltin(obj): continue
             try:
                 if inspect.isroutine(obj):

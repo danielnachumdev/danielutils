@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Optional, List
 
 ARGUMENT_INFO_REGEX: re.Pattern = re.compile(
-    r"(?P<kwargs>\*\*\w[\w\d]*)|(?P<args>\*(?:\w[\w\d]*)?)|(?P<kwarg_only>\/)|(?P<name>\w[\w\d]*)(?:(?:\s*:(?P<type>[^\=\n]+))?(?:\s*=(?P<default_value>[\s\S]+))?)?")
+    r"(?P<kwargs>\*\*\w[\w\d]*)|(?P<args>\*(?:\w[\w\d]*)?)|(?P<kwarg_only>\/)|(?P<pname>\w[\w\d]*)\[(?P<parameters>.+)\]|(?P<name>\w[\w\d]*)(?:(?:\s*:(?P<type>[^\=\n]+))?(?:\s*=(?P<default_value>[\s\S]+))?)?")
 
 
 class ArgumentInfo:
@@ -13,13 +13,15 @@ class ArgumentInfo:
                  default: Optional[str],
                  is_kwargs: bool,
                  is_args: bool,
-                 is_kwargs_only: bool):
+                 is_kwargs_only: bool,
+                 parameters: Optional[List]):
         self._name = name
         self._type = type
         self._default = default
         self._is_kwargs = is_kwargs
         self._is_args = is_args
         self._is_kwargs_only = is_kwargs_only
+        self._parameters = parameters
 
     @property
     def name(self) -> Optional[str]:
@@ -45,6 +47,14 @@ class ArgumentInfo:
     def is_kwargs_only(self) -> bool:
         return self._is_kwargs_only
 
+    @property
+    def parameters(self) -> Optional[List]:
+        return self._parameters
+
+    @property
+    def is_parameterized(self) -> bool:
+        return self._parameters is not None and len(self.parameters) > 0  # type: ignore
+
     def __repr__(self) -> str:
         res = f"{self.__class__.__name__}(name=\"{self.name}\""
         if self.type is not None:
@@ -63,14 +73,15 @@ class ArgumentInfo:
         if m is None:
             raise ValueError(f"Invalid argument info string: {string}")
 
-        kwargs, args, kwarg_only, name, type, default_value = m.groups()
+        kwargs, args, kwarg_only, pname, parameters, name, type, default_value = m.groups()
         return ArgumentInfo(
-            name=name,
+            name=name or pname,
             type=type,
             default=default_value,
             is_kwargs=kwargs is not None,
             is_args=args is not None,
             is_kwargs_only=kwarg_only is not None,
+            parameters=parameters
         )
 
     @staticmethod
@@ -81,14 +92,14 @@ class ArgumentInfo:
         indices = [-1]
         stack: List[str] = []
         for i, c in enumerate(string):
-            if len(stack) == 0:
-                if c == ",":
-                    indices.append(i)
-            elif c in {'[', ']'}:
+            if c in {'[', ']'}:
                 if c == '[':
                     stack.append(c)
                 else:
                     stack.pop()
+            elif len(stack) == 0:
+                if c == ",":
+                    indices.append(i)
         indices.append(len(string))
         res = []
         for start, end in zip(indices[:-1], indices[1:]):

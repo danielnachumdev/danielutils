@@ -1,9 +1,7 @@
 import inspect
 from abc import abstractmethod
 from typing import Protocol, runtime_checkable, Any, Callable
-
-
-# from ..reflection import is_function_annotated_properly
+from ..reflection import ClassInfo
 
 
 @runtime_checkable
@@ -14,16 +12,17 @@ class JavaInterface(Protocol):
 
     @classmethod
     def __init_subclass__(cls, **kwargs) -> None:
-        # print(cls.__qualname__)
-        for func in cls.__dict__.values():
-            if not callable(func): continue
-            # if not is_function_annotated_properly(func):
-            #     raise ValueError("When using a JavaInterface subclass, all function must be fully annotated.")
-            src = inspect.getsourcelines(func)
-            pass
-            # print(func.__qualname__, src)
-        pass
+        info = ClassInfo(cls)
+        print(info)
         super().__init_subclass__(**kwargs)
+
+    @classmethod
+    def is_implemented_by(interface, cls) -> bool:
+        pass
+
+    @classmethod
+    def implements(cls, interface) -> bool:
+        pass
 
 
 definition = JavaInterface.definition
