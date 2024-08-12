@@ -10,8 +10,7 @@ class FunctionInfo:
         r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>.+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
         re.MULTILINE)
 
-    def __init__(self, func: Callable) -> None:
-
+    def __init__(self, func: Callable, owner: Type) -> None:
         try:
             if inspect.isdatadescriptor(func):
                 inspect.getsource(func.fget)
@@ -25,6 +24,7 @@ class FunctionInfo:
         self._decorators: List[DecorationInfo] = []
         self._arguments: List[ArgumentInfo] = []
         self._return_type: str = ""
+        self._owner = owner
         self._parse_src_code()
 
     def _parse_src_code(self) -> None:
@@ -50,6 +50,10 @@ class FunctionInfo:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name=\"{self.name}\")"
+
+    @property
+    def is_inherited(self) -> bool:
+        return self._func in self._owner.__dict__
 
     @property
     def is_class_method(self) -> bool:

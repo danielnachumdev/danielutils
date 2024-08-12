@@ -1,11 +1,13 @@
 import inspect
-from abc import abstractmethod
-from typing import Protocol, runtime_checkable, Any, Callable
+from abc import abstractmethod, ABC
+from typing import Protocol, runtime_checkable, Any, Callable, ParamSpec, Generic
 from ..reflection import ClassInfo
+
+P = ParamSpec("P")
 
 
 @runtime_checkable
-class JavaInterface(Protocol):
+class JavaInterface(Generic[P], Protocol[P]):
     @staticmethod
     def definition(func: Callable) -> Callable:
         return abstractmethod(func)
@@ -13,7 +15,6 @@ class JavaInterface(Protocol):
     @classmethod
     def __init_subclass__(cls, **kwargs) -> None:
         info = ClassInfo(cls)
-        print(info)
         super().__init_subclass__(**kwargs)
 
     @classmethod

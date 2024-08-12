@@ -6,7 +6,7 @@ from ..java_interface import JavaInterface
 T = TypeVar('T')
 
 
-class Comparable(JavaInterface, Generic[T]):
+class Comparable(JavaInterface[T]):
     @abstractmethod
     def __lt__(self, other: T) -> bool: ...
 

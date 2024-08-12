@@ -61,7 +61,8 @@ class ArgumentInfo:
             res += f", type={self.type}"
         if self.default is not None:
             res += f", default={self.default}"
-
+        if self.is_parameterized:
+            res+=f", parameters={self.parameters}"
         return res + ")"
 
     def __str__(self) -> str:

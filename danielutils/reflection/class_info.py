@@ -50,7 +50,7 @@ class ClassInfo:
                     raise 1
             except:
                 continue
-            self._functions.append(FunctionInfo(obj))
+            self._functions.append(FunctionInfo(obj, self._cls))
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(name=\"{self.name}\", bases={self.bases}, decorations={self.decorations}, static_methods={self.static_methods}, class_methods={self.class_methods}, isntance_methods={self.instance_methods})"
