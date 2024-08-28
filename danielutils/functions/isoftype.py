@@ -290,8 +290,8 @@ def __handle_protocol(params: tuple, /, allow_classes: bool = False) -> bool:
         t_origin = T
 
     cls = ClassDeclaration.from_cls(t_origin)
-    declared_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
-    required_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
+    declared_funcs: List[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
+    required_funcs: List[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
 
     for i, req_func in enumerate(required_funcs):
         if req_func.has_generics:
@@ -404,15 +404,15 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
         return False
 
     if T is Union:
-        t_origin = Union
+        t_origin = Union  # type:ignore
     elif T is Protocol or Protocol in getattr(T, "__mro__", []):
-        t_origin = Protocol
+        t_origin = Protocol  # type:ignore
     elif Protocol in getattr(V, "__mro__", []):
-        t_origin = Protocol
+        t_origin = Protocol  # type:ignore
 
     if t_origin is not None:
         if getattr(t_origin, "_is_protocol", False) or isinstance(t_origin, _ProtocolMeta):
-            t_origin = Protocol
+            t_origin = Protocol  # type:ignore
 
         if t_origin in HANDLERS:
             if t_origin in (list, tuple, dict, set, dict, Iterable):

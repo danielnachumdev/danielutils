@@ -27,7 +27,7 @@ class ProgressBar(ABC):
         self.position = position
         self.unit = unit
         self.bar_format = bar_format
-        self.writes: list[str] = []
+        self.writes: List[str] = []
 
     @property
     def num_writes(self):
