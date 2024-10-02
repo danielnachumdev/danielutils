@@ -13,7 +13,7 @@ class FunctionInfo:
     def __init__(self, func: Callable, owner: Type) -> None:
         try:
             if inspect.isdatadescriptor(func):
-                inspect.getsource(func.fget)
+                inspect.getsource(func.fget)  # type: ignore
                 self._is_property = True
             else:
                 inspect.getsource(func)
@@ -53,7 +53,7 @@ class FunctionInfo:
 
     @property
     def is_inherited(self) -> bool:
-        return self._func in self._owner.__dict__
+        return self._func in set(self._owner.__dict__.keys())
 
     @property
     def is_class_method(self) -> bool:

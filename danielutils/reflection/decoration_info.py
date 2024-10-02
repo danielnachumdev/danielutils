@@ -6,7 +6,7 @@ from .argument_info import ArgumentInfo
 
 
 class DecorationInfo:
-    DECORATOR_INFO_REGEX: re.Pattern = re.compile(r"^@?(?P<name>\w[\w\d]*)(?P<arguments>\(.*\))?")
+    DECORATOR_INFO_REGEX: re.Pattern = re.compile(r"^@?(?P<name>\w[\w\d]*)(?:\((?P<arguments>.*)\))?")
 
     def __init__(self, name: str, arguments: List[ArgumentInfo]):
         self._name = name
