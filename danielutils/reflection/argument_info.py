@@ -82,7 +82,7 @@ class ArgumentInfo:
             is_kwargs=kwargs is not None,
             is_args=args is not None,
             is_kwargs_only=kwarg_only is not None,
-            parameters=parameters
+            parameters=[parameters]
         )
 
     @staticmethod

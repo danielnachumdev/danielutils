@@ -1,4 +1,4 @@
-from typing import Optional, Generator, TypeVar, Generic, List as List
+from typing import Optional, Generator, TypeVar, Generic, List as List, Set
 
 from ...reflection import get_python_version
 
@@ -82,7 +82,7 @@ class MultiNode(Generic[T]):
             int
         """
 
-        def helper(cur: MultiNode, seen: Optional[set[MultiNode]] = None) -> int:
+        def helper(cur: MultiNode, seen: Optional[Set[MultiNode]] = None) -> int:
             if not isinstance(cur, MultiNode):
                 return 0
             if seen is None:

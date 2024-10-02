@@ -1,5 +1,5 @@
 import sys
-from typing import IO
+from typing import IO, List
 from .functions.areoneof import areoneof
 from .math_.math_print import mprint_parse_one
 from .decorators import atomic, deprecate
@@ -63,7 +63,7 @@ class BetterPrinter:
         if thread_safe:
             self.__call__ = atomic(self.__call__)  # type:ignore
         self._current_row: int = 0
-        self.rows: list[str] = []
+        self.rows: List[str] = []
 
     def clear(self, flush: bool = True) -> None:
         if not self.stream.isatty():

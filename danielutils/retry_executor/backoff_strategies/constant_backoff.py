@@ -8,9 +8,10 @@ class ConstantBackOffStrategy(BackOffStrategy):
     :param delay: The amount of milliseconds to sleep
     """
 
-    def __init__(self, delay: int) -> None:
+    def __init__(self, delay: float) -> None:
         if not delay >= 0:
             raise ValueError("delay must be positive")
+        delay = float(delay)
         super().__init__(lambda: delay)
 
 

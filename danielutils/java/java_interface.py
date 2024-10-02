@@ -1,4 +1,4 @@
-import inspect
+
 from abc import abstractmethod, ABC
 from typing import Protocol, runtime_checkable, Any, Callable, ParamSpec, Generic
 from ..reflection import ClassInfo

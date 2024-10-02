@@ -1,9 +1,7 @@
-import inspect
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
-    ForwardRef, Literal, Optional, Protocol, Generic, Type, List, Tuple, Set, Dict, Mapping
+    ForwardRef, Literal, Optional, Protocol, Generic, Type, List, Tuple, Set, Dict
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
-from ..versioned_imports import ParamSpec, Concatenate
 
 
 class _tmp(Protocol): ...
@@ -25,8 +23,14 @@ try:
     implicit_union_type = type(int | str)
 except:
     implicit_union_type = Union
-concatenate_t = type(Concatenate[str, ParamSpec("P_")])
+
 ellipsis_ = ...
+
+PARAMSPEC_STRICT: bool = True
+try:
+    from typing import ParamSpec
+except ImportError:
+    PARAMSPEC_STRICT = False
 
 
 def __isoftype_inquire(obj: Any) -> Tuple[Optional[type], Optional[tuple], Optional[dict]]:
@@ -187,17 +191,27 @@ def __handle_callable(params: tuple) -> bool:
         return True
     if len(t_args) == 0:
         return True
-
-    if get_python_version() < (3, 10):
-        if isoftype(t_args[0][0], [ParamSpec, concatenate_t]):
-            return True
-    else:
-        if isoftype(t_args[0], [ParamSpec, concatenate_t]):
-            return True
+    try:
+        from typing import Concatenate, ParamSpec
+        concatenate_t = type(Concatenate[str, ParamSpec("P_")])
+        if get_python_version() < (3, 10):
+            if isoftype(t_args[0][0], [ParamSpec, concatenate_t]):
+                return True
+        else:
+            if isoftype(t_args[0], [ParamSpec, concatenate_t]):
+                return True
+    except ImportError:
+        pass
 
     obj_return_type = obj_hints.get('return')
     obj_param_types = list(obj_hints.values())[:-1] if obj_hints else None
     t_return_type = t_args[1]
+
+    if not PARAMSPEC_STRICT:
+        if t_args[0] == Ellipsis:
+            return True
+        if t_args[0] == [Any]:
+            return True
 
     if isinstance(t_args[0], Iterable):
         t_param_types = list(t_args[0])
@@ -276,8 +290,8 @@ def __handle_protocol(params: tuple, /, allow_classes: bool = False) -> bool:
         t_origin = T
 
     cls = ClassDeclaration.from_cls(t_origin)
-    declared_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
-    required_funcs: list[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
+    declared_funcs: List[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
+    required_funcs: List[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
 
     for i, req_func in enumerate(required_funcs):
         if req_func.has_generics:
@@ -383,26 +397,26 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
         t_origin, t_args, t_hints
     )
 
-    if t_args is not None and Ellipsis in t_args:
+    if t_args is not None and Ellipsis in t_args and PARAMSPEC_STRICT:
         from ..colors import warning  # pylint: disable=cyclic-import
         warning(
             "using an ellipsis (as in '...') with isoftype is ambiguous returning False")
         return False
 
     if T is Union:
-        t_origin = Union
+        t_origin = Union  # type:ignore
     elif T is Protocol or Protocol in getattr(T, "__mro__", []):
-        t_origin = Protocol
+        t_origin = Protocol  # type:ignore
     elif Protocol in getattr(V, "__mro__", []):
-        t_origin = Protocol
+        t_origin = Protocol  # type:ignore
 
     if t_origin is not None:
         if getattr(t_origin, "_is_protocol", False) or isinstance(t_origin, _ProtocolMeta):
-            t_origin = Protocol
+            t_origin = Protocol  # type:ignore
 
         if t_origin in HANDLERS:
             if t_origin in (list, tuple, dict, set, dict, Iterable):
-                if not isinstance(V, t_origin):
+                if not isinstance(V, t_origin):  # type:ignore
                     return False
             return HANDLERS[t_origin](params)  # type:ignore
         # These imports must explicitly be specifically here and not at the top

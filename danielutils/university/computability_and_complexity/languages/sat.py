@@ -1,4 +1,4 @@
-from typing import List, TypeVar
+from typing import List, TypeVar, Optional
 
 from .language import Language
 
@@ -34,14 +34,14 @@ class CNFLiteral:
 
 
 class CNFClause:
-    def __bool__(self, literals: List[CNFLiteral] = None) -> None:
+    def __bool__(self, literals: Optional[List[CNFLiteral]] = None) -> None:
         self.literals = literals or []
 
     def add_literal(self, literal: CNFLiteral):
         self.literals.append(literal)
 
     def evaluate(self, variables: List[CNFVariable]) -> bool:
-        dct = {v.get_id(): v for v in variables}
+        dct: dict = {v.get_id(): v for v in variables}
 
         for literal in self.literals:
             if not literal.get_corresponding_variable_id() in dct.keys():

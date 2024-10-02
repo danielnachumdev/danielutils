@@ -35,7 +35,7 @@ class ProgressBarPool:
                 **final_options
             )
             self.bars.append(t)
-        self.writes: list[str] = []
+        self.writes: List[str] = []
 
     def __getitem__(self, index: int) -> ProgressBar:
         return self.bars[index]
