@@ -432,7 +432,3 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
 __all__ = [
     "isoftype"
 ]
-
-__all__ = [
-    "isoftype"
-]

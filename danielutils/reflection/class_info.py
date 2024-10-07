@@ -1,9 +1,20 @@
 import inspect
 import re
-from typing import Optional, List, Iterable, Type
+from typing import Optional, List, Iterable, Type, TypeVar, Generic, get_origin
 from .function_info import FunctionInfo
 from .decoration_info import DecorationInfo
 from .argument_info import ArgumentInfo
+from ..functions import isoftype
+
+T = TypeVar("T")
+
+
+class _A(Generic[T]): ...
+
+
+_GenericAlias = type(_A[int])
+
+del T, _A
 
 
 class ClassInfo:
@@ -13,6 +24,8 @@ class ClassInfo:
     # r"(?P<decorations>[\s\S]*)?^class (?P<name>\w[\w\d]*)(?:\((?P<bases>.*)\))?:(?P<body>[\s\S]+)"
 
     def __init__(self, cls: Type) -> None:
+        if isoftype(cls, _GenericAlias):  # type:ignore
+            cls = get_origin(cls)  # type:ignore
         if not inspect.isclass(cls):
             raise TypeError(f"'{cls.__name__}' is not a class")
         self._cls = cls
@@ -40,14 +53,15 @@ class ClassInfo:
     def _parse_body(self) -> None:
         for attr in dir(self._cls):
             obj = getattr(self._cls, attr, None)
-            if inspect.isbuiltin(obj): continue
+            if inspect.isbuiltin(obj):
+                continue
             try:
                 if inspect.isroutine(obj):
                     inspect.getsource(obj)
                 elif inspect.isdatadescriptor(obj):
                     inspect.getsource(obj.fget)  # type:ignore
                 else:
-                    raise 1
+                    raise Exception()
             except:
                 continue
             self._functions.append(FunctionInfo(obj, self._cls))
@@ -81,6 +95,14 @@ class ClassInfo:
     @property
     def instance_methods(self) -> Iterable[FunctionInfo]:
         return sorted(filter(lambda f: f.is_instance_method, self._functions), key=lambda f: f.name)
+
+    @property
+    def inherited_methods(self)->Iterable[FunctionInfo]:
+        return sorted(filter(lambda f: f.is_inherited, self._functions), key=lambda f: f.name)
+
+    @property
+    def abstract_methods(self) -> Iterable[FunctionInfo]:
+        return sorted(filter(lambda f: f.is_abstract, self._functions), key=lambda f: f.name)
 
     @property
     def functions(self) -> List[FunctionInfo]:
