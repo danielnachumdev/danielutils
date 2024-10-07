@@ -44,6 +44,12 @@ class TemporaryFile(ContextManager):
         with open(self.path, 'r') as f:
             return f.read()
 
+    def readbinary(self) -> bytes:
+        if not file_exists(self.path):
+            return b""
+        with open(self.path, 'rb') as f:
+            return f.read()
+
     def readlines(self) -> List[str]:
         if not file_exists(self.path):
             return []
@@ -52,6 +58,10 @@ class TemporaryFile(ContextManager):
 
     def write(self, s: str) -> None:
         with open(self.path, 'a') as f:
+            f.write(s)
+
+    def writebinary(self, s: bytes) -> None:
+        with open(self.path, 'ab') as f:
             f.write(s)
 
     def writelines(self, lines: List[str]) -> None:
