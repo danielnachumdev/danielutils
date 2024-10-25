@@ -4,7 +4,7 @@ from typing import Optional, List, Iterable, Type, TypeVar, Generic, get_origin
 from .function_info import FunctionInfo
 from .decoration_info import DecorationInfo
 from .argument_info import ArgumentInfo
-from ..functions import isoftype
+from danielutils.functions import isoftype
 
 T = TypeVar("T")
 
