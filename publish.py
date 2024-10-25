@@ -6,7 +6,7 @@ from quickpub import publish, Version, MypyRunner, PylintRunner, UnittestRunner,
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.0.3",
+        version="1.0.31",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
