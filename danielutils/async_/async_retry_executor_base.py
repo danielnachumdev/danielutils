@@ -7,6 +7,9 @@ from typing import Literal, Optional, Any, Mapping, Iterable, Callable, Coroutin
 from ..custom_types import Supplier
 from ..decorators import normalize_decorator
 from .time_strategy import LinearTimeStrategy, ConstantTimeStrategy
+from ..versioned_imports import ParamSpec
+
+P = ParamSpec("P")
 
 
 class AsyncRetryExecutorBase:
@@ -31,7 +34,7 @@ class AsyncRetryExecutorBase:
 
     async def execute(
             self,
-            func: Callable[[...], Coroutine],
+            func: Callable[P, Coroutine],
             *,
             args: Optional[Iterable] = None,
             kwargs: Optional[Mapping] = None,

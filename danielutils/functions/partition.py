@@ -4,7 +4,7 @@ from typing import List, Generator, Tuple, Union
 def partitions(n: int, k: int) -> Generator[List[int], None, None]:
     from ..decorators import memo_generator
 
-    @memo_generator()
+    @memo_generator
     def helper(n: int, target_sum: int, current_sum: int, topLevel: int, arr: Union[List[int], Tuple[int]]) -> \
             Generator[List[int], None, None]:
         arr = list(arr)
