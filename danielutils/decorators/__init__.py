@@ -15,3 +15,4 @@ from .processify import *
 from .singleton import *
 from .total_ordering import *
 from .final import *
+from .normalize_decorator import *

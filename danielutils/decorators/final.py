@@ -7,6 +7,7 @@ def final(cls: type) -> type:
     Returns:
         marked class
     """
+
     def __init__subclass__(*args, **kwargs):
         raise TypeError(f"'{cls.__qualname__}' is final. Can't create subclasses")
 
@@ -18,6 +19,7 @@ class Final:
     """
     A parent class to make direct child a Final class. will add expected behaviour.
     """
+
     def __new__(cls, *args, **kwargs):
         if cls is Final:
             raise TypeError("Can't instantiate 'Final'")
