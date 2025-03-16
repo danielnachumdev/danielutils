@@ -1,4 +1,5 @@
 import inspect
+import json
 import re
 from typing import Type, Optional, List, Callable
 from .decoration_info import DecorationInfo
@@ -46,6 +47,11 @@ class FunctionInfo:
             self._return_type = return_type
 
     def __str__(self) -> str:
+        # body = json.dumps({
+        #     "name": self.name,
+        #     "decorators": self.decorators,
+        #     "arguments": self.arguments
+        # }, default=str, indent=4)
         return f"{self.__class__.__name__}(name=\"{self.name}\", decorators={self.decorators}, arguments={self.arguments})"
 
     def __repr__(self) -> str:

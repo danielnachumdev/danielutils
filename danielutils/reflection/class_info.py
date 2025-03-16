@@ -1,10 +1,11 @@
 import inspect
+import json
 import re
 from typing import Optional, List, Iterable, Type, TypeVar, Generic, get_origin
 from .function_info import FunctionInfo
 from .decoration_info import DecorationInfo
 from .argument_info import ArgumentInfo
-from ..functions import isoftype
+from danielutils.functions import isoftype
 
 T = TypeVar("T")
 
@@ -67,7 +68,15 @@ class ClassInfo:
             self._functions.append(FunctionInfo(obj, self._cls))
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}(name=\"{self.name}\", bases={self.bases}, decorations={self.decorations}, static_methods={self.static_methods}, class_methods={self.class_methods}, isntance_methods={self.instance_methods})"
+        body = json.dumps({
+            "name": self.name,
+            "bases": self.bases,
+            "decorations": self.decorations,
+            "static_methods": self.static_methods,
+            "class_methods": self.class_methods,
+            "instance_methods": self.instance_methods
+        }, default=str, indent=4)[1:-1]
+        return f"{self.__class__.__name__}({body})"
 
     def __repr__(self):
         return f"{self.__class__.__name__}(name=\"{self.name}\")"
@@ -97,7 +106,7 @@ class ClassInfo:
         return sorted(filter(lambda f: f.is_instance_method, self._functions), key=lambda f: f.name)
 
     @property
-    def inherited_methods(self)->Iterable[FunctionInfo]:
+    def inherited_methods(self) -> Iterable[FunctionInfo]:
         return sorted(filter(lambda f: f.is_inherited, self._functions), key=lambda f: f.name)
 
     @property

@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import Callable, Literal, Optional, Coroutine
 
-from async_.async_retry_executor_base import AsyncRetryExecutorBase
+from .async_retry_executor_base import AsyncRetryExecutorBase
 
 
 class AsyncWorkerPoolBase:

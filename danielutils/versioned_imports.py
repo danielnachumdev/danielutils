@@ -1,10 +1,12 @@
+from typing import Tuple
+
 try:
     from typing import ParamSpec
 except ImportError:
     from .reflection import get_python_version
 
     if get_python_version() >= (3, 9):
-        ParamSpec = lambda name: [...]
+        ParamSpec = lambda name: [Any]
     else:
         from typing import Any
 
