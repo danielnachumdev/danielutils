@@ -2,31 +2,31 @@ import asyncio
 import json
 from typing import Callable, Literal, Optional, Coroutine
 
-from .async_retry_executor import AsyncRetryExecutor
 
 
 class AsyncWorkerPool:
-    def __init__(self, num_workers: int, retry_executor: Optional[AsyncRetryExecutor] = None) -> None:
+    def __init__(self, num_workers: int) -> None:
         self.num_workers = num_workers
         self.queue = asyncio.Queue()
         self.workers = []
-        self.retry_executor = retry_executor
 
     async def worker(self, worker_id) -> None:
         """Worker coroutine that continuously fetches and executes tasks from the queue."""
-        count = 0
+        task_count = 0
         while True:
             task = await self.queue.get()
             if task is None:  # Sentinel value to shut down the worker
                 break
-            count += 1
+            task_count += 1
             func, args, kwargs = task
-            self.info(f"Worker {worker_id} started with task {count}")
-            if self.retry_executor:
-                await self.retry_executor.execute(func, args=args, kwargs=kwargs)
-            else:
+            self.info(f"Worker {worker_id} started with task {task_count}")
+
+            try:
                 await func(*args, **kwargs)
-            self.info(f"Worker {worker_id} finished with task {count}")
+            except Exception as e:
+                self.error(f"Worker {worker_id} failed task {task_count}", exception = e)
+
+            self.info(f"Worker {worker_id} finished with task {task_count}")
             self.queue.task_done()
         self.info(f"Worker {worker_id} done.")
 
