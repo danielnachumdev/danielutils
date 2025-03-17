@@ -3,10 +3,10 @@ import json
 from typing import Callable, Literal, Optional, Coroutine
 
 
-
 class AsyncWorkerPool:
-    def __init__(self, num_workers: int) -> None:
+    def __init__(self, pool_name: str, num_workers: int = 5) -> None:
         self.num_workers = num_workers
+        self.pool_name = pool_name
         self.queue = asyncio.Queue()
         self.workers = []
 
@@ -24,11 +24,11 @@ class AsyncWorkerPool:
             try:
                 await func(*args, **kwargs)
             except Exception as e:
-                self.error(f"Worker {worker_id} failed task {task_count}", exception = e)
+                self.error(f"Worker {worker_id} failed task {task_count}", exception=e)
 
             self.info(f"Worker {worker_id} finished with task {task_count}")
             self.queue.task_done()
-        self.info(f"Worker {worker_id} done.")
+        self.info(f"Worker {worker_id} done executed {task_count} tasks.")
 
     async def start(self) -> None:
         """Starts the worker pool."""
@@ -48,6 +48,7 @@ class AsyncWorkerPool:
     def log(self, level: Literal["INFO", "WARNING", "ERROR"], message: str, **kwargs) -> None:
         kwargs["level"] = level
         kwargs["message"] = message
+        kwargs["pool"] = self.pool_name
         print(json.dumps(kwargs, default=str))
 
     def info(self, message: str, **kwargs) -> None:

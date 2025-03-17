@@ -93,7 +93,7 @@ class AsyncLayeredCommand:
 
         command = self._build_command(*commands)
         if not capture_stdout and not capture_stderr:
-            code = await async_cmd(command)[0]
+            code = (await async_cmd(command))[0]
             self._error(raise_on_fail and code != 0, command, code, command_verbose)
             return code, [], []
 

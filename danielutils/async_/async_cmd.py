@@ -13,7 +13,7 @@ async def async_cmd(
         kwargs['stdout'] = asyncio.subprocess.PIPE
     if capture_stderr:
         kwargs['stderr'] = asyncio.subprocess.PIPE
-    process = await asyncio.create_subprocess_shell(cmd, **kwargs)
+    process = await asyncio.create_subprocess_shell(cmd, **kwargs)  # type:ignore
     stdout, stderr = await process.communicate()
     return process.returncode, stdout, stderr
 

@@ -115,7 +115,7 @@ class FunctionDeclaration:
             generics=self.generics,
         )
         dct.update(override_kwargs)
-        return FunctionDeclaration(**dct)
+        return FunctionDeclaration(**dct)  # type:ignore
 
     @property
     def has_generics(self) -> bool:
@@ -141,13 +141,13 @@ class FunctionDeclaration:
                         parameters.append(arg)
         res = []
         for code, name, args, ret in func_pattern.findall(src):
-            name: str = name.strip()
-            args: Optional[str] = remove_whitespace(args) if args is not None else None
+            name: str = name.strip()  # type:ignore
+            args: Optional[str] = remove_whitespace(args) if args is not None else None  # type:ignore
             arguments = []
             if args is not None:
                 for arg in split_args(args):
                     arguments.append(Argument(*arg_pattern.match(remove_whitespace(arg)).groups()))
-            ret: Optional[str] = ret.strip() if ret is not None and len(ret) != 0 else None
+            ret: Optional[str] = ret.strip() if ret is not None and len(ret) != 0 else None # type:ignore
             res.append(FunctionDeclaration(name, tuple(arguments), ret, decorators=None, generics=tuple(parameters)))
 
         return res
