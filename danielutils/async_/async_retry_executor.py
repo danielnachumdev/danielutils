@@ -12,7 +12,7 @@ from ..versioned_imports import ParamSpec
 P = ParamSpec("P")
 
 
-class AsyncRetryExecutorBase:
+class AsyncRetryExecutor:
     def __init__(
             self,
             timeout_strategy: Supplier[float] = LinearTimeStrategy(30, 5),
@@ -75,7 +75,7 @@ class AsyncRetryExecutorBase:
 
 @normalize_decorator
 def with_async_retry(func, *retry_executor_args, max_tries: int = 5, **retry_executor_kwargs):
-    retry_executor = AsyncRetryExecutorBase(*retry_executor_args, **retry_executor_kwargs)
+    retry_executor = AsyncRetryExecutor(*retry_executor_args, **retry_executor_kwargs)
 
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
@@ -85,6 +85,6 @@ def with_async_retry(func, *retry_executor_args, max_tries: int = 5, **retry_exe
 
 
 __all__ = [
-    "AsyncRetryExecutorBase",
+    "AsyncRetryExecutor",
     "with_async_retry"
 ]

@@ -2,11 +2,11 @@ import asyncio
 import json
 from typing import Callable, Literal, Optional, Coroutine
 
-from .async_retry_executor_base import AsyncRetryExecutorBase
+from .async_retry_executor import AsyncRetryExecutor
 
 
-class AsyncWorkerPoolBase:
-    def __init__(self, num_workers: int, retry_executor: Optional[AsyncRetryExecutorBase] = None) -> None:
+class AsyncWorkerPool:
+    def __init__(self, num_workers: int, retry_executor: Optional[AsyncRetryExecutor] = None) -> None:
         self.num_workers = num_workers
         self.queue = asyncio.Queue()
         self.workers = []
@@ -61,5 +61,5 @@ class AsyncWorkerPoolBase:
 
 
 __all__ = [
-    "AsyncWorkerPoolBase",
+    "AsyncWorkerPool",
 ]
