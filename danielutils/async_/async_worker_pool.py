@@ -1,9 +1,14 @@
 import asyncio
 import json
-from typing import Callable, Literal, Optional, Coroutine
+from datetime import datetime
+from typing import Callable, Literal, Optional, Coroutine, List
 
 
 class AsyncWorkerPool:
+    DEFAULT_ORDER_IF_KEY_EXISTS = (
+        "pool", "timestamp", "level", "message", "exception"
+    )
+
     def __init__(self, pool_name: str, num_workers: int = 5) -> None:
         self.num_workers = num_workers
         self.pool_name = pool_name
@@ -34,8 +39,11 @@ class AsyncWorkerPool:
         """Starts the worker pool."""
         self.workers = [asyncio.create_task(self.worker(i + 1)) for i in range(self.num_workers)]
 
-    async def submit(self, func: Callable[..., Coroutine[None, None, None]], *args, **kwargs) -> None:
+    async def submit(self, func: Callable[..., Coroutine[None, None, None]], *args, name: Optional[str] = None,
+                     **kwargs) -> None:
         """Submit a new task to the queue."""
+        if name:
+            kwargs[name] = name
         await self.queue.put((func, args, kwargs))
 
     async def join(self) -> None:
@@ -45,20 +53,30 @@ class AsyncWorkerPool:
             await self.queue.put(None)  # Send sentinel values to stop workers
         await asyncio.gather(*self.workers)  # Wait for workers to finish
 
-    def log(self, level: Literal["INFO", "WARNING", "ERROR"], message: str, **kwargs) -> None:
+    @classmethod
+    def log(
+            self,
+            level: Literal["INFO", "WARNING", "ERROR"],
+            message: str,
+            order: Optional[List[str]] = DEFAULT_ORDER_IF_KEY_EXISTS,
+            **kwargs
+    ) -> None:
         kwargs["level"] = level
         kwargs["message"] = message
-        kwargs["pool"] = self.pool_name
-        print(json.dumps(kwargs, default=str))
+        kwargs["timestamp"] = datetime.now().isoformat()
+        ordered_kwargs = kwargs
+        if order:
+            ordered_kwargs = {key: kwargs[key] for key in order if key in kwargs}
+        print(json.dumps(ordered_kwargs, default=str))
 
     def info(self, message: str, **kwargs) -> None:
-        self.log("INFO", message, **kwargs)
+        self.log("INFO", message, pool=self.pool_name, **kwargs)
 
     def warn(self, message: str, **kwargs) -> None:
-        self.log("WARNING", message, **kwargs)
+        self.log("WARNING", message, pool=self.pool_name, **kwargs)
 
     def error(self, message: str, **kwargs) -> None:
-        self.log("ERROR", message, **kwargs)
+        self.log("ERROR", message, pool=self.pool_name, **kwargs)
 
 
 __all__ = [
