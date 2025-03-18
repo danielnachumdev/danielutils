@@ -1,7 +1,9 @@
 import unittest
-import sys
-from typing import IO, Any
-from danielutils import ProgressBarPool, AsciiProgressBar, AttrContext, bprint
+from typing import Any
+try:
+    from danielutils import ProgressBarPool, AsciiProgressBar, AttrContext, bprint
+except:
+    from ...danielutils import ProgressBarPool, AsciiProgressBar, AttrContext, bprint
 
 pool = ProgressBarPool(
     AsciiProgressBar,

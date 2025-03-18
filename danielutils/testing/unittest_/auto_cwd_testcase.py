@@ -2,11 +2,11 @@ import asyncio
 import functools
 import os
 import unittest
-import inspect
-from inspect import iscoroutine, iscoroutinefunction
+from inspect import iscoroutinefunction
 from typing import Callable, Type, Coroutine, Union, Any
 
-from danielutils import create_directory, get_current_working_directory, set_current_working_directory, delete_directory
+from ...io_ import create_directory, delete_directory
+from ...path import get_current_working_directory, set_current_working_directory
 
 
 def dispatch_function(func: Union[Callable, Coroutine], *args, **kwargs) -> Any:

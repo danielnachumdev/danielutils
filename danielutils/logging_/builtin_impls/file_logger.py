@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from danielutils import delete_file, directory_exists, create_directory
+from ...io_ import delete_file, directory_exists, create_directory
 
 from ..logger_strategy_impl_base import LoggerStrategyImplBase
 

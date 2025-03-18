@@ -1,7 +1,7 @@
 import time
 from typing import Generic, TypeVar, Optional
 
-from danielutils import Supplier, Consumer
+from ..aliases import Supplier, Consumer
 from .backoff_strategies import ConstantBackOffStrategy
 
 from .backoff_strategy import BackOffStrategy

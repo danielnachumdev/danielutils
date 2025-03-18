@@ -1,4 +1,4 @@
-from danielutils import Supplier
+from ..aliases import Supplier
 
 
 class BackOffStrategy:
