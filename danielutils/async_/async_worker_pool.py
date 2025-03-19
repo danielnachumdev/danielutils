@@ -1,12 +1,12 @@
 import asyncio
 import json
 from datetime import datetime
-from typing import Callable, Literal, Optional, Coroutine, List
+from typing import Callable, Literal, Optional, Coroutine, List, Iterable, Any, Mapping
 
 
 class AsyncWorkerPool:
     DEFAULT_ORDER_IF_KEY_EXISTS = (
-        "pool", "timestamp", "level", "message", "exception"
+        "pool", "timestamp", "worker", "task", "tasks", "level", "message", "exception"
     )
 
     def __init__(self, pool_name: str, num_workers: int = 5) -> None:
@@ -17,34 +17,38 @@ class AsyncWorkerPool:
 
     async def worker(self, worker_id) -> None:
         """Worker coroutine that continuously fetches and executes tasks from the queue."""
-        task_count = 0
+        task_names = []
+        task_index = 0
         while True:
             task = await self.queue.get()
             if task is None:  # Sentinel value to shut down the worker
                 break
-            task_count += 1
-            func, args, kwargs = task
-            self.info(f"Worker {worker_id} started with task {task_count}")
-
+            func, args, kwargs, name = task
+            task_names.append(name)
+            task_index = len(task_names)
+            self.info(f"Started task {task_index}", task=name, worker_id=worker_id)
             try:
                 await func(*args, **kwargs)
             except Exception as e:
-                self.error(f"Worker {worker_id} failed task {task_count}", exception=e)
+                self.error(f"Failed task {task_index}", exception=e, worker_id=worker_id, task=name)
 
-            self.info(f"Worker {worker_id} finished with task {task_count}")
+            self.info(f"Finished task {task_index}", worker_id=worker_id, task=name)
             self.queue.task_done()
-        self.info(f"Worker {worker_id} done executed {task_count} tasks.")
+        self.info(f"Done. Executed {task_index} tasks", worker_id=worker_id, tasks=task_names)
 
     async def start(self) -> None:
         """Starts the worker pool."""
         self.workers = [asyncio.create_task(self.worker(i + 1)) for i in range(self.num_workers)]
 
-    async def submit(self, func: Callable[..., Coroutine[None, None, None]], *args, name: Optional[str] = None,
-                     **kwargs) -> None:
+    async def submit(
+            self,
+            func: Callable[..., Coroutine[None, None, None]],
+            args: Optional[Iterable[Any]] = None,
+            kwargs: Optional[Mapping[Any, Any]] = None,
+            name: Optional[str] = None
+    ) -> None:
         """Submit a new task to the queue."""
-        if name:
-            kwargs[name] = name
-        await self.queue.put((func, args, kwargs))
+        await self.queue.put((func, args or (), kwargs or {}, name))
 
     async def join(self) -> None:
         """Stops the worker pool by waiting for all tasks to complete and shutting down workers."""
@@ -67,6 +71,7 @@ class AsyncWorkerPool:
         ordered_kwargs = kwargs
         if order:
             ordered_kwargs = {key: kwargs[key] for key in order if key in kwargs}
+            ordered_kwargs.update(kwargs)
         print(json.dumps(ordered_kwargs, default=str))
 
     def info(self, message: str, **kwargs) -> None:
