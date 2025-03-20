@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 class AsyncWorkerPool:
     DEFAULT_ORDER_IF_KEY_EXISTS = (
-        "pool", "timestamp", "worker", "task_id", "task", "num_tasks", "tasks", "level", "message", "exception"
+        "pool", "timestamp", "worker_id", "task_id", "task_name", "num_tasks", "tasks", "level", "message", "exception"
     )
 
     def __init__(self, pool_name: str, num_workers: int = 5, show_pbar: bool = False) -> None:
@@ -30,16 +30,16 @@ class AsyncWorkerPool:
                 break
             func, args, kwargs, name = task
             task_index += 1
-            self._info(f"Started", task_id=task_index, task=name, worker_id=worker_id)
+            self._info(f"Started", task_id=task_index, task_name=name, worker_id=worker_id)
             try:
                 await func(*args, **kwargs)
                 tasks["success"].append(name)
+                self._info(f"Finished", task_id=task_index, worker_id=worker_id, task_name=name)
             except Exception as e:
                 self._error(f"Failed", task_id=task_index, exception=e, worker_id=worker_id,
-                            task=name)
+                            task_name=name)
                 tasks["failure"].append(name)
 
-            self._info(f"Finished", task_id=task_index, worker_id=worker_id, task=name)
             if self._pbar:
                 self._pbar.update(1)
             self._queue.task_done()
@@ -73,7 +73,7 @@ class AsyncWorkerPool:
             self,
             level: Literal["INFO", "WARNING", "ERROR"],
             message: str,
-            order: Optional[List[str]] = DEFAULT_ORDER_IF_KEY_EXISTS,
+            order: Optional[Iterable[str]] = DEFAULT_ORDER_IF_KEY_EXISTS,
             **kwargs
     ) -> None:
         kwargs["level"] = level
