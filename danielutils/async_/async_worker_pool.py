@@ -1,46 +1,52 @@
 import asyncio
 import json
 from datetime import datetime
-from typing import Callable, Literal, Optional, Coroutine, List, Iterable, Any, Mapping
+from typing import Callable, Literal, Optional, Coroutine, List, Iterable, Any, Mapping, Tuple
+from tqdm import tqdm
 
 
 class AsyncWorkerPool:
     DEFAULT_ORDER_IF_KEY_EXISTS = (
-        "pool", "timestamp", "worker_id", "task_id", "task_name", "num_tasks", "tasks", "level", "message", "exception"
+        "pool", "timestamp", "worker", "task", "tasks", "level", "message", "exception"
     )
 
-    def __init__(self, pool_name: str, num_workers: int = 5) -> None:
-        self.num_workers = num_workers
-        self.pool_name = pool_name
-        self.queue = asyncio.Queue()
-        self.workers = []
+    def __init__(self, pool_name: str, num_workers: int = 5, show_pbar: bool = False) -> None:
+        self._num_workers: int = num_workers
+        self._pool_name: str = pool_name
+        self._show_pbar: bool = show_pbar
+        self._pbar: Optional[tqdm] = None
+        self._queue: asyncio.Queue[
+            Tuple[Callable, Iterable[Any], Mapping[Any, Any], Optional[str]]] = asyncio.Queue()
+        self._workers: List = []
 
     async def worker(self, worker_id) -> None:
         """Worker coroutine that continuously fetches and executes tasks from the queue."""
+        task_names = []
         task_index = 0
-        tasks = {}
         while True:
-            task = await self.queue.get()
+            task = await self._queue.get()
             if task is None:  # Sentinel value to shut down the worker
                 break
             func, args, kwargs, name = task
-            task_index += 1
-            self.info(f"Started", task_name=name, task_id=task_index, worker_id=worker_id)
+            task_names.append(name)
+            task_index = len(task_names)
+            self._info(f"Started task {task_index}", task=name, worker_id=worker_id)
             try:
                 await func(*args, **kwargs)
-                tasks["success"] = name
             except Exception as e:
-                self.error(f"Failed", exception=e, worker_id=worker_id, task_name=name,
-                           task_id=task_index)
-                tasks["error"] = name
+                self._error(f"Failed task {task_index}", exception=e, worker_id=worker_id, task=name)
 
-            self.info(f"Finished", worker_id=worker_id, task_name=name, task_id=task_index, )
-            self.queue.task_done()
-        self.info(f"Done", worker_id=worker_id, tasks=tasks, num_tasks=task_index)
+            self._info(f"Finished task {task_index}", worker_id=worker_id, task=name)
+            if self._pbar:
+                self._pbar.update(1)
+            self._queue.task_done()
+        self._info(f"Done. Executed {task_index} tasks", worker_id=worker_id, tasks=task_names)
 
     async def start(self) -> None:
         """Starts the worker pool."""
-        self.workers = [asyncio.create_task(self.worker(i + 1)) for i in range(self.num_workers)]
+        if self._show_pbar:
+            self._pbar = tqdm(total=self._queue.qsize(), desc="#Tasks")
+        self._workers = [asyncio.create_task(self.worker(i + 1)) for i in range(self._num_workers)]
 
     async def submit(
             self,
@@ -50,14 +56,14 @@ class AsyncWorkerPool:
             name: Optional[str] = None
     ) -> None:
         """Submit a new task to the queue."""
-        await self.queue.put((func, args or (), kwargs or {}, name))
+        await self._queue.put((func, args or (), kwargs or {}, name))
 
     async def join(self) -> None:
         """Stops the worker pool by waiting for all tasks to complete and shutting down workers."""
-        await self.queue.join()  # Wait until all tasks are processed
-        for _ in range(self.num_workers):
-            await self.queue.put(None)  # Send sentinel values to stop workers
-        await asyncio.gather(*self.workers)  # Wait for workers to finish
+        await self._queue.join()  # Wait until all tasks are processed
+        for _ in range(self._num_workers):
+            await self._queue.put(None)  # Send sentinel values to stop workers
+        await asyncio.gather(*self._workers)  # Wait for workers to finish
 
     @classmethod
     def log(
@@ -76,14 +82,14 @@ class AsyncWorkerPool:
             ordered_kwargs.update(kwargs)
         print(json.dumps(ordered_kwargs, default=str))
 
-    def info(self, message: str, **kwargs) -> None:
-        self.log("INFO", message, pool=self.pool_name, **kwargs)
+    def _info(self, message: str, **kwargs) -> None:
+        self.log("INFO", message, pool=self._pool_name, **kwargs)
 
-    def warn(self, message: str, **kwargs) -> None:
-        self.log("WARNING", message, pool=self.pool_name, **kwargs)
+    def _warn(self, message: str, **kwargs) -> None:
+        self.log("WARNING", message, pool=self._pool_name, **kwargs)
 
-    def error(self, message: str, **kwargs) -> None:
-        self.log("ERROR", message, pool=self.pool_name, **kwargs)
+    def _error(self, message: str, **kwargs) -> None:
+        self.log("ERROR", message, pool=self._pool_name, **kwargs)
 
 
 __all__ = [
