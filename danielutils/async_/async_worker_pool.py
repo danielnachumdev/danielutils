@@ -17,7 +17,7 @@ class AsyncWorkerPool:
         self._show_pbar: bool = show_pbar
         self._pbar: Optional[tqdm] = None
         self._queue: asyncio.Queue[
-            Tuple[Callable, Iterable[Any], Mapping[Any, Any], Optional[str]]] = asyncio.Queue()
+            Optional[Tuple[Callable, Iterable[Any], Mapping[Any, Any], Optional[str]]]] = asyncio.Queue()
         self._workers: List = []
 
     async def worker(self, worker_id) -> None:
