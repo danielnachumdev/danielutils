@@ -1,5 +1,6 @@
 import asyncio
 import json
+from collections import defaultdict
 from datetime import datetime
 from typing import Callable, Literal, Optional, Coroutine, List, Iterable, Any, Mapping, Tuple
 from tqdm import tqdm
@@ -7,7 +8,7 @@ from tqdm import tqdm
 
 class AsyncWorkerPool:
     DEFAULT_ORDER_IF_KEY_EXISTS = (
-        "pool", "timestamp", "worker", "task", "tasks", "level", "message", "exception"
+        "pool", "timestamp", "worker", "task_id", "task", "num_tasks", "tasks", "level", "message", "exception"
     )
 
     def __init__(self, pool_name: str, num_workers: int = 5, show_pbar: bool = False) -> None:
@@ -21,26 +22,28 @@ class AsyncWorkerPool:
 
     async def worker(self, worker_id) -> None:
         """Worker coroutine that continuously fetches and executes tasks from the queue."""
-        task_names = []
         task_index = 0
+        tasks = defaultdict(list)
         while True:
             task = await self._queue.get()
             if task is None:  # Sentinel value to shut down the worker
                 break
             func, args, kwargs, name = task
-            task_names.append(name)
-            task_index = len(task_names)
-            self._info(f"Started task {task_index}", task=name, worker_id=worker_id)
+            task_index += 1
+            self._info(f"Started", task_id=task_index, task=name, worker_id=worker_id)
             try:
                 await func(*args, **kwargs)
+                tasks["success"].append(name)
             except Exception as e:
-                self._error(f"Failed task {task_index}", exception=e, worker_id=worker_id, task=name)
+                self._error(f"Failed", task_id=task_index, exception=e, worker_id=worker_id,
+                            task=name)
+                tasks["failure"].append(name)
 
-            self._info(f"Finished task {task_index}", worker_id=worker_id, task=name)
+            self._info(f"Finished", task_id=task_index, worker_id=worker_id, task=name)
             if self._pbar:
                 self._pbar.update(1)
             self._queue.task_done()
-        self._info(f"Done. Executed {task_index} tasks", worker_id=worker_id, tasks=task_names)
+        self._info(f"Done", worker_id=worker_id, tasks=tasks, num_tasks=task_index)
 
     async def start(self) -> None:
         """Starts the worker pool."""
