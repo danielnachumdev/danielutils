@@ -26,7 +26,7 @@ class JavaInterface(ABC):
             print(set(info.inherited_methods))
             actual_func_names = set(f.name for f in info.functions)
             for to_remove in {"__class_getitem__", "__init_subclass__"}:
-                if getattr(cls, to_remove, None) is getattr(JavaInterface, to_remove, None):
+                if hasattr(cls, to_remove) and getattr(cls, to_remove, None) is getattr(JavaInterface, to_remove, None):
                     actual_func_names.remove(to_remove)
             for interface in (base for base in cls.__mro__ if getattr(base, "__is_interface__", False)):
                 expected_func_names = set(f.name for f in ClassInfo(interface).abstract_methods)

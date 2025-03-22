@@ -20,7 +20,7 @@ del T, _A
 
 class ClassInfo:
     CLASS_DEFINITION_REGEX: re.Pattern = re.compile(
-        r"(?P<decorations>[\s\S]*)?^class (?P<name>\w[\w\d]*)(?:\((?P<bases>.*)\))?:(?P<body>[\s\S]+)", re.MULTILINE)
+        r"(?P<decorations>[\s\S]*)?(^)?class (?P<name>\w[\w\d]*)(?:\((?P<bases>.*)\))?:(?P<body>[\s\S]+)", re.MULTILINE)
 
     # r"(?P<decorations>[\s\S]*)?^class (?P<name>\w[\w\d]*)(?:\((?P<bases>.*)\))?:(?P<body>[\s\S]+)"
 
@@ -42,7 +42,7 @@ class ClassInfo:
         m = ClassInfo.CLASS_DEFINITION_REGEX.match(self._src_code)
         if m is None:
             raise SyntaxError()
-        decorators, name, bases, _ = m.groups()
+        decorators, name, bases, _ = m.groupdict().values()
         self._name = name
         self._bases = ArgumentInfo.from_str(bases)
         self._parse_body()
