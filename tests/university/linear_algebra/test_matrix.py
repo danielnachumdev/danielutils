@@ -2,7 +2,11 @@ import unittest
 import math
 from fractions import Fraction
 
-from danielutils.university.linear_algebra import Matrix
+try:
+    from danielutils import Matrix
+except:
+    # python == 3.9.0
+    from ....danielutils import Matrix
 
 
 class TestMatrix(unittest.TestCase):
