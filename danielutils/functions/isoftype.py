@@ -1,5 +1,5 @@
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
-    ForwardRef, Literal, Optional, Protocol, Generic, Type, List, Tuple, Set, Dict
+    ForwardRef, Literal, Optional, Protocol, Generic, Type, List, Tuple, Set, Dict, Unpack
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
 
@@ -352,6 +352,12 @@ def __handle_type(params: tuple) -> bool:
     return False
 
 
+def __handle_unpack(params: tuple) -> bool:
+    # TODO see test_tlist.py -> test_wrong_values ->    with self.assertRaises(TypeError):
+    #             tlist[Tuple[int]]([[1], [2], [3], ["4"]])
+    raise NotImplemented
+
+
 HANDLERS: Dict[type, Callable] = {
     list: __handle_list_set_iterable,
     tuple: __handle_tuple,
@@ -370,6 +376,7 @@ HANDLERS: Dict[type, Callable] = {
     Literal: __handle_literal,
     Callable: __handle_callable,
     Protocol: __handle_protocol,
+    Unpack: __handle_unpack
 }
 
 
