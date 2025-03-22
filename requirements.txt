@@ -1,6 +1,7 @@
 mypy
 pylint
-tqdm==4.66.1
-types-tqdm==4.66.0.1
+tqdm
+types-tqdm
 twine
+# ===== DEV =====
 quickpub>=2.0.2
