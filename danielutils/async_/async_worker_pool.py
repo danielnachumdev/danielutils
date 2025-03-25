@@ -70,7 +70,7 @@ class AsyncWorkerPool:
 
     @classmethod
     def log(
-            self,
+            cls,
             level: Literal["INFO", "WARNING", "ERROR"],
             message: str,
             order: Optional[Iterable[str]] = DEFAULT_ORDER_IF_KEY_EXISTS,
