@@ -3,5 +3,3 @@ pylint
 tqdm
 types-tqdm
 twine
-# ===== DEV =====
-quickpub>=2.0.2
