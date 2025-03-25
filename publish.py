@@ -6,7 +6,7 @@ from quickpub import publish, Version, MypyRunner, PylintRunner, UnittestRunner,
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.0.38",
+        version="1.0.39",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
@@ -14,11 +14,11 @@ def main() -> None:
         homepage="https://github.com/danielnachumdev/danielutils",
         enforcers=[
             PypircEnforcer(), ReadmeEnforcer(), LicenseEnforcer(),
-            LocalVersionEnforcer() #, PypiRemoteVersionEnforcer()
+            LocalVersionEnforcer()  # , PypiRemoteVersionEnforcer()
         ],
         build_schemas=[SetuptoolsBuildSchema()],
         upload_targets=[PypircUploadTarget(), GithubUploadTarget()],
-        python_interpreter_provider=CondaPythonProvider(["base", "390", "380"]),
+        python_interpreter_provider=CondaPythonProvider(["base", "39", "380"]),
         global_quality_assurance_runners=[
             MypyRunner(bound="<=115", configuration_path="./mypy.ini"),
             PylintRunner(bound=">=0.8", configuration_path="./.pylintrc"),
