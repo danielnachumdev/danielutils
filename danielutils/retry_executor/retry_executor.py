@@ -13,6 +13,12 @@ class RetryExecutor(Generic[T]):
     def __init__(self, backoff_strategy: BackOffStrategy = ConstantBackOffStrategy(200)) -> None:
         self._backoff_strategy = backoff_strategy
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
     def execute(self, supp: Supplier[T], max_retries: int = 5,
                 exception_callback: Optional[Consumer[Exception]] = None) -> Optional[T]:
 
