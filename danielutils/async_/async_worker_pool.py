@@ -3,7 +3,14 @@ import json
 from collections import defaultdict
 from datetime import datetime
 from typing import Callable, Literal, Optional, Coroutine, List, Iterable, Any, Mapping, Tuple
-from tqdm import tqdm
+
+
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    from ..mock_ import MockImportObject
+    tqdm = MockImportObject("'tqdm' is not installed. Please install 'tqdm' to use AsyncWorkerPool feature.")
 
 
 class AsyncWorkerPool:
