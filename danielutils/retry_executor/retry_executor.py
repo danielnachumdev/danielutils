@@ -35,7 +35,7 @@ class RetryExecutor(Generic[T]):
         return None
 
     def _sleep(self) -> None:
-        time.sleep(self._backoff_strategy.get_backoff())
+        time.sleep(self._backoff_strategy.get_backoff() / 1000)
 
 
 __all__ = [
