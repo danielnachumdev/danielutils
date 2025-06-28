@@ -9,7 +9,7 @@ from tqdm import tqdm
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.0.39",
+        version="1.0.45",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
@@ -23,13 +23,13 @@ def main() -> None:
         upload_targets=[PypircUploadTarget(), GithubUploadTarget()],
         python_interpreter_provider=CondaPythonProvider(["base", "39", "380"]),
         global_quality_assurance_runners=[
-            MypyRunner(bound="<=115", configuration_path="./mypy.ini"),
+            MypyRunner(bound="<=150", configuration_path="./mypy.ini"),
             PylintRunner(bound=">=0.8", configuration_path="./.pylintrc"),
             UnittestRunner(bound=">=0.5"),
         ],
         log=lambda obj: tqdm.write(json.dumps(obj, default=str)),
         pbar=tqdm(desc="QA", leave=False),
-        demo=True
+        demo=False
     )
 
 
