@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Any, List, Optional, Literal, Union
+from typing import Dict, Any, List, Optional, Literal, Union, Type
 from enum import Enum
 from datetime import datetime, date, time
 from uuid import UUID
@@ -7,9 +7,9 @@ from uuid import UUID
 try:
     from pydantic import BaseModel, Field, ConfigDict
 except ImportError:
-    BaseModel = type("BaseModel", (object,), {})
-    Field = lambda **kwargs: kwargs
-    ConfigDict = lambda **kwargs: kwargs
+    BaseModel = type("BaseModel", (object,), {})  # type:ignore
+    Field = lambda **kwargs: kwargs  # type:ignore
+    ConfigDict = lambda **kwargs: kwargs  # type:ignore
 
 
 class ColumnType(str, Enum):
@@ -199,7 +199,7 @@ def serialize_to_json(obj: Union[BaseDBModel, List[BaseDBModel], Dict[str, Any]]
     return json.dumps(obj)
 
 
-def deserialize_from_json(json_str: str, model_class: type[BaseDBModel]) -> Union[BaseDBModel, List[BaseDBModel]]:
+def deserialize_from_json(json_str: str, model_class: Type[BaseDBModel]) -> Union[BaseDBModel, List[BaseDBModel]]:
     """Deserialize JSON string to model instance(s)"""
     data = json.loads(json_str)
     if isinstance(data, list):

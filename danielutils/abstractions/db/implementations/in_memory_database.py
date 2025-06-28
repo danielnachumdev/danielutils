@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Any, List
 from datetime import datetime
+
 try:
     from starlette import status
 except ImportError:
@@ -28,7 +29,7 @@ class InMemoryDatabase(Database):
             return DBQueryError(f"Query error: {str(e)}", e)
         return DBException(f"Database error: {str(e)}", e)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         try:
             import starlette
         except ImportError as e:

@@ -52,7 +52,7 @@ class RedisDatabase(Database):
         self.db = db
         self.password = password
         self.decode_responses = decode_responses
-        self._db: Optional[redis.Redis] = None
+        self._db: redis.Redis = None  # type:ignore
         self._connected = False
         self.logger = logging.getLogger(__name__)
 

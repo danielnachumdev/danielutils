@@ -8,9 +8,9 @@ try:
 except ImportError:
     from ...mock_ import MockImportObject
 
-    inspect = MockImportObject("'sqlalchemy' is not installed")
-    Column = MockImportObject("'sqlalchemy' is not installed")
-    DeclarativeBase = type("DeclarativeBase", (object,), {})
+    inspect = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Column = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    DeclarativeBase = type("DeclarativeBase", (object,), {})  # type:ignore
 
 from .database import Database
 from .database_definitions import ColumnType, TableSchema, TableColumn as ColumnSchema, TableIndex as IndexSchema

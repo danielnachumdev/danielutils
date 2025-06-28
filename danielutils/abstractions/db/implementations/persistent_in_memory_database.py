@@ -42,7 +42,7 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
             register_shutdown_handler: Optional[Callable[[
                 Callable[[], None]], None]] = None,
             **kwargs
-    ):
+    ) -> None:
         """
         Initialize persistent in-memory database
 
@@ -69,7 +69,7 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
     def _save_state(self) -> None:
         """Save current database state to disk"""
         try:
-            def filter_callable_defaults(schema_dict):
+            def filter_callable_defaults(schema_dict: Dict) -> Dict:
                 # Remove callables from column defaults
                 if 'columns' in schema_dict:
                     for col in schema_dict['columns']:

@@ -8,27 +8,27 @@ try:
     from sqlalchemy.types import Integer, String, DateTime, Boolean, Float, JSON, LargeBinary
 except ImportError:
     from ....mock_ import MockImportObject
-    
-    create_engine = MockImportObject("'sqlalchemy' is not installed")
-    MetaData = MockImportObject("'sqlalchemy' is not installed")
-    Table = MockImportObject("'sqlalchemy' is not installed")
-    Column = MockImportObject("'sqlalchemy' is not installed")
-    inspect = MockImportObject("'sqlalchemy' is not installed")
-    text = MockImportObject("'sqlalchemy' is not installed")
-    select = MockImportObject("'sqlalchemy' is not installed")
-    update = MockImportObject("'sqlalchemy' is not installed")
-    delete = MockImportObject("'sqlalchemy' is not installed")
-    Engine = MockImportObject("'sqlalchemy' is not installed")
-    sessionmaker = MockImportObject("'sqlalchemy' is not installed")
-    Session = MockImportObject("'sqlalchemy' is not installed")
-    or_ = MockImportObject("'sqlalchemy' is not installed")
-    Integer = MockImportObject("'sqlalchemy' is not installed")
-    String = MockImportObject("'sqlalchemy' is not installed")
-    DateTime = MockImportObject("'sqlalchemy' is not installed")
-    Boolean = MockImportObject("'sqlalchemy' is not installed")
-    Float = MockImportObject("'sqlalchemy' is not installed")
-    JSON = MockImportObject("'sqlalchemy' is not installed")
-    LargeBinary = MockImportObject("'sqlalchemy' is not installed")
+
+    create_engine = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    MetaData = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Table = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Column = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    inspect = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    text = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    select = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    update = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    delete = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Engine = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    sessionmaker = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Session = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    or_ = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Integer = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    String = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    DateTime = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Boolean = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    Float = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    JSON = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
+    LargeBinary = MockImportObject("'sqlalchemy' is not installed")  # type:ignore
 
 import os
 from ..database import Database
