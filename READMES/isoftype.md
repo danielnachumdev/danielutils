@@ -1,101 +1,186 @@
 # `isoftype`
--- _Check if an object is of a given type or any of its subtypes._
+
+**Advanced Type Checking for Python**
+
+Check if an object is of a given type or any of its subtypes with support for complex type scenarios including parametrized generics, unions, and nested structures.
 
 Browse code [here](../danielutils/functions/isoftype.py)
 
-## Purpose - What am I solving?
-The purpose of the `isoftype` function is to determine whether an object is of a specific type or any of its subtypes. It provides a flexible type checking mechanism that accounts for various scenarios, including nested structures, unions, generics, and callable types. The function allows for both strict and non-strict type checking, providing different levels of accuracy based on the requirements.
+## Purpose
 
-## Features
-* **Support for Parametrized Generics which the builtin `isinstance` doesn't support!**
-* Check if an object is of a specific type or any of its subtypes.
-* Handle nested structures, including lists, tuples, dictionaries, and sets.
-* Support unions and optional types.
-* Handle generators and iterables.
-* Handle literal types.
-* Check callable types, including lambda functions.
-* Provide warning messages for ambiguous cases.
-* Handle various type origin scenarios, such as generics, type variables, and forward references.
+The `isoftype` function provides comprehensive type checking capabilities that go beyond Python's built-in `isinstance()`. It solves the limitation of `isinstance()` not supporting parametrized generics and provides flexible type checking for complex scenarios including nested structures, unions, generics, and callable types.
 
-The `isoftype` function offers a comprehensive solution for type checking in Python, accommodating different scenarios and providing flexibility in determining the compatibility of objects with specific types or subtypes.
+## Key Features
 
-In conclusion, `isoftype` is a powerful type checking function that simplifies the process of verifying object types and their relationships, enabling developers to write more robust and flexible code.
+- ✅ **Parametrized Generics Support** - Unlike `isinstance()`, supports `list[int]`, `dict[str, Any]`, etc.
+- ✅ **Union Type Handling** - Check against `Union[int, str]` or `int | str`
+- ✅ **Nested Structure Validation** - Handle complex nested lists, tuples, dictionaries
+- ✅ **Callable Type Checking** - Validate functions, methods, and lambda expressions
+- ✅ **Literal Type Support** - Check against literal types like `Literal["a", "b"]`
+- ✅ **Protocol & Interface Support** - Validate against structural types
+- ✅ **Flexible Mode Options** - Strict and non-strict validation modes
 
+## Comparison with `isinstance()`
 
-## Usage
-Here are some examples demonstrating the usage of the isoftype function:
-* Examples that **can** be achieved with the builtin `isinstance`
-    * Example 1: Basic Type Checking
-        ```python
-        # Check if an object is of type int
-        result = isoftype(42, int)
-        print(result)  # Output: True
+| Feature               | `isinstance()` | `isoftype()` |
+| --------------------- | -------------- | ------------ |
+| Basic types           | ✅              | ✅            |
+| Subtypes              | ✅              | ✅            |
+| Union types           | ❌              | ✅            |
+| Parametrized generics | ❌              | ✅            |
+| Nested structures     | ❌              | ✅            |
+| Callable types        | ❌              | ✅            |
+| Literal types         | ❌              | ✅            |
+| Protocol types        | ❌              | ✅            |
 
-        # Check if an object is of type str
-        result = isoftype("Hello", str)
-        print(result)  # Output: True
+## Usage Examples
 
-        # Check if an object is of type list
-        result = isoftype([1, 2, 3], list)
-        print(result)  # Output: True
+### Basic Type Checking (Compatible with `isinstance`)
 
-        # Check if an object is of type float
-        result = isoftype(3.14, float)
-        print(result)  # Output: True
+```python
+from danielutils import isoftype
 
-        # Check if an object is of type dict
-        result = isoftype({"name": "John", "age": 30}, dict)
-        print(result)  # Output: True
-        ```
-    * Example 2: Subtype Checking
-        ```python
-        class Shape:
-            pass
+# Simple type checks
+assert isoftype(42, int) == True
+assert isoftype("Hello", str) == True
+assert isoftype([1, 2, 3], list) == True
+assert isoftype({"key": "value"}, dict) == True
+assert isoftype(3.14, float) == True
 
-        class Circle(Shape):
-            pass
+# Subtype checking
+class Shape:
+    pass
 
-        class Rectangle(Shape):
-            pass
+class Circle(Shape):
+    pass
 
-        # Check if an object is of type Shape or any of its subtypes
-        result = isoftype(Circle(), Shape)
-        print(result)  # Output: True
+class Rectangle(Shape):
+    pass
 
-        result = isoftype(Rectangle(), Shape)
-        print(result)  # Output: True
-        ```
-* Examples that **can't** be achieved with the builtin `isinstance`
-    * Example 3: Handling Union Types
-        ```python
-        from typing import Union
+assert isoftype(Circle(), Shape) == True
+assert isoftype(Rectangle(), Shape) == True
+```
 
-        # Check if an object is of type int or str
-        result = isoftype(42, Union[int, str])
-        print(result)  # Output: True
+### Advanced Type Checking (Beyond `isinstance`)
 
-        result = isoftype("Hello", Union[int, str])
-        print(result)  # Output: True
+```python
+from typing import Union, Iterable, Callable
+from danielutils import isoftype
 
-        # Check if an object is of type float or bool
-        result = isoftype(3.14, Union[float, bool])
-        print(result)  # Output: True
+# Union types
+assert isoftype(42, Union[int, str]) == True
+assert isoftype("Hello", Union[int, str]) == True
+assert isoftype(3.14, Union[float, bool]) == True
 
-        result = isoftype(True, Union[float, bool])
-        print(result)  # Output: True
-        ```
-    * Example 4: Handling Iterables
-        ```python
-        # Check if an object is an iterable of integers
-        result = isoftype([1, 2, 3], Iterable[int])
-        print(result)  # Output: True
+# Parametrized generics (NOT supported by isinstance)
+assert isoftype([1, 2, 3], list[int]) == True
+assert isoftype(["a", "b"], list[str]) == True
+assert isoftype({"key": "value"}, dict[str, str]) == True
+assert isoftype({1.0, 2.0}, set[float]) == True
 
-        # Check if an object is an iterable of strings
-        result = isoftype(("apple", "banana", "cherry"), Iterable[str])
-        print(result)  # Output: True
+# Iterable types
+assert isoftype([1, 2, 3], Iterable[int]) == True
+assert isoftype(("apple", "banana"), Iterable[str]) == True
 
-        # Check if an object is a set of floats
-        result = isoftype({3.14, 2.718, 1.618}, set[float])
-        print(result)  # Output: True
-        ```
-These examples demonstrate the versatility of the isoftype function in handling different type checking scenarios. You can use it to check basic types, subtypes, union types, and even **complex data structures**.
+# Callable types
+def example_func(x: int) -> str:
+    return str(x)
+
+assert isoftype(example_func, Callable[[int], str]) == True
+assert isoftype(lambda x: x * 2, Callable[[int], int]) == True
+```
+
+### Complex Nested Structures
+
+```python
+from typing import Dict, List, Optional
+from danielutils import isoftype
+
+# Nested list structures
+nested_list = [[1, 2], [3, 4], [5, 6]]
+assert isoftype(nested_list, list[list[int]]) == True
+
+# Complex dictionary structures
+complex_dict = {
+    "users": [
+        {"id": 1, "name": "Alice"},
+        {"id": 2, "name": "Bob"}
+    ],
+    "settings": {"debug": True, "port": 8080}
+}
+
+# Check against complex type annotations
+UserDict = Dict[str, Union[int, str]]
+SettingsDict = Dict[str, Union[bool, int]]
+ComplexType = Dict[str, Union[List[UserDict], SettingsDict]]
+
+assert isoftype(complex_dict, ComplexType) == True
+```
+
+### Optional and None Handling
+
+```python
+from typing import Optional
+from danielutils import isoftype
+
+# Optional types
+assert isoftype(42, Optional[int]) == True
+assert isoftype(None, Optional[int]) == True
+assert isoftype("hello", Optional[str]) == True
+
+# None type specifically
+assert isoftype(None, type(None)) == True
+```
+
+## API Reference
+
+### Function Signature
+
+```python
+def isoftype(
+    obj: Any, 
+    target_type: Any, 
+    strict: bool = False
+) -> bool:
+    """
+    Check if an object is of a given type or any of its subtypes.
+    
+    Args:
+        obj: The object to check
+        target_type: The target type to check against
+        strict: If True, performs stricter type checking
+        
+    Returns:
+        bool: True if object matches the target type, False otherwise
+    """
+```
+
+### Parameters
+
+- **`obj`** - The object to type check
+- **`target_type`** - The target type (can be a type, Union, generic, etc.)
+- **`strict`** - Optional boolean for stricter validation mode
+
+### Return Value
+
+Returns `True` if the object matches the target type, `False` otherwise.
+
+## Performance Considerations
+
+- For basic types and subtypes, `isoftype()` has similar performance to `isinstance()`
+- Complex type checking (generics, unions, nested structures) requires additional processing
+- Use `strict=True` for better performance when exact type matching is sufficient
+
+## Error Handling
+
+The function gracefully handles edge cases and provides informative warnings for ambiguous scenarios:
+
+```python
+# Ambiguous cases (provides warnings)
+isoftype([1, "2", 3], list[int])  # Warning: mixed types in list
+isoftype(None, int)  # Returns False, no error
+```
+
+---
+
+**Note**: This function is designed to be a drop-in replacement for `isinstance()` while providing extended functionality for complex type checking scenarios.
