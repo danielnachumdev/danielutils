@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Literal, Dict, Any, Optional, Tuple
 from .database import Database
-from .implementations import InMemoryDatabase, SQLiteDatabase, PersistentInMemoryDatabase
+from .implementations import InMemoryDatabase, SQLiteDatabase, PersistentInMemoryDatabase, RedisDatabase
 
 
 class DatabaseFactory(ABC):
@@ -13,7 +13,7 @@ class DatabaseFactory(ABC):
     def get_database(
             cls,
             db_type: Literal["sqlite", "memory",
-            "persistent_memory"] = "persistent_memory",
+                             "persistent_memory", "redis"] = "persistent_memory",
             db_args: Optional[Tuple[Any, ...]] = None,
             db_kwargs: Optional[Dict[str, Any]] = None
     ) -> Database:
@@ -32,7 +32,8 @@ class DatabaseFactory(ABC):
             mapping = {
                 "sqlite": SQLiteDatabase,
                 "memory": InMemoryDatabase,
-                "persistent_memory": PersistentInMemoryDatabase
+                "persistent_memory": PersistentInMemoryDatabase,
+                "redis": RedisDatabase
             }
             if db_type not in mapping:
                 raise ValueError(f"Unsupported database type: '{db_type}'")

@@ -407,3 +407,8 @@ class RedisDatabase(Database):
         self.logger.info(
             f"Deleted {len(rows_to_delete)} rows from '{query.table}'")
         return len(rows_to_delete)
+
+
+__all__ = [
+    "RedisDatabase"
+]
