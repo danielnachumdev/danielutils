@@ -1,10 +1,10 @@
 import json
-from typing import Callable, Optional, Any, Dict, List
+from typing import Callable, Optional, Any, Dict
 from pathlib import Path
 from datetime import datetime
 from .in_memory_database import InMemoryDatabase
 from ..database_exceptions import DBException
-from ..database_definitions import TableSchema, ColumnType, SelectQuery, UpdateQuery, DeleteQuery
+from ..database_definitions import TableSchema, ColumnType, UpdateQuery, DeleteQuery
 
 
 class DateTimeEncoder(json.JSONEncoder):
