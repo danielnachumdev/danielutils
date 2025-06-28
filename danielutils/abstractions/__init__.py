@@ -1,3 +1,4 @@
 from .database import *
-from .repl import *
+from .db import *
 from .multiprogramming import *
+from .repl import *
