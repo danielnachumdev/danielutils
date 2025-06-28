@@ -1,1 +1,10 @@
 quickpub>=3.0.0
+mypy
+pylint
+tqdm
+types-tqdm
+twine
+redis
+starlette
+sqlalchemy
+pydantic

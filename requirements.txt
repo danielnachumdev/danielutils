@@ -1,5 +1,0 @@
-mypy
-pylint
-tqdm
-types-tqdm
-twine
