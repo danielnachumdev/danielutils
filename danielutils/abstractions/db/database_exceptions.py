@@ -1,5 +1,12 @@
+from typing import Optional
+
+
 class DBException(Exception):
     """Base class for all database exceptions"""
+
+    def __init__(self, message: str, status_code: Optional[int] = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
 
 
 class DBConnectionError(DBException):
