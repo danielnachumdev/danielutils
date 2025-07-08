@@ -22,6 +22,12 @@ class TestPersistentDatabase(unittest.IsolatedAsyncioTestCase):
             shutil.rmtree(cls.test_dir)
         cls.test_dir.mkdir()
 
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up test environment"""
+        if cls.test_dir.exists():
+            shutil.rmtree(cls.test_dir)
+
     async def asyncSetUp(self):
         """Set up each test case"""
         # Initialize database
