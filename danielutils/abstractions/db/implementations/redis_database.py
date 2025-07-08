@@ -61,6 +61,9 @@ class RedisDatabase(Database):
         self.TABLE_PREFIX = "table:"
         self.COUNTER_PREFIX = "counter:"
 
+    def is_connected(self) -> bool:
+        return self._connected
+
     async def connect(self) -> None:
         """Establish connection to Redis database"""
         try:
@@ -87,14 +90,14 @@ class RedisDatabase(Database):
             self._connected = False
             self.logger.info("Disconnected from Redis database")
 
-    def _check_connection(self) -> None:
+    def _assert_connection(self) -> None:
         """Check if connected to database"""
         if not self._connected or not self._db:
             raise DBConnectionError("Not connected to database")
 
     async def get_schemas(self) -> Dict[str, TableSchema]:
         """Get all table schemas"""
-        self._check_connection()
+        self._assert_connection()
 
         schemas = {}
         # Get all schema keys
@@ -111,7 +114,7 @@ class RedisDatabase(Database):
 
     async def create_table(self, schema: TableSchema) -> None:
         """Create a new table with the given schema"""
-        self._check_connection()
+        self._assert_connection()
 
         schema_key = f"{self.SCHEMA_PREFIX}{schema.name}"
         if await self._db.exists(schema_key):
@@ -169,7 +172,7 @@ class RedisDatabase(Database):
 
     async def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """Insert a new record into the specified table"""
-        self._check_connection()
+        self._assert_connection()
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{table}"
@@ -256,7 +259,7 @@ class RedisDatabase(Database):
 
     async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
         """Get records from the database"""
-        self._check_connection()
+        self._assert_connection()
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{query.table}"
@@ -325,7 +328,7 @@ class RedisDatabase(Database):
 
     async def update(self, query: UpdateQuery) -> int:
         """Update records in the database"""
-        self._check_connection()
+        self._assert_connection()
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{query.table}"
@@ -369,7 +372,7 @@ class RedisDatabase(Database):
 
     async def delete(self, query: DeleteQuery) -> int:
         """Delete records from the database"""
-        self._check_connection()
+        self._assert_connection()
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{query.table}"

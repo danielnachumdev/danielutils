@@ -39,8 +39,7 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
             data_dir: str,
             *args,
             auto_save: bool = False,
-            register_shutdown_handler: Optional[Callable[[
-                Callable[[], None]], None]] = None,
+            register_shutdown_handler: Optional[Callable[[Callable[[], None]], None]] = None,
             **kwargs
     ) -> None:
         """

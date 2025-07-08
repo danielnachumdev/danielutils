@@ -98,6 +98,10 @@ class Database(ABC):
         """Close the database connection"""
 
     @abstractmethod
+    def is_connected(self) -> bool:
+        """Check if the database connection is open"""
+
+    @abstractmethod
     async def get_schemas(self) -> Dict[str, TableSchema]:
         """
         Get the complete database schema

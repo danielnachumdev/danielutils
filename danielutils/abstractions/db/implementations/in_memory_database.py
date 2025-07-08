@@ -18,6 +18,9 @@ from ..database_exceptions import DBValidationError, DBQueryError, DBConnectionE
 class InMemoryDatabase(Database):
     """In-memory database implementation using dictionaries"""
 
+    def is_connected(self) -> bool:
+        return self._connected
+
     @classmethod
     def _default_class_exception_conversion(cls, e: Exception) -> Exception:
         """
@@ -54,7 +57,7 @@ class InMemoryDatabase(Database):
 
     async def create_table(self, schema: TableSchema) -> None:
         """Create a new table with the given schema"""
-        if not self._connected:
+        if not self.is_connected():
             raise RuntimeError("Not connected to database")
 
         if schema.name in self.tables:
@@ -96,14 +99,14 @@ class InMemoryDatabase(Database):
 
     async def get_schemas(self) -> Dict[str, TableSchema]:
         """Get all table schemas"""
-        if not self._connected:
+        if not self.is_connected():
             raise RuntimeError("Not connected to database")
 
         return {schema.name: schema for schema in self.schemas.values()}
 
     async def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """Insert a new row into the table"""
-        if not self._connected:
+        if not self.is_connected():
             raise RuntimeError("Not connected to database")
 
         if table not in self.tables:
@@ -163,7 +166,7 @@ class InMemoryDatabase(Database):
 
     async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
         """Get rows from the table matching the query"""
-        if not self._connected:
+        if not self.is_connected():
             raise DBConnectionError("Not connected to database")
 
         if query.table not in self.tables:
@@ -201,7 +204,7 @@ class InMemoryDatabase(Database):
 
     async def update(self, query: UpdateQuery) -> int:
         """Update rows in the table matching the query"""
-        if not self._connected:
+        if not self.is_connected():
             raise RuntimeError("Not connected to database")
 
         if query.table not in self.tables:
@@ -234,7 +237,7 @@ class InMemoryDatabase(Database):
 
     async def delete(self, query: DeleteQuery) -> int:
         """Delete rows from the table matching the query"""
-        if not self._connected:
+        if not self.is_connected():
             raise RuntimeError("Not connected to database")
 
         if query.table not in self.tables:

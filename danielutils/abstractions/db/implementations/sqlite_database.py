@@ -43,6 +43,9 @@ from ..database_exceptions import DBException, DBValidationError, DBQueryError, 
 class SQLiteDatabase(Database):
     """SQLite implementation of the Database abstract class using SQLAlchemy"""
 
+    def is_connected(self) -> bool:
+        pass
+
     @classmethod
     def _default_class_exception_conversion(cls, e: Exception) -> Exception:
         """
@@ -73,6 +76,7 @@ class SQLiteDatabase(Database):
         self.engine: Optional[Engine] = None
         self.session_local = None
         self.metadata = MetaData()
+        self._connected: bool = False
         # Determine the connection URL
         if url:
             self.url = url
@@ -90,17 +94,22 @@ class SQLiteDatabase(Database):
             self.engine = create_engine(self.url, pool_pre_ping=True, **self.engine_kwargs)
             self.session_local = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
             self.metadata.reflect(bind=self.engine)
+            self._connected = True
             logging.info(f"Connected to SQLite database at '{self.url}'")
         except Exception as e:
             logging.error(
                 f"Error connecting to SQLite database at '{self.url}': {e}")
             raise
 
+    def is_connected(self) -> bool:
+        return self._connected
+
     async def disconnect(self) -> None:
         """Close the SQLite database connection"""
         if self.engine:
             self.engine.dispose()
             logging.info("Disconnected from SQLite database")
+        self._connected = False
 
     def _get_column_type(self, sqlalchemy_type: Any) -> ColumnType:
         """Convert SQLAlchemy type to ColumnType enum"""
