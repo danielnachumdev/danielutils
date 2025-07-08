@@ -4,7 +4,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 try:
-    import redis
+    import redis.asyncio as redis
 except ImportError:
     from ....mock_ import MockImportObject
 
@@ -72,7 +72,7 @@ class RedisDatabase(Database):
                 decode_responses=self.decode_responses
             )
             # Test connection
-            self._db.ping()
+            await self._db.ping()
             self._connected = True
             self.logger.info(
                 f"Connected to Redis database at {self.host}:{self.port}")
@@ -83,7 +83,7 @@ class RedisDatabase(Database):
     async def disconnect(self) -> None:
         """Close the Redis database connection"""
         if self._db:
-            self._db.close()
+            await self._db.aclose()
             self._connected = False
             self.logger.info("Disconnected from Redis database")
 
@@ -98,11 +98,11 @@ class RedisDatabase(Database):
 
         schemas = {}
         # Get all schema keys
-        schema_keys = self._db.keys(f"{self.SCHEMA_PREFIX}*")
+        schema_keys = await self._db.keys(f"{self.SCHEMA_PREFIX}*")
 
         for key in schema_keys:
             table_name = key[len(self.SCHEMA_PREFIX):]
-            schema_json = self._db.get(key)
+            schema_json = await self._db.get(key)
             if schema_json:
                 schema_dict = json.loads(schema_json)
                 schemas[table_name] = TableSchema.model_validate(schema_dict)
@@ -114,25 +114,25 @@ class RedisDatabase(Database):
         self._check_connection()
 
         schema_key = f"{self.SCHEMA_PREFIX}{schema.name}"
-        if self._db.exists(schema_key):
+        if await self._db.exists(schema_key):
             raise ValueError(f"Table '{schema.name}' already exists")
 
         # Store schema as JSON
         schema_json = schema.to_json()
-        self._db.set(schema_key, schema_json)
+        await self._db.set(schema_key, schema_json)
 
         # Initialize auto-increment counters
         for column in schema.columns:
             if column.type == ColumnType.AUTOINCREMENT:
                 counter_key = f"{self.COUNTER_PREFIX}{schema.name}:{column.name}"
-                self._db.set(counter_key, 0)
+                await self._db.set(counter_key, 0)
 
         self.logger.info(f"Created table '{schema.name}'")
 
-    def _get_next_auto_increment_id(self, table: str, column: str) -> int:
+    async def _get_next_auto_increment_id(self, table: str, column: str) -> int:
         """Get the next available ID for an auto-increment column"""
         counter_key = f"{self.COUNTER_PREFIX}{table}:{column}"
-        return self._db.incr(counter_key)
+        return await self._db.incr(counter_key)
 
     def _validate_column_type(self, column: TableColumn, value: Any) -> bool:
         """Validate a value against a column's type"""
@@ -173,7 +173,7 @@ class RedisDatabase(Database):
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{table}"
-        schema_json = self._db.get(schema_key)
+        schema_json = await self._db.get(schema_key)
         if not schema_json:
             raise ValueError(f"Table '{table}' does not exist")
 
@@ -184,23 +184,19 @@ class RedisDatabase(Database):
         for column in schema.columns:
             if column.type == ColumnType.AUTOINCREMENT:
                 if column.name in data and data[column.name] is not None:
-                    raise DBValidationError(
-                        f"Cannot specify value for auto-increment column '{column.name}'")
-                row_data[column.name] = self._get_next_auto_increment_id(
-                    table, column.name)
+                    raise DBValidationError(f"Cannot specify value for auto-increment column '{column.name}'")
+                row_data[column.name] = await self._get_next_auto_increment_id(table, column.name)
 
         # Validate data against schema
         for column in schema.columns:
             if column.name in row_data:
                 if not self._validate_column_type(column, row_data[column.name]):
-                    raise DBValidationError(
-                        f"Invalid type for column '{column.name}'")
+                    raise DBValidationError(f"Invalid type for column '{column.name}'")
             elif not column.nullable and column.default is None:
-                raise DBValidationError(
-                    f"Required column '{column.name}' has no value")
+                raise DBValidationError(f"Required column '{column.name}' has no value")
 
         # Generate unique ID for the row
-        row_id = str(self._get_next_auto_increment_id(table, "_id"))
+        row_id = str(await self._get_next_auto_increment_id(table, "_id"))
 
         # Store row data as hash
         table_key = f"{self.TABLE_PREFIX}{table}"
@@ -214,7 +210,7 @@ class RedisDatabase(Database):
             else:
                 hash_data[key] = str(value)
 
-        self._db.hset(table_key, row_key, json.dumps(hash_data))
+        await self._db.hset(table_key, row_key, json.dumps(hash_data))
 
         self.logger.info(f"Inserted row {row_id} into table '{table}'")
         return row_id
@@ -253,8 +249,7 @@ class RedisDatabase(Database):
 
     def _evaluate_where_clause(self, row: Dict[str, Any], where_clause: WhereClause) -> bool:
         """Evaluate a where clause against a row"""
-        results = [self._evaluate_condition(
-            row, condition) for condition in where_clause.conditions]
+        results = [self._evaluate_condition(row, condition) for condition in where_clause.conditions]
         if where_clause.operator == "AND":
             return all(results)
         return any(results)
@@ -265,7 +260,7 @@ class RedisDatabase(Database):
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{query.table}"
-        schema_json = self._db.get(schema_key)
+        schema_json = await self._db.get(schema_key)
         if not schema_json:
             raise ValueError(f"Table '{query.table}' does not exist")
 
@@ -273,7 +268,7 @@ class RedisDatabase(Database):
 
         # Get all rows from the table
         table_key = f"{self.TABLE_PREFIX}{query.table}"
-        all_rows = self._db.hgetall(table_key)
+        all_rows = await self._db.hgetall(table_key)
 
         rows = []
         for row_id, row_json in all_rows.items():
@@ -296,8 +291,7 @@ class RedisDatabase(Database):
                         except (ValueError, TypeError):
                             processed_row[col.name] = value
                     elif col.type == ColumnType.BOOLEAN:
-                        processed_row[col.name] = value.lower() in (
-                            'true', '1', 'yes')
+                        processed_row[col.name] = value.lower() in ('true', '1', 'yes')
                     elif col.type == ColumnType.JSON:
                         try:
                             processed_row[col.name] = json.loads(value)
@@ -313,18 +307,13 @@ class RedisDatabase(Database):
             column_names = set(column.name for column in schema.columns)
             for condition in query.where.conditions:
                 if condition.column not in column_names:
-                    raise DBQueryError(
-                        f"Condition on invalid column '{condition.column}'")
-            rows = [row for row in rows if self._evaluate_where_clause(
-                row, query.where)]
+                    raise DBQueryError(f"Condition on invalid column '{condition.column}'")
+            rows = [row for row in rows if self._evaluate_where_clause(row, query.where)]
 
         # Apply order by if present
         if query.order_by:
             for order in reversed(query.order_by):
-                rows.sort(
-                    key=lambda x: x.get(order.column, ''),
-                    reverse=order.direction == "DESC"
-                )
+                rows.sort(key=lambda x: x.get(order.column, ''), reverse=order.direction == "DESC")
 
         # Apply limit and offset if present
         if query.offset:
@@ -340,7 +329,7 @@ class RedisDatabase(Database):
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{query.table}"
-        schema_json = self._db.get(schema_key)
+        schema_json = await self._db.get(schema_key)
         if not schema_json:
             raise ValueError(f"Table '{query.table}' does not exist")
 
@@ -349,12 +338,11 @@ class RedisDatabase(Database):
 
         # Get all rows from the table
         table_key = f"{self.TABLE_PREFIX}{query.table}"
-        all_rows = self._db.hgetall(table_key)
+        all_rows = await self._db.hgetall(table_key)
 
         # Validate new values against schema
         for column_name, value in query.data.items():
-            column = next(
-                (col for col in schema.columns if col.name == column_name), None)
+            column = next((col for col in schema.columns if col.name == column_name), None)
             if not column:
                 raise ValueError(f"Column '{column_name}' does not exist")
             if not self._validate_column_type(column, value):
@@ -373,7 +361,7 @@ class RedisDatabase(Database):
                         row_data[key] = str(value)
 
                 # Store updated row
-                self._db.hset(table_key, row_id, json.dumps(row_data))
+                await self._db.hset(table_key, row_id, json.dumps(row_data))
                 updated_count += 1
 
         self.logger.info(f"Updated {updated_count} rows in '{query.table}'")
@@ -385,13 +373,13 @@ class RedisDatabase(Database):
 
         # Get schema
         schema_key = f"{self.SCHEMA_PREFIX}{query.table}"
-        schema_json = self._db.get(schema_key)
+        schema_json = await self._db.get(schema_key)
         if not schema_json:
             raise ValueError(f"Table '{query.table}' does not exist")
 
         # Get all rows from the table
         table_key = f"{self.TABLE_PREFIX}{query.table}"
-        all_rows = self._db.hgetall(table_key)
+        all_rows = await self._db.hgetall(table_key)
 
         # Find rows to delete
         rows_to_delete = []
@@ -402,10 +390,9 @@ class RedisDatabase(Database):
 
         # Delete rows
         for row_id in rows_to_delete:
-            self._db.hdel(table_key, row_id)
+            await self._db.hdel(table_key, row_id)
 
-        self.logger.info(
-            f"Deleted {len(rows_to_delete)} rows from '{query.table}'")
+        self.logger.info(f"Deleted {len(rows_to_delete)} rows from '{query.table}'")
         return len(rows_to_delete)
 
 
