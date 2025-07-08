@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Type, Union, Sequence
 from datetime import datetime
 
 try:
@@ -259,7 +259,7 @@ class InMemoryDatabase(Database):
         if value is None:
             return column.nullable
 
-        type_map = {
+        type_map: Dict[str, Union[Type, Sequence[Type]]] = {
             "INTEGER": int,
             "BIGINT": int,
             "FLOAT": float,
@@ -347,9 +347,9 @@ class InMemoryDatabase(Database):
         elif condition.operator == Operator.CONTAINS_CS:
             return str(condition.value) in str(value)
         elif condition.operator == Operator.IN:
-            return value in condition.values
+            return value in condition.values  # type: ignore
         elif condition.operator == Operator.NOT_IN:
-            return value not in condition.values
+            return value not in condition.values  # type: ignore
         elif condition.operator == Operator.IS_NULL:
             return value is None
         elif condition.operator == Operator.IS_NOT_NULL:

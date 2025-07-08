@@ -9,7 +9,7 @@ from tqdm import tqdm
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.0.45",
+        version="1.0.46",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",

@@ -50,12 +50,12 @@ class SQLiteDatabase(Database):
         """
         if 'sqlalchemy' in str(type(e).__module__):
             if 'OperationalError' in str(type(e)):
-                return DBConnectionError(f"Database connection error: {str(e)}", e)
+                return DBConnectionError(f"Database connection error: {str(e)}")
             elif 'IntegrityError' in str(type(e)):
-                return DBValidationError(f"Data validation error: {str(e)}", e)
+                return DBValidationError(f"Data validation error: {str(e)}")
             elif 'ProgrammingError' in str(type(e)):
-                return DBQueryError(f"Query error: {str(e)}", e)
-        return DBException(f"Database error: {str(e)}", e)
+                return DBQueryError(f"Query error: {str(e)}")
+        return DBException(f"Database error: {str(e)}")
 
     def __init__(
             self,
@@ -71,7 +71,7 @@ class SQLiteDatabase(Database):
             **engine_kwargs: Additional keyword arguments for SQLAlchemy create_engine.
         """
         self.engine: Optional[Engine] = None
-        self.SessionLocal = None
+        self.session_local = None
         self.metadata = MetaData()
         # Determine the connection URL
         if url:
@@ -83,15 +83,12 @@ class SQLiteDatabase(Database):
             self.url = os.environ.get(
                 "SQLALCHEMY_DATABASE_URI", "sqlite:///:memory:")
         self.engine_kwargs = engine_kwargs
-        self.connect()
 
     async def connect(self) -> None:
         """Establish connection to SQLite database"""
         try:
-            self.engine = create_engine(
-                self.url, pool_pre_ping=True, **self.engine_kwargs)
-            self.SessionLocal = sessionmaker(
-                autocommit=False, autoflush=False, bind=self.engine)
+            self.engine = create_engine(self.url, pool_pre_ping=True, **self.engine_kwargs)
+            self.session_local = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
             self.metadata.reflect(bind=self.engine)
             logging.info(f"Connected to SQLite database at '{self.url}'")
         except Exception as e:
@@ -187,7 +184,7 @@ class SQLiteDatabase(Database):
                 column = TableColumn(
                     name=col.name,
                     type=column_type,
-                    nullable=col.nullable,
+                    nullable=col.nullable,  # type: ignore
                     primary_key=col.primary_key,
                     unique=is_unique,
                     default=default
@@ -199,8 +196,8 @@ class SQLiteDatabase(Database):
             for idx in indexes:
                 if not (idx['unique'] and len(idx['column_names']) == 1):
                     table_indexes.append(TableIndex(
-                        name=idx['name'],
-                        columns=idx['column_names'],
+                        name=idx['name'],  # type: ignore
+                        columns=idx['column_names'],  # type: ignore
                         unique=idx['unique']
                     ))
 
@@ -208,8 +205,7 @@ class SQLiteDatabase(Database):
             foreign_keys = []
             for fk in inspector.get_foreign_keys(table_name):
                 foreign_keys.append(TableForeignKey(
-                    name=fk.get(
-                        'name', f"fk_{table_name}_{fk['constrained_columns'][0]}"),
+                    name=fk.get('name', f"fk_{table_name}_{fk['constrained_columns'][0]}"),  # type: ignore
                     columns=fk['constrained_columns'],
                     reference_table=fk['referred_table'],
                     reference_columns=fk['referred_columns']
@@ -266,7 +262,7 @@ class SQLiteDatabase(Database):
                     raise ValueError(f"Unsupported column type: {column.type}")
 
                 # Create column with all properties
-                col = Column(
+                col = Column(  # type: ignore
                     column.name,
                     sql_type,
                     nullable=column.nullable,
@@ -278,7 +274,7 @@ class SQLiteDatabase(Database):
 
             # Create table with all columns
             table = Table(schema.name, self.metadata, *columns)
-            table.create(self.engine)
+            table.create(self.engine)  # type: ignore
             logging.info(f"Created table: '{schema.name}'")
         except Exception as e:
             logging.error(f"Error creating table '{schema.name}': {e}")
@@ -286,7 +282,7 @@ class SQLiteDatabase(Database):
 
     def _get_session(self) -> Session:
         """Get a new database session"""
-        return self.SessionLocal()
+        return self.session_local()  # type: ignore
 
     async def insert(self, table: str, data: Dict[str, Any]) -> int:
         """
@@ -337,7 +333,7 @@ class SQLiteDatabase(Database):
                         join_conditions = []
                         for condition in join.conditions:
                             left_col = table_obj.c[condition.column]
-                            right_col = join_table.c[condition.value]
+                            right_col = join_table.c[condition.value]  # type: ignore
                             join_conditions.append(left_col == right_col)
                         stmt = stmt.join(join_table, *join_conditions)
 

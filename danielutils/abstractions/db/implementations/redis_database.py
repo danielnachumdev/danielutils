@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Type, Union, Sequence
 from datetime import datetime
 
 try:
@@ -27,14 +27,14 @@ class RedisDatabase(Database):
         Convert Redis-specific exceptions to standard database exceptions.
         """
         if isinstance(e, redis.ConnectionError):
-            return DBConnectionError(f"Redis connection error: {str(e)}", e)
+            return DBConnectionError(f"Redis connection error: {str(e)}")
         elif isinstance(e, redis.RedisError):
-            return DBException(f"Redis error: {str(e)}", e)
+            return DBException(f"Redis error: {str(e)}")
         elif isinstance(e, ValueError):
-            return DBValidationError(f"Validation error: {str(e)}", e)
+            return DBValidationError(f"Validation error: {str(e)}")
         elif isinstance(e, RuntimeError):
-            return DBQueryError(f"Query error: {str(e)}", e)
-        return DBException(f"Database error: {str(e)}", e)
+            return DBQueryError(f"Query error: {str(e)}")
+        return DBException(f"Database error: {str(e)}")
 
     def __init__(self, host='localhost', port=6379, db=0, password=None, decode_responses=True) -> None:
         """
@@ -139,7 +139,7 @@ class RedisDatabase(Database):
         if value is None:
             return column.nullable
 
-        type_map = {
+        type_map: Dict[str, Union[Type, Sequence[Type]]] = {
             "INTEGER": int,
             "BIGINT": int,
             "FLOAT": float,
@@ -159,13 +159,13 @@ class RedisDatabase(Database):
             "AUTOINCREMENT": int
         }
 
-        expected_type = type_map.get(column.type.value)
+        expected_type = type_map.get(column.type.value, None)
         if not expected_type:
             return False
 
         if isinstance(expected_type, tuple):
             return isinstance(value, expected_type)
-        return isinstance(value, expected_type)
+        return isinstance(value, expected_type)  # type: ignore
 
     async def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """Insert a new record into the specified table"""
@@ -210,7 +210,7 @@ class RedisDatabase(Database):
             else:
                 hash_data[key] = str(value)
 
-        await self._db.hset(table_key, row_key, json.dumps(hash_data))
+        await self._db.hset(table_key, row_key, json.dumps(hash_data))  # type: ignore
 
         self.logger.info(f"Inserted row {row_id} into table '{table}'")
         return row_id
@@ -238,9 +238,9 @@ class RedisDatabase(Database):
         elif condition.operator == Operator.CONTAINS_CS:
             return str(condition.value) in str(value)
         elif condition.operator == Operator.IN:
-            return value in condition.values
+            return value in condition.values  # type: ignore
         elif condition.operator == Operator.NOT_IN:
-            return value not in condition.values
+            return value not in condition.values  # type: ignore
         elif condition.operator == Operator.IS_NULL:
             return value is None
         elif condition.operator == Operator.IS_NOT_NULL:
@@ -268,7 +268,7 @@ class RedisDatabase(Database):
 
         # Get all rows from the table
         table_key = f"{self.TABLE_PREFIX}{query.table}"
-        all_rows = await self._db.hgetall(table_key)
+        all_rows = await self._db.hgetall(table_key)  # type: ignore
 
         rows = []
         for row_id, row_json in all_rows.items():
@@ -287,7 +287,7 @@ class RedisDatabase(Database):
                             processed_row[col.name] = value
                     elif col.type in [ColumnType.FLOAT, ColumnType.DOUBLE, ColumnType.DECIMAL]:
                         try:
-                            processed_row[col.name] = float(value)
+                            processed_row[col.name] = float(value)  # type: ignore
                         except (ValueError, TypeError):
                             processed_row[col.name] = value
                     elif col.type == ColumnType.BOOLEAN:
@@ -338,7 +338,7 @@ class RedisDatabase(Database):
 
         # Get all rows from the table
         table_key = f"{self.TABLE_PREFIX}{query.table}"
-        all_rows = await self._db.hgetall(table_key)
+        all_rows = await self._db.hgetall(table_key)  # type: ignore
 
         # Validate new values against schema
         for column_name, value in query.data.items():
@@ -361,7 +361,7 @@ class RedisDatabase(Database):
                         row_data[key] = str(value)
 
                 # Store updated row
-                await self._db.hset(table_key, row_id, json.dumps(row_data))
+                await self._db.hset(table_key, row_id, json.dumps(row_data))  # type: ignore
                 updated_count += 1
 
         self.logger.info(f"Updated {updated_count} rows in '{query.table}'")
@@ -379,7 +379,7 @@ class RedisDatabase(Database):
 
         # Get all rows from the table
         table_key = f"{self.TABLE_PREFIX}{query.table}"
-        all_rows = await self._db.hgetall(table_key)
+        all_rows = await self._db.hgetall(table_key)  # type: ignore
 
         # Find rows to delete
         rows_to_delete = []
@@ -390,7 +390,7 @@ class RedisDatabase(Database):
 
         # Delete rows
         for row_id in rows_to_delete:
-            await self._db.hdel(table_key, row_id)
+            await self._db.hdel(table_key, row_id)  # type: ignore
 
         self.logger.info(f"Deleted {len(rows_to_delete)} rows from '{query.table}'")
         return len(rows_to_delete)

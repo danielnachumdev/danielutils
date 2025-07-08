@@ -92,7 +92,7 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
             self.logger.info("Database state saved successfully")
         except Exception as e:
             self.logger.error(f"Error saving database state: {e}")
-            raise DBException(f"Failed to save database state: {str(e)}", e)
+            raise DBException(f"Failed to save database state: {str(e)}")
 
     def _load_state(self) -> None:
         """Load database state from disk if available"""
@@ -129,8 +129,7 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
                 self.logger.info("Database state loaded successfully")
             except Exception as e:
                 self.logger.error(f"Error loading database state: {e}")
-                raise DBException(
-                    f"Failed to load database state: {str(e)}", e)
+                raise DBException(f"Failed to load database state: {str(e)}")
 
     def _maybe_save_state(self) -> None:
         """Save state if auto_save is enabled"""

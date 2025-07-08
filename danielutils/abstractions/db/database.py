@@ -68,17 +68,17 @@ class Database(ABC):
         """
         return DBException(f"Database error: {str(e)}")
 
-    def __enter__(self) -> 'Database':
+    async def __aenter__(self) -> 'Database':
         """
         Context manager entry point. Connects to the database.
 
         Returns:
             Database: The database instance for use in the context
         """
-        self.connect()
+        await self.connect()
         return self
 
-    def __exit__(self, exc_type: Optional[type], exc_val: Optional[Exception], exc_tb: Optional[Any]) -> None:
+    async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[Exception], exc_tb: Optional[Any]) -> None:
         """
         Context manager exit point. Disconnects from the database.
 
@@ -87,7 +87,7 @@ class Database(ABC):
             exc_val: The exception instance that was raised, if any
             exc_tb: The traceback for the exception, if any
         """
-        self.disconnect()
+        await self.disconnect()
 
     @abstractmethod
     async def connect(self) -> None:

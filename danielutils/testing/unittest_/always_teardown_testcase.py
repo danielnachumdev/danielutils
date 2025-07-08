@@ -16,7 +16,7 @@ class AlwaysTeardownTestCase(unittest.TestCase):
         wrapped_test = self._cleanup_wrapper(test_method, KeyboardInterrupt)
         setattr(self, self._testMethodName, wrapped_test)
 
-        self.setUp = self._cleanup_wrapper(self.setUp, BaseException)
+        self.setUp = self._cleanup_wrapper(self.setUp, BaseException)  # type: ignore
 
         return super().run(result)
 
@@ -44,15 +44,15 @@ class AsyncAlwaysTeardownTestCase(unittest.IsolatedAsyncioTestCase):
         wrapped_test = self._cleanup_wrapper(test_method, KeyboardInterrupt)
         setattr(self, self._testMethodName, wrapped_test)
 
-        self.asyncSetUp = self._cleanup_wrapper(self.asyncSetUp, BaseException)
+        self.asyncSetUp = self._cleanup_wrapper(self.asyncSetUp, BaseException)  # type: ignore
 
         return super().run(result)
 
     def _cleanup_wrapper(self, method: Coroutine, exception: Type[BaseException]) -> Callable:
-        @functools.wraps(method)
+        @functools.wraps(method)  # type: ignore
         async def wrapper(*args, **kwargs):
             try:
-                return await method(*args, **kwargs)
+                return await method(*args, **kwargs)  # type: ignore
             except exception:
                 self.tearDown()
                 self.doCleanups()

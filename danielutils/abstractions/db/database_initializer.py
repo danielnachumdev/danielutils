@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Type, Any
+from typing import Dict, Optional, Type, Any, Sequence
 
 try:
     from sqlalchemy import inspect, Column
@@ -82,7 +82,7 @@ class DatabaseInitializer(ABC):
     def _model_to_schema(cls, model_class: Type[DeclarativeBase]) -> TableSchema:
         """Convert a SQLAlchemy model to our TableSchema"""
         mapper = inspect(model_class)
-        table_name = mapper.local_table.name
+        table_name = mapper.local_table.name  # type: ignore
 
         # Convert columns
         columns = []
@@ -91,14 +91,14 @@ class DatabaseInitializer(ABC):
             is_unique = False
             if column.unique:
                 is_unique = True
-            elif column.index and column.index.unique:
+            elif column.index and column.index.unique:  # type: ignore
                 is_unique = True
 
             col_schema = ColumnSchema(
                 name=column.name,
                 type=cls._get_column_type(column),
                 primary_key=column.primary_key,
-                nullable=column.nullable,
+                nullable=column.nullable,  # type: ignore
                 unique=is_unique,
                 foreign_key=cls._get_foreign_key(column),
                 default=cls._get_default_value(column)
@@ -107,7 +107,7 @@ class DatabaseInitializer(ABC):
 
         # Convert indexes
         indexes = []
-        for index in mapper.local_table.indexes:
+        for index in mapper.local_table.indexes:  # type: ignore
             # Skip indexes that are already handled by unique constraints
             if len(index.columns) == 1 and index.columns[0].unique:
                 continue
@@ -127,13 +127,13 @@ class DatabaseInitializer(ABC):
 
     @classmethod
     @abstractmethod
-    def get_pydantic_models(cls):
+    def _get_models(cls) -> Sequence[Type[DeclarativeBase]]:
         """Get all pydantic models from our models"""
 
     @classmethod
-    def get_table_schemas(cls) -> Dict[str, TableSchema]:
+    def _get_table_schemas(cls) -> Dict[str, TableSchema]:
         """Get all table schemas from our models"""
-        models = cls.get_pydantic_models()
+        models = cls._get_models()
         res = {}
         for model in models:
             try:
@@ -144,7 +144,7 @@ class DatabaseInitializer(ABC):
         return res
 
     @classmethod
-    def validate_schema(cls, db: Database, table_name: str, expected_schema: TableSchema) -> bool:
+    async def _validate_schema(cls, db: Database, table_name: str, expected_schema: TableSchema) -> bool:
         """
         Validate that the existing table schema matches the expected schema.
 
@@ -158,7 +158,7 @@ class DatabaseInitializer(ABC):
         """
         try:
             # Get existing schema
-            existing_schemas = db.get_schemas()
+            existing_schemas = await db.get_schemas()
             if table_name not in existing_schemas:
                 logger.warning(f"Table '{table_name}' does not exist")
                 return False
@@ -222,7 +222,7 @@ class DatabaseInitializer(ABC):
             return False
 
     @classmethod
-    def init_db(cls, db: Database) -> None:
+    async def init_db(cls, db: Database) -> None:
         """
         Initialize the database by creating or validating all required tables.
 
@@ -230,22 +230,22 @@ class DatabaseInitializer(ABC):
             db: Database instance to initialize
         """
         try:
-            db.connect()
+            await db.connect()
 
             # Get existing schemas
-            existing_schemas = db.get_schemas()
+            existing_schemas = await db.get_schemas()
 
             # Get table schemas from models
-            table_schemas = cls.get_table_schemas()
+            table_schemas = cls._get_table_schemas()
 
             # Create or validate each table
             for table_name, expected_schema in table_schemas.items():
                 if table_name not in existing_schemas:
                     logger.info(f"Creating table '{table_name}'")
-                    db.create_table(expected_schema)
+                    await db.create_table(expected_schema)
                 else:
                     logger.info(f"Validating table '{table_name}'")
-                    if not cls.validate_schema(db, table_name, expected_schema):
+                    if not cls._validate_schema(db, table_name, expected_schema):
                         raise ValueError(
                             f"Schema validation failed for table '{table_name}'. "
                             "Please check the logs for details."

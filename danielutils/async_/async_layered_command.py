@@ -96,7 +96,7 @@ class AsyncLayeredCommand:
             return code, [], []
 
         code, stdout, stderr = await async_cmd(command, capture_stdout=True, capture_stderr=True)
-        return code, stdout.decode().splitlines(), stderr.decode().splitlines()
+        return code, stdout.decode().splitlines() if stdout else [], stderr.decode().splitlines() if stderr else []
 
     async def __call__(self, *args, **kwargs) -> Tuple[int, List[str], List[str]]:
         return await self.execute(*args, **kwargs)
