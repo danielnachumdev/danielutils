@@ -36,94 +36,166 @@ TYPE_MAPPING = {
 }
 
 
+async def validate_schema(db: Database, table_name: str, expected_schema: TableSchema) -> bool:
+    """
+    Validate that the existing table schema matches the expected schema.
+
+    Args:
+        db: Database instance
+        table_name: Name of the table to validate
+        expected_schema: Expected table schema
+
+    Returns:
+        bool: True if schema matches, False otherwise
+    """
+    try:
+        # Get existing schema
+        existing_schemas = await db.get_schemas()
+        if table_name not in existing_schemas:
+            logger.warning(f"Table '{table_name}' does not exist")
+            return False
+
+        existing_schema = existing_schemas[table_name]
+
+        # Compare columns
+        if len(existing_schema.columns) != len(expected_schema.columns):
+            logger.warning(
+                f"Column count mismatch in '{table_name}': "
+                f"expected {len(expected_schema.columns)}, "
+                f"got {len(existing_schema.columns)}"
+            )
+            return False
+
+        # Compare each column
+        for expected_col, existing_col in zip(expected_schema.columns, existing_schema.columns
+                                              ):
+            if (
+                    expected_col.name != existing_col.name or
+                    expected_col.type != existing_col.type or
+                    expected_col.primary_key != existing_col.primary_key or
+                    expected_col.nullable != existing_col.nullable or
+                    expected_col.unique != existing_col.unique or
+                    expected_col.foreign_key != existing_col.foreign_key
+            ):
+                logger.warning(
+                    f"Column mismatch in '{table_name}': expected {expected_col}, got {existing_col}"
+                )
+                return False
+
+        # Compare indexes
+        if len(existing_schema.indexes) != len(expected_schema.indexes):
+            logger.warning(
+                f"Index count mismatch in '{table_name}': "
+                f"expected {len(expected_schema.indexes)}, "
+                f"got {len(existing_schema.indexes)}"
+            )
+            return False
+
+        # Compare each index
+        for expected_idx, existing_idx in zip(expected_schema.indexes, existing_schema.indexes):
+            if (
+                    expected_idx.name != existing_idx.name or
+                    expected_idx.columns != existing_idx.columns or
+                    expected_idx.unique != existing_idx.unique
+            ):
+                logger.warning(f"Index mismatch in '{table_name}': expected {expected_idx}, got {existing_idx}")
+                return False
+
+        return True
+
+    except Exception as e:
+        logger.error(f"Error validating schema for '{table_name}': {str(e)}")
+        return False
+
+
+def get_column_type(column: Column) -> ColumnType:
+    """Convert SQLAlchemy column type to our ColumnType enum"""
+    # Ensure autoincrement for integer primary key named 'id'
+    if (
+            column.name == 'id'
+            and getattr(column, 'primary_key', False)
+            and ('INTEGER' in str(column.type).upper() or 'BIGINT' in str(column.type).upper())
+    ):
+        return ColumnType.AUTOINCREMENT
+    # Check for autoincrement attribute
+    if getattr(column, 'autoincrement', False) == True:
+        return ColumnType.AUTOINCREMENT
+    # Then check the column type
+    type_name = str(column.type).upper()
+    for sql_type, our_type in TYPE_MAPPING.items():
+        if sql_type in type_name:
+            return our_type
+    return ColumnType.TEXT  # Default to TEXT if type not found
+
+
+def get_foreign_key(column: Column) -> Optional[Dict[str, str]]:
+    """Extract foreign key information from a column"""
+    for fk in column.foreign_keys:
+        return {
+            "table": fk.column.table.name,
+            "column": fk.column.name
+        }
+    return None
+
+
+def get_default_value(column: Column) -> Optional[Any]:
+    """Extract default value from a column"""
+    if column.default is not None:
+        if hasattr(column.default, 'arg'):
+            return column.default.arg
+        return column.default
+    return None
+
+
+def model_to_schema(model_class: Type[DeclarativeBase]) -> TableSchema:
+    """Convert a SQLAlchemy model to our TableSchema"""
+    mapper = inspect(model_class)
+    table_name = mapper.local_table.name  # type: ignore
+
+    # Convert columns
+    columns = []
+    for column in mapper.columns:
+        # Get unique constraint from column
+        is_unique = False
+        if column.unique:
+            is_unique = True
+        elif column.index and column.index.unique:  # type: ignore
+            is_unique = True
+
+        col_schema = ColumnSchema(
+            name=column.name,
+            type=get_column_type(column),
+            primary_key=column.primary_key,
+            nullable=column.nullable,  # type: ignore
+            unique=is_unique,
+            foreign_key=get_foreign_key(column),
+            default=get_default_value(column)
+        )
+        columns.append(col_schema)
+
+    # Convert indexes
+    indexes = []
+    for index in mapper.local_table.indexes:  # type: ignore
+        # Skip indexes that are already handled by unique constraints
+        if len(index.columns) == 1 and index.columns[0].unique:
+            continue
+
+        idx_schema = IndexSchema(
+            name=index.name,
+            columns=[col.name for col in index.columns],
+            unique=index.unique
+        )
+        indexes.append(idx_schema)
+
+    return TableSchema(
+        name=table_name,
+        columns=columns,
+        indexes=indexes
+    )
+
+
 class DatabaseInitializer(ABC):
     # Map SQLAlchemy types to our ColumnType enum
-
-    @classmethod
-    def _get_column_type(cls, column: Column) -> ColumnType:
-        """Convert SQLAlchemy column type to our ColumnType enum"""
-        # Ensure autoincrement for integer primary key named 'id'
-        if (
-                column.name == 'id'
-                and getattr(column, 'primary_key', False)
-                and ('INTEGER' in str(column.type).upper() or 'BIGINT' in str(column.type).upper())
-        ):
-            return ColumnType.AUTOINCREMENT
-        # Check for autoincrement attribute
-        if getattr(column, 'autoincrement', False) == True:
-            return ColumnType.AUTOINCREMENT
-        # Then check the column type
-        type_name = str(column.type).upper()
-        for sql_type, our_type in TYPE_MAPPING.items():
-            if sql_type in type_name:
-                return our_type
-        return ColumnType.TEXT  # Default to TEXT if type not found
-
-    @classmethod
-    def _get_foreign_key(cls, column: Column) -> Optional[Dict[str, str]]:
-        """Extract foreign key information from a column"""
-        for fk in column.foreign_keys:
-            return {
-                "table": fk.column.table.name,
-                "column": fk.column.name
-            }
-        return None
-
-    @classmethod
-    def _get_default_value(cls, column: Column) -> Optional[Any]:
-        """Extract default value from a column"""
-        if column.default is not None:
-            if hasattr(column.default, 'arg'):
-                return column.default.arg
-            return column.default
-        return None
-
-    @classmethod
-    def _model_to_schema(cls, model_class: Type[DeclarativeBase]) -> TableSchema:
-        """Convert a SQLAlchemy model to our TableSchema"""
-        mapper = inspect(model_class)
-        table_name = mapper.local_table.name  # type: ignore
-
-        # Convert columns
-        columns = []
-        for column in mapper.columns:
-            # Get unique constraint from column
-            is_unique = False
-            if column.unique:
-                is_unique = True
-            elif column.index and column.index.unique:  # type: ignore
-                is_unique = True
-
-            col_schema = ColumnSchema(
-                name=column.name,
-                type=cls._get_column_type(column),
-                primary_key=column.primary_key,
-                nullable=column.nullable,  # type: ignore
-                unique=is_unique,
-                foreign_key=cls._get_foreign_key(column),
-                default=cls._get_default_value(column)
-            )
-            columns.append(col_schema)
-
-        # Convert indexes
-        indexes = []
-        for index in mapper.local_table.indexes:  # type: ignore
-            # Skip indexes that are already handled by unique constraints
-            if len(index.columns) == 1 and index.columns[0].unique:
-                continue
-
-            idx_schema = IndexSchema(
-                name=index.name,
-                columns=[col.name for col in index.columns],
-                unique=index.unique
-            )
-            indexes.append(idx_schema)
-
-        return TableSchema(
-            name=table_name,
-            columns=columns,
-            indexes=indexes
-        )
 
     @classmethod
     @abstractmethod
@@ -137,89 +209,10 @@ class DatabaseInitializer(ABC):
         res = {}
         for model in models:
             try:
-                res[model.__tablename__] = cls._model_to_schema(model)
+                res[model.__tablename__] = model_to_schema(model)
             except Exception as e:
-                raise Exception(
-                    f"Failed parsing '{model.__tablename__}'") from e
+                raise Exception(f"Failed parsing '{model.__tablename__}'") from e
         return res
-
-    @classmethod
-    async def _validate_schema(cls, db: Database, table_name: str, expected_schema: TableSchema) -> bool:
-        """
-        Validate that the existing table schema matches the expected schema.
-
-        Args:
-            db: Database instance
-            table_name: Name of the table to validate
-            expected_schema: Expected table schema
-
-        Returns:
-            bool: True if schema matches, False otherwise
-        """
-        try:
-            # Get existing schema
-            existing_schemas = await db.get_schemas()
-            if table_name not in existing_schemas:
-                logger.warning(f"Table '{table_name}' does not exist")
-                return False
-
-            existing_schema = existing_schemas[table_name]
-
-            # Compare columns
-            if len(existing_schema.columns) != len(expected_schema.columns):
-                logger.warning(
-                    f"Column count mismatch in '{table_name}': "
-                    f"expected {len(expected_schema.columns)}, "
-                    f"got {len(existing_schema.columns)}"
-                )
-                return False
-
-            # Compare each column
-            for expected_col, existing_col in zip(
-                    expected_schema.columns, existing_schema.columns
-            ):
-                if (expected_col.name != existing_col.name or
-                        expected_col.type != existing_col.type or
-                        expected_col.primary_key != existing_col.primary_key or
-                        expected_col.nullable != existing_col.nullable or
-                        expected_col.unique != existing_col.unique or
-                        expected_col.foreign_key != existing_col.foreign_key):
-                    logger.warning(
-                        f"Column mismatch in '{table_name}': "
-                        f"expected {expected_col}, got {existing_col}"
-                    )
-                    return False
-
-            # Compare indexes
-            if len(existing_schema.indexes) != len(expected_schema.indexes):
-                logger.warning(
-                    f"Index count mismatch in '{table_name}': "
-                    f"expected {len(expected_schema.indexes)}, "
-                    f"got {len(existing_schema.indexes)}"
-                )
-                return False
-
-            # Compare each index
-            for expected_idx, existing_idx in zip(
-                    expected_schema.indexes, existing_schema.indexes
-            ):
-                if (
-                        expected_idx.name != existing_idx.name or
-                        expected_idx.columns != existing_idx.columns or
-                        expected_idx.unique != existing_idx.unique
-                ):
-                    logger.warning(
-                        f"Index mismatch in '{table_name}': "
-                        f"expected {expected_idx}, got {existing_idx}"
-                    )
-                    return False
-
-            return True
-
-        except Exception as e:
-            logger.error(
-                f"Error validating schema for '{table_name}': {str(e)}")
-            return False
 
     @classmethod
     async def init_db(cls, db: Database) -> None:
@@ -245,7 +238,7 @@ class DatabaseInitializer(ABC):
                     await db.create_table(expected_schema)
                 else:
                     logger.info(f"Validating table '{table_name}'")
-                    if not cls._validate_schema(db, table_name, expected_schema):
+                    if not validate_schema(db, table_name, expected_schema):
                         raise ValueError(
                             f"Schema validation failed for table '{table_name}'. "
                             "Please check the logs for details."
