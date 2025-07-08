@@ -24,10 +24,10 @@ class InMemoryDatabase(Database):
         Convert in-memory database specific exceptions to standard database exceptions.
         """
         if isinstance(e, ValueError):
-            return DBValidationError(f"Validation error: {str(e)}", e)
+            return DBValidationError(f"Validation error: {str(e)}")
         if isinstance(e, RuntimeError):
-            return DBQueryError(f"Query error: {str(e)}", e)
-        return DBException(f"Database error: {str(e)}", e)
+            return DBQueryError(f"Query error: {str(e)}")
+        return DBException(f"Database error: {str(e)}")
 
     def __init__(self, *args, **kwargs) -> None:
         try:
@@ -42,21 +42,17 @@ class InMemoryDatabase(Database):
         self._connected = False
         self.logger = logging.getLogger(__name__)
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """Connect to the database (no-op for in-memory)"""
         self._connected = True
         self.logger.info("Connected to in-memory database")
 
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         """Disconnect from the database (no-op for in-memory)"""
         self._connected = False
         self.logger.info("Disconnected from in-memory database")
 
-    def is_connected(self) -> bool:
-        """Check if connected to the database"""
-        return self._connected
-
-    def create_table(self, schema: TableSchema) -> None:
+    async def create_table(self, schema: TableSchema) -> None:
         """Create a new table with the given schema"""
         if not self._connected:
             raise RuntimeError("Not connected to database")
@@ -98,14 +94,14 @@ class InMemoryDatabase(Database):
                 f"Column '{column}' is not an auto-increment column")
         self.auto_increment_counters[table][column] -= 1
 
-    def get_schemas(self) -> Dict[str, TableSchema]:
+    async def get_schemas(self) -> Dict[str, TableSchema]:
         """Get all table schemas"""
         if not self._connected:
             raise RuntimeError("Not connected to database")
 
         return {schema.name: schema for schema in self.schemas.values()}
 
-    def insert(self, table: str, data: Dict[str, Any]) -> Any:
+    async def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """Insert a new row into the table"""
         if not self._connected:
             raise RuntimeError("Not connected to database")
@@ -165,7 +161,7 @@ class InMemoryDatabase(Database):
             f"Inserted row into '{table}' with ID '{row_data['id']}'")
         return row_data['id']
 
-    def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
+    async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
         """Get rows from the table matching the query"""
         if not self._connected:
             raise DBConnectionError("Not connected to database")
@@ -203,7 +199,7 @@ class InMemoryDatabase(Database):
 
         return rows
 
-    def update(self, query: UpdateQuery) -> int:
+    async def update(self, query: UpdateQuery) -> int:
         """Update rows in the table matching the query"""
         if not self._connected:
             raise RuntimeError("Not connected to database")
@@ -236,7 +232,7 @@ class InMemoryDatabase(Database):
         self.logger.info(f"Updated '{updated_count}' rows in '{query.table}'")
         return updated_count
 
-    def delete(self, query: DeleteQuery) -> int:
+    async def delete(self, query: DeleteQuery) -> int:
         """Delete rows from the table matching the query"""
         if not self._connected:
             raise RuntimeError("Not connected to database")

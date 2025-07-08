@@ -17,26 +17,27 @@ from .database_definitions import ColumnType, TableSchema, TableColumn as Column
 
 logger = logging.getLogger(__name__)
 
+TYPE_MAPPING = {
+    'INTEGER': ColumnType.INTEGER,
+    'BIGINT': ColumnType.INTEGER,
+    'FLOAT': ColumnType.FLOAT,
+    'NUMERIC': ColumnType.FLOAT,
+    'DECIMAL': ColumnType.FLOAT,
+    'BOOLEAN': ColumnType.BOOLEAN,
+    'TEXT': ColumnType.TEXT,
+    'VARCHAR': ColumnType.TEXT,
+    'CHAR': ColumnType.TEXT,
+    'UUID': ColumnType.TEXT,
+    'DATETIME': ColumnType.DATETIME,
+    'DATE': ColumnType.DATE,
+    'TIME': ColumnType.TIME,
+    'JSON': ColumnType.JSON,
+    'BLOB': ColumnType.BLOB,
+}
+
 
 class DatabaseInitializer(ABC):
     # Map SQLAlchemy types to our ColumnType enum
-    TYPE_MAPPING = {
-        'INTEGER': ColumnType.INTEGER,
-        'BIGINT': ColumnType.INTEGER,
-        'FLOAT': ColumnType.FLOAT,
-        'NUMERIC': ColumnType.FLOAT,
-        'DECIMAL': ColumnType.FLOAT,
-        'BOOLEAN': ColumnType.BOOLEAN,
-        'TEXT': ColumnType.TEXT,
-        'VARCHAR': ColumnType.TEXT,
-        'CHAR': ColumnType.TEXT,
-        'UUID': ColumnType.TEXT,
-        'DATETIME': ColumnType.DATETIME,
-        'DATE': ColumnType.DATE,
-        'TIME': ColumnType.TIME,
-        'JSON': ColumnType.JSON,
-        'BLOB': ColumnType.BLOB,
-    }
 
     @classmethod
     def _get_column_type(cls, column: Column) -> ColumnType:
@@ -53,7 +54,7 @@ class DatabaseInitializer(ABC):
             return ColumnType.AUTOINCREMENT
         # Then check the column type
         type_name = str(column.type).upper()
-        for sql_type, our_type in cls.TYPE_MAPPING.items():
+        for sql_type, our_type in TYPE_MAPPING.items():
             if sql_type in type_name:
                 return our_type
         return ColumnType.TEXT  # Default to TEXT if type not found
@@ -202,9 +203,11 @@ class DatabaseInitializer(ABC):
             for expected_idx, existing_idx in zip(
                     expected_schema.indexes, existing_schema.indexes
             ):
-                if (expected_idx.name != existing_idx.name or
+                if (
+                        expected_idx.name != existing_idx.name or
                         expected_idx.columns != existing_idx.columns or
-                        expected_idx.unique != existing_idx.unique):
+                        expected_idx.unique != existing_idx.unique
+                ):
                     logger.warning(
                         f"Index mismatch in '{table_name}': "
                         f"expected {expected_idx}, got {existing_idx}"

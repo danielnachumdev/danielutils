@@ -1,34 +1,31 @@
 import unittest
 from datetime import datetime
-from danielutils.abstractions.db import InMemoryDatabase, TableSchema, TableColumn, ColumnType, SelectQuery, UpdateQuery, DeleteQuery, WhereClause, Condition, Operator, OrderBy, OrderDirection, DBException, DBValidationError, DBQueryError, Database, DBConnectionError
+from danielutils.abstractions.db import InMemoryDatabase, TableSchema, TableColumn, ColumnType, SelectQuery, \
+    UpdateQuery, DeleteQuery, WhereClause, Condition, Operator, OrderBy, OrderDirection, DBException, DBValidationError, \
+    DBQueryError, Database, DBConnectionError
 
 
-class TestInMemoryDatabase(unittest.TestCase):
+class TestInMemoryDatabase(unittest.IsolatedAsyncioTestCase):
     """Test cases for in-memory database"""
 
-    def setUp(self):
+    async def asyncSetUp(self):
         """Set up each test case"""
         # Initialize database
         self.db: Database = InMemoryDatabase()
-        self.db.connect()
+        await self.db.connect()
 
         # Create test table
         self.users_schema = TableSchema(
             name="user",
             columns=[
-                TableColumn(name="id", type=ColumnType.AUTOINCREMENT,
-                            primary_key=True, nullable=False),
-                TableColumn(name="name", type=ColumnType.VARCHAR,
-                            nullable=False),
-                TableColumn(name="age", type=ColumnType.INTEGER,
-                            nullable=True),
-                TableColumn(name="email", type=ColumnType.VARCHAR,
-                            nullable=False, unique=True),
-                TableColumn(name="created_at",
-                            type=ColumnType.DATETIME, nullable=False)
+                TableColumn(name="id", type=ColumnType.AUTOINCREMENT, primary_key=True, nullable=False),
+                TableColumn(name="name", type=ColumnType.VARCHAR, nullable=False),
+                TableColumn(name="age", type=ColumnType.INTEGER, nullable=True),
+                TableColumn(name="email", type=ColumnType.VARCHAR, nullable=False, unique=True),
+                TableColumn(name="created_at", type=ColumnType.DATETIME, nullable=False)
             ]
         )
-        self.db.create_table(self.users_schema)
+        await self.db.create_table(self.users_schema)
 
         # Insert test data
         self.test_users = [
@@ -52,16 +49,16 @@ class TestInMemoryDatabase(unittest.TestCase):
             }
         ]
         for user in self.test_users:
-            self.db.insert("user", user)
+            await self.db.insert("user", user)
 
-    def tearDown(self):
+    async def asyncTearDown(self):
         """Clean up after each test case"""
-        self.db.disconnect()
+        await self.db.disconnect()
 
-    def test_create_table(self):
+    async def test_create_table(self):
         """Test table creation"""
         # Verify table exists
-        schemas = self.db.get_schemas()
+        schemas = await self.db.get_schemas()
         self.assertIn("user", schemas)
         schema = schemas["user"]
         self.assertEqual(schema.name, "user")
@@ -75,11 +72,11 @@ class TestInMemoryDatabase(unittest.TestCase):
         self.assertEqual(column_types["email"], ColumnType.VARCHAR)
         self.assertEqual(column_types["created_at"], ColumnType.DATETIME)
 
-    def test_insert_and_get(self):
+    async def test_insert_and_get(self):
         """Test data insertion and retrieval"""
         # Query all users
         query = SelectQuery(table="user")
-        results = self.db.get(query)
+        results = await self.db.get(query)
         self.assertEqual(len(results), 3)
 
         # Verify user data
@@ -87,7 +84,7 @@ class TestInMemoryDatabase(unittest.TestCase):
         self.assertEqual(user_data["John Doe"]["age"], 30)
         self.assertEqual(user_data["Jane Smith"]["email"], "jane@example.com")
 
-    def test_query_with_conditions(self):
+    async def test_query_with_conditions(self):
         """Test querying with conditions"""
         # Query users over 25
         query = SelectQuery(
@@ -99,11 +96,11 @@ class TestInMemoryDatabase(unittest.TestCase):
                 ]
             )
         )
-        results = self.db.get(query)
+        results = await self.db.get(query)
         self.assertEqual(len(results), 2)
         self.assertTrue(all(user["age"] > 25 for user in results))
 
-    def test_update(self):
+    async def test_update(self):
         """Test data update"""
         # Update John's age
         update_query = UpdateQuery(
@@ -116,7 +113,7 @@ class TestInMemoryDatabase(unittest.TestCase):
                 ]
             )
         )
-        self.db.update(update_query)
+        await self.db.update(update_query)
 
         # Verify update
         verify_query = SelectQuery(
@@ -128,10 +125,10 @@ class TestInMemoryDatabase(unittest.TestCase):
                 ]
             )
         )
-        updated_user = self.db.get(verify_query)
+        updated_user = await self.db.get(verify_query)
         self.assertEqual(updated_user[0]["age"], 31)
 
-    def test_delete(self):
+    async def test_delete(self):
         """Test data deletion"""
         # Delete Bob
         delete_query = DeleteQuery(
@@ -143,19 +140,18 @@ class TestInMemoryDatabase(unittest.TestCase):
                 ]
             )
         )
-        self.db.delete(delete_query)
+        await self.db.delete(delete_query)
 
         # Verify deletion
-        all_users = self.db.get(SelectQuery(table="user"))
+        all_users = await self.db.get(SelectQuery(table="user"))
         self.assertEqual(len(all_users), 2)
-        self.assertTrue(
-            all(user["name"] != "Bob Johnson" for user in all_users))
+        self.assertTrue(all(user["name"] != "Bob Johnson" for user in all_users))
 
-    def test_schema_validation(self):
+    async def test_schema_validation(self):
         """Test schema validation"""
         # Test invalid column type
         with self.assertRaises(DBValidationError):
-            self.db.insert("user", {
+            await self.db.insert("user", {
                 "name": "Invalid User",
                 "age": "not a number",  # Should be integer
                 "email": "invalid@example.com",
@@ -164,7 +160,7 @@ class TestInMemoryDatabase(unittest.TestCase):
 
         # Test missing required field
         with self.assertRaises(DBValidationError):
-            self.db.insert("user", {
+            await self.db.insert("user", {
                 "age": 25,
                 "email": "missing_name@example.com",
                 "created_at": datetime.now()
@@ -172,7 +168,7 @@ class TestInMemoryDatabase(unittest.TestCase):
 
         # Test duplicate unique field
         with self.assertRaises(DBValidationError):
-            self.db.insert("user", {
+            await self.db.insert("user", {
                 "name": "Duplicate Email",
                 "age": 25,
                 "email": "john@example.com",  # Already exists
@@ -181,7 +177,7 @@ class TestInMemoryDatabase(unittest.TestCase):
 
         # Test unique constraint with different case (should still be considered duplicate)
         with self.assertRaises(DBValidationError):
-            self.db.insert("user", {
+            await self.db.insert("user", {
                 "name": "Case Sensitive",
                 "age": 25,
                 "email": "JOHN@example.com",  # Same as existing but different case
@@ -197,21 +193,21 @@ class TestInMemoryDatabase(unittest.TestCase):
         })
         self.assertIsNotNone(new_id)
 
-    def test_complex_queries(self):
+    async def test_complex_queries(self):
         """Test complex query operations"""
         # Test order by
         query = SelectQuery(
             table="user",
             order_by=[OrderBy(column="age", direction=OrderDirection.DESC)]
         )
-        results = self.db.get(query)
+        results = await self.db.get(query)
         self.assertEqual(results[0]["name"], "Bob Johnson")
         self.assertEqual(results[1]["name"], "John Doe")
         self.assertEqual(results[2]["name"], "Jane Smith")
 
         # Test limit
         query = SelectQuery(table="user", limit=2)
-        results = self.db.get(query)
+        results = await self.db.get(query)
         self.assertEqual(len(results), 2)
 
         # Test multiple conditions
@@ -227,19 +223,19 @@ class TestInMemoryDatabase(unittest.TestCase):
                 operator="AND"
             )
         )
-        results = self.db.get(query)
+        results = await self.db.get(query)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]["name"], "John Doe")
 
-    def test_error_handling(self):
+    async def test_error_handling(self):
         """Test error handling"""
         # Test invalid table
         with self.assertRaises(DBValidationError):
-            self.db.get(SelectQuery(table="nonexistent_table"))
+            await self.db.get(SelectQuery(table="nonexistent_table"))
 
         # Test invalid query
         with self.assertRaises(DBQueryError):
-            self.db.get(SelectQuery(
+            await self.db.get(SelectQuery(
                 table="user",
                 where=WhereClause(
                     conditions=[
@@ -248,14 +244,16 @@ class TestInMemoryDatabase(unittest.TestCase):
             ))
 
         # Test disconnection
-        self.db.disconnect()
+        await self.db.disconnect()
         with self.assertRaises(DBConnectionError):
-            self.db.get(SelectQuery(table="user"))
+            await self.db.get(SelectQuery(table="user"))
 
-    def test_callable_default_value(self):
+    async def test_callable_default_value(self):
         """Test that callable default value suppliers are used when value is missing"""
+
         def default_supplier(ctx):
             return "supplied_default"
+
         schema = TableSchema(
             name="default_test",
             columns=[
@@ -263,9 +261,9 @@ class TestInMemoryDatabase(unittest.TestCase):
                 TableColumn(name="value", type=ColumnType.VARCHAR, default=default_supplier)
             ]
         )
-        self.db.create_table(schema)
-        inserted_id = self.db.insert("default_test", {})  # No 'value' provided
-        result = self.db.get(SelectQuery(table="default_test"))
+        await self.db.create_table(schema)
+        inserted_id = await self.db.insert("default_test", {})  # No 'value' provided
+        result = await self.db.get(SelectQuery(table="default_test"))
         self.assertEqual(result[0]["value"], "supplied_default")
 
 

@@ -85,7 +85,7 @@ class SQLiteDatabase(Database):
         self.engine_kwargs = engine_kwargs
         self.connect()
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """Establish connection to SQLite database"""
         try:
             self.engine = create_engine(
@@ -99,7 +99,7 @@ class SQLiteDatabase(Database):
                 f"Error connecting to SQLite database at '{self.url}': {e}")
             raise
 
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         """Close the SQLite database connection"""
         if self.engine:
             self.engine.dispose()
@@ -145,7 +145,7 @@ class SQLiteDatabase(Database):
 
         raise ValueError(f"Unsupported SQLAlchemy type: {type_str}")
 
-    def get_schemas(self) -> Dict[str, TableSchema]:
+    async def get_schemas(self) -> Dict[str, TableSchema]:
         """
         Get the complete database schema
 
@@ -250,7 +250,7 @@ class SQLiteDatabase(Database):
         }
         return type_map.get(column_type)
 
-    def create_table(self, schema: TableSchema) -> None:
+    async def create_table(self, schema: TableSchema) -> None:
         """
         Create a new table in the SQLite database
 
@@ -288,7 +288,7 @@ class SQLiteDatabase(Database):
         """Get a new database session"""
         return self.SessionLocal()
 
-    def insert(self, table: str, data: Dict[str, Any]) -> int:
+    async def insert(self, table: str, data: Dict[str, Any]) -> int:
         """
         Insert a record into the specified table
 
@@ -310,7 +310,7 @@ class SQLiteDatabase(Database):
             logging.error(f"Error inserting into '{table}': {e}")
             raise
 
-    def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
+    async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
         """
         Get records from the database
 
@@ -415,7 +415,7 @@ class SQLiteDatabase(Database):
             logging.error(f"Error selecting from '{query.table}': {e}")
             raise
 
-    def update(self, query: UpdateQuery) -> int:
+    async def update(self, query: UpdateQuery) -> int:
         """
         Update records in the database
 
@@ -449,7 +449,7 @@ class SQLiteDatabase(Database):
             logging.error(f"Error updating '{query.table}': {e}")
             raise
 
-    def delete(self, query: DeleteQuery) -> int:
+    async def delete(self, query: DeleteQuery) -> int:
         """
         Delete records from the database
 
@@ -482,10 +482,6 @@ class SQLiteDatabase(Database):
         except Exception as e:
             logging.error(f"Error deleting from '{query.table}': {e}")
             raise
-
-    def __del__(self):
-        """Destructor to ensure database connection is closed"""
-        self.disconnect()
 
 
 __all__ = [

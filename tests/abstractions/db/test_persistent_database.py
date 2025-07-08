@@ -5,11 +5,12 @@ from pathlib import Path
 from datetime import datetime
 from typing import cast
 
-from danielutils.abstractions.db import PersistentInMemoryDatabase, TableSchema, TableColumn, ColumnType, SelectQuery, UpdateQuery, \
+from danielutils.abstractions.db import PersistentInMemoryDatabase, TableSchema, TableColumn, ColumnType, SelectQuery, \
+    UpdateQuery, \
     DeleteQuery, WhereClause, Condition, Operator, Database
 
 
-class TestPersistentDatabase(unittest.TestCase):
+class TestPersistentDatabase(unittest.IsolatedAsyncioTestCase):
     """Test cases for persistent in-memory database"""
 
     @classmethod
@@ -21,34 +22,29 @@ class TestPersistentDatabase(unittest.TestCase):
             shutil.rmtree(cls.test_dir)
         cls.test_dir.mkdir()
 
-    def setUp(self):
+    async def asyncSetUp(self):
         """Set up each test case"""
         # Initialize database
         self.db: Database = PersistentInMemoryDatabase(
             data_dir=str(self.test_dir),
             register_shutdown_handler=lambda handler: None
         )
-        self.db.connect()
+        await self.db.connect()
 
         # Create test table schema
         self.user_schema = TableSchema(
             name="user",
             columns=[
-                TableColumn(name="id", type=ColumnType.AUTOINCREMENT,
-                            primary_key=True, nullable=False),
-                TableColumn(name="name", type=ColumnType.VARCHAR,
-                            nullable=False),
-                TableColumn(name="email", type=ColumnType.VARCHAR,
-                            nullable=False, unique=True),
-                TableColumn(name="age", type=ColumnType.INTEGER,
-                            nullable=True),
-                TableColumn(name="created_at",
-                            type=ColumnType.DATETIME, nullable=False)
+                TableColumn(name="id", type=ColumnType.AUTOINCREMENT, primary_key=True, nullable=False),
+                TableColumn(name="name", type=ColumnType.VARCHAR, nullable=False),
+                TableColumn(name="email", type=ColumnType.VARCHAR, nullable=False, unique=True),
+                TableColumn(name="age", type=ColumnType.INTEGER, nullable=True),
+                TableColumn(name="created_at", type=ColumnType.DATETIME, nullable=False)
             ]
         )
 
         # Create table
-        self.db.create_table(self.user_schema)
+        await self.db.create_table(self.user_schema)
 
         # Insert test data
         self.test_users = [
@@ -67,17 +63,17 @@ class TestPersistentDatabase(unittest.TestCase):
         ]
 
         for user in self.test_users:
-            self.db.insert("user", user)
+            await self.db.insert("user", user)
         cast(PersistentInMemoryDatabase, self.db)._save_state()
 
-    def tearDown(self):
+    async def asyncTearDown(self):
         """Clean up test environment"""
-        self.db.disconnect()
+        await self.db.disconnect()
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
         self.test_dir.mkdir()
 
-    def test_persistence_across_connections(self):
+    async def test_persistence_across_connections(self):
         """Test that data persists across database connections"""
         # Insert some data
         new_user = {
@@ -86,15 +82,15 @@ class TestPersistentDatabase(unittest.TestCase):
             "age": 35,
             "created_at": datetime.now()
         }
-        self.db.insert("user", new_user)
+        await self.db.insert("user", new_user)
 
         # Disconnect and reconnect
-        self.db.disconnect()
-        self.db.connect()
+        await self.db.disconnect()
+        await self.db.connect()
 
         # Verify data persistence
         query = SelectQuery(table="user")
-        users = self.db.get(query)
+        users = await self.db.get(query)
         self.assertEqual(len(users), 3)
 
         # Verify specific data
@@ -102,10 +98,10 @@ class TestPersistentDatabase(unittest.TestCase):
         self.assertEqual(user_data["bob@example.com"]["name"], "Bob Wilson")
         self.assertEqual(user_data["bob@example.com"]["age"], 35)
 
-    def test_state_file_creation(self):
+    async def test_state_file_creation(self):
         """Test that state file is created and contains correct data"""
         # Disconnect to trigger state save
-        self.db.disconnect()
+        await self.db.disconnect()
 
         # Check state file exists
         state_file = self.test_dir / "db_state.json"
@@ -123,14 +119,14 @@ class TestPersistentDatabase(unittest.TestCase):
         self.assertEqual(user_data["john@example.com"]["name"], "John Doe")
         self.assertEqual(user_data["jane@example.com"]["age"], 25)
 
-    def test_schema_persistence(self):
+    async def test_schema_persistence(self):
         """Test that schema persists across connections"""
         # Disconnect and reconnect
-        self.db.disconnect()
-        self.db.connect()
+        await self.db.disconnect()
+        await self.db.connect()
 
         # Verify schema
-        schemas = self.db.get_schemas()
+        schemas = await self.db.get_schemas()
         self.assertIn("user", schemas)
         schema = schemas["user"]
         self.assertEqual(schema.name, "user")
@@ -148,7 +144,7 @@ class TestPersistentDatabase(unittest.TestCase):
         self.assertTrue(email_column.unique)
         self.assertFalse(email_column.nullable)
 
-    def test_data_integrity_after_reload(self):
+    async def test_data_integrity_after_reload(self):
         """Test that data integrity is maintained after reloading"""
         # Perform some operations
         update_query = UpdateQuery(
@@ -161,7 +157,7 @@ class TestPersistentDatabase(unittest.TestCase):
                 ]
             )
         )
-        self.db.update(update_query)
+        await self.db.update(update_query)
 
         delete_query = DeleteQuery(
             table="user",
@@ -172,20 +168,20 @@ class TestPersistentDatabase(unittest.TestCase):
                 ]
             )
         )
-        self.db.delete(delete_query)
+        await self.db.delete(delete_query)
 
         # Disconnect and reconnect
-        self.db.disconnect()
-        self.db.connect()
+        await self.db.disconnect()
+        await self.db.connect()
 
         # Verify data integrity
         query = SelectQuery(table="user")
-        users = self.db.get(query)
+        users = await self.db.get(query)
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0]["email"], "john@example.com")
         self.assertEqual(users[0]["age"], 31)
 
-    def test_shutdown_handler(self):
+    async def test_shutdown_handler(self):
         """Test that shutdown handler is registered with atexit"""
         # Track registered handlers
         registered_handlers = []
@@ -199,10 +195,10 @@ class TestPersistentDatabase(unittest.TestCase):
             data_dir=str(self.test_dir),
             register_shutdown_handler=register_handler
         )
-        db.connect()
+        await db.connect()
 
         # Insert some data to verify it's saved
-        db.insert("user", {
+        await db.insert("user", {
             "name": "Test User",
             "email": "test@example.com",
             "age": 25,
@@ -218,15 +214,17 @@ class TestPersistentDatabase(unittest.TestCase):
 
         # Verify data was saved by creating a new instance and checking
         new_db = PersistentInMemoryDatabase(data_dir=str(self.test_dir))
-        new_db.connect()
-        users = new_db.get(SelectQuery(table="user"))
+        await new_db.connect()
+        users = await new_db.get(SelectQuery(table="user"))
         self.assertEqual(len(users), 3)  # Original 2 + our new test user
-        new_db.disconnect()
+        await new_db.disconnect()
 
-    def test_callable_default_value(self):
+    async def test_callable_default_value(self):
         """Test that callable default value suppliers are used when value is missing"""
+
         def default_supplier(ctx):
             return "supplied_default"
+
         schema = TableSchema(
             name="default_test",
             columns=[
@@ -234,9 +232,9 @@ class TestPersistentDatabase(unittest.TestCase):
                 TableColumn(name="value", type=ColumnType.VARCHAR, default=default_supplier)
             ]
         )
-        self.db.create_table(schema)
-        inserted_id = self.db.insert("default_test", {})  # No 'value' provided
-        result = self.db.get(SelectQuery(table="default_test"))
+        await self.db.create_table(schema)
+        inserted_id = await self.db.insert("default_test", {})  # No 'value' provided
+        result = await self.db.get(SelectQuery(table="default_test"))
         self.assertEqual(result[0]["value"], "supplied_default")
 
 

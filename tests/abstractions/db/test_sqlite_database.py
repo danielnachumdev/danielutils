@@ -14,10 +14,10 @@ from danielutils.abstractions.db import (
 )
 
 
-class TestSQLiteDatabase(unittest.TestCase):
+class TestSQLiteDatabase(unittest.IsolatedAsyncioTestCase):
     """Test suite for SQLite database implementation"""
 
-    def setUp(self):
+    async def asyncSetUp(self):
         """Set up test case"""
         # Create a temporary directory for this test
         self.test_dir = tempfile.mkdtemp()
@@ -25,26 +25,22 @@ class TestSQLiteDatabase(unittest.TestCase):
 
         # Initialize database with the temporary path
         self.db = SQLiteDatabase(db_name=self.db_path)
-        self.db.connect()
+        await self.db.connect()
 
         # Create test table schema
         self.user_schema = TableSchema(
             name="user",
             columns=[
-                TableColumn(name="id", type=ColumnType.AUTOINCREMENT,
-                            primary_key=True),
-                TableColumn(name="name", type=ColumnType.VARCHAR,
-                            nullable=False),
-                TableColumn(name="email", type=ColumnType.VARCHAR,
-                            unique=True, nullable=False),
+                TableColumn(name="id", type=ColumnType.AUTOINCREMENT, primary_key=True),
+                TableColumn(name="name", type=ColumnType.VARCHAR, nullable=False),
+                TableColumn(name="email", type=ColumnType.VARCHAR, unique=True, nullable=False),
                 TableColumn(name="age", type=ColumnType.INTEGER),
-                TableColumn(name="created_at",
-                            type=ColumnType.DATETIME, nullable=False)
+                TableColumn(name="created_at", type=ColumnType.DATETIME, nullable=False)
             ]
         )
 
         # Create test table
-        self.db.create_table(self.user_schema)
+        await self.db.create_table(self.user_schema)
 
         # Insert test data
         self.test_users = [
@@ -62,32 +58,31 @@ class TestSQLiteDatabase(unittest.TestCase):
             }
         ]
         for user in self.test_users:
-            self.db.insert("user", user)
+            await self.db.insert("user", user)
 
-    def tearDown(self):
+    async def asyncTearDown(self):
         """Clean up test case"""
-        self.db.disconnect()
+        await self.db.disconnect()
         RetryExecutor().execute(lambda: shutil.rmtree(self.test_dir), max_retries=2)
 
-    def test_create_table(self):
+    async def test_create_table(self):
         """Test table creation"""
         # Create a new table
         schema = TableSchema(
             name="test_table",
             columns=[
-                TableColumn(name="id", type=ColumnType.AUTOINCREMENT,
-                            primary_key=True),
+                TableColumn(name="id", type=ColumnType.AUTOINCREMENT, primary_key=True),
                 TableColumn(name="name", type=ColumnType.VARCHAR)
             ]
         )
-        self.db.create_table(schema)
+        await self.db.create_table(schema)
 
         # Verify table exists
-        schemas = self.db.get_schemas()
+        schemas = await self.db.get_schemas()
         self.assertIn("test_table", schemas)
         self.assertEqual(len(schemas["test_table"].columns), 2)
 
-    def test_insert(self):
+    async def test_insert(self):
         """Test record insertion"""
         # Insert a new user
         new_user = {
@@ -96,17 +91,17 @@ class TestSQLiteDatabase(unittest.TestCase):
             "age": 35,
             "created_at": datetime.now()
         }
-        user_id = self.db.insert("user", new_user)
+        user_id = await self.db.insert("user", new_user)
 
         # Verify insertion
         self.assertIsInstance(user_id, int)
-        users = self.db.get(SelectQuery(table="user"))
+        users = await self.db.get(SelectQuery(table="user"))
         self.assertEqual(len(users), 3)  # Original 2 + new user
 
-    def test_get(self):
+    async def test_get(self):
         """Test record retrieval"""
         # Test basic select
-        users = self.db.get(SelectQuery(table="user"))
+        users = await self.db.get(SelectQuery(table="user"))
         self.assertEqual(len(users), 2)
 
         # Test where clause
@@ -118,7 +113,7 @@ class TestSQLiteDatabase(unittest.TestCase):
                 ]
             )
         )
-        users = self.db.get(query)
+        users = await self.db.get(query)
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0]["name"], "John Doe")
 
@@ -127,15 +122,15 @@ class TestSQLiteDatabase(unittest.TestCase):
             table="user",
             order_by=[OrderBy(column="age", direction=OrderDirection.DESC)]
         )
-        users = self.db.get(query)
+        users = await self.db.get(query)
         self.assertEqual(users[0]["name"], "John Doe")
 
         # Test limit
         query = SelectQuery(table="user", limit=1)
-        users = self.db.get(query)
+        users = await self.db.get(query)
         self.assertEqual(len(users), 1)
 
-    def test_update(self):
+    async def test_update(self):
         """Test record updates"""
         # Update user age
         query = UpdateQuery(
@@ -143,44 +138,42 @@ class TestSQLiteDatabase(unittest.TestCase):
             data={"age": 31},
             where=WhereClause(
                 conditions=[
-                    Condition(column="name", operator=Operator.EQ,
-                              value="John Doe")
+                    Condition(column="name", operator=Operator.EQ, value="John Doe")
                 ]
             )
         )
-        affected = self.db.update(query)
+        affected = await self.db.update(query)
         self.assertEqual(affected, 1)
 
         # Verify update
-        users = self.db.get(SelectQuery(table="user"))
+        users = await self.db.get(SelectQuery(table="user"))
         updated_user = next(u for u in users if u["name"] == "John Doe")
         self.assertEqual(updated_user["age"], 31)
 
-    def test_delete(self):
+    async def test_delete(self):
         """Test record deletion"""
         # Delete a user
         query = DeleteQuery(
             table="user",
             where=WhereClause(
                 conditions=[
-                    Condition(column="name", operator=Operator.EQ,
-                              value="Jane Smith")
+                    Condition(column="name", operator=Operator.EQ, value="Jane Smith")
                 ]
             )
         )
-        affected = self.db.delete(query)
+        affected = await self.db.delete(query)
         self.assertEqual(affected, 1)
 
         # Verify deletion
-        users = self.db.get(SelectQuery(table="user"))
+        users = await self.db.get(SelectQuery(table="user"))
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0]["name"], "John Doe")
 
-    def test_validation_errors(self):
+    async def test_validation_errors(self):
         """Test validation error handling"""
         # Test unique constraint violation
         with self.assertRaises(DBValidationError):
-            self.db.insert("user", {
+            await self.db.insert("user", {
                 "name": "Duplicate",
                 "email": "john@example.com",  # Duplicate email
                 "age": 40,
@@ -189,13 +182,13 @@ class TestSQLiteDatabase(unittest.TestCase):
 
         # Test null constraint violation
         with self.assertRaises(DBValidationError):
-            self.db.insert("user", {
+            await self.db.insert("user", {
                 "name": "Missing Email",
                 "age": 40,
                 "created_at": datetime.now()
             })
 
-    def test_complex_queries(self):
+    async def test_complex_queries(self):
         """Test complex query operations"""
         # Test multiple conditions
         query = SelectQuery(
@@ -208,7 +201,7 @@ class TestSQLiteDatabase(unittest.TestCase):
                 operator="AND"
             )
         )
-        users = self.db.get(query)
+        users = await self.db.get(query)
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0]["name"], "Jane Smith")
 
@@ -217,35 +210,33 @@ class TestSQLiteDatabase(unittest.TestCase):
             table="user",
             where=WhereClause(
                 conditions=[
-                    Condition(column="name", operator=Operator.EQ,
-                              value="John Doe"),
-                    Condition(column="name", operator=Operator.EQ,
-                              value="Jane Smith")
+                    Condition(column="name", operator=Operator.EQ, value="John Doe"),
+                    Condition(column="name", operator=Operator.EQ, value="Jane Smith")
                 ],
                 operator="OR"
             )
         )
-        users = self.db.get(query)
+        users = await self.db.get(query)
         self.assertEqual(len(users), 2)
 
-    def test_schema_operations(self):
+    async def test_schema_operations(self):
         """Test schema-related operations"""
         # Get all schemas
-        schemas = self.db.get_schemas()
+        schemas = await self.db.get_schemas()
         self.assertIn("user", schemas)
 
         # Verify schema details
         user_schema = schemas["user"]
         self.assertEqual(len(user_schema.columns), 5)
-        self.assertTrue(
-            any(col.name == "id" and col.primary_key for col in user_schema.columns))
-        self.assertTrue(
-            any(col.name == "email" and col.unique for col in user_schema.columns))
+        self.assertTrue(any(col.name == "id" and col.primary_key for col in user_schema.columns))
+        self.assertTrue(any(col.name == "email" and col.unique for col in user_schema.columns))
 
-    def test_callable_default_value(self):
+    async def test_callable_default_value(self):
         """Test that callable default value suppliers are used when value is missing"""
+
         def default_supplier(ctx):
             return "supplied_default"
+
         schema = TableSchema(
             name="default_test",
             columns=[
@@ -253,9 +244,9 @@ class TestSQLiteDatabase(unittest.TestCase):
                 TableColumn(name="value", type=ColumnType.VARCHAR, default=default_supplier)
             ]
         )
-        self.db.create_table(schema)
-        inserted_id = self.db.insert("default_test", {})  # No 'value' provided
-        result = self.db.get(SelectQuery(table="default_test"))
+        await self.db.create_table(schema)
+        inserted_id = await self.db.insert("default_test", {})  # No 'value' provided
+        result = await self.db.get(SelectQuery(table="default_test"))
         self.assertEqual(result[0]["value"], "supplied_default")
 
 

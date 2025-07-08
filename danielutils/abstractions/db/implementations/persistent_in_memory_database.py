@@ -137,36 +137,36 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
         if self.auto_save:
             self._save_state()
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """Connect to the database and load state from disk"""
-        super().connect()
+        await super().connect()
         self._load_state()
 
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         """Close the database connection and save state"""
         self._save_state()
-        super().disconnect()
+        await super().disconnect()
 
-    def create_table(self, schema: TableSchema) -> None:
+    async def create_table(self, schema: TableSchema) -> None:
         """Create a new table with the given schema"""
-        super().create_table(schema)
+        await super().create_table(schema)
         self._maybe_save_state()
 
-    def insert(self, table: str, data: Dict[str, Any]) -> int:
+    async def insert(self, table: str, data: Dict[str, Any]) -> int:
         """Insert a new record into the table"""
-        result = super().insert(table, data)
+        result = await super().insert(table, data)
         self._maybe_save_state()
         return result
 
-    def update(self, query: UpdateQuery) -> int:
+    async def update(self, query: UpdateQuery) -> int:
         """Update records in the table"""
-        result = super().update(query)
+        result = await super().update(query)
         self._maybe_save_state()
         return result
 
-    def delete(self, query: DeleteQuery) -> int:
+    async def delete(self, query: DeleteQuery) -> int:
         """Delete records from the table"""
-        result = super().delete(query)
+        result = await super().delete(query)
         self._maybe_save_state()
         return result
 

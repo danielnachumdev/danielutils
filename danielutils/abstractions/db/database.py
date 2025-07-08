@@ -1,6 +1,6 @@
 import functools
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Callable, TypeVar, cast, Optional
+from typing import Dict, Any, List, Callable, TypeVar, cast, Optional, Set
 from .database_exceptions import DBException
 from .database_definitions import TableSchema, SelectQuery, UpdateQuery, DeleteQuery
 
@@ -17,23 +17,41 @@ class Database(ABC):
         Private decorator to wrap database implementation methods and convert implementation-specific
         exceptions to our standard database exceptions.
         """
+
         @functools.wraps(db_method)
-        def wrapper(self: 'Database', *args: Any, **kwargs: Any) -> Any:
+        async def wrapper(self: 'Database', *args: Any, **kwargs: Any) -> Any:
             try:
-                return db_method(self, *args, **kwargs)
+                return await db_method(self, *args, **kwargs)
             except DBException:
                 raise
             except Exception as e:
                 raise cls._default_class_exception_conversion(e)
+
         return cast(F, wrapper)
+
+    @classmethod
+    def _get_functions_with_auto_converted_exceptions(cls) -> Set[str]:
+        return {
+            "connect",
+            "disconnect",
+            "get_schemas",
+            "create_table",
+            "insert",
+            "get",
+            "update",
+            "delete"
+        }
 
     @classmethod
     def __init_subclass__(cls) -> None:
         """Initialize subclass by wrapping all public methods with exception handling"""
         for name, method in cls.__dict__.items():
-            if (callable(method) and
-                not name.startswith('_') and
-                    not isinstance(method, (classmethod, staticmethod))):
+            if (
+                    callable(method) and
+                    not name.startswith('_') and
+                    not isinstance(method, (classmethod, staticmethod))
+                    and name in cls._get_functions_with_auto_converted_exceptions()
+            ):
                 setattr(cls, name, cls._wrap_db_exceptions(method))
 
     @classmethod
@@ -48,7 +66,7 @@ class Database(ABC):
         Returns:
             Exception: The converted exception
         """
-        return DBException(f"Database error: {str(e)}", e)
+        return DBException(f"Database error: {str(e)}")
 
     def __enter__(self) -> 'Database':
         """
@@ -72,15 +90,15 @@ class Database(ABC):
         self.disconnect()
 
     @abstractmethod
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """Establish connection to the database"""
 
     @abstractmethod
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         """Close the database connection"""
 
     @abstractmethod
-    def get_schemas(self) -> Dict[str, TableSchema]:
+    async def get_schemas(self) -> Dict[str, TableSchema]:
         """
         Get the complete database schema
 
@@ -89,7 +107,7 @@ class Database(ABC):
         """
 
     @abstractmethod
-    def create_table(self, schema: TableSchema) -> None:
+    async def create_table(self, schema: TableSchema) -> None:
         """
         Create a new table in the database
 
@@ -98,7 +116,7 @@ class Database(ABC):
         """
 
     @abstractmethod
-    def insert(self, table: str, data: Dict[str, Any]) -> Any:
+    async def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """
         Insert a record into the specified table
 
@@ -111,7 +129,7 @@ class Database(ABC):
         """
 
     @abstractmethod
-    def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
+    async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
         """
         Get records from the database
 
@@ -123,7 +141,7 @@ class Database(ABC):
         """
 
     @abstractmethod
-    def update(self, query: UpdateQuery) -> int:
+    async def update(self, query: UpdateQuery) -> int:
         """
         Update records in the database
 
@@ -135,7 +153,7 @@ class Database(ABC):
         """
 
     @abstractmethod
-    def delete(self, query: DeleteQuery) -> int:
+    async def delete(self, query: DeleteQuery) -> int:
         """
         Delete records from the database
 

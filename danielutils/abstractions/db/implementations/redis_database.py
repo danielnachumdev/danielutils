@@ -61,7 +61,7 @@ class RedisDatabase(Database):
         self.TABLE_PREFIX = "table:"
         self.COUNTER_PREFIX = "counter:"
 
-    def connect(self) -> None:
+    async def connect(self) -> None:
         """Establish connection to Redis database"""
         try:
             self._db = redis.Redis(
@@ -80,7 +80,7 @@ class RedisDatabase(Database):
             self.logger.error(f"Error connecting to Redis database: {e}")
             raise
 
-    def disconnect(self) -> None:
+    async def disconnect(self) -> None:
         """Close the Redis database connection"""
         if self._db:
             self._db.close()
@@ -92,7 +92,7 @@ class RedisDatabase(Database):
         if not self._connected or not self._db:
             raise DBConnectionError("Not connected to database")
 
-    def get_schemas(self) -> Dict[str, TableSchema]:
+    async def get_schemas(self) -> Dict[str, TableSchema]:
         """Get all table schemas"""
         self._check_connection()
 
@@ -109,7 +109,7 @@ class RedisDatabase(Database):
 
         return schemas
 
-    def create_table(self, schema: TableSchema) -> None:
+    async def create_table(self, schema: TableSchema) -> None:
         """Create a new table with the given schema"""
         self._check_connection()
 
@@ -167,7 +167,7 @@ class RedisDatabase(Database):
             return isinstance(value, expected_type)
         return isinstance(value, expected_type)
 
-    def insert(self, table: str, data: Dict[str, Any]) -> Any:
+    async def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """Insert a new record into the specified table"""
         self._check_connection()
 
@@ -259,7 +259,7 @@ class RedisDatabase(Database):
             return all(results)
         return any(results)
 
-    def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
+    async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
         """Get records from the database"""
         self._check_connection()
 
@@ -334,7 +334,7 @@ class RedisDatabase(Database):
 
         return rows
 
-    def update(self, query: UpdateQuery) -> int:
+    async def update(self, query: UpdateQuery) -> int:
         """Update records in the database"""
         self._check_connection()
 
@@ -379,7 +379,7 @@ class RedisDatabase(Database):
         self.logger.info(f"Updated {updated_count} rows in '{query.table}'")
         return updated_count
 
-    def delete(self, query: DeleteQuery) -> int:
+    async def delete(self, query: DeleteQuery) -> int:
         """Delete records from the database"""
         self._check_connection()
 
