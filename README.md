@@ -4,7 +4,7 @@
 [![gitleaks](https://github.com/danielnachumdev/danielutils/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/danielnachumdev/danielutils/actions/workflows/gitleaks.yml)
 [![CodeQL](https://github.com/danielnachumdev/danielutils/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/danielnachumdev/danielutils/actions/workflows/github-code-scanning/codeql)
 
-# danielutils v1.0.45
+# danielutils v1.0.46
 
 A comprehensive Python utilities library designed to enhance your development workflow with powerful tools for type safety, async programming, database operations, and much more.
 
@@ -17,7 +17,7 @@ A comprehensive Python utilities library designed to enhance your development wo
 - 🎨 **Developer Experience**: Progress bars, logging, reflection, and debugging tools
 - 🧮 **Academic Tools**: Probability theory and statistical functions
 
-**Tested Python versions**: `3.8.0+`, `3.9.0`, `3.10.13`, `3.11+`
+**Tested Python versions**: `3.8.0+`, `3.9.0`, `3.10.13`
 
 > **Note**: This package is actively developed and subject to change. Use at your own risk!
 

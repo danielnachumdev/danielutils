@@ -8,3 +8,5 @@ redis
 starlette
 sqlalchemy
 pydantic
+setuptools
+wheel
