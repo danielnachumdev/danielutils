@@ -70,7 +70,7 @@ class _LoggerImpl:
 
 class Logger:
     @classmethod
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs) -> None:
         cls._logger = _LoggerImpl(cls)
         cls._registered_loggers: List[LoggerStrategyImplBase] = []
         cls.init_subscribers()
