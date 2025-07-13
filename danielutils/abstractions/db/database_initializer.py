@@ -238,7 +238,7 @@ class DatabaseInitializer(ABC):
                     await db.create_table(expected_schema)
                 else:
                     logger.info(f"Validating table '{table_name}'")
-                    if not validate_schema(db, table_name, expected_schema):
+                    if not await validate_schema(db, table_name, expected_schema):
                         raise ValueError(
                             f"Schema validation failed for table '{table_name}'. "
                             "Please check the logs for details."
