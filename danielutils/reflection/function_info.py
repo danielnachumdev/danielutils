@@ -8,7 +8,7 @@ from .argument_info import ArgumentInfo
 
 class FunctionInfo:
     FUNCTION_DEFINITION_REGEX: re.Pattern = re.compile(
-        r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>.+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
+        r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>[\s\S]+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
         re.MULTILINE)
 
     def __init__(self, func: Callable, owner: Type) -> None:
