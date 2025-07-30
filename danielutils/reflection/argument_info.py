@@ -62,7 +62,7 @@ class ArgumentInfo:
         if self.default is not None:
             res += f", default={self.default}"
         if self.is_parameterized:
-            res+=f", parameters={self.parameters}"
+            res += f", parameters={self.parameters}"
         return res + ")"
 
     def __str__(self) -> str:
@@ -75,8 +75,10 @@ class ArgumentInfo:
             raise ValueError(f"Invalid argument info string: {string}")
 
         kwargs, args, kwarg_only, pname, parameters, name, type, default_value = m.groups()
+        type = None if type is None else type.strip()
         return ArgumentInfo(
-            name=name or pname,
+            name=name or pname or (args.strip("*") if args else None) or (
+                kwargs.strip("*") if kwargs else None) or (kwarg_only.strip("/") if kwarg_only else None) or None,
             type=type,
             default=default_value,
             is_kwargs=kwargs is not None,

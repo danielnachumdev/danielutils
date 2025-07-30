@@ -62,10 +62,14 @@ class ClassInfo:
                 elif inspect.isdatadescriptor(obj):
                     inspect.getsource(obj.fget)  # type:ignore
                 else:
-                    raise Exception()
+                    continue
             except:
                 continue
-            self._functions.append(FunctionInfo(obj, self._cls))
+
+            try:
+                self._functions.append(FunctionInfo(obj, self._cls))  # type: ignore
+            except Exception as e:
+                raise Exception(f"Error parsing function '{attr}' of class '{self._name}': {e}", e) from e
 
     def __str__(self) -> str:
         body = json.dumps({

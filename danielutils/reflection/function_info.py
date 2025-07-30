@@ -8,7 +8,7 @@ from .argument_info import ArgumentInfo
 
 class FunctionInfo:
     FUNCTION_DEFINITION_REGEX: re.Pattern = re.compile(
-        r"(?P<decorators>[\s\S]+)?\s*def (?P<name>\w[\w\d]*)\s*\((?P<arguments>[\s\S]+)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
+        r"(?P<decorators>(?:@[\s\S]+?)+?)?\s*(?P<async>async )?def (?P<name>\w[\w\d]*)\s*\((?P<arguments>[\s\S]+?)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
         re.MULTILINE)
 
     def __init__(self, func: Callable, owner: Type) -> None:
@@ -34,10 +34,13 @@ class FunctionInfo:
         m = FunctionInfo.FUNCTION_DEFINITION_REGEX.match(code)
         if m is None:
             raise ValueError("Invalid function source code")
-        decorators, name, arguments, return_type, body = m.groups()
+        decorators, async_, name, arguments, return_type, body = m.groups()
         if decorators is not None:
             for substr in decorators.strip().splitlines():
                 self._decorators.append(DecorationInfo.from_str(substr.strip()))
+
+        self._is_async = async_ is not None
+
         self._name = name
         if arguments is not None:
             self._arguments = ArgumentInfo.from_str(arguments)
@@ -56,6 +59,10 @@ class FunctionInfo:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name=\"{self.name}\")"
+
+    @property
+    def is_async(self) -> bool:
+        return self._is_async
 
     @property
     def is_inherited(self) -> bool:
