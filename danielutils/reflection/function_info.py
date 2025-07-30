@@ -18,7 +18,7 @@ class FunctionInfo:
                 self._is_property = True
             else:
                 inspect.getsource(func)
-                self._is_property = False
+                self._is_property = False  # type: ignore
         except:
             raise TypeError(f"'{func.__name__}' is not a user defined function")
         self._func = func

@@ -8,6 +8,8 @@ from danielutils.reflection.function_info import FunctionInfo
 from danielutils.reflection.decoration_info import DecorationInfo
 from danielutils.reflection.argument_info import ArgumentInfo
 
+T = TypeVar('T')
+
 
 class TestClassInfo(unittest.TestCase):
     """Test cases for ClassInfo class."""
@@ -85,40 +87,40 @@ class TestClassInfo(unittest.TestCase):
         """Test ClassInfo initialization with a simple class."""
         class_info = ClassInfo(self.simple_class)
 
-        self.assertEqual(class_info.name, "SimpleClass")
-        self.assertEqual(len(class_info.bases), 0)
-        self.assertEqual(len(class_info.decorations), 0)
+        self.assertEqual("SimpleClass", class_info.name)
+        self.assertEqual(0, len(class_info.bases))
+        self.assertEqual(0, len(class_info.decorations))
 
     def test_init_with_inherited_class(self):
         """Test ClassInfo initialization with an inherited class."""
         class_info = ClassInfo(self.inherited_class)
 
-        self.assertEqual(class_info.name, "InheritedClass")
-        self.assertEqual(len(class_info.bases), 1)
-        self.assertEqual(class_info.bases[0].name, "SimpleClass")
+        self.assertEqual("InheritedClass", class_info.name)
+        self.assertEqual(1, len(class_info.bases))
+        self.assertEqual("SimpleClass", class_info.bases[0].name)
 
     def test_init_with_abstract_class(self):
         """Test ClassInfo initialization with an abstract class."""
         class_info = ClassInfo(self.abstract_class)
 
-        self.assertEqual(class_info.name, "AbstractClass")
-        self.assertEqual(len(class_info.bases), 1)
-        self.assertEqual(class_info.bases[0].name, "ABC")
+        self.assertEqual("AbstractClass", class_info.name)
+        self.assertEqual(1, len(class_info.bases))
+        self.assertEqual("ABC", class_info.bases[0].name)
 
     def test_init_with_decorated_class(self):
         """Test ClassInfo initialization with a decorated class."""
         class_info = ClassInfo(self.decorated_class)
 
-        self.assertEqual(class_info.name, "DecoratedClass")
-        self.assertEqual(len(class_info.bases), 0)
+        self.assertEqual("DecoratedClass", class_info.name)
+        self.assertEqual(0, len(class_info.bases))
 
     def test_init_with_generic_class(self):
         """Test ClassInfo initialization with a generic class."""
         class_info = ClassInfo(self.generic_class)
 
-        self.assertEqual(class_info.name, "GenericTestClass")
-        self.assertEqual(len(class_info.bases), 1)
-        self.assertEqual(class_info.bases[0].name, "Generic")
+        self.assertEqual("GenericTestClass", class_info.name)
+        self.assertEqual(1, len(class_info.bases))
+        self.assertEqual("Generic", class_info.bases[0].name)
 
     def test_init_with_non_class_raises_typeerror(self):
         """Test ClassInfo initialization with non-class raises TypeError."""
@@ -137,9 +139,9 @@ class TestClassInfo(unittest.TestCase):
         """Test that all properties return correct values."""
         class_info = ClassInfo(self.simple_class)
 
-        self.assertEqual(class_info.name, "SimpleClass")
-        self.assertEqual(len(class_info.bases), 0)
-        self.assertEqual(len(class_info.decorations), 0)
+        self.assertEqual("SimpleClass", class_info.name)
+        self.assertEqual(0, len(class_info.bases))
+        self.assertEqual(0, len(class_info.decorations))
         self.assertIsInstance(class_info.functions, list)
 
     def test_static_methods_property(self):
@@ -147,16 +149,16 @@ class TestClassInfo(unittest.TestCase):
         class_info = ClassInfo(self.simple_class)
         static_methods = list(class_info.static_methods)
 
-        self.assertEqual(len(static_methods), 1)
-        self.assertEqual(static_methods[0].name, "static_method")
+        self.assertEqual(1, len(static_methods))
+        self.assertEqual("static_method", static_methods[0].name)
 
     def test_class_methods_property(self):
         """Test class_methods property."""
         class_info = ClassInfo(self.simple_class)
         class_methods = list(class_info.class_methods)
 
-        self.assertEqual(len(class_methods), 1)
-        self.assertEqual(class_methods[0].name, "class_method")
+        self.assertEqual(1, len(class_methods))
+        self.assertEqual("class_method", class_methods[0].name)
 
     def test_instance_methods_property(self):
         """Test instance_methods property."""
@@ -181,8 +183,8 @@ class TestClassInfo(unittest.TestCase):
         class_info = ClassInfo(self.abstract_class)
         abstract_methods = list(class_info.abstract_methods)
 
-        self.assertEqual(len(abstract_methods), 1)
-        self.assertEqual(abstract_methods[0].name, "abstract_method")
+        self.assertEqual(1, len(abstract_methods))
+        self.assertEqual("abstract_method", abstract_methods[0].name)
 
     def test_functions_property(self):
         """Test functions property."""
@@ -228,8 +230,8 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(MultiInheritClass)
 
-        self.assertEqual(class_info.name, "MultiInheritClass")
-        self.assertEqual(len(class_info.bases), 2)
+        self.assertEqual("MultiInheritClass", class_info.name)
+        self.assertEqual(2, len(class_info.bases))
         base_names = [b.name for b in class_info.bases]
         self.assertIn("Base1", base_names)
         self.assertIn("Base2", base_names)
@@ -247,9 +249,9 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ComplexInheritClass)
 
-        self.assertEqual(class_info.name, "ComplexInheritClass")
-        self.assertEqual(len(class_info.bases), 1)
-        self.assertEqual(class_info.bases[0].name, "ComplexBase")
+        self.assertEqual("ComplexInheritClass", class_info.name)
+        self.assertEqual(1, len(class_info.bases))
+        self.assertEqual("ComplexBase", class_info.bases[0].name)
 
     def test_class_with_decorators(self):
         """Test ClassInfo with class having decorators."""
@@ -264,9 +266,9 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(DecoratedTestClass)
 
-        self.assertEqual(class_info.name, "DecoratedTestClass")
-        self.assertEqual(len(class_info.decorations), 1)
-        self.assertEqual(class_info.decorations[0].name, "class_decorator")
+        self.assertEqual("DecoratedTestClass", class_info.name)
+        self.assertEqual(1, len(class_info.decorations))
+        self.assertEqual("class_decorator", class_info.decorations[0].name)
 
     def test_class_with_multiple_decorators(self):
         """Test ClassInfo with class having multiple decorators."""
@@ -286,8 +288,8 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(MultiDecoratedClass)
 
-        self.assertEqual(class_info.name, "MultiDecoratedClass")
-        self.assertEqual(len(class_info.decorations), 2)
+        self.assertEqual("MultiDecoratedClass", class_info.name)
+        self.assertEqual(2, len(class_info.decorations))
         decorator_names = [d.name for d in class_info.decorations]
         self.assertIn("decorator1", decorator_names)
         self.assertIn("decorator2", decorator_names)
@@ -308,7 +310,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(PropertyClass)
 
-        self.assertEqual(class_info.name, "PropertyClass")
+        self.assertEqual("PropertyClass", class_info.name)
         # Properties should be included in functions
         property_functions = [f for f in class_info.functions if f.is_property]
         self.assertGreaterEqual(len(property_functions), 1)
@@ -324,10 +326,10 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(AsyncClass)
 
-        self.assertEqual(class_info.name, "AsyncClass")
+        self.assertEqual("AsyncClass", class_info.name)
         async_functions = [f for f in class_info.functions if f.is_async]
-        self.assertEqual(len(async_functions), 1)
-        self.assertEqual(async_functions[0].name, "async_method")
+        self.assertEqual(1, len(async_functions))
+        self.assertEqual("async_method", async_functions[0].name)
 
     def test_class_with_complex_methods(self):
         """Test ClassInfo with class having complex method signatures."""
@@ -344,11 +346,11 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ComplexMethodClass)
 
-        self.assertEqual(class_info.name, "ComplexMethodClass")
+        self.assertEqual("ComplexMethodClass", class_info.name)
         complex_method = next(
             f for f in class_info.functions if f.name == "complex_method")
         # self, arg1, arg2, args, kwargs
-        self.assertEqual(len(complex_method.arguments), 5)
+        self.assertEqual(5, len(complex_method.arguments))
 
     def test_class_with_return_type_annotations(self):
         """Test ClassInfo with class having methods with return type annotations."""
@@ -361,14 +363,14 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ReturnTypeClass)
 
-        self.assertEqual(class_info.name, "ReturnTypeClass")
+        self.assertEqual("ReturnTypeClass", class_info.name)
         with_return_method = next(
             f for f in class_info.functions if f.name == "method_with_return")
         without_return_method = next(
             f for f in class_info.functions if f.name == "method_without_return")
 
-        self.assertEqual(with_return_method.return_type, "Optional[str]")
-        self.assertEqual(without_return_method.return_type, "None")
+        self.assertEqual("Optional[str]", with_return_method.return_type)
+        self.assertEqual("None", without_return_method.return_type)
 
     def test_class_with_nested_classes(self):
         """Test ClassInfo with class having nested classes."""
@@ -382,7 +384,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(OuterClass)
 
-        self.assertEqual(class_info.name, "OuterClass")
+        self.assertEqual("OuterClass", class_info.name)
         # Should only include methods from the outer class
         method_names = [f.name for f in class_info.functions]
         self.assertIn("outer_method", method_names)
@@ -401,7 +403,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ClassVariableClass)
 
-        self.assertEqual(class_info.name, "ClassVariableClass")
+        self.assertEqual("ClassVariableClass", class_info.name)
         # Class variables should not be included in functions
         function_names = [f.name for f in class_info.functions]
         self.assertNotIn("class_var", function_names)
@@ -419,7 +421,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(SlotsClass)
 
-        self.assertEqual(class_info.name, "SlotsClass")
+        self.assertEqual("SlotsClass", class_info.name)
         # Should work normally despite __slots__
         self.assertGreater(len(class_info.functions), 0)
 
@@ -434,7 +436,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(MetaClassTest)
 
-        self.assertEqual(class_info.name, "MetaClassTest")
+        self.assertEqual("MetaClassTest", class_info.name)
         # Should work normally despite metaclass
         self.assertGreater(len(class_info.functions), 0)
 
@@ -451,7 +453,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(DataClassTest)
 
-        self.assertEqual(class_info.name, "DataClassTest")
+        self.assertEqual("DataClassTest", class_info.name)
         # Should work normally with dataclass
         self.assertGreater(len(class_info.functions), 0)
 
@@ -465,7 +467,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(TestEnum)
 
-        self.assertEqual(class_info.name, "TestEnum")
+        self.assertEqual("TestEnum", class_info.name)
         # Should work normally with enum
         self.assertGreater(len(class_info.functions), 0)
 
@@ -481,9 +483,9 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(MixinClass)
 
-        self.assertEqual(class_info.name, "MixinClass")
-        self.assertEqual(len(class_info.bases), 1)
-        self.assertEqual(class_info.bases[0].name, "Mixin")
+        self.assertEqual("MixinClass", class_info.name)
+        self.assertEqual(1, len(class_info.bases))
+        self.assertEqual("Mixin", class_info.bases[0].name)
 
     def test_class_with_abstract_base_class(self):
         """Test ClassInfo with abstract base class."""
@@ -503,9 +505,9 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ConcreteClass)
 
-        self.assertEqual(class_info.name, "ConcreteClass")
-        self.assertEqual(len(class_info.bases), 1)
-        self.assertEqual(class_info.bases[0].name, "AbstractBase")
+        self.assertEqual("ConcreteClass", class_info.name)
+        self.assertEqual(1, len(class_info.bases))
+        self.assertEqual("AbstractBase", class_info.bases[0].name)
 
     def test_class_with_protocol(self):
         """Test ClassInfo with protocol class."""
@@ -521,7 +523,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ProtocolImpl)
 
-        self.assertEqual(class_info.name, "ProtocolImpl")
+        self.assertEqual("ProtocolImpl", class_info.name)
         # Should work normally with protocol implementation
         self.assertGreater(len(class_info.functions), 0)
 
@@ -537,7 +539,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(TypeAliasClass)
 
-        self.assertEqual(class_info.name, "TypeAliasClass")
+        self.assertEqual("TypeAliasClass", class_info.name)
         # Should work normally with type aliases
         self.assertGreater(len(class_info.functions), 0)
 
@@ -549,7 +551,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ForwardRefClass)
 
-        self.assertEqual(class_info.name, "ForwardRefClass")
+        self.assertEqual("ForwardRefClass", class_info.name)
         # Should work normally with forward references
         self.assertGreater(len(class_info.functions), 0)
 
@@ -563,7 +565,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(LiteralClass)
 
-        self.assertEqual(class_info.name, "LiteralClass")
+        self.assertEqual("LiteralClass", class_info.name)
         # Should work normally with literal types
         self.assertGreater(len(class_info.functions), 0)
 
@@ -577,7 +579,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(UnionClass)
 
-        self.assertEqual(class_info.name, "UnionClass")
+        self.assertEqual("UnionClass", class_info.name)
         # Should work normally with union types
         self.assertGreater(len(class_info.functions), 0)
 
@@ -591,7 +593,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(CallableClass)
 
-        self.assertEqual(class_info.name, "CallableClass")
+        self.assertEqual("CallableClass", class_info.name)
         # Should work normally with callable types
         self.assertGreater(len(class_info.functions), 0)
 
@@ -607,7 +609,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(GenericClass)
 
-        self.assertEqual(class_info.name, "GenericClass")
+        self.assertEqual("GenericClass", class_info.name)
         # Should work normally with generic types
         self.assertGreater(len(class_info.functions), 0)
 
@@ -621,7 +623,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(AnnotatedClass)
 
-        self.assertEqual(class_info.name, "AnnotatedClass")
+        self.assertEqual("AnnotatedClass", class_info.name)
         # Should work normally with annotated types
         self.assertGreater(len(class_info.functions), 0)
 
@@ -637,7 +639,7 @@ class TestClassInfo(unittest.TestCase):
 
         class_info = ClassInfo(ComplexNestedClass)
 
-        self.assertEqual(class_info.name, "ComplexNestedClass")
+        self.assertEqual("ComplexNestedClass", class_info.name)
         # Should work normally with complex nested types
         self.assertGreater(len(class_info.functions), 0)
 

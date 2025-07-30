@@ -76,6 +76,7 @@ class ArgumentInfo:
 
         kwargs, args, kwarg_only, pname, parameters, name, type, default_value = m.groups()
         type = None if type is None else type.strip()
+        default_value = None if default_value is None else default_value.strip()
         return ArgumentInfo(
             name=name or pname or (args.strip("*") if args else None) or (
                 kwargs.strip("*") if kwargs else None) or (kwarg_only.strip("/") if kwarg_only else None) or None,
@@ -90,6 +91,9 @@ class ArgumentInfo:
     @staticmethod
     def from_str(string: str) -> List['ArgumentInfo']:
         if string is None:
+            return []
+        string = string.strip()
+        if not string:
             return []
         string = string.strip()
         indices = [-1]

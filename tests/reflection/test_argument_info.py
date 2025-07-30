@@ -19,13 +19,13 @@ class TestArgumentInfo(unittest.TestCase):
             parameters=["param1", "param2"]
         )
 
-        self.assertEqual(arg_info.name, "test_arg")
-        self.assertEqual(arg_info.type, "str")
-        self.assertEqual(arg_info.default, "default_value")
+        self.assertEqual("test_arg", arg_info.name)
+        self.assertEqual("str", arg_info.type)
+        self.assertEqual("default_value", arg_info.default)
         self.assertFalse(arg_info.is_kwargs)
         self.assertFalse(arg_info.is_args)
         self.assertFalse(arg_info.is_kwargs_only)
-        self.assertEqual(arg_info.parameters, ["param1", "param2"])
+        self.assertEqual(["param1", "param2"], arg_info.parameters)
 
     def test_init_with_minimal_parameters(self):
         """Test ArgumentInfo initialization with minimal parameters."""
@@ -59,13 +59,13 @@ class TestArgumentInfo(unittest.TestCase):
             parameters=["p1", "p2"]
         )
 
-        self.assertEqual(arg_info.name, "test")
-        self.assertEqual(arg_info.type, "int")
-        self.assertEqual(arg_info.default, "42")
+        self.assertEqual("test", arg_info.name)
+        self.assertEqual("int", arg_info.type)
+        self.assertEqual("42", arg_info.default)
         self.assertTrue(arg_info.is_kwargs)
         self.assertFalse(arg_info.is_args)
         self.assertFalse(arg_info.is_kwargs_only)
-        self.assertEqual(arg_info.parameters, ["p1", "p2"])
+        self.assertEqual(["p1", "p2"], arg_info.parameters)
 
     def test_is_parameterized_with_parameters(self):
         """Test is_parameterized property with parameters."""
@@ -178,8 +178,8 @@ class TestArgumentInfo(unittest.TestCase):
         """Test from_str with a simple argument."""
         result = ArgumentInfo.from_str("arg1")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
         self.assertIsNone(result[0].type)
         self.assertIsNone(result[0].default)
 
@@ -187,46 +187,46 @@ class TestArgumentInfo(unittest.TestCase):
         """Test from_str with a typed argument."""
         result = ArgumentInfo.from_str("arg1: str")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "str")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("str", result[0].type)
         self.assertIsNone(result[0].default)
 
     def test_from_str_argument_with_default(self):
         """Test from_str with an argument with default value."""
         result = ArgumentInfo.from_str("arg1=42")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
         self.assertIsNone(result[0].type)
-        self.assertEqual(result[0].default, "42")
+        self.assertEqual("42", result[0].default)
 
     def test_from_str_typed_argument_with_default(self):
         """Test from_str with a typed argument with default value."""
         result = ArgumentInfo.from_str("arg1: int = 42")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "int")
-        self.assertEqual(result[0].default, "42")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("int", result[0].type)
+        self.assertEqual("42", result[0].default)
 
     def test_from_str_multiple_arguments(self):
         """Test from_str with multiple arguments."""
         result = ArgumentInfo.from_str("arg1: str, arg2: int = 42")
 
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "str")
-        self.assertEqual(result[1].name, "arg2")
-        self.assertEqual(result[1].type, "int")
-        self.assertEqual(result[1].default, "42")
+        self.assertEqual(2, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("str", result[0].type)
+        self.assertEqual("arg2", result[1].name)
+        self.assertEqual("int", result[1].type)
+        self.assertEqual("42", result[1].default)
 
     def test_from_str_args_argument(self):
         """Test from_str with *args argument."""
         result = ArgumentInfo.from_str("*args")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "args")
+        self.assertEqual(1, len(result))
+        self.assertEqual("args", result[0].name)
         self.assertTrue(result[0].is_args)
         self.assertFalse(result[0].is_kwargs)
 
@@ -234,8 +234,8 @@ class TestArgumentInfo(unittest.TestCase):
         """Test from_str with **kwargs argument."""
         result = ArgumentInfo.from_str("**kwargs")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "kwargs")
+        self.assertEqual(1, len(result))
+        self.assertEqual("kwargs", result[0].name)
         self.assertTrue(result[0].is_kwargs)
         self.assertFalse(result[0].is_args)
 
@@ -243,24 +243,24 @@ class TestArgumentInfo(unittest.TestCase):
         """Test from_str with / (kwargs-only) argument."""
         result = ArgumentInfo.from_str("/")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "/")
+        self.assertEqual(1, len(result))
+        self.assertEqual("/", result[0].name)
         self.assertTrue(result[0].is_kwargs_only)
 
     def test_from_str_parameterized_type(self):
         """Test from_str with parameterized type."""
         result = ArgumentInfo.from_str("arg1: List[str]")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "List[str]")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("List[str]", result[0].type)
         self.assertTrue(result[0].is_parameterized)
 
     def test_from_str_complex_parameterized_type(self):
         """Test from_str with complex parameterized type."""
         result = ArgumentInfo.from_str("arg1: Dict[str, List[int]]")
 
-        self.assertEqual(len(result), 1)
+        self.assertEqual(1, len(result))
         self.assertEqual("arg1", result[0].name)
         self.assertEqual("Dict[str, List[int]]", result[0].type)
 
@@ -288,123 +288,123 @@ class TestArgumentInfo(unittest.TestCase):
         """Test from_str with arguments containing spaces."""
         result = ArgumentInfo.from_str(" arg1 : str = 42 , arg2 : int ")
 
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "str")
-        self.assertEqual(result[0].default, "42")
-        self.assertEqual(result[1].name, "arg2")
-        self.assertEqual(result[1].type, "int")
+        self.assertEqual(2, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("str", result[0].type)
+        self.assertEqual("42", result[0].default)
+        self.assertEqual("arg2", result[1].name)
+        self.assertEqual("int", result[1].type)
 
     def test_from_str_with_string_default(self):
         """Test from_str with string default value."""
         result = ArgumentInfo.from_str("arg1: str = 'default'")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "str")
-        self.assertEqual(result[0].default, "'default'")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("str", result[0].type)
+        self.assertEqual("'default'", result[0].default)
 
     def test_from_str_with_complex_default(self):
         """Test from_str with complex default value."""
         result = ArgumentInfo.from_str("arg1: dict = {'key': 'value'}")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "dict")
-        self.assertEqual(result[0].default, "{'key': 'value'}")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("dict", result[0].type)
+        self.assertEqual("{'key': 'value'}", result[0].default)
 
     def test_from_str_with_nested_brackets(self):
         """Test from_str with nested brackets in type annotations."""
         result = ArgumentInfo.from_str("arg1: List[Dict[str, Optional[int]]]")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "List[Dict[str, Optional[int]]]")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("List[Dict[str, Optional[int]]]", result[0].type)
 
     def test_from_str_with_multiple_nested_types(self):
         """Test from_str with multiple arguments having nested types."""
         result = ArgumentInfo.from_str(
             "arg1: List[str], arg2: Dict[str, List[int]]")
 
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "List[str]")
-        self.assertEqual(result[1].name, "arg2")
-        self.assertEqual(result[1].type, "Dict[str, List[int]]")
+        self.assertEqual(2, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("List[str]", result[0].type)
+        self.assertEqual("arg2", result[1].name)
+        self.assertEqual("Dict[str, List[int]]", result[1].type)
 
     def test_from_str_with_optional_type(self):
         """Test from_str with Optional type."""
         result = ArgumentInfo.from_str("arg1: Optional[str] = None")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "Optional[str]")
-        self.assertEqual(result[0].default, "None")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("Optional[str]", result[0].type)
+        self.assertEqual("None", result[0].default)
 
     def test_from_str_with_union_type(self):
         """Test from_str with Union type."""
         result = ArgumentInfo.from_str("arg1: Union[str, int]")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "Union[str, int]")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("Union[str, int]", result[0].type)
 
     def test_from_str_with_callable_type(self):
         """Test from_str with Callable type."""
         result = ArgumentInfo.from_str("arg1: Callable[[str], int]")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "Callable[[str], int]")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("Callable[[str], int]", result[0].type)
 
     def test_from_str_with_literal_type(self):
         """Test from_str with Literal type."""
         result = ArgumentInfo.from_str("arg1: Literal['a', 'b', 'c']")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "Literal['a', 'b', 'c']")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("Literal['a', 'b', 'c']", result[0].type)
 
     def test_from_str_with_annotated_type(self):
         """Test from_str with Annotated type."""
         result = ArgumentInfo.from_str("arg1: Annotated[str, 'description']")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[0].type, "Annotated[str, 'description']")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("Annotated[str, 'description']", result[0].type)
 
     def test_from_str_with_self_argument(self):
         """Test from_str with self argument."""
         result = ArgumentInfo.from_str("self")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "self")
+        self.assertEqual(1, len(result))
+        self.assertEqual("self", result[0].name)
         self.assertIsNone(result[0].type)
 
     def test_from_str_with_cls_argument(self):
         """Test from_str with cls argument."""
         result = ArgumentInfo.from_str("cls")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "cls")
+        self.assertEqual(1, len(result))
+        self.assertEqual("cls", result[0].name)
         self.assertIsNone(result[0].type)
 
     def test_from_str_with_positional_only_argument(self):
         """Test from_str with positional-only argument."""
         result = ArgumentInfo.from_str("arg1, /, arg2")
 
-        self.assertEqual(len(result), 3)
-        self.assertEqual(result[0].name, "arg1")
-        self.assertEqual(result[1].name, "/")
+        self.assertEqual(3, len(result))
+        self.assertEqual("arg1", result[0].name)
+        self.assertEqual("/", result[1].name)
         self.assertTrue(result[1].is_kwargs_only)
-        self.assertEqual(result[2].name, "arg2")
+        self.assertEqual("arg2", result[2].name)
 
     def test_from_str_with_keyword_only_argument(self):
         """Test from_str with keyword-only argument."""
         result = ArgumentInfo.from_str("*, arg1")
 
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "arg1")
+        self.assertEqual(1, len(result))
+        self.assertEqual("arg1", result[0].name)
         self.assertIsNone(result[0].type)
 
     def test_from_str_with_mixed_argument_types(self):
@@ -412,16 +412,16 @@ class TestArgumentInfo(unittest.TestCase):
         result = ArgumentInfo.from_str(
             "self, arg1: str, *args, arg2: int = 42, **kwargs")
 
-        self.assertEqual(len(result), 5)
-        self.assertEqual(result[0].name, "self")
-        self.assertEqual(result[1].name, "arg1")
-        self.assertEqual(result[1].type, "str")
-        self.assertEqual(result[2].name, "args")
+        self.assertEqual(5, len(result))
+        self.assertEqual("self", result[0].name)
+        self.assertEqual("arg1", result[1].name)
+        self.assertEqual("str", result[1].type)
+        self.assertEqual("args", result[2].name)
         self.assertTrue(result[2].is_args)
-        self.assertEqual(result[3].name, "arg2")
-        self.assertEqual(result[3].type, "int")
-        self.assertEqual(result[3].default, "42")
-        self.assertEqual(result[4].name, "kwargs")
+        self.assertEqual("arg2", result[3].name)
+        self.assertEqual("int", result[3].type)
+        self.assertEqual("42", result[3].default)
+        self.assertEqual("kwargs", result[4].name)
         self.assertTrue(result[4].is_kwargs)
 
     def test_parse_one_invalid_string(self):
