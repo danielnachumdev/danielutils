@@ -5,8 +5,9 @@ from typing import Optional, List
 from .argument_info import ArgumentInfo
 
 
-class DecorationInfo:
-    DECORATOR_INFO_REGEX: re.Pattern = re.compile(r"^@?(?P<name>\w[\w\d]*)(?:\((?P<arguments>.*)\))?")
+class DecoratorInfo:
+    DECORATOR_INFO_REGEX: re.Pattern = re.compile(
+        r"^@?(?P<name>\w[\w\d]*)(?:\((?P<arguments>.*)\))?")
 
     def __init__(self, name: str, arguments: List[ArgumentInfo]):
         self._name = name
@@ -21,14 +22,14 @@ class DecorationInfo:
         return self._arguments
 
     @staticmethod
-    def from_str(string: str) -> 'DecorationInfo':
-        m = DecorationInfo.DECORATOR_INFO_REGEX.match(string)
+    def from_str(string: str) -> 'DecoratorInfo':
+        m = DecoratorInfo.DECORATOR_INFO_REGEX.match(string)
         if m is None:
             raise ValueError()
 
         name, arguments = m.groups()
         args = ArgumentInfo.from_str(arguments)
-        return DecorationInfo(name, args)
+        return DecoratorInfo(name, args)
 
     def __str__(self) -> str:
         return repr(self)
@@ -40,5 +41,5 @@ class DecorationInfo:
 
 
 __all__ = [
-    'DecorationInfo',
+    'DecoratorInfo',
 ]

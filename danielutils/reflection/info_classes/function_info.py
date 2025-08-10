@@ -2,7 +2,7 @@ import inspect
 import json
 import re
 from typing import Type, Optional, List, Callable
-from .decoration_info import DecorationInfo
+from .decorator_info import DecoratorInfo
 from .argument_info import ArgumentInfo
 
 
@@ -20,9 +20,10 @@ class FunctionInfo:
                 inspect.getsource(func)
                 self._is_property = False  # type: ignore
         except:
-            raise TypeError(f"'{func.__name__}' is not a user defined function")
+            raise TypeError(
+                f"'{func.__name__}' is not a user defined function")
         self._func = func
-        self._decorators: List[DecorationInfo] = []
+        self._decorators: List[DecoratorInfo] = []
         self._arguments: List[ArgumentInfo] = []
         self._return_type: str = ""
         self._owner = owner
@@ -37,7 +38,7 @@ class FunctionInfo:
         decorators, async_, name, arguments, return_type, body = m.groups()
         if decorators is not None:
             for substr in decorators.strip().splitlines():
-                self._decorators.append(DecorationInfo.from_str(substr.strip()))
+                self._decorators.append(DecoratorInfo.from_str(substr.strip()))
 
         self._is_async = async_ is not None
 
@@ -101,7 +102,7 @@ class FunctionInfo:
         return self._arguments
 
     @property
-    def decorators(self) -> List[DecorationInfo]:
+    def decorators(self) -> List[DecoratorInfo]:
         return self._decorators
 
 

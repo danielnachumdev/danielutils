@@ -3,14 +3,15 @@ import json
 import re
 from typing import List, Iterable, Type, TypeVar, Generic, get_origin
 from .function_info import FunctionInfo
-from .decoration_info import DecorationInfo
+from .decorator_info import DecoratorInfo
 from .argument_info import ArgumentInfo
 from ...functions import isoftype
 
 T = TypeVar("T")
 
 
-class _A(Generic[T]): ...
+class _A(Generic[T]):
+    ...
 
 
 _GenericAlias = type(_A[int])
@@ -34,7 +35,7 @@ class ClassInfo:
         self._name: str = ""
         self._bases: List[ArgumentInfo] = []
         self._functions: List[FunctionInfo] = []
-        self._decorations: List[DecorationInfo] = []
+        self._decorations: List[DecoratorInfo] = []
         self._parse_src_code()
 
     def _parse_src_code(self) -> None:
@@ -49,7 +50,8 @@ class ClassInfo:
 
         if decorators is not None:
             for substr in decorators.strip().splitlines():
-                self._decorations.append(DecorationInfo.from_str(substr.strip()))
+                self._decorations.append(
+                    DecoratorInfo.from_str(substr.strip()))
 
     def _parse_body(self) -> None:
         for attr in dir(self._cls):
@@ -67,9 +69,11 @@ class ClassInfo:
                 continue
 
             try:
-                self._functions.append(FunctionInfo(obj, self._cls))  # type: ignore
+                self._functions.append(FunctionInfo(
+                    obj, self._cls))  # type: ignore
             except Exception as e:
-                raise Exception(f"Error parsing function '{attr}' of class '{self._name}': {e}", e) from e
+                raise Exception(
+                    f"Error parsing function '{attr}' of class '{self._name}': {e}", e) from e
 
     def __str__(self) -> str:
         body = json.dumps({
@@ -90,7 +94,7 @@ class ClassInfo:
         return self._name
 
     @property
-    def decorations(self) -> List[DecorationInfo]:
+    def decorations(self) -> List[DecoratorInfo]:
         return self._decorations
 
     @property
