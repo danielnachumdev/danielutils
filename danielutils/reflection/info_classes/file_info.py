@@ -8,10 +8,11 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import List, Set, Dict, Any, Optional, Tuple
 from enum import Enum
+from dataclasses import dataclass
 
 from .import_info import ImportInfo, ImportType
 from .class_info import ClassInfo
-from .function_info import FunctionInfo
+from .function_info import FunctionInfo, FunctionStats
 
 
 class CodeQualityLevel(Enum):
@@ -21,6 +22,169 @@ class CodeQualityLevel(Enum):
     FAIR = "fair"
     POOR = "poor"
     UNKNOWN = "unknown"
+
+
+@dataclass
+class FileComplexityStats:
+    """Statistics about file complexity and structure."""
+    total_cyclomatic_complexity: int
+    average_function_complexity: float
+    max_function_complexity: int
+    min_function_complexity: int
+    total_nesting_depth: int
+    average_nesting_depth: float
+    max_nesting_depth: int
+    has_nested_functions: bool
+    has_nested_classes: bool
+    inheritance_depth: int
+    max_inheritance_depth: int
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "total_cyclomatic_complexity": self.total_cyclomatic_complexity,
+            "average_function_complexity": round(self.average_function_complexity, 2),
+            "max_function_complexity": self.max_function_complexity,
+            "min_function_complexity": self.min_function_complexity,
+            "total_nesting_depth": self.total_nesting_depth,
+            "average_nesting_depth": round(self.average_nesting_depth, 2),
+            "max_nesting_depth": self.max_nesting_depth,
+            "has_nested_functions": self.has_nested_functions,
+            "has_nested_classes": self.has_nested_classes,
+            "inheritance_depth": self.inheritance_depth,
+            "max_inheritance_depth": self.max_inheritance_depth
+        }
+
+
+@dataclass
+class FileTypeStats:
+    """Statistics about file typing."""
+    fully_typed_functions: int
+    partially_typed_functions: int
+    untyped_functions: int
+    total_functions: int
+    typing_coverage: float  # 0.0 to 1.0
+    has_generic_types: bool
+    has_union_types: bool
+    has_optional_types: bool
+    type_hint_usage: Dict[str, int]  # Common type hints and their frequency
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "fully_typed_functions": self.fully_typed_functions,
+            "partially_typed_functions": self.partially_typed_functions,
+            "untyped_functions": self.untyped_functions,
+            "total_functions": self.total_functions,
+            "typing_coverage": round(self.typing_coverage, 2),
+            "has_generic_types": self.has_generic_types,
+            "has_union_types": self.has_union_types,
+            "has_optional_types": self.has_optional_types,
+            "type_hint_usage": self.type_hint_usage
+        }
+
+
+@dataclass
+class FileCodeStats:
+    """Statistics about file code structure."""
+    total_lines: int
+    code_lines: int
+    comment_lines: int
+    empty_lines: int
+    docstring_lines: int
+    average_line_length: float
+    max_line_length: int
+    min_line_length: int
+    average_function_length: float
+    max_function_length: int
+    min_function_length: int
+    functions_with_docstrings: int
+    docstring_coverage: float  # 0.0 to 1.0
+    comment_ratio: float
+    blank_line_ratio: float
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "total_lines": self.total_lines,
+            "code_lines": self.code_lines,
+            "comment_lines": self.comment_lines,
+            "empty_lines": self.empty_lines,
+            "docstring_lines": self.docstring_lines,
+            "average_line_length": round(self.average_line_length, 2),
+            "max_line_length": self.max_line_length,
+            "min_line_length": self.min_line_length,
+            "average_function_length": round(self.average_function_length, 2),
+            "max_function_length": self.max_function_length,
+            "min_function_length": self.min_function_length,
+            "functions_with_docstrings": self.functions_with_docstrings,
+            "docstring_coverage": round(self.docstring_coverage, 2),
+            "comment_ratio": round(self.comment_ratio, 2),
+            "blank_line_ratio": round(self.blank_line_ratio, 2)
+        }
+
+
+@dataclass
+class FileStructureStats:
+    """Statistics about file structure."""
+    total_classes: int
+    total_functions: int
+    total_imports: int
+    used_imports: int
+    unused_imports: int
+    import_efficiency: float  # 0.0 to 1.0
+    async_functions: int
+    static_methods: int
+    class_methods: int
+    instance_methods: int
+    properties: int
+    abstract_methods: int
+    decorators_used: List[str]
+    decorator_frequency: Dict[str, int]
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "total_classes": self.total_classes,
+            "total_functions": self.total_functions,
+            "total_imports": self.total_imports,
+            "used_imports": self.used_imports,
+            "unused_imports": self.unused_imports,
+            "import_efficiency": round(self.import_efficiency, 2),
+            "async_functions": self.async_functions,
+            "static_methods": self.static_methods,
+            "class_methods": self.class_methods,
+            "instance_methods": self.instance_methods,
+            "properties": self.properties,
+            "abstract_methods": self.abstract_methods,
+            "decorators_used": self.decorators_used,
+            "decorator_frequency": self.decorator_frequency
+        }
+
+
+@dataclass
+class FileStats:
+    """Comprehensive file statistics."""
+    complexity: FileComplexityStats
+    typing: FileTypeStats
+    code: FileCodeStats
+    structure: FileStructureStats
+    overall_score: float  # 0.0 to 1.0
+    quality_assessment: str  # "excellent", "good", "fair", "poor"
+    function_stats_summary: Dict[str, Any]  # Aggregated function statistics
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "file_path": "",  # Will be set by FileInfo
+            "overall_score": round(self.overall_score, 2),
+            "quality_assessment": self.quality_assessment,
+            "complexity": self.complexity.to_dict(),
+            "typing": self.typing.to_dict(),
+            "code": self.code.to_dict(),
+            "structure": self.structure.to_dict(),
+            "function_stats_summary": self.function_stats_summary
+        }
 
 
 class FileInfo:
@@ -296,6 +460,362 @@ class FileInfo:
 
         return inheritance_info
 
+    def _calculate_file_complexity_stats(self) -> FileComplexityStats:
+        """Calculate file complexity statistics."""
+        function_complexities = []
+        function_nesting_depths = []
+        has_nested_funcs = False
+        has_nested_classes = False
+        inheritance_depths = []
+
+        # Get function statistics if available
+        try:
+            dynamic_funcs = self.get_dynamic_function_info()
+            for func_info in dynamic_funcs:
+                func_stats = func_info.stats
+                function_complexities.append(
+                    func_stats.complexity.cyclomatic_complexity)
+                function_nesting_depths.append(
+                    func_stats.complexity.nesting_depth)
+                if func_stats.complexity.has_nested_functions:
+                    has_nested_funcs = True
+                if func_stats.complexity.has_nested_classes:
+                    has_nested_classes = True
+        except:
+            # Fallback to basic analysis
+            function_complexities = [1]  # Default complexity
+            function_nesting_depths = [0]
+
+        # Calculate inheritance depths
+        inheritance_info = self._analyze_inheritance()
+        for class_info in inheritance_info.values():
+            inheritance_depths.append(class_info['base_count'])
+
+        total_cyclomatic = sum(
+            function_complexities) if function_complexities else 1
+        avg_function_complexity = sum(
+            function_complexities) / len(function_complexities) if function_complexities else 1
+        max_function_complexity = max(
+            function_complexities) if function_complexities else 1
+        min_function_complexity = min(
+            function_complexities) if function_complexities else 1
+
+        total_nesting = sum(
+            function_nesting_depths) if function_nesting_depths else 0
+        avg_nesting = sum(function_nesting_depths) / \
+            len(function_nesting_depths) if function_nesting_depths else 0
+        max_nesting = max(
+            function_nesting_depths) if function_nesting_depths else 0
+
+        inheritance_depth = sum(
+            inheritance_depths) if inheritance_depths else 0
+        max_inheritance = max(inheritance_depths) if inheritance_depths else 0
+
+        return FileComplexityStats(
+            total_cyclomatic_complexity=total_cyclomatic,
+            average_function_complexity=avg_function_complexity,
+            max_function_complexity=max_function_complexity,
+            min_function_complexity=min_function_complexity,
+            total_nesting_depth=total_nesting,
+            average_nesting_depth=avg_nesting,
+            max_nesting_depth=max_nesting,
+            has_nested_functions=has_nested_funcs,
+            has_nested_classes=has_nested_classes,
+            inheritance_depth=inheritance_depth,
+            max_inheritance_depth=max_inheritance
+        )
+
+    def _calculate_file_type_stats(self) -> FileTypeStats:
+        """Calculate file typing statistics."""
+        fully_typed = 0
+        partially_typed = 0
+        untyped = 0
+        total_funcs = 0
+        has_generics = False
+        has_unions = False
+        has_optionals = False
+        type_hint_usage = defaultdict(int)
+
+        try:
+            dynamic_funcs = self.get_dynamic_function_info()
+            for func_info in dynamic_funcs:
+                total_funcs += 1
+                func_stats = func_info.stats
+
+                if func_stats.typing.is_fully_typed:
+                    fully_typed += 1
+                elif func_stats.typing.has_argument_types or func_stats.typing.has_return_type:
+                    partially_typed += 1
+                else:
+                    untyped += 1
+
+                if func_stats.typing.has_generic_types:
+                    has_generics = True
+                if func_stats.typing.has_union_types:
+                    has_unions = True
+                if func_stats.typing.has_optional_types:
+                    has_optionals = True
+
+                # Count type hint usage
+                for arg in func_info.arguments:
+                    if arg.type:
+                        type_hint_usage[str(arg.type)] += 1
+                if func_info.return_type != "None":
+                    type_hint_usage[str(func_info.return_type)] += 1
+        except:
+            total_funcs = len(self.function_names)
+            fully_typed = 0
+            partially_typed = 0
+            untyped = total_funcs
+
+        typing_coverage = (fully_typed + partially_typed * 0.5) / \
+            total_funcs if total_funcs > 0 else 0
+
+        return FileTypeStats(
+            fully_typed_functions=fully_typed,
+            partially_typed_functions=partially_typed,
+            untyped_functions=untyped,
+            total_functions=total_funcs,
+            typing_coverage=typing_coverage,
+            has_generic_types=has_generics,
+            has_union_types=has_unions,
+            has_optional_types=has_optionals,
+            type_hint_usage=dict(type_hint_usage)
+        )
+
+    def _calculate_file_code_stats(self) -> FileCodeStats:
+        """Calculate file code structure statistics."""
+        metrics = self.code_metrics
+        lines = metrics['lines']
+
+        # Function length statistics
+        function_lengths = []
+        functions_with_docs = 0
+        total_funcs = len(self.function_names)
+
+        try:
+            dynamic_funcs = self.get_dynamic_function_info()
+            for func_info in dynamic_funcs:
+                func_stats = func_info.stats
+                function_lengths.append(func_stats.code.total_lines)
+                if func_stats.code.has_docstring:
+                    functions_with_docs += 1
+        except:
+            function_lengths = [10]  # Default length
+            functions_with_docs = 0
+
+        avg_function_length = sum(function_lengths) / \
+            len(function_lengths) if function_lengths else 0
+        max_function_length = max(function_lengths) if function_lengths else 0
+        min_function_length = min(function_lengths) if function_lengths else 0
+
+        docstring_coverage = functions_with_docs / total_funcs if total_funcs > 0 else 0
+        comment_ratio = lines['comment'] / \
+            lines['total'] if lines['total'] > 0 else 0
+        blank_line_ratio = lines['blank'] / \
+            lines['total'] if lines['total'] > 0 else 0
+
+        return FileCodeStats(
+            total_lines=lines['total'],
+            code_lines=lines['code'],
+            comment_lines=lines['comment'],
+            empty_lines=lines['blank'],
+            docstring_lines=lines['comment'],  # Approximate
+            average_line_length=sum(
+                len(line) for line in self.lines) / len(self.lines) if self.lines else 0,
+            max_line_length=max(len(line)
+                                for line in self.lines) if self.lines else 0,
+            min_line_length=min(len(line)
+                                for line in self.lines) if self.lines else 0,
+            average_function_length=avg_function_length,
+            max_function_length=max_function_length,
+            min_function_length=min_function_length,
+            functions_with_docstrings=functions_with_docs,
+            docstring_coverage=docstring_coverage,
+            comment_ratio=comment_ratio,
+            blank_line_ratio=blank_line_ratio
+        )
+
+    def _calculate_file_structure_stats(self) -> FileStructureStats:
+        """Calculate file structure statistics."""
+        total_classes = len(self.class_names)
+        total_functions = len(self.function_names)
+        total_imports = len(self.imports)
+        used_imports = len(self.get_used_imports())
+        unused_imports = len(self.get_unused_imports())
+        import_efficiency = used_imports / total_imports if total_imports > 0 else 1.0
+
+        # Function type counts
+        async_functions = 0
+        static_methods = 0
+        class_methods = 0
+        instance_methods = 0
+        properties = 0
+        abstract_methods = 0
+
+        try:
+            dynamic_funcs = self.get_dynamic_function_info()
+            for func_info in dynamic_funcs:
+                if func_info.is_async:
+                    async_functions += 1
+                if func_info.is_static_method:
+                    static_methods += 1
+                elif func_info.is_class_method:
+                    class_methods += 1
+                elif func_info.is_instance_method:
+                    instance_methods += 1
+                if func_info.is_property:
+                    properties += 1
+                if func_info.is_abstract:
+                    abstract_methods += 1
+        except:
+            pass
+
+        # Decorator analysis
+        decorators = self.structure_info['decorators']
+        decorator_frequency = Counter(decorators)
+
+        return FileStructureStats(
+            total_classes=total_classes,
+            total_functions=total_functions,
+            total_imports=total_imports,
+            used_imports=used_imports,
+            unused_imports=unused_imports,
+            import_efficiency=import_efficiency,
+            async_functions=async_functions,
+            static_methods=static_methods,
+            class_methods=class_methods,
+            instance_methods=instance_methods,
+            properties=properties,
+            abstract_methods=abstract_methods,
+            decorators_used=decorators,
+            decorator_frequency=dict(decorator_frequency)
+        )
+
+    def _calculate_overall_score(self, complexity: FileComplexityStats,
+                                 typing: FileTypeStats,
+                                 code: FileCodeStats,
+                                 structure: FileStructureStats) -> Tuple[float, str]:
+        """Calculate overall file quality score."""
+        score = 0.0
+
+        # Complexity score (25% weight)
+        if complexity.average_function_complexity <= 5:
+            score += 0.25
+        elif complexity.average_function_complexity <= 10:
+            score += 0.15
+        elif complexity.average_function_complexity <= 20:
+            score += 0.05
+
+        if complexity.max_nesting_depth <= 3:
+            score += 0.1
+        elif complexity.max_nesting_depth <= 5:
+            score += 0.05
+
+        # Typing score (25% weight)
+        score += typing.typing_coverage * 0.25
+
+        # Code structure score (25% weight)
+        if code.docstring_coverage >= 0.8:
+            score += 0.1
+        elif code.docstring_coverage >= 0.5:
+            score += 0.05
+
+        if code.average_function_length <= 50:
+            score += 0.1
+        elif code.average_function_length <= 100:
+            score += 0.05
+
+        if code.comment_ratio >= 0.1 and code.comment_ratio <= 0.3:
+            score += 0.05
+
+        # Structure score (25% weight)
+        if structure.import_efficiency >= 0.9:
+            score += 0.15
+        elif structure.import_efficiency >= 0.7:
+            score += 0.1
+        elif structure.import_efficiency >= 0.5:
+            score += 0.05
+
+        if structure.total_classes <= 10:
+            score += 0.05
+        elif structure.total_classes <= 20:
+            score += 0.025
+
+        if structure.total_functions <= 50:
+            score += 0.05
+        elif structure.total_functions <= 100:
+            score += 0.025
+
+        # Determine quality level
+        if score >= 0.8:
+            quality = "excellent"
+        elif score >= 0.6:
+            quality = "good"
+        elif score >= 0.4:
+            quality = "fair"
+        else:
+            quality = "poor"
+
+        return score, quality
+
+    def _get_function_stats_summary(self) -> Dict[str, Any]:
+        """Get aggregated function statistics summary."""
+        try:
+            dynamic_funcs = self.get_dynamic_function_info()
+            if not dynamic_funcs:
+                return {}
+
+            # Aggregate function statistics
+            all_scores = []
+            all_complexities = []
+            all_lengths = []
+            typing_scores = []
+            quality_distribution = Counter()
+
+            for func_info in dynamic_funcs:
+                func_stats = func_info.stats
+                all_scores.append(func_stats.overall_score)
+                all_complexities.append(
+                    func_info.stats.complexity.cyclomatic_complexity)
+                all_lengths.append(func_info.stats.code.total_lines)
+                typing_scores.append(func_info.stats.typing.typing_score)
+                quality_distribution[func_info.stats.quality_assessment] += 1
+
+            return {
+                'total_functions': len(dynamic_funcs),
+                'average_function_score': sum(all_scores) / len(all_scores) if all_scores else 0,
+                'average_complexity': sum(all_complexities) / len(all_complexities) if all_complexities else 0,
+                'average_length': sum(all_lengths) / len(all_lengths) if all_lengths else 0,
+                'average_typing_score': sum(typing_scores) / len(typing_scores) if typing_scores else 0,
+                'quality_distribution': dict(quality_distribution),
+                'best_function_score': max(all_scores) if all_scores else 0,
+                'worst_function_score': min(all_scores) if all_scores else 0
+            }
+        except:
+            return {}
+
+    @property
+    def stats(self) -> FileStats:
+        """Returns comprehensive file statistics."""
+        complexity = self._calculate_file_complexity_stats()
+        typing = self._calculate_file_type_stats()
+        code = self._calculate_file_code_stats()
+        structure = self._calculate_file_structure_stats()
+        overall_score, quality = self._calculate_overall_score(
+            complexity, typing, code, structure)
+        function_summary = self._get_function_stats_summary()
+
+        return FileStats(
+            complexity=complexity,
+            typing=typing,
+            code=code,
+            structure=structure,
+            overall_score=overall_score,
+            quality_assessment=quality,
+            function_stats_summary=function_summary
+        )
+
     # ==================== PROPERTIES ====================
 
     @property
@@ -543,6 +1063,13 @@ class FileInfo:
             }
         }
 
+    def get_stats_dict(self) -> Dict[str, Any]:
+        """Returns the stats in a JSON-serializable format with file path included."""
+        stats = self.stats
+        stats_dict = stats.to_dict()
+        stats_dict["file_path"] = str(self.file_path)
+        return stats_dict
+
     def to_json(self, indent: int = 2) -> str:
         """Returns a JSON string representation of the analysis."""
         return json.dumps(self.to_dict(), indent=indent, default=str)
@@ -627,5 +1154,10 @@ class FileInfo:
 
 __all__ = [
     "FileInfo",
-    "CodeQualityLevel"
+    "CodeQualityLevel",
+    "FileStats",
+    "FileComplexityStats",
+    "FileTypeStats",
+    "FileCodeStats",
+    "FileStructureStats"
 ]

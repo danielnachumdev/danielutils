@@ -53,7 +53,8 @@ class FileSpecification:
 
     def open(self, path: str):
         if not path.endswith(self.extension):
-            raise ValueError(f"Invalid file extension, expected {self.extension}")
+            raise ValueError(
+                f"Invalid file extension, expected {self.extension}")
         with open(path, "rb") as f:
             lines = f.readlines()
         for line in lines:
