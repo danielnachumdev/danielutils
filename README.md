@@ -4,7 +4,7 @@
 [![gitleaks](https://github.com/danielnachumdev/danielutils/actions/workflows/gitleaks.yml/badge.svg)](https://github.com/danielnachumdev/danielutils/actions/workflows/gitleaks.yml)
 [![CodeQL](https://github.com/danielnachumdev/danielutils/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/danielnachumdev/danielutils/actions/workflows/github-code-scanning/codeql)
 
-# danielutils v1.0.50
+# danielutils v1.0.51
 
 A comprehensive Python utilities library designed to enhance your development workflow with powerful tools for type safety, async programming, database operations, and much more.
 

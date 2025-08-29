@@ -9,7 +9,7 @@ from tqdm import tqdm
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.0.50",
+        version="1.0.51",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
@@ -28,7 +28,7 @@ def main() -> None:
             UnittestRunner(bound=">=0.5"),
         ],
         log=lambda obj: tqdm.write(json.dumps(obj, default=str)),
-        pbar=tqdm(desc="QA", leave=False),
+        pbar=tqdm(desc="QA", leave=False),  # type: ignore
         demo=False
     )
 
