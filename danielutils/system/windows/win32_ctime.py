@@ -84,7 +84,7 @@ class HELPERS:
             raise WinError(get_last_error())
 
     @staticmethod
-    def datetime_to_wintypes_FILETIME(dt: Optional[datetime]) -> wintypes.FILETIME:
+    def datetime_to_wintypes_FILETIME(dt: Optional[datetime]) -> 'wintypes.FILETIME':
         if dt is None:
             return wintypes.FILETIME(0xFFFFFFFF, 0xFFFFFFFF)
 
