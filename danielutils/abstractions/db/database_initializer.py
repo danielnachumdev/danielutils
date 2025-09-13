@@ -91,7 +91,7 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
 
         # Compare each index
         for expected_idx, existing_idx in zip(sorted(expected_schema.indexes, key=lambda idx: idx.name),
-                                              sorted(expected_schema.indexes, key=lambda idx: idx.name)):
+                                              sorted(existing_schema.indexes, key=lambda idx: idx.name)):
             if (
                     expected_idx.name != existing_idx.name or
                     expected_idx.columns != existing_idx.columns or
