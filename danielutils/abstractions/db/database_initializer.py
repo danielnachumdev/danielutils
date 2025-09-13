@@ -67,8 +67,8 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
             return False
 
         # Compare each column
-        for expected_col, existing_col in zip(expected_schema.columns, existing_schema.columns
-                                              ):
+        for expected_col, existing_col in zip(sorted(expected_schema.columns, key=lambda c: c.name),
+                                              sorted(existing_schema.columns, key=lambda c: c.name)):
             if (
                     expected_col.name != existing_col.name or
                     expected_col.type != existing_col.type or
@@ -77,9 +77,7 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
                     expected_col.unique != existing_col.unique or
                     expected_col.foreign_key != existing_col.foreign_key
             ):
-                logger.warning(
-                    f"Column mismatch in '{table_name}': expected {expected_col}, got {existing_col}"
-                )
+                logger.warning(f"Column mismatch in '{table_name}': expected {expected_col}, got {existing_col}")
                 return False
 
         # Compare indexes
@@ -92,7 +90,8 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
             return False
 
         # Compare each index
-        for expected_idx, existing_idx in zip(expected_schema.indexes, existing_schema.indexes):
+        for expected_idx, existing_idx in zip(sorted(expected_schema.indexes, key=lambda idx: idx.name),
+                                              sorted(expected_schema.indexes, key=lambda idx: idx.name)):
             if (
                     expected_idx.name != existing_idx.name or
                     expected_idx.columns != existing_idx.columns or
