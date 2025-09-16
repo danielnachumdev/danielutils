@@ -5,12 +5,12 @@ from typing import Union, Callable, Any, Optional, TypeVar, Iterable, ForwardRef
 try:
     from danielutils.functions import isoftype  # type:ignore
     from danielutils.reflection import get_python_version  # type:ignore
-    from danielutils import JavaInterface  # type:ignore
+    from danielutils.java import JavaInterface  # type:ignore
 except:
     # python == 3.9.0
     from ...danielutils.functions import isoftype  # type:ignore
     from ...danielutils.reflection import get_python_version  # type:ignore
-    from ...danielutils import JavaInterface  # type:ignore
+    from ...danielutils.java import JavaInterface  # type:ignore
 
 
 class TestIsOfType(unittest.TestCase):

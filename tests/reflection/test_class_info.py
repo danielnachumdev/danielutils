@@ -3,10 +3,10 @@ from unittest.mock import patch, MagicMock
 from abc import ABC, abstractmethod
 from typing import List, Optional, Generic, TypeVar
 
-from danielutils.reflection.class_info import ClassInfo
-from danielutils.reflection.function_info import FunctionInfo
-from danielutils.reflection.decoration_info import DecorationInfo
-from danielutils.reflection.argument_info import ArgumentInfo
+from danielutils.reflection.info_classes.class_info import ClassInfo
+from danielutils.reflection.info_classes.function_info import FunctionInfo
+from danielutils.reflection.info_classes.decorator_info import DecoratorInfo
+from danielutils.reflection.info_classes.argument_info import ArgumentInfo
 
 T = TypeVar('T')
 

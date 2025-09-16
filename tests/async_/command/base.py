@@ -7,7 +7,7 @@ from typing import List, Optional, Any
 from unittest.mock import patch, MagicMock
 
 from danielutils import AsyncCommand, CommandType, CommandState, CommandExecutionResult
-from ...base import BaseTest
+from tests.base import BaseTest
 
 
 class BaseCommandTest(BaseTest):

@@ -9,9 +9,9 @@ import unittest
 from unittest import skip
 
 from danielutils import AsyncCommand
+from .base import BaseCommandTest
 
-
-class TestParseCommandString(unittest.TestCase):
+class TestParseCommandString(BaseCommandTest):
     """Test cases for the _parse_command_string method."""
 
     def test_basic_parsing(self):

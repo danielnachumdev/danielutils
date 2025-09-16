@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from danielutils.reflection.argument_info import ArgumentInfo
+from danielutils.reflection.info_classes.argument_info import ArgumentInfo
 
 
 class TestArgumentInfo(unittest.TestCase):
