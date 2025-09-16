@@ -1,15 +1,14 @@
 import asyncio
 import json
+import logging
 from collections import defaultdict
-from datetime import datetime
-from typing import Callable, Literal, Optional, Coroutine, List, Iterable, Any, Mapping, Tuple
-
-
+from typing import Callable, Optional, Coroutine, List, Iterable, Any, Mapping, Tuple
 
 try:
     from tqdm import tqdm
 except ImportError:
     from ..mock_ import MockImportObject
+
     tqdm = MockImportObject("'tqdm' is not installed. Please install 'tqdm' to use AsyncWorkerPool feature.")
 
 
@@ -17,6 +16,7 @@ class AsyncWorkerPool:
     DEFAULT_ORDER_IF_KEY_EXISTS = (
         "pool", "timestamp", "worker_id", "task_id", "task_name", "num_tasks", "tasks", "level", "message", "exception"
     )
+    logger: logging.Logger = logging.getLogger("AsyncWorkerPool")
 
     def __init__(self, pool_name: str, num_workers: int = 5, show_pbar: bool = False) -> None:
         self._num_workers: int = num_workers
@@ -37,26 +37,27 @@ class AsyncWorkerPool:
                 break
             func, args, kwargs, name = task
             task_index += 1
-            self._info(f"Started", task_id=task_index, task_name=name, worker_id=worker_id)
+            self.logger.info(f"Task {task_index} '{name}' started on worker {worker_id}")
             try:
                 await func(*args, **kwargs)
                 tasks["success"].append(name)
-                self._info(f"Finished", task_id=task_index, worker_id=worker_id, task_name=name)
+                self.logger.info(f"Task {task_index} '{name}' finished on worker {worker_id}")
             except Exception as e:
-                self._error(f"Failed", task_id=task_index, exception=e, worker_id=worker_id,
-                            task_name=name)
+                self.logger.error(f"Task {task_index} '{name}' failed on worker {worker_id}: {e}")
                 tasks["failure"].append(name)
 
             if self._pbar:
                 self._pbar.update(1)
             self._queue.task_done()
-        self._info(f"Done", worker_id=worker_id, tasks=tasks, num_tasks=task_index)
+        self.logger.info(f"Worker {worker_id} completed {task_index} tasks (success: {len(tasks['success'])}, failure: {len(tasks['failure'])}) - Success: {tasks['success']}, Failed: {tasks['failure']}")
 
     async def start(self) -> None:
         """Starts the worker pool."""
+        self.logger.debug(f"Starting worker pool '{self._pool_name}' with {self._num_workers} workers")
         if self._show_pbar:
             self._pbar = tqdm(total=self._queue.qsize(), desc="#Tasks")
         self._workers = [asyncio.create_task(self.worker(i + 1)) for i in range(self._num_workers)]
+        self.logger.debug(f"Worker pool '{self._pool_name}' started successfully")
 
     async def submit(
             self,
@@ -66,40 +67,17 @@ class AsyncWorkerPool:
             name: Optional[str] = None
     ) -> None:
         """Submit a new task to the queue."""
+        self.logger.debug(f"Adding new job '{name}' to queue")
         await self._queue.put((func, args or (), kwargs or {}, name))
 
     async def join(self) -> None:
         """Stops the worker pool by waiting for all tasks to complete and shutting down workers."""
+        self.logger.debug(f"Starting join process for worker pool '{self._pool_name}'")
         await self._queue.join()  # Wait until all tasks are processed
         for _ in range(self._num_workers):
             await self._queue.put(None)  # Send sentinel values to stop workers
         await asyncio.gather(*self._workers)  # Wait for workers to finish
-
-    @classmethod
-    def log(
-            cls,
-            level: Literal["INFO", "WARNING", "ERROR"],
-            message: str,
-            order: Optional[Iterable[str]] = DEFAULT_ORDER_IF_KEY_EXISTS,
-            **kwargs
-    ) -> None:
-        kwargs["level"] = level
-        kwargs["message"] = message
-        kwargs["timestamp"] = datetime.now().isoformat()
-        ordered_kwargs = kwargs
-        if order:
-            ordered_kwargs = {key: kwargs[key] for key in order if key in kwargs}
-            ordered_kwargs.update(kwargs)
-        print(json.dumps(ordered_kwargs, default=str))
-
-    def _info(self, message: str, **kwargs) -> None:
-        self.log("INFO", message, pool=self._pool_name, **kwargs)
-
-    def _warn(self, message: str, **kwargs) -> None:
-        self.log("WARNING", message, pool=self._pool_name, **kwargs)
-
-    def _error(self, message: str, **kwargs) -> None:
-        self.log("ERROR", message, pool=self._pool_name, **kwargs)
+        self.logger.debug(f"Join process completed for worker pool '{self._pool_name}'")
 
 
 __all__ = [
