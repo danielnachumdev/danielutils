@@ -53,8 +53,7 @@ class ArgumentInfo:
 
     @property
     def is_parameterized(self) -> bool:
-        # type: ignore
-        return self._parameters is not None and len(self.parameters) > 0
+        return self._parameters is not None and len(self._parameters) > 0
 
     def __repr__(self) -> str:
         res = f"{self.__class__.__name__}(name=\"{self.name}\""

@@ -534,7 +534,7 @@ class FileInfo:
         has_generics = False
         has_unions = False
         has_optionals = False
-        type_hint_usage = defaultdict(int)
+        type_hint_usage: Dict[str, int] = defaultdict(int)
 
         try:
             dynamic_funcs = self.get_dynamic_function_info()
@@ -771,7 +771,7 @@ class FileInfo:
             all_complexities = []
             all_lengths = []
             typing_scores = []
-            quality_distribution = Counter()
+            quality_distribution: Counter[str] = Counter()
 
             for func_info in dynamic_funcs:
                 func_stats = func_info.stats

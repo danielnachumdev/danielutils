@@ -17,7 +17,6 @@ class RunLengthEncoding(LosslessEncoding):
 
     @staticmethod
     def decode_online(obj: Decodeable) -> Generator[bytes, None, None]:
-        # TODO
-        pass
+        raise NotImplementedError("RunLengthEncoding.decode_online() is not implemented")
 
     SEPERATOR = b","

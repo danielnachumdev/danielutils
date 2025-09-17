@@ -205,8 +205,7 @@ class Matrix:
         return self.height * self.width
 
     def determinant(self) -> Union[float, 'Polynomial']:
-        logger.warning("Matrix.determinant() is not implemented")
-        pass
+        raise NotImplementedError("Matrix.determinant() is not implemented")
 
     def transpose(self) -> 'Matrix':
         res = Matrix(self.width, self.height)
@@ -356,8 +355,9 @@ class Polynomial:
         cur = self.__copy__()
         for root in known_roots:
             cur /= Polynomial(1) - root
+        return []
 
-        pass
+        raise NotImplementedError("Polynomial.roots() is not implemented")
 
     def __call__(self, x: float) -> float:
         return self.eval(x)

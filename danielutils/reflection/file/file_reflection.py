@@ -72,7 +72,7 @@ def get_current_directory() -> str:
     logger.debug("Getting current directory")
     directory = os.path.dirname(os.path.abspath(get_caller_file_name()))  # type:ignore # noqa
     logger.debug("Current directory: %s", directory)
-    return directory
+    return directory or ""
 
 
 __all__ = [

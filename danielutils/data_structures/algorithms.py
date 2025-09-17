@@ -44,6 +44,7 @@ def bellman_ford(nodes: List[NodeT], weight_func: Callable[[NodeT, NodeT], float
 
     logger.debug("Bellman-Ford algorithm completed")
     iteration_callback(prev)
+    return dist
 
 
 __all__ = [

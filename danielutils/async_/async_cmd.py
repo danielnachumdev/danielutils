@@ -20,7 +20,7 @@ async def async_cmd(
     process = await asyncio.create_subprocess_shell(cmd, **kwargs)  # type:ignore
     stdout, stderr = await process.communicate()
     logger.debug("Command completed with returncode=%s", process.returncode)
-    return process.returncode, stdout, stderr
+    return process.returncode or 0, stdout, stderr
 
 
 __all__ = [

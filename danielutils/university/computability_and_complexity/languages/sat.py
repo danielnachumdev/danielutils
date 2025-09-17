@@ -55,7 +55,7 @@ class CNFClause:
 
 
 class CNFFormula:
-    def __init__(self, clauses: List[CNFClause] = None) -> None:
+    def __init__(self, clauses: Optional[List[CNFClause]] = None) -> None:
         self.clauses = clauses or []
 
     def add_clause(self, clause: CNFClause) -> None:

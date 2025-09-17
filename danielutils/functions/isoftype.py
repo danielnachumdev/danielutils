@@ -16,11 +16,11 @@ del _tmp
 T = TypeVar('T')
 
 
-class _tmp(Generic[T]): ...
+class _tmp2(Generic[T]): ...
 
 
-_GenericAlias = type(_tmp[int])
-del _tmp, T
+_GenericAlias = type(_tmp2[int])
+del _tmp2, T
 cmethod = type(getattr(1, "__lt__"))
 try:
     implicit_union_type = type(int | str)

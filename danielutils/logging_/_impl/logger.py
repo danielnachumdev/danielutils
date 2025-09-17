@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Type, Optional, Dict, List
+from typing import Any, Type, Optional, Dict, List
 
 from .log_level import LogLevel
 from .logger_strategy_impl_base import LoggerStrategyImplBase
@@ -18,13 +18,13 @@ class _LoggerImpl:
     def parse_message(
             cls,
             origin: Type,
-            logger_id: Optional,
+            logger_id: Optional[str],
             channel: str,
             level: LogLevel,
             message: str,
             module: Optional[str] = None,
             cls_name: Optional[str] = None,
-            metadata: Optional[Dict] = None
+            metadata: Optional[Dict[str, Any]] = None
     ) -> str:
         d = dict(
             timestamp=str(datetime.now()),

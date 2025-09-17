@@ -44,7 +44,7 @@ class SQLiteDatabase(Database):
     """SQLite implementation of the Database abstract class using SQLAlchemy"""
 
     def is_connected(self) -> bool:
-        pass
+        return self._connected
 
     @classmethod
     def _default_class_exception_conversion(cls, e: Exception) -> Exception:
@@ -100,9 +100,6 @@ class SQLiteDatabase(Database):
             logging.error(
                 "Error connecting to SQLite database at '%s': %s", self.url, e)
             raise
-
-    def is_connected(self) -> bool:
-        return self._connected
 
     async def disconnect(self) -> None:
         """Close the SQLite database connection"""

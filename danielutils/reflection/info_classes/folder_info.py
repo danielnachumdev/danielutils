@@ -236,7 +236,7 @@ class FolderInfo:
 
     def get_folder_structure(self) -> Dict[str, int]:
         """Get folder structure by depth."""
-        structure = defaultdict(int)
+        structure: Dict[str, int] = defaultdict(int)
         structure[f"depth_{self.depth}"] += 1
 
         for subfolder in self.subfolders:
@@ -248,7 +248,7 @@ class FolderInfo:
 
     def get_imports_summary(self) -> Counter:
         """Get summary of all imports (recursively)."""
-        imports = Counter()
+        imports: Counter[str] = Counter()
 
         for file_info in self.files:
             if file_info.is_python:
@@ -375,7 +375,7 @@ class FolderAnalyzer:
 
         return False
 
-    def analyze_folder(self, folder_path: Union[str, Path], max_depth: int = None) -> FolderInfo:
+    def analyze_folder(self, folder_path: Union[str, Path], max_depth: Optional[int] = None) -> FolderInfo:
         """Analyze a folder and return a FolderInfo instance."""
         folder = Path(folder_path)
 
@@ -385,7 +385,7 @@ class FolderAnalyzer:
 
         return self._analyze_folder_recursive(folder, depth=0, max_depth=max_depth)
 
-    def _analyze_folder_recursive(self, folder: Path, depth: int = 0, max_depth: int = None) -> FolderInfo:
+    def _analyze_folder_recursive(self, folder: Path, depth: int = 0, max_depth: Optional[int] = None) -> FolderInfo:
         """Recursively analyze a folder."""
         if max_depth is not None and depth > max_depth:
             return FolderInfo(
@@ -459,7 +459,7 @@ class FolderAnalyzer:
 
 
 def analyze_folder(folder_path: Union[str, Path], blacklist: Optional[Set[str]] = None,
-                   max_depth: int = None) -> FolderInfo:
+                   max_depth: Optional[int] = None) -> FolderInfo:
     """Convenience function to analyze a folder."""
     analyzer = FolderAnalyzer(blacklist)
     return analyzer.analyze_folder(folder_path, max_depth)

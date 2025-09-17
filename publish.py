@@ -28,9 +28,8 @@ def main() -> None:
             PylintRunner(bound=">=0.8", configuration_path="./.pylintrc"),
             UnittestRunner(bound=">=0.5"),
         ],
-        log=lambda obj: tqdm.write(json.dumps(obj, default=str)),
         pbar=tqdm(desc="QA", leave=False),  # type: ignore
-        demo=False
+        demo=True
     )
 
 

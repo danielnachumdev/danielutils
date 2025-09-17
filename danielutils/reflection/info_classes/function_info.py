@@ -318,7 +318,7 @@ class FunctionInfo:
                     in_docstring = True
                     docstring_delimiter = '"""' if '"""' in line else "'''"
                     docstring_lines += 1
-                elif docstring_delimiter in line:
+                elif docstring_delimiter is not None and docstring_delimiter in line:
                     in_docstring = False
                     docstring_delimiter = None
                 else:
