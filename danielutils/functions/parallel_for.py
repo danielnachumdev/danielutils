@@ -20,7 +20,7 @@ def parallel_for(func: Consumer[T], *args: T, wait: bool = True) -> None:
     Returns:
 
     """
-    logger.info(f"Starting parallel execution of {func.__name__} with {len(args)} arguments, wait={wait}")
+    logger.info("Starting parallel execution of %s with %s arguments, wait=%s", func.__name__, len(args), wait)
     # this is safer... What if some other threads that were running will also end in the meantime?
     threads = [threading.Thread(target=func, args=[arg]) for arg in args]
     

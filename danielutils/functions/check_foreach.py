@@ -16,7 +16,7 @@ def check_foreach(values: Sequence[Any], condition: Callable[[Any], bool]) -> bo
     Returns:
         bool: returns True iff condition return True for all values individually
     """
-    logger.debug(f"Checking condition on {len(values)} values")
+    logger.debug("Checking condition on %s values", len(values))
     
     if not isinstance(values, Sequence):
         logger.warning("Values parameter is not a Sequence")
@@ -27,7 +27,7 @@ def check_foreach(values: Sequence[Any], condition: Callable[[Any], bool]) -> bo
     
     for i, v in enumerate(values):
         if not condition(v):
-            logger.debug(f"Condition failed at index {i} with value: {v}")
+            logger.debug("Condition failed at index %s with value: %s", i, v)
             return False
     
     logger.debug("All values passed the condition check")

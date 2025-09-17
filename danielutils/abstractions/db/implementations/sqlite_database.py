@@ -95,10 +95,10 @@ class SQLiteDatabase(Database):
             self.session_local = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
             self.metadata.reflect(bind=self.engine)
             self._connected = True
-            logging.info(f"Connected to SQLite database at '{self.url}'")
+            logging.info("Connected to SQLite database at '%s'", self.url)
         except Exception as e:
             logging.error(
-                f"Error connecting to SQLite database at '{self.url}': {e}")
+                "Error connecting to SQLite database at '%s': %s", self.url, e)
             raise
 
     def is_connected(self) -> bool:
@@ -179,7 +179,7 @@ class SQLiteDatabase(Database):
                     column_type = self._get_column_type(col.type)
                 except ValueError as e:
                     logging.warning(
-                        f"Could not map type for column {col['name']} in table {table_name}: {e}")
+                        "Could not map type for column %s in table %s: %s", col['name'], table_name, e)
                     continue
 
                 # Handle default values
@@ -284,9 +284,9 @@ class SQLiteDatabase(Database):
             # Create table with all columns
             table = Table(schema.name, self.metadata, *columns)
             table.create(self.engine)  # type: ignore
-            logging.info(f"Created table: '{schema.name}'")
+            logging.info("Created table: '%s'", schema.name)
         except Exception as e:
-            logging.error(f"Error creating table '{schema.name}': {e}")
+            logging.error("Error creating table '%s': %s", schema.name, e)
             raise
 
     def _get_session(self) -> Session:
@@ -312,7 +312,7 @@ class SQLiteDatabase(Database):
                 session.commit()
                 return result.inserted_primary_key[0]
         except Exception as e:
-            logging.error(f"Error inserting into '{table}': {e}")
+            logging.error("Error inserting into '%s': %s", table, e)
             raise
 
     async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
@@ -417,7 +417,7 @@ class SQLiteDatabase(Database):
                 # Convert result rows to dictionaries
                 return [dict(zip(result.keys(), row)) for row in result]
         except Exception as e:
-            logging.error(f"Error selecting from '{query.table}': {e}")
+            logging.error("Error selecting from '%s': %s", query.table, e)
             raise
 
     async def update(self, query: UpdateQuery) -> int:
@@ -451,7 +451,7 @@ class SQLiteDatabase(Database):
                 session.commit()
                 return result.rowcount
         except Exception as e:
-            logging.error(f"Error updating '{query.table}': {e}")
+            logging.error("Error updating '%s': %s", query.table, e)
             raise
 
     async def delete(self, query: DeleteQuery) -> int:
@@ -485,7 +485,7 @@ class SQLiteDatabase(Database):
                 session.commit()
                 return result.rowcount
         except Exception as e:
-            logging.error(f"Error deleting from '{query.table}': {e}")
+            logging.error("Error deleting from '%s': %s", query.table, e)
             raise
 
 

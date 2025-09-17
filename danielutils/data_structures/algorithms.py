@@ -14,7 +14,7 @@ DistanceMatrix = Dict[NodeT, Dict[NodeT, float]]
 def bellman_ford(nodes: List[NodeT], weight_func: Callable[[NodeT, NodeT], float],
                  iteration_callback: Callable[[DistanceMatrix], None],
                  poisoned_reverse: bool = False) -> DistanceMatrix:
-    logger.debug(f"Starting Bellman-Ford algorithm with {len(nodes)} nodes, poisoned_reverse={poisoned_reverse}")
+    logger.debug("Starting Bellman-Ford algorithm with %s nodes, poisoned_reverse=%s", len(nodes), poisoned_reverse)
     dist: Dict[NodeT, Dict[NodeT, float]] = defaultdict(defaultdict)
     prev: Dict[NodeT, Dict[NodeT, NodeT]] = defaultdict(defaultdict)
 
@@ -25,7 +25,7 @@ def bellman_ford(nodes: List[NodeT], weight_func: Callable[[NodeT, NodeT], float
     iteration_callback(dist)
 
     for iteration in range(len(nodes) - 1):
-        logger.debug(f"Bellman-Ford iteration {iteration + 1}/{len(nodes) - 1}")
+        logger.debug("Bellman-Ford iteration %s/%s", iteration + 1, len(nodes) - 1)
         tmp = deepcopy(dist)
         for u, v in product(nodes, nodes):
             if u == v:

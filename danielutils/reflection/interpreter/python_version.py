@@ -24,7 +24,7 @@ def get_python_version() -> Tuple[int, int, int]:
         tuple[int, int, int]: version
     """
     version = _get_python_version_untyped()
-    logger.info(f"Python version: {version}")
+    logger.info("Python version: %s", version)
     return version  # type:ignore
 
 

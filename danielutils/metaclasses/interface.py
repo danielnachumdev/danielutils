@@ -122,16 +122,16 @@ class InterfaceHelper:
                         result = getattr(cls, InterfaceHelper.ORIGINAL_INIT)(
                             *args, **kwargs)
                         return result
-                logger.error(f"No original init found in MRO for {cls_name}")
+                logger.error("No original init found in MRO for %s", cls_name)
                 raise NotImplementedError(
                     f"Can't use super().__init__(...) in {cls_name}.__init__(...) "
                     "if the __init__ function is not defined a parent interface")
 
             if missing:
-                logger.warning(f"Interface {cls_name} missing implementations: {missing}")
+                logger.warning("Interface %s missing implementations: %s", cls_name, missing)
                 raise NotImplementedError(f"Can't instantiate '{cls_name}' because it is an interface."
                                           f" It is missing implementations for {missing}")
-            logger.warning(f"Attempting to instantiate interface {cls_name}")
+            logger.warning("Attempting to instantiate interface %s", cls_name)
             raise NotImplementedError(
                 f"'{cls_name}' is an interface, Can't create instances")
         return __interface_init__
@@ -145,7 +145,7 @@ class InterfaceHelper:
         """
         @functools.wraps(original)
         def __interface_handler__(*args, **kwargs):
-            logger.warning(f"Generic handler called for unimplemented method in interface {cls}")
+            logger.warning("Generic handler called for unimplemented method in interface %s", cls)
             raise NotImplementedError(
                 f"Interface {cls} must be implemented")
         return __interface_handler__
@@ -172,7 +172,7 @@ class Interface(type):
 
     @staticmethod
     def _handle_new_interface(mcs, name: str, bases: tuple, namespace: Dict[str, Any]) -> type:
-        logger.info(f"Handling new interface creation: {name}")
+        logger.info("Handling new interface creation: %s", name)
         namespace[InterfaceHelper.ORIGINAL_INIT] = None
         if "__init__" in namespace:
             namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
@@ -185,7 +185,7 @@ class Interface(type):
                 if not InterfaceHelper.is_func_implemented(v):
                     namespace[k] = InterfaceHelper.create_generic_handler(k, v)
                     abstract_methods += 1
-        logger.info(f"Created interface {name} with {abstract_methods} abstract methods")
+        logger.info("Created interface %s with %s abstract methods", name, abstract_methods)
         namespace[Interface.KEY] = True
         return type.__new__(mcs, name, bases, namespace)
 

@@ -138,7 +138,7 @@ class FunctionDeclaration:
             Generator[str, None, None]: yields str values which are names of declared functions
         """
         if not isinstance(cls, type):
-            logger.error(f"Invalid type for cls: {type(cls)}, expected type")
+            logger.error("Invalid type for cls: %s, expected type", type(cls))
             raise TypeError('cls must be a Class')
         
         src = inspect.getsource(cls)
@@ -210,7 +210,7 @@ class ClassDeclaration:
     @staticmethod
     def from_cls(cls) -> 'ClassDeclaration':
         if type(cls) not in {type, _ProtocolMeta}:
-            logger.error(f"Invalid type for cls: {type(cls)}, expected type or Protocol")
+            logger.error("Invalid type for cls: %s, expected type or Protocol", type(cls))
             raise TypeError('obj must be a Class')
 
         src = "\n".join([l for l in inspect.getsource(cls).splitlines() if not remove_whitespace(l).startswith("@")])

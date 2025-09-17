@@ -22,36 +22,36 @@ def processify(func):
     Returns:
         Callable: the modified function
     """
-    logger.debug(f"Creating processify decorator for function {func.__name__}")
+    logger.debug("Creating processify decorator for function %s", func.__name__)
     multiprocessing.freeze_support()
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         main_pid = kwargs.get("__main_pid", process_id())
         current_pid = process_id()
-        logger.debug(f"Processify wrapper called for {func.__name__}, main_pid={main_pid}, current_pid={current_pid}")
+        logger.debug("Processify wrapper called for %s, main_pid=%s, current_pid=%s", func.__name__, main_pid, current_pid)
         
         if current_pid == main_pid:
-            logger.info(f"Starting new process for function {func.__name__}")
+            logger.info("Starting new process for function %s", func.__name__)
             frame = get_prev_frame(2)  # type:ignore
             dct = {k: v for k, v in frame.f_globals.items() if type(v) != type(inspect)}   # type:ignore
-            logger.debug(f"Process context prepared with {len(dct)} global variables")
+            logger.debug("Process context prepared with %s global variables", len(dct))
             p = multiprocessing.Process(target=_run_func, args=(main_pid, dct, func.__name__, args, kwargs))
             p.start()
-            logger.debug(f"Process started for {func.__name__}, PID: {p.pid}")
+            logger.debug("Process started for %s, PID: %s", func.__name__, p.pid)
             p.join()  # Optionally wait for the process to finish
-            logger.info(f"Process completed for {func.__name__}")
+            logger.info("Process completed for %s", func.__name__)
         else:
-            logger.debug(f"Executing {func.__name__} in child process")
+            logger.debug("Executing %s in child process", func.__name__)
             del kwargs["__main_pid"]
             return func(*args, **kwargs)
 
-    logger.debug(f"Processify decorator applied to {func.__name__}")
+    logger.debug("Processify decorator applied to %s", func.__name__)
     return wrapper
 
 
 def _run_func(main_pid: int, dct: dict, func_name: str, args, kwargs) -> None:
-    logger.debug(f"Running function {func_name} in child process")
+    logger.debug("Running function %s in child process", func_name)
     return dct[func_name](*args, __main_pid=main_pid, **kwargs)
 
 

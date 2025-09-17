@@ -28,7 +28,7 @@ class Queue(Generic[T]):
             raise IndexError("pop from empty queue")
         
         result = self.data.pop()
-        logger.debug(f"Popped element from queue, remaining size: {len(self.data)}")
+        logger.debug("Popped element from queue, remaining size: %s", len(self.data))
         return result
 
     def push(self, value: T) -> None:
@@ -38,7 +38,7 @@ class Queue(Generic[T]):
             value (Any): the value to add
         """
         self.data.insert(0, value)
-        logger.debug(f"Pushed element to queue, new size: {len(self.data)}")
+        logger.debug("Pushed element to queue, new size: %s", len(self.data))
 
     def peek(self) -> T:
         """returns the oldest element in the queue 
@@ -52,7 +52,7 @@ class Queue(Generic[T]):
             raise IndexError("peek at empty queue")
         
         result = self.data[-1]
-        logger.debug(f"Peeked at element in queue, size: {len(self.data)}")
+        logger.debug("Peeked at element in queue, size: %s", len(self.data))
         return result
 
     def __len__(self) -> int:
@@ -81,10 +81,10 @@ class Queue(Generic[T]):
         Args:
             arr (list): the objects to push
         """
-        logger.debug(f"Pushing {len(arr)} elements to queue")
+        logger.debug("Pushing %s elements to queue", len(arr))
         for v in arr:
             self.push(v)
-        logger.info(f"Successfully pushed {len(arr)} elements to queue")
+        logger.info("Successfully pushed %s elements to queue", len(arr))
 
 
 __all__ = [

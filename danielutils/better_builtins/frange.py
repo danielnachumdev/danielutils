@@ -48,7 +48,7 @@ class frange(Sequence[float]):
 
     def __init__(self, start: float, stop: Optional[float] = None,
                  step: float = 1, round_method: Callable[[float], float] = lambda f: round(f, 3)):
-        logger.debug(f"Initializing frange with start={start}, stop={stop}, step={step}")
+        logger.debug("Initializing frange with start=%s, stop=%s, step=%s", start, stop, step)
         if stop is None:
             stop = start
             start = 0
@@ -56,7 +56,7 @@ class frange(Sequence[float]):
         self.stop = stop
         self.step = step
         self.method = round_method
-        logger.debug(f"frange initialized: start={self.start}, stop={self.stop}, step={self.step}")
+        logger.debug("frange initialized: start=%s, stop=%s, step=%s", self.start, self.stop, self.step)
 
     @overload
     def __getitem__(self, index: int) -> float:
@@ -67,9 +67,9 @@ class frange(Sequence[float]):
         ...
 
     def __getitem__(self, index: Union[float, slice]) -> Union[float, 'frange']:
-        logger.debug(f"Getting item at index {index} from frange")
+        logger.debug("Getting item at index %s from frange", index)
         if isinstance(index, slice):
-            logger.debug(f"Processing slice: start={index.start}, stop={index.stop}, step={index.step}")
+            logger.debug("Processing slice: start=%s, stop=%s, step=%s", index.start, index.stop, index.step)
             index = slice(
                 index.start if index.start is not None else 0,
                 index.stop if index.stop is not None else len(self),
@@ -79,16 +79,16 @@ class frange(Sequence[float]):
                 step = self.step * index.step
                 start = self.start + step * index.start
                 stop = self.start + step * index.stop
-                logger.debug(f"Creating new frange from slice: start={start}, stop={stop}, step={step}")
+                logger.debug("Creating new frange from slice: start=%s, stop=%s, step=%s", start, stop, step)
                 return frange(start, stop, step)
             s = slice(index.start, index.stop, abs(index.step))
             logger.debug("Reversing slice result")
             return reversed(self[s])
         if index < 0:
-            logger.error(f"Negative index {index} not allowed in frange")
+            logger.error("Negative index %s not allowed in frange", index)
             raise ValueError(f"At {self.__class__.__qualname__}.__getitem__ 'index' must be a positive integer")
         result = self.start + self.step * index
-        logger.debug(f"Returning value {result} for index {index}")
+        logger.debug("Returning value %s for index %s", result, index)
         return result
 
     def __reversed__(self) -> 'frange':
@@ -100,7 +100,7 @@ class frange(Sequence[float]):
         return self.start == other.start and self.stop == other.stop and self.step == other.step
 
     def __iter__(self) -> Iterator[float]:
-        logger.debug(f"Starting iteration over frange: start={self.start}, stop={self.stop}, step={self.step}")
+        logger.debug("Starting iteration over frange: start=%s, stop=%s, step=%s", self.start, self.stop, self.step)
         if self.stop < self.start and self.step > 0:
             logger.debug("Empty range: stop < start with positive step")
             return
@@ -123,7 +123,7 @@ class frange(Sequence[float]):
             yield self.method(cur)
             cur += self.step
             count += 1
-        logger.debug(f"Iteration completed, yielded {count} values")
+        logger.debug("Iteration completed, yielded %s values", count)
 
     def __len__(self) -> int:
         if self.stop in {float("inf"), -float("inf")}:
@@ -177,9 +177,9 @@ class frange(Sequence[float]):
         return frange(self.start / self.step, self.stop / self.step, 1)
 
     def intersect(self, other: 'frange') -> 'frange':
-        logger.debug(f"Computing intersection of frange {self} with {other}")
+        logger.debug("Computing intersection of frange %s with %s", self, other)
         if not isinstance(other, frange):
-            logger.error(f"intersect only accepts frange objects, got {type(other)}")
+            logger.error("intersect only accepts frange objects, got %s", type(other))
             raise ValueError("frange.intercept only accepts frange objects")
         a, b = self.normalize(), other.normalize()
         start1, stop1 = a.start, a.stop
@@ -187,18 +187,18 @@ class frange(Sequence[float]):
         remainder1, remainder2 = start1 - int(start1), start2 - int(start2)
         start = max(self.start, other.start)
         stop = min(self.stop, other.stop)
-        logger.debug(f"Normalized ranges: a={a}, b={b}, remainders: {remainder1}, {remainder2}")
+        logger.debug("Normalized ranges: a=%s, b=%s, remainders: %s, %s", a, b, remainder1, remainder2)
         if remainder1 == remainder2:
             min_step = self._find_min_step(self.step, other.step)
-            logger.debug(f"Remainders match, min_step={min_step}")
+            logger.debug("Remainders match, min_step=%s", min_step)
             if stop1 == float("inf") or stop2 == float("inf"):
                 logger.debug("One range is infinite, returning infinite result")
                 return frange(start, float("inf"), min_step)
-            logger.debug(f"Returning finite intersection: start={start}, stop={stop}, step={min_step}")
+            logger.debug("Returning finite intersection: start=%s, stop=%s, step=%s", start, stop, min_step)
             return frange(start, stop, min_step)
         # find k; start1 + remainder1*k == start2 +remainder2*k
         k = (start1 - start2) / (remainder2 - remainder1)
-        logger.debug(f"Computing k={k} for remainder intersection")
+        logger.debug("Computing k=%s for remainder intersection", k)
         if k <= 0:
             logger.debug("k <= 0, returning empty range")
             return frange(0)

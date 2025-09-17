@@ -11,7 +11,7 @@ async def async_cmd(
         capture_stdout: bool = False,
         capture_stderr: bool = False
 ) -> Tuple[int, Optional[bytes], Optional[bytes]]:
-    logger.debug(f"Executing async command: {cmd}, capture_stdout={capture_stdout}, capture_stderr={capture_stderr}")
+    logger.debug("Executing async command: %s, capture_stdout=%s, capture_stderr=%s", cmd, capture_stdout, capture_stderr)
     kwargs = {}
     if capture_stdout:
         kwargs['stdout'] = asyncio.subprocess.PIPE
@@ -19,7 +19,7 @@ async def async_cmd(
         kwargs['stderr'] = asyncio.subprocess.PIPE
     process = await asyncio.create_subprocess_shell(cmd, **kwargs)  # type:ignore
     stdout, stderr = await process.communicate()
-    logger.debug(f"Command completed with returncode={process.returncode}")
+    logger.debug("Command completed with returncode=%s", process.returncode)
     return process.returncode, stdout, stderr
 
 

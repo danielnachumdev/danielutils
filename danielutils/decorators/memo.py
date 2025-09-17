@@ -20,26 +20,26 @@ def memo(func: FuncT) -> FuncT:
     Args:
         func (Callable): function to memorize
     """
-    logger.debug(f"Creating memo decorator for function {func.__name__}")
+    logger.debug("Creating memo decorator for function %s", func.__name__)
     cache: Dict[tuple, Any] = {}
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         cache_key = (args, *kwargs.items())
         if cache_key not in cache:
-            logger.debug(f"Cache miss for {func.__name__}, computing result")
+            logger.debug("Cache miss for %s, computing result", func.__name__)
             cache[cache_key] = func(*args, **kwargs)
-            logger.debug(f"Result cached for {func.__name__}")
+            logger.debug("Result cached for %s", func.__name__)
         else:
-            logger.debug(f"Cache hit for {func.__name__}, returning cached result")
+            logger.debug("Cache hit for %s, returning cached result", func.__name__)
         return deepcopy(cache[cache_key])
 
-    logger.debug(f"Memo decorator applied to {func.__name__}")
+    logger.debug("Memo decorator applied to %s", func.__name__)
     return wrapper
 
 
 def memo_generator(func: Callable[P, Generator]) -> Callable[P, Generator]:
-    logger.debug(f"Creating memo_generator decorator for function {func.__name__}")
+    logger.debug("Creating memo_generator decorator for function %s", func.__name__)
     cache: Dict[tuple, Any] = {}
 
     @functools.wraps(func)
@@ -47,18 +47,18 @@ def memo_generator(func: Callable[P, Generator]) -> Callable[P, Generator]:
         args = tuple(args)
         cache_key = (args, *kwargs.items())
         if cache_key not in cache:
-            logger.debug(f"Cache miss for generator {func.__name__}, computing and caching result")
+            logger.debug("Cache miss for generator %s, computing and caching result", func.__name__)
             lst = []
             for v in func(*args, **kwargs):
                 lst.append(v)
                 yield v
             cache[cache_key] = lst
-            logger.debug(f"Generator result cached for {func.__name__}")
+            logger.debug("Generator result cached for %s", func.__name__)
         else:
-            logger.debug(f"Cache hit for generator {func.__name__}, yielding from cache")
+            logger.debug("Cache hit for generator %s, yielding from cache", func.__name__)
             yield from cache[cache_key]
 
-    logger.debug(f"Memo_generator decorator applied to {func.__name__}")
+    logger.debug("Memo_generator decorator applied to %s", func.__name__)
     return wrapper
 
 

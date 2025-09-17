@@ -20,7 +20,7 @@ def join_generators_busy_waiting(*generators) -> Generator[Tuple[int, Any], None
     Yields:
         Generator[tuple[int, Any], None, None]: resulting generator
     """
-    logger.info(f"Starting join_generators_busy_waiting with {len(generators)} generators")
+    logger.info("Starting join_generators_busy_waiting with %s generators", len(generators))
     q: AtomicQueue[Tuple[int, Any]] = AtomicQueue()
     threads_status = [False for _ in range(len(generators))]
 
@@ -31,7 +31,7 @@ def join_generators_busy_waiting(*generators) -> Generator[Tuple[int, Any], None
         for v in generator:
             q.push((thread_id, v))
             items_yielded += 1
-        logger.debug(f"Thread {thread_id} finished processing, yielded {items_yielded} items")
+        logger.debug("Thread %s finished processing, yielded %s items", thread_id, items_yielded)
         threads_status[thread_id] = True
 
     for i, gen in enumerate(generators):
@@ -50,7 +50,7 @@ def join_generators_busy_waiting(*generators) -> Generator[Tuple[int, Any], None
             remaining_items += 1
             yield item
     
-    logger.info(f"join_generators_busy_waiting completed, yielded {total_yielded} items total")
+    logger.info("join_generators_busy_waiting completed, yielded %s items total", total_yielded)
 
 
 def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
@@ -60,7 +60,7 @@ def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
     Yields:
         Generator[Any, None, None]: one generator that combines all of the given ones
     """
-    logger.info(f"Starting join_generators with {len(generators)} generators")
+    logger.info("Starting join_generators with %s generators", len(generators))
     queue: Queue = Queue()
     edit_queue_semaphore = Semaphore(1)
     queue_status_semaphore = Semaphore(0)
@@ -74,7 +74,7 @@ def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
                 queue.push((index, value))
             queue_status_semaphore.release()
             items_processed += 1
-        logger.debug(f"Thread {index} finished processing, processed {items_processed} items")
+        logger.debug("Thread %s finished processing, processed %s items", index, items_processed)
         finished_threads_counter.increment()
 
         if finished_threads_counter.get() == len(generators):
@@ -101,7 +101,7 @@ def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
             remaining_items += 1
             yield value
     
-    logger.info(f"join_generators completed, yielded {total_yielded + remaining_items} items total")
+    logger.info("join_generators completed, yielded %s items total", total_yielded + remaining_items)
 
 
 __all__ = [

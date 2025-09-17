@@ -7,7 +7,7 @@ logger = get_logger(__name__)
 
 
 async def return_first(coros: List[Coroutine], timeout: Optional[int] = None) -> List[Tuple[int, Any]]:
-    logger.debug(f"return_first called with {len(coros)} coroutines, timeout={timeout}")
+    logger.debug("return_first called with %d coroutines, timeout=%s", len(coros), timeout)
     tasks: List[Task] = [asyncio.create_task(coro) for coro in coros]
     result: Tuple[Set[Task], Set[Task]] = await asyncio.wait(tasks, timeout=timeout,
                                                              return_when=asyncio.FIRST_COMPLETED)
@@ -18,19 +18,19 @@ async def return_first(coros: List[Coroutine], timeout: Optional[int] = None) ->
     for task in done:
         res.append((tasks.index(task), task.result()))
 
-    logger.debug(f"return_first completed with {len(res)} results")
+    logger.debug("return_first completed with %d results", len(res))
     return res
 
 
 async def return_all(coros: List[Coroutine], timeout: Optional[int] = None) -> List[Any]:
-    logger.debug(f"return_all called with {len(coros)} coroutines, timeout={timeout}")
+    logger.debug("return_all called with %d coroutines, timeout=%s", len(coros), timeout)
     tasks: List[Task] = [asyncio.create_task(coro) for coro in coros]
     result: Tuple[Set[Task], Set[Task]] = await asyncio.wait(tasks, timeout=timeout,
                                                              return_when=asyncio.ALL_COMPLETED)
     done: Set[Task] = result[0]
 
     res = [task.result() for task in done]
-    logger.debug(f"return_all completed with {len(res)} results")
+    logger.debug("return_all completed with %d results", len(res))
     return res
 
 

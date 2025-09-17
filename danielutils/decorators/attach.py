@@ -26,31 +26,31 @@ def attach(before: Optional[Callable] = None, after: Optional[Callable] = None) 
     Returns:
         Callable: the decorated result
     """
-    logger.debug(f"Creating attach decorator with before={before}, after={after}")
+    logger.debug("Creating attach decorator with before=%s, after=%s", before, after)
     if before is None and after is None:
         logger.error("Both before and after functions are None")
         raise ValueError("You must supply at least one function")
 
     def attach_deco(func: FuncT) -> FuncT:
-        logger.debug(f"Applying attach decorator to function {func.__name__}")
+        logger.debug("Applying attach decorator to function %s", func.__name__)
         if not callable(func):
-            logger.error(f"Object {func} is not callable")
+            logger.error("Object %s is not callable", func)
             raise ValueError("attach must decorate a function")
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            logger.debug(f"Executing attached function {func.__name__}")
+            logger.debug("Executing attached function %s", func.__name__)
             if before is not None:
-                logger.debug(f"Calling before function: {before.__name__}")
+                logger.debug("Calling before function: %s", before.__name__)
                 before()
             res = func(*args, **kwargs)
             if after is not None:
-                logger.debug(f"Calling after function: {after.__name__}")
+                logger.debug("Calling after function: %s", after.__name__)
                 after()
-            logger.debug(f"Attached function {func.__name__} completed")
+            logger.debug("Attached function %s completed", func.__name__)
             return res
 
-        logger.debug(f"Attach decorator applied to {func.__name__}")
+        logger.debug("Attach decorator applied to %s", func.__name__)
         return wrapper
 
     return attach_deco

@@ -25,10 +25,10 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
             if is None, will return the last a tuple for the last args, kwargs given
         quiet (bool, optional): whether to print a warning message. Defaults to True.
     """
-    logger.debug(f"Creating limit_recursion decorator with max_depth={max_depth}, quiet={quiet}")
+    logger.debug("Creating limit_recursion decorator with max_depth=%s, quiet=%s", max_depth, quiet)
 
     def deco(func: FuncT) -> FuncT:
-        logger.debug(f"Applying limit_recursion decorator to function {func.__name__}")
+        logger.debug("Applying limit_recursion decorator to function %s", func.__name__)
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             depth = functools.reduce(
@@ -37,22 +37,22 @@ def limit_recursion(max_depth: int, return_value: Any = None, quiet: bool = True
                 else count,
                 traceback.format_stack(), 0
             )
-            logger.debug(f"Function {func.__name__} called at recursion depth {depth}/{max_depth}")
+            logger.debug("Function %s called at recursion depth %s/%s", func.__name__, depth, max_depth)
             if depth >= max_depth:
-                logger.warning(f"Recursion limit reached for {func.__name__} at depth {depth}")
+                logger.warning("Recursion limit reached for %s at depth %s", func.__name__, depth)
                 if not quiet:
                     warning(
                         "limit_recursion has limited the number of calls for "
                         f"{func.__module__}.{func.__qualname__} to {max_depth}")
                 if return_value:
-                    logger.debug(f"Returning specified return_value: {return_value}")
+                    logger.debug("Returning specified return_value: %s", return_value)
                     return return_value
-                logger.debug(f"Returning args and kwargs: {args}, {kwargs}")
+                logger.debug("Returning args and kwargs: %s, %s", args, kwargs)
                 return args, kwargs
-            logger.debug(f"Recursion depth {depth} is within limit, calling function")
+            logger.debug("Recursion depth %s is within limit, calling function", depth)
             return func(*args, **kwargs)
 
-        logger.debug(f"Limit_recursion decorator applied to {func.__name__}")
+        logger.debug("Limit_recursion decorator applied to %s", func.__name__)
         return wrapper
 
     return deco

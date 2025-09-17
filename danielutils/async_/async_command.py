@@ -128,7 +128,7 @@ class AsyncCommand:
             on_complete: Callback called when command completes
             on_error: Callback called when command fails
         """
-        logger.debug(f"Initializing AsyncCommand with args={args}, command_type={command_type}, timeout={timeout}")
+        logger.debug("Initializing AsyncCommand with args=%s, command_type=%s, timeout=%s", args, command_type, timeout)
         self.args = args
         self.command_type = command_type
         if timeout is not None:
@@ -146,7 +146,7 @@ class AsyncCommand:
         self._process: Optional[subprocess.Popen] = None
         self._result: Optional[CommandExecutionResult] = None
         self._start_time: Optional[datetime] = None
-        logger.debug(f"AsyncCommand initialized successfully with state={self._state}")
+        logger.debug("AsyncCommand initialized successfully with state=%s", self._state)
 
     @property
     def state(self) -> CommandState:
@@ -807,8 +807,8 @@ class AsyncCommand:
         kwargs['command_type'] = kwargs.get('command_type', CommandType.CLI)
         if '"' in command or "'" in command:
             cls.logger.warning(
-                "Command '{}' contains quotes which can lead to the command failing due to parsing. It is recommended to build explicitly using the constructor to be able to escape the quotes correctly.".format(
-                    command))
+                "Command '%s' contains quotes which can lead to the command failing due to parsing. It is recommended to build explicitly using the constructor to be able to escape the quotes correctly.",
+                    command)
         return cls(
             args=AsyncCommand._parse_command_string(command),
             **kwargs

@@ -24,19 +24,19 @@ def atomic(func: FuncT) -> FuncT:
     Returns:
         Callable: the thread safe function
     """
-    logger.debug(f"Making function {func.__name__} atomic (thread-safe)")
+    logger.debug("Making function %s atomic (thread-safe)", func.__name__)
     lock = threading.Lock()
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
-        logger.debug(f"Acquiring lock for atomic function {func.__name__}")
+        logger.debug("Acquiring lock for atomic function %s", func.__name__)
         with lock:
-            logger.debug(f"Executing atomic function {func.__name__}")
+            logger.debug("Executing atomic function %s", func.__name__)
             result = func(*args, **kwargs)
-            logger.debug(f"Atomic function {func.__name__} completed")
+            logger.debug("Atomic function %s completed", func.__name__)
             return result
 
-    logger.debug(f"Atomic decorator applied to {func.__name__}")
+    logger.debug("Atomic decorator applied to %s", func.__name__)
     return wrapper
 
 

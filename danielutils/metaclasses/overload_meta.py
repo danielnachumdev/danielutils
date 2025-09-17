@@ -24,7 +24,7 @@ class OverloadMeta(type):
         return overload(func)  # type:ignore
 
     def __new__(mcs, name, bases, namespace):
-        logger.info(f"Creating overload class: {name}")
+        logger.info("Creating overload class: %s", name)
         
         def create_wrapper(v: overload):
             @functools.wraps(next(iter(v._functions.values()))[0])  # type:ignore# pylint: disable=protected-access
@@ -39,7 +39,7 @@ class OverloadMeta(type):
                 namespace[k] = create_wrapper(v)
                 overloaded_functions += 1
 
-        logger.info(f"OverloadMeta: {name} created with {overloaded_functions} overloaded functions")
+        logger.info("OverloadMeta: %s created with %s overloaded functions", name, overloaded_functions)
         return super().__new__(mcs, name, bases, namespace)
 
 

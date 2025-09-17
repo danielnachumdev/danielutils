@@ -47,10 +47,10 @@ class AsciiProgressBar(ProgressBar):
         self.delta: float = 0
         self.prev_value: float = self.initial_value
         self.bprint_row_index = bprint.current_row
-        logger.info(f"AsciiProgressBar initialized: {desc} (total={total_}, position={position})")
+        logger.info("AsciiProgressBar initialized: %s (total=%s, position=%s)", desc, total_, position)
 
     def __iter__(self):
-        logger.info(f"Starting iteration over AsciiProgressBar: {self.desc}")
+        logger.info("Starting iteration over AsciiProgressBar: %s", self.desc)
         self.bprint_row_index = bprint.current_row
         items_processed = 0
         for v in self.iterator:
@@ -66,7 +66,7 @@ class AsciiProgressBar(ProgressBar):
             bprint.clear_line()
             if len(bprint.rows) > 0:
                 bprint.rows.pop()
-        logger.info(f"Completed iteration: processed {items_processed} items")
+        logger.info("Completed iteration: processed %s items", items_processed)
         if self.position > 0:
             self.reset()
         else:

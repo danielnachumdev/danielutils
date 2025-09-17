@@ -27,18 +27,18 @@ class Serializable(Protocol):
 
 
 def serialize(obj: Any) -> bytes:
-    logger.info(f"Serializing object of type: {type(obj).__name__}")
+    logger.info("Serializing object of type: %s", type(obj).__name__)
     if isinstance(obj, Serializable):
         result = obj.serialize()
-        logger.info(f"Serialization successful, returned {len(result)} bytes")
+        logger.info("Serialization successful, returned %s bytes", len(result))
         return result
-    logger.warning(f"Object {type(obj).__name__} does not implement Serializable protocol")
+    logger.warning("Object %s does not implement Serializable protocol", type(obj).__name__)
     #TODO
     return b""
 
 
 def deserialize(obj: bytes) -> Any:
-    logger.info(f"Deserializing {len(obj)} bytes")
+    logger.info("Deserializing %s bytes", len(obj))
     logger.warning("Deserialize function not implemented (TODO)")
     #TODO
     return None

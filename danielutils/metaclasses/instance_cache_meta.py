@@ -20,7 +20,7 @@ class InstanceCacheMeta(type):
 
     """
     def __new__(mcs, name, bases, namespace):
-        logger.info(f"Creating InstanceCacheMeta class: {name}")
+        logger.info("Creating InstanceCacheMeta class: %s", name)
         
         INIT = "__init__"
         instance_2_id: dict = {}
@@ -41,13 +41,13 @@ class InstanceCacheMeta(type):
 
         def get_id(instance):
             if instance not in instance_2_id:
-                logger.warning(f"Instance {instance} not found in cache")
+                logger.warning("Instance %s not found in cache", instance)
                 raise KeyError(f"Instance {instance} not found in cache")
             return instance_2_id[instance]
 
         def get_instance(id_: int):
             if id_ not in id_2_instance:
-                logger.warning(f"Instance with ID {id_} not found in cache")
+                logger.warning("Instance with ID %s not found in cache", id_)
                 raise KeyError(f"Instance with ID {id_} not found in cache")
             return id_2_instance[id_]
 
@@ -59,7 +59,7 @@ class InstanceCacheMeta(type):
         namespace["get_instance"] = staticmethod(get_instance)
         namespace[INIT] = new_init
 
-        logger.info(f"InstanceCacheMeta: {name} created with instance caching enabled")
+        logger.info("InstanceCacheMeta: %s created with instance caching enabled", name)
         return super().__new__(mcs, name, bases, namespace)
 __all__ =[
     "InstanceCacheMeta"

@@ -5,7 +5,8 @@ tqdm
 types-tqdm
 twine
 redis
-starlette
+fastapi
+uvicorn
 sqlalchemy
 pydantic
 setuptools

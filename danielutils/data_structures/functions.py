@@ -17,16 +17,16 @@ def default_weight_function(v: Any) -> Union[int, float]:
     Returns:
         Union[int, float]: the object's weight
     """
-    logger.debug(f"Computing weight for object: {v}")
+    logger.debug("Computing weight for object: %s", v)
     if isoftype(v, Union[int, float]):  # type:ignore
-        logger.debug(f"Object is numeric, returning value: {v}")
+        logger.debug("Object is numeric, returning value: %s", v)
         return v
     if hasattr(v, "__weight__"):
-        logger.debug(f"Object has __weight__ method, calling it")
+        logger.debug("Object has __weight__ method, calling it")
         result = v.__weight__()
-        logger.debug(f"Weight method returned: {result}")
+        logger.debug("Weight method returned: %s", result)
         return result
-    logger.error(f"Object {v} has no __weight__ function and is not numeric")
+    logger.error("Object %s has no __weight__ function and is not numeric", v)
     raise AttributeError(f"{v} has no __weight__ function")
 
 

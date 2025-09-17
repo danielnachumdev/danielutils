@@ -33,7 +33,7 @@ class ColoredText:
         Returns:
             str: The given text with an RGB color applied to it.
         """
-        logger.debug(f"Applying RGB color ({red}, {green}, {blue}) to text: {text[:50]}...")
+        logger.debug("Applying RGB color (%s, %s, %s) to text: %s...", red, green, blue, text[:50])
         return f"\033[38;2;{red};{green};{blue}m{text}{RESET}"
 
     @staticmethod
@@ -131,7 +131,7 @@ class ColoredText:
             bool: boolean result
         """
         result = stream.isatty()
-        logger.debug(f"Color support check for stream: {result}")
+        logger.debug("Color support check for stream: %s", result)
         return result
 
 

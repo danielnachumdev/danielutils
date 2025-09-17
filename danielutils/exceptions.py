@@ -83,7 +83,7 @@ class PrintCatchOne:
 
     def __exit__(self, cls, instance, traceback):
         if instance:
-            logger.error(f"Exception caught in PrintCatchOne: {cls} {instance}")
+            logger.error("Exception caught in PrintCatchOne: %s %s", cls, instance)
             from .colors import error  # pylint: disable=cyclic-import
             error(f"{cls} {instance}")
             return isinstance(instance, cls)

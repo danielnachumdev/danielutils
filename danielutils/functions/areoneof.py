@@ -25,7 +25,7 @@ def areoneof(values: Sequence[Any], types: Union[List[type], Tuple[type]]) -> bo
     Returns:
         bool: the result of the check
     """
-    logger.debug(f"Checking if {len(values)} values are one of types: {types}")
+    logger.debug("Checking if %s values are one of types: %s", len(values), types)
     if not isinstance(types, Sequence):
         logger.error("'types' parameter is not a Sequence")
         raise TypeError("'types' must be of type Sequence")
@@ -35,7 +35,7 @@ def areoneof(values: Sequence[Any], types: Union[List[type], Tuple[type]]) -> bo
     
     for i, v in enumerate(values):
         if not isoneof(v, types):
-            logger.debug(f"Value at index {i} ({v}) is not one of the specified types")
+            logger.debug("Value at index %s (%s) is not one of the specified types", i, v)
             return False
     
     logger.debug("All values match one of the specified types")

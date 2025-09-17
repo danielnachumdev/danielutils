@@ -77,11 +77,11 @@ class _LoggerImpl:
 class Logger:
     @classmethod
     def __init_subclass__(cls, **kwargs) -> None:
-        logger.info(f"Initializing Logger subclass: {cls.__qualname__}")
+        logger.info("Initializing Logger subclass: %s", cls.__qualname__)
         cls._logger = _LoggerImpl(cls)
         cls._registered_loggers: List[LoggerStrategyImplBase] = []
         cls.init_subscribers()
-        logger.info(f"Logger subclass {cls.__qualname__} initialized successfully")
+        logger.info("Logger subclass %s initialized successfully", cls.__qualname__)
 
     @classmethod
     @property
@@ -94,9 +94,9 @@ class Logger:
 
     @classmethod
     def register_logger(cls, logger_instance: LoggerStrategyImplBase) -> None:
-        logger.info(f"Registering logger {logger_instance.logger_id} for class {cls.__qualname__}")
+        logger.info("Registering logger %s for class %s", logger_instance.logger_id, cls.__qualname__)
         cls._registered_loggers.append(logger_instance)
-        logger.info(f"Logger registered successfully, total registered: {len(cls._registered_loggers)}")
+        logger.info("Logger registered successfully, total registered: %s", len(cls._registered_loggers))
 
 
 class GlobalLogger(Logger):

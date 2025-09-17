@@ -90,7 +90,7 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
                 json.dump(state, f, indent=2, cls=DateTimeEncoder)
             self.logger.info("Database state saved successfully")
         except Exception as e:
-            self.logger.error(f"Error saving database state: {e}")
+            self.logger.error("Error saving database state: %s", e)
             raise DBException(f"Failed to save database state: {str(e)}")
 
     def _load_state(self) -> None:
@@ -127,7 +127,7 @@ class PersistentInMemoryDatabase(InMemoryDatabase):
 
                 self.logger.info("Database state loaded successfully")
             except Exception as e:
-                self.logger.error(f"Error loading database state: {e}")
+                self.logger.error("Error loading database state: %s", e)
                 raise DBException(f"Failed to load database state: {str(e)}")
 
     def _maybe_save_state(self) -> None:

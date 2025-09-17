@@ -16,33 +16,33 @@ logger = get_logger(__name__)
 class RetryExecutor(Generic[T]):
     def __init__(self, backoff_strategy: BackOffStrategy = ConstantBackOffStrategy(200)) -> None:
         self._backoff_strategy = backoff_strategy
-        logger.info(f"RetryExecutor initialized with backoff strategy: {type(backoff_strategy).__name__}")
+        logger.info("RetryExecutor initialized with backoff strategy: %s", type(backoff_strategy).__name__)
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
-            logger.warning(f"RetryExecutor context exited with exception: {exc_type.__name__}: {exc_val}")
+            logger.warning("RetryExecutor context exited with exception: %s: %s", exc_type.__name__, exc_val)
 
     def execute(self, supp: Supplier[T], max_retries: int = 5,
                 exception_callback: Optional[Consumer[Exception]] = None) -> Optional[T]:
-        logger.info(f"Starting retry execution with max_retries={max_retries}")
+        logger.info("Starting retry execution with max_retries=%s", max_retries)
         
         for i in range(max_retries):
             try:
                 result = supp()
-                logger.info(f"Execution succeeded on attempt {i + 1}")
+                logger.info("Execution succeeded on attempt %s", i + 1)
                 return result
             except Exception as e:
-                logger.warning(f"Attempt {i + 1} failed with {type(e).__name__}: {e}")
+                logger.warning("Attempt %s failed with %s: %s", i + 1, type(e).__name__, e)
                 if exception_callback:
                     exception_callback(e)
 
             if i != max_retries - 1:
                 self._sleep()
         
-        logger.error(f"All {max_retries} attempts failed")
+        logger.error("All %s attempts failed", max_retries)
         return None
 
     def _sleep(self) -> None:

@@ -32,7 +32,7 @@ class ProgressBar(ABC):
         self.unit = unit
         self.bar_format = bar_format
         self.writes: List[str] = []
-        logger.info(f"ProgressBar initialized: {desc} (total={total}, position={position}, unit={unit})")
+        logger.info("ProgressBar initialized: %s (total=%s, position=%s, unit=%s)", desc, total, position, unit)
 
     @property
     def num_writes(self):

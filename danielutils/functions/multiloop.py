@@ -26,7 +26,7 @@ def multiloop(*iterables: Iterable, pre_load: bool = False) -> Generator:
     Yields:
         Generator: A generator that yields tuples, each containing one combination of values from the iterables.
     """
-    logger.info(f"Starting multiloop with {len(iterables)} iterables, pre_load={pre_load}")
+    logger.info("Starting multiloop with %s iterables, pre_load=%s", len(iterables), pre_load)
     
     if len(iterables) == 1:
         yield from iterables[0]

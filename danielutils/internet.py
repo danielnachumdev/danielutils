@@ -27,13 +27,13 @@ def get_html(url: str) -> str:
     Returns:
         str: the html as a string
     """
-    logger.info(f"Fetching HTML from URL: {url}")
+    logger.info("Fetching HTML from URL: %s", url)
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
     headers = {'User-Agent': user_agent, }
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as f:
         html = f.read().decode('UTF-8')
-    logger.info(f"Successfully fetched HTML, length: {len(html)} characters")
+    logger.info("Successfully fetched HTML, length: %d characters", len(html))
     # return bs4(html, 'html.parser').prettify()
     return html
 

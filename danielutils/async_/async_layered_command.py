@@ -33,7 +33,7 @@ class AsyncLayeredCommand:
             instance_raise_on_fail: Optional[bool] = None,
             instance_verbose: Optional[bool] = None
     ):
-        logger.debug(f"Initializing AsyncLayeredCommand with command='{command}', prev_instance={prev_instance is not None}")
+        logger.debug("Initializing AsyncLayeredCommand with command='%s', prev_instance=%s", command, prev_instance is not None)
         self._command = command if command is not None else ""
         self._instance_capture_stdout = instance_capture_stdout
         self._instance_capture_stderr = instance_capture_stderr
@@ -43,7 +43,7 @@ class AsyncLayeredCommand:
         self._cur_class_prev_instance = AsyncLayeredCommand._class_prev_instance
         AsyncLayeredCommand._class_prev_instance = self
         self._has_entered: bool = False
-        logger.debug(f"AsyncLayeredCommand initialized successfully")
+        logger.debug("AsyncLayeredCommand initialized successfully")
 
     def __enter__(self):
         logger.debug("Entering AsyncLayeredCommand context")
@@ -51,7 +51,7 @@ class AsyncLayeredCommand:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        logger.debug(f"Exiting AsyncLayeredCommand context, exc_type={exc_type}")
+        logger.debug("Exiting AsyncLayeredCommand context, exc_type=%s", exc_type)
         if self.prev is self._cur_class_prev_instance:
             AsyncLayeredCommand._class_prev_instance = self.prev
 
@@ -60,7 +60,7 @@ class AsyncLayeredCommand:
         self._has_entered = True
 
     def _build_command(self, *commands: str) -> str:
-        logger.debug(f"Building command with {len(commands)} additional commands")
+        logger.debug("Building command with %d additional commands", len(commands))
         res = ""
         if self.prev is not None:
             prev = self.prev._build_command()
@@ -69,12 +69,12 @@ class AsyncLayeredCommand:
             result = res + " & ".join([self._command, *commands])
         else:
             result = res + " & ".join(commands)
-        logger.debug(f"Built command: {result}")
+        logger.debug("Built command: %s", result)
         return result
 
     def _error(self, predicate: bool, command: str, code: int, command_verbose: Optional[bool]) -> None:
         if predicate:
-            logger.error(f"Command '{command}' failed with exit code {code}")
+            logger.error("Command '%s' failed with exit code %d", command, code)
             verbose = self._merge_values(command_verbose, self._instance_verbose, AsyncLayeredCommand.class_verbose)
             if verbose:
                 raise RuntimeError(f"command '{command}' failed with exit code {code}")
@@ -92,7 +92,7 @@ class AsyncLayeredCommand:
             command_raise_on_fail: Optional[bool] = None,
             command_verbose: Optional[bool] = None
     ) -> Tuple[int, List[str], List[str]]:
-        logger.info(f"Executing AsyncLayeredCommand with {len(commands)} commands")
+        logger.info("Executing AsyncLayeredCommand with %d commands", len(commands))
         if not self._has_entered:
             logger.error("LayeredCommand must be used with a context manager")
             raise RuntimeError(
@@ -105,15 +105,15 @@ class AsyncLayeredCommand:
                                            self.class_raise_on_fail)
 
         command = self._build_command(*commands)
-        logger.debug(f"Executing command with capture_stdout={capture_stdout}, capture_stderr={capture_stderr}")
+        logger.debug("Executing command with capture_stdout=%s, capture_stderr=%s", capture_stdout, capture_stderr)
         if not capture_stdout and not capture_stderr:
             code = (await async_cmd(command))[0]
-            logger.debug(f"Command executed with return code {code}")
+            logger.debug("Command executed with return code %d", code)
             self._error(raise_on_fail and code != 0, command, code, command_verbose)
             return code, [], []
 
         code, stdout, stderr = await async_cmd(command, capture_stdout=True, capture_stderr=True)
-        logger.info(f"Command execution completed with return code {code}")
+        logger.info("Command execution completed with return code %d", code)
         return code, stdout.decode().splitlines() if stdout else [], stderr.decode().splitlines() if stderr else []
 
     async def __call__(self, *args, **kwargs) -> Tuple[int, List[str], List[str]]:

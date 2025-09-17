@@ -29,7 +29,7 @@ def deleted(func, cls_name: Optional[str] = None):
 
     def new_func(*args, **kwargs):  # pylint: disable=unused-argument
         nonlocal func
-        logger.warning(f"Attempted to call deleted function: {func.__qualname__}")
+        logger.warning("Attempted to call deleted function: %s", func.__qualname__)
         raise DeletedException(msg)
     return new_func
 
@@ -39,7 +39,7 @@ class ImplicitDataDeleterMeta(type):
     and will replace them with a new function which will raise and error
     """
     def __new__(mcs, name, bases, namespace):
-        logger.info(f"Creating ImplicitDataDeleterMeta class: {name}")
+        logger.info("Creating ImplicitDataDeleterMeta class: %s", name)
         
         cls_functions = set()
         for k, v in namespace.items():
@@ -77,7 +77,7 @@ class ImplicitDataDeleterMeta(type):
                 namespace[func.__name__] = deleted(func, name)
                 deleted_count += 1
 
-        logger.info(f"ImplicitDataDeleterMeta: {name} created with {deleted_count} functions marked as deleted")
+        logger.info("ImplicitDataDeleterMeta: %s created with %s functions marked as deleted", name, deleted_count)
         return super().__new__(mcs, name, bases, namespace)
 
 

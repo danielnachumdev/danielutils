@@ -18,7 +18,7 @@ class JavaInterface(ABC):
 
     @classmethod
     def __init_subclass__(cls, **kwargs) -> None:
-        logger.info(f"Initializing JavaInterface subclass: {cls.__name__}")
+        logger.info("Initializing JavaInterface subclass: %s", cls.__name__)
         info = ClassInfo(cls)
         
         # Check if this is a direct interface definition
@@ -31,7 +31,7 @@ class JavaInterface(ABC):
         
         if not is_interface:
             setattr(cls, "__is_interface__", False)
-            logger.debug(f"Validating interface compliance for implementation class: {cls.__name__}")
+            logger.debug("Validating interface compliance for implementation class: %s", cls.__name__)
             info = ClassInfo(cls)
             
             actual_func_names = set(f.name for f in info.functions)
@@ -45,12 +45,12 @@ class JavaInterface(ABC):
                 
                 if subtraction := expected_func_names.difference(actual_func_names):
                     error_msg = f"class '{cls.__name__}' does not implement required methods {subtraction}"
-                    logger.error(f"Interface validation failed: {error_msg}")
+                    logger.error("Interface validation failed: %s", error_msg)
                     raise InterfaceError(error_msg)
                 else:
-                    logger.debug(f"Class {cls.__name__} successfully implements interface {interface.__name__}")
+                    logger.debug("Class %s successfully implements interface %s", cls.__name__, interface.__name__)
         
-        logger.info(f"JavaInterface subclass {cls.__name__} initialized successfully")
+        logger.info("JavaInterface subclass %s initialized successfully", cls.__name__)
         super().__init_subclass__(**kwargs)
 
 

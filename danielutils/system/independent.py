@@ -30,7 +30,7 @@ def cm(*args: str, shell: bool = True) -> Tuple[int, bytes, bytes]:
     Returns:
         Tuple[int, bytes, bytes]: return code, stdout, stderr
     """
-    logger.info(f"Executing command: {' '.join(args)} (shell={shell})")
+    logger.info("Executing command: %s (shell=%s)", ' '.join(args), shell)
     if not isinstance(shell, bool):
         logger.error("'shell' parameter must be of type bool")
         raise TypeError(
@@ -44,7 +44,7 @@ def cm(*args: str, shell: bool = True) -> Tuple[int, bytes, bytes]:
     command_str = " ".join(args)
     res = subprocess.run(command_str, shell=shell,
                          capture_output=True, check=False)
-    logger.info(f"Command completed with return code: {res.returncode}")
+    logger.info("Command completed with return code: %s", res.returncode)
     return res.returncode, res.stdout, res.stderr
 
 

@@ -14,4 +14,4 @@ if python_version >= (3, 10):
     from .interfaces import *
     from .java_interface import *
 else:
-    logger.warning(f"Java interface module requires Python 3.10+, current version: {python_version}")
+    logger.warning("Java interface module requires Python 3.10+, current version: %s", python_version)

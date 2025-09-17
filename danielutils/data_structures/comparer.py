@@ -15,7 +15,7 @@ class Comparer(Generic[U, V]):
 
     def __init__(self, func: Callable[[U, V], Union[int, float]]):
         self.func = func
-        logger.debug(f"Comparer initialized with function: {func.__name__}")
+        logger.debug("Comparer initialized with function: %s", func.__name__)
 
     def compare(self, v1: U, v2: V) -> Union[int, float]:
         """compares two objects
@@ -27,9 +27,9 @@ class Comparer(Generic[U, V]):
             Returns:
                 int: a number specifying the order of the objects
             """
-        logger.debug(f"Comparing objects: {v1} vs {v2}")
+        logger.debug("Comparing objects: %s vs %s", v1, v2)
         result = self.func(v1, v2)
-        logger.debug(f"Comparison result: {result}")
+        logger.debug("Comparison result: %s", result)
         return result
 
     def __call__(self, v1: U, v2: V) -> Union[int, float]:

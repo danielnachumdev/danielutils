@@ -6,7 +6,7 @@ logger = get_logger(__name__)
 
 
 def partitions(n: int, k: int) -> Generator[List[int], None, None]:
-    logger.info(f"Generating partitions of {n} into {k} parts")
+    logger.info("Generating partitions of %s into %s parts", n, k)
     from ..decorators import memo_generator
 
     @memo_generator
@@ -33,9 +33,9 @@ def partitions(n: int, k: int) -> Generator[List[int], None, None]:
 
 
 def num_partitions(n: int, k: int) -> int:
-    logger.info(f"Counting number of partitions of {n} into {k} parts")
+    logger.info("Counting number of partitions of %s into %s parts", n, k)
     result = len(list(partitions(n, k)))
-    logger.info(f"Found {result} partitions")
+    logger.info("Found %s partitions", result)
     return result
 
 

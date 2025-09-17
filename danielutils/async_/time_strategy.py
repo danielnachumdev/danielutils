@@ -17,11 +17,11 @@ class TimeStrategy(ABC):
 
 class ConstantTimeStrategy(TimeStrategy):
     def __init__(self, timeout: float):
-        logger.debug(f"Initializing ConstantTimeStrategy with timeout={timeout}")
+        logger.debug("Initializing ConstantTimeStrategy with timeout=%s", timeout)
         self.timeout = timeout
 
     def next(self) -> float:
-        logger.debug(f"ConstantTimeStrategy returning timeout={self.timeout}")
+        logger.debug("ConstantTimeStrategy returning timeout=%s", self.timeout)
         return self.timeout
 
     def reset(self) -> None:
@@ -31,7 +31,7 @@ class ConstantTimeStrategy(TimeStrategy):
 
 class LinearTimeStrategy(TimeStrategy):
     def __init__(self, base_timeout: float, step: float):
-        logger.debug(f"Initializing LinearTimeStrategy with base_timeout={base_timeout}, step={step}")
+        logger.debug("Initializing LinearTimeStrategy with base_timeout=%s, step=%s", base_timeout, step)
         self.base_timeout = base_timeout
         self.step = step
         self.current_timeout = base_timeout
@@ -39,17 +39,17 @@ class LinearTimeStrategy(TimeStrategy):
     def next(self) -> float:
         timeout = self.current_timeout
         self.current_timeout += self.step
-        logger.debug(f"LinearTimeStrategy returning timeout={timeout}, next will be {self.current_timeout}")
+        logger.debug("LinearTimeStrategy returning timeout=%s, next will be %s", timeout, self.current_timeout)
         return timeout
 
     def reset(self) -> None:
-        logger.debug(f"LinearTimeStrategy resetting to base_timeout={self.base_timeout}")
+        logger.debug("LinearTimeStrategy resetting to base_timeout=%s", self.base_timeout)
         self.current_timeout = self.base_timeout
 
 
 class MultiplicativeTimeStrategy(TimeStrategy):
     def __init__(self, base_timeout: float, factor: float):
-        logger.debug(f"Initializing MultiplicativeTimeStrategy with base_timeout={base_timeout}, factor={factor}")
+        logger.debug("Initializing MultiplicativeTimeStrategy with base_timeout=%s, factor=%s", base_timeout, factor)
         self.base_timeout = base_timeout
         self.factor = factor
         self.current_timeout = base_timeout
@@ -57,11 +57,11 @@ class MultiplicativeTimeStrategy(TimeStrategy):
     def next(self) -> float:
         timeout = self.current_timeout
         self.current_timeout *= self.factor
-        logger.debug(f"MultiplicativeTimeStrategy returning timeout={timeout}, next will be {self.current_timeout}")
+        logger.debug("MultiplicativeTimeStrategy returning timeout=%s, next will be %s", timeout, self.current_timeout)
         return timeout
 
     def reset(self) -> None:
-        logger.debug(f"MultiplicativeTimeStrategy resetting to base_timeout={self.base_timeout}")
+        logger.debug("MultiplicativeTimeStrategy resetting to base_timeout=%s", self.base_timeout)
         self.current_timeout = self.base_timeout
 
 

@@ -44,7 +44,7 @@ class LayeredCommand:
         LayeredCommand._class_prev_instance = self
         self._executor = os.system
         self._has_entered: bool = False
-        logger.info(f"LayeredCommand initialized with command: '{self._command}', prev_instance: {prev_instance is not None}")
+        logger.info("LayeredCommand initialized with command: '%s', prev_instance: %s", self._command, prev_instance is not None)
 
     def __enter__(self):
         self._open()
@@ -52,7 +52,7 @@ class LayeredCommand:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
-            logger.warning(f"LayeredCommand context exited with exception: {exc_type.__name__}: {exc_val}")
+            logger.warning("LayeredCommand context exited with exception: %s: %s", exc_type.__name__, exc_val)
         if self.prev is self._cur_class_prev_instance:
             LayeredCommand._class_prev_instance = self.prev
 
@@ -100,7 +100,7 @@ class LayeredCommand:
                                            self.class_raise_on_fail)
 
         command = self._build_command(*commands)
-        logger.info(f"Executing command: {command}")
+        logger.info("Executing command: %s", command)
         
         if not capture_stdout and not capture_stderr:
             code = self._executor(command)

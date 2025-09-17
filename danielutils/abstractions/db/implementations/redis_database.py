@@ -77,10 +77,9 @@ class RedisDatabase(Database):
             # Test connection
             await self._db.ping()
             self._connected = True
-            self.logger.info(
-                f"Connected to Redis database at {self.host}:{self.port}")
+            self.logger.info("Connected to Redis database at %s:%s", self.host, self.port)
         except Exception as e:
-            self.logger.error(f"Error connecting to Redis database: {e}")
+            self.logger.error("Error connecting to Redis database: %s", e)
             raise
 
     async def disconnect(self) -> None:
@@ -130,7 +129,7 @@ class RedisDatabase(Database):
                 counter_key = f"{self.COUNTER_PREFIX}{schema.name}:{column.name}"
                 await self._db.set(counter_key, 0)
 
-        self.logger.info(f"Created table '{schema.name}'")
+        self.logger.info("Created table '%s'", schema.name)
 
     async def _get_next_auto_increment_id(self, table: str, column: str) -> int:
         """Get the next available ID for an auto-increment column"""
@@ -215,7 +214,7 @@ class RedisDatabase(Database):
 
         await self._db.hset(table_key, row_key, json.dumps(hash_data))  # type: ignore
 
-        self.logger.info(f"Inserted row {row_id} into table '{table}'")
+        self.logger.info("Inserted row %s into table '%s'", row_id, table)
         return row_id
 
     def _evaluate_condition(self, row: Dict[str, Any], condition: Condition) -> bool:
@@ -367,7 +366,7 @@ class RedisDatabase(Database):
                 await self._db.hset(table_key, row_id, json.dumps(row_data))  # type: ignore
                 updated_count += 1
 
-        self.logger.info(f"Updated {updated_count} rows in '{query.table}'")
+        self.logger.info("Updated %s rows in '%s'", updated_count, query.table)
         return updated_count
 
     async def delete(self, query: DeleteQuery) -> int:
@@ -395,7 +394,7 @@ class RedisDatabase(Database):
         for row_id in rows_to_delete:
             await self._db.hdel(table_key, row_id)  # type: ignore
 
-        self.logger.info(f"Deleted {len(rows_to_delete)} rows from '{query.table}'")
+        self.logger.info("Deleted %s rows from '%s'", len(rows_to_delete), query.table)
         return len(rows_to_delete)
 
 

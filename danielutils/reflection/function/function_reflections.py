@@ -21,10 +21,10 @@ def get_caller_name(steps_back: int) -> Optional[str]:
     USING THIS FUNCTION WHILE DEBUGGING WILL ADD ADDITIONAL FRAMES TO THE TRACEBACK
     """
     if not isinstance(steps_back, int):
-        logger.error(f"Invalid steps_back type: {type(steps_back)}")
+        logger.error("Invalid steps_back type: %s", type(steps_back))
         raise TypeError("steps_back must be an int")
     if steps_back < 0:
-        logger.error(f"Invalid steps_back value: {steps_back}")
+        logger.error("Invalid steps_back value: %s", steps_back)
         raise ValueError("steps_back must be a non-negative integer")
     if (frame := get_prev_frame(2 + steps_back)) is None:
         return None
@@ -35,7 +35,7 @@ def get_caller_name(steps_back: int) -> Optional[str]:
 def get_prev_func(steps_back: int) -> Optional[Callable]:
     """Returns the current function"""
     if steps_back < 0:
-        logger.error(f"Invalid steps_back value: {steps_back}")
+        logger.error("Invalid steps_back value: %s", steps_back)
         raise ValueError("n_step must be a non-negative integer")
     if (caller_frame := get_prev_frame(2 + steps_back)) is None:
         return None
@@ -107,13 +107,13 @@ def is_function_annotated_properly(func: Callable, ignore: Optional[set] = None,
     """
     from ...functions.isoftype import isoftype
     if not inspect.isfunction(func):
-        logger.error(f"Invalid function type: {type(func)}")
+        logger.error("Invalid function type: %s", type(func))
         raise ValueError("param should be a function")
 
     if ignore is None:
         ignore = {"self", "cls", "args", "kwargs"}
     if not isoftype(ignore, Set[str]):
-        logger.error(f"Invalid ignore type: {type(ignore)}")
+        logger.error("Invalid ignore type: %s", type(ignore))
         raise ValueError("ignore must be a set of str")
 
     # get the signature of the function

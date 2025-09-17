@@ -85,7 +85,7 @@ def read_file(path: str, read_bytes: bool = False) -> Union[List[str], List[byte
                 result = f.readlines()
         return result
     except Exception as e:
-        logger.error(f"Error reading file {path}: {e}")
+        logger.error("Error reading file %s: %s", path, e)
         if isinstance(e, UnicodeDecodeError):
             logger.error("Unicode decode error, suggesting to use read_bytes=True")
             raise UnicodeDecodeError(e.encoding, e.object, e.start, e.end,

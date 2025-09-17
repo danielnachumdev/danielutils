@@ -14,7 +14,7 @@ class ConstantBackOffStrategy(BackOffStrategy):
 
     def __init__(self, delay: float) -> None:
         if not delay >= 0:
-            logger.error(f"Invalid delay value: {delay} - must be positive")
+            logger.error("Invalid delay value: %s - must be positive", delay)
             raise ValueError("delay must be positive")
         delay = float(delay)
         super().__init__(lambda: delay)

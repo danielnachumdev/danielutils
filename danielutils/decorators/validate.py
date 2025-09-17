@@ -37,21 +37,21 @@ def validate(strict: Union[FuncT, bool] = True) -> FuncT:
     Returns:
         Callable: A wrapper function that performs the validation and calls the original function.
     """
-    logger.debug(f"Creating validate decorator with strict={strict}")
+    logger.debug("Creating validate decorator with strict=%s", strict)
     if not isoftype(strict, Union[bool, Callable]):
-        logger.error(f"Invalid strict parameter type: {type(strict)}")
+        logger.error("Invalid strict parameter type: %s", type(strict))
         raise TypeError(
             "the argument for validate must be a Callable or a boolean to mark strict use")
 
     def deco(func: FuncT) -> FuncT:
-        logger.debug(f"Applying validate decorator to function {func.__name__}")
+        logger.debug("Applying validate decorator to function %s", func.__name__)
         SKIP_SET = {"self", "cls", "args", "kwargs"}
         if not callable(func):
-            logger.error(f"Object {func} is not callable")
+            logger.error("Object %s is not callable", func)
             raise TypeError(
                 "The validate decorator must only decorate a function")
         func_name = f"{func.__module__}.{func.__qualname__}"
-        logger.debug(f"Validating function: {func_name}")
+        logger.debug("Validating function: %s", func_name)
         # get the signature of the function
         signature = inspect.signature(func)
         for arg_name, arg_param in signature.parameters.items():

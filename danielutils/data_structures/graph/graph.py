@@ -40,14 +40,14 @@ class Graph(Generic[T]):
         Returns:
             dict: A dictionary representing the graph.
         """
-        logger.debug(f"Converting graph with {len(self.nodes)} nodes to dictionary")
+        logger.debug("Converting graph with %s nodes to dictionary", len(self.nodes))
         dct: Dict[T, Set[T]] = {}
         for node in self:
             v = dct.get(node.data, set())
             for child in node:
                 v.add(child.data)
             dct[node.data] = v
-        logger.debug(f"Graph converted to dictionary with {len(dct)} entries")
+        logger.debug("Graph converted to dictionary with %s entries", len(dct))
         return dct
 
     @staticmethod
@@ -60,7 +60,7 @@ class Graph(Generic[T]):
         Returns:
             Graph[T]: A graph representing the given dictionary.
         """
-        logger.debug(f"Creating graph from dictionary with {len(dct)} entries")
+        logger.debug("Creating graph from dictionary with %s entries", len(dct))
         g: Graph[T] = Graph()
         seen: Dict[T, MultiNode[T]] = {}
         for k, v in dct.items():
@@ -71,12 +71,12 @@ class Graph(Generic[T]):
                 seen[k].add_child(seen[o])
 
             g.add_node(seen[k])
-        logger.info(f"Graph created from dictionary with {len(g.nodes)} nodes")
+        logger.info("Graph created from dictionary with %s nodes", len(g.nodes))
         return g
 
     def __init__(self, nodes: Optional[List[MultiNode[T]]] = None):
         self.nodes: List[MultiNode[T]] = nodes if nodes is not None else []
-        logger.debug(f"Graph initialized with {len(self.nodes)} nodes")
+        logger.debug("Graph initialized with %s nodes", len(self.nodes))
 
     def add_node(self, node: MultiNode[T]) -> None:
         """Add a node to the graph.
@@ -85,7 +85,7 @@ class Graph(Generic[T]):
             node: The MultiNode instance to add to the graph.
         """
         self.nodes.append(node)
-        logger.debug(f"Added node to graph, total nodes: {len(self.nodes)}")
+        logger.debug("Added node to graph, total nodes: %s", len(self.nodes))
 
     def _extended_dfs(self) -> Generator[MultiNode[T], None, List[MultiNode[T]]]:
         """Perform an extended depth-first search on the graph.
@@ -151,7 +151,7 @@ class Graph(Generic[T]):
         Yields:
             Generator: The MultiNode instances in the order of depth-first traversal.
         """
-        logger.debug(f"Starting DFS traversal on graph with {len(self.nodes)} nodes")
+        logger.debug("Starting DFS traversal on graph with %s nodes", len(self.nodes))
         yield from self._extended_dfs()
 
     def topological_sort(self) -> List[MultiNode[T]]:
@@ -162,14 +162,14 @@ class Graph(Generic[T]):
         Returns:
             list: A list containing the MultiNode instances in topological order.
         """
-        logger.debug(f"Starting topological sort on graph with {len(self.nodes)} nodes")
+        logger.debug("Starting topological sort on graph with %s nodes", len(self.nodes))
         g = self._extended_dfs()
         try:
             while True:
                 next(g)
         except StopIteration as e:
             result = e.value
-            logger.info(f"Topological sort completed, result has {len(result)} nodes")
+            logger.info("Topological sort completed, result has %s nodes", len(result))
             return result
 
     def bfs(self) -> Generator[MultiNode[T], None, None]:
@@ -180,7 +180,7 @@ class Graph(Generic[T]):
         Yields:
             Generator: The MultiNode instances in the order of breadth-first traversal.
         """
-        logger.debug(f"Starting BFS traversal on graph with {len(self.nodes)} nodes")
+        logger.debug("Starting BFS traversal on graph with %s nodes", len(self.nodes))
         q: Queue[MultiNode[T]] = Queue()
         for node in self.nodes:
             q.push(node)
@@ -191,7 +191,7 @@ class Graph(Generic[T]):
                 yield node
                 for child in node._children:  # pylint: disable=protected-access
                     q.push(child)  # type:ignore
-        logger.debug(f"BFS traversal completed, visited {len(seen)} nodes")
+        logger.debug("BFS traversal completed, visited %s nodes", len(seen))
 
     def __str__(self) -> str:
         tmp = []

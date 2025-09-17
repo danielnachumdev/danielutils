@@ -14,9 +14,9 @@ def subseteq(l1: list, l2: list) -> bool:
     Returns:
         bool: boolean result
     """
-    logger.debug(f"Checking if {l1} is subset of {l2}")
+    logger.debug("Checking if %s is subset of %s", l1, l2)
     result = set(l1).issubset(set(l2))
-    logger.debug(f"Subset check result: {result}")
+    logger.debug("Subset check result: %s", result)
     return result
 
 

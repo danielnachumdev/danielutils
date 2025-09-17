@@ -15,9 +15,9 @@ def dict_to_json(dct: dict) -> str:
     Returns:
         str: the json as string
     """
-    logger.debug(f"Converting dict with {len(dct)} keys to JSON")
+    logger.debug("Converting dict with %d keys to JSON", len(dct))
     result = json.dumps(dct, indent=4)
-    logger.debug(f"JSON conversion completed, result length: {len(result)}")
+    logger.debug("JSON conversion completed, result length: %d", len(result))
     return result
 
 
@@ -31,9 +31,9 @@ def json_to_dict(json_str: str) -> dict:
     Returns:
         dict: a python dict from the json
     """
-    logger.debug(f"Converting JSON string (length: {len(json_str)}) to dict")
+    logger.debug("Converting JSON string (length: %d) to dict", len(json_str))
     result = json.loads(json_str)
-    logger.debug(f"JSON parsing completed, dict has {len(result)} keys")
+    logger.debug("JSON parsing completed, dict has %d keys", len(result))
     return result
 
 

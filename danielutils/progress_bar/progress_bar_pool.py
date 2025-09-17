@@ -15,7 +15,7 @@ class ProgressBarPool:
             global_options: Optional[dict] = None,
             individual_options: Optional[List[Optional[dict]]] = None
     ) -> None:
-        logger.info(f"Creating ProgressBarPool with {num_of_bars} bars using {pbar_class.__name__}")
+        logger.info("Creating ProgressBarPool with %s bars using %s", num_of_bars, pbar_class.__name__)
         self.bars: List[ProgressBar] = []
         if global_options is None:
             global_options = {}
@@ -23,7 +23,7 @@ class ProgressBarPool:
             individual_options = [{} for _ in range(num_of_bars)]
         if len(individual_options) != num_of_bars:
             error_msg = "must supply the same number of options as there are bars"
-            logger.error(f"ProgressBarPool initialization failed: {error_msg}")
+            logger.error("ProgressBarPool initialization failed: %s", error_msg)
             raise ValueError(error_msg)
         for i in range(num_of_bars):
             if individual_options[i] is None:
@@ -43,7 +43,7 @@ class ProgressBarPool:
             )
             self.bars.append(t)
         self.writes: List[str] = []
-        logger.info(f"ProgressBarPool created successfully with {len(self.bars)} progress bars")
+        logger.info("ProgressBarPool created successfully with %s progress bars", len(self.bars))
 
     def __getitem__(self, index: int) -> ProgressBar:
         return self.bars[index]

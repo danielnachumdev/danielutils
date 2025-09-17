@@ -8,7 +8,7 @@ logger = get_logger(__name__)
 class ExponentialBackOffStrategy(BackOffStrategy):
     def __init__(self, initial: float) -> None:
         if not initial >= 0:
-            logger.error(f"Invalid initial value: {initial} - must be positive")
+            logger.error("Invalid initial value: %s - must be positive", initial)
             raise ValueError("initial must be positive")
         attempt: int = 1
 

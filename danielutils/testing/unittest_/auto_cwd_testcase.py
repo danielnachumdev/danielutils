@@ -34,22 +34,22 @@ def improved_setup(func: Callable) -> Callable:
     @functools.wraps(func)
     def wrapper(self):
         self.cwd = get_available_folder_name(f"./{self.__class__.__name__}_test_folder")
-        logger.debug(f"Creating test directory: {self.cwd}")
+        logger.debug("Creating test directory: %s", self.cwd)
         create_directory(self.cwd)
         self.prev_cwd = get_current_working_directory()
         set_current_working_directory(os.path.join(self.prev_cwd, self.cwd))
-        logger.debug(f"Changed working directory to: {self.cwd}")
+        logger.debug("Changed working directory to: %s", self.cwd)
         if func is not None:
             func(self)
 
     @functools.wraps(func)
     async def async_wrapper(self):
         self.cwd = get_available_folder_name(f"./{self.__class__.__name__}_test_folder")
-        logger.debug(f"Creating async test directory: {self.cwd}")
+        logger.debug("Creating async test directory: %s", self.cwd)
         create_directory(self.cwd)
         self.prev_cwd = get_current_working_directory()
         set_current_working_directory(os.path.join(self.prev_cwd, self.cwd))
-        logger.debug(f"Changed working directory to: {self.cwd}")
+        logger.debug("Changed working directory to: %s", self.cwd)
         if func is not None:
             await func(self)
 
@@ -61,18 +61,18 @@ def improved_teardown(func: Callable) -> Callable:
     def wrapper(self):
         if func is not None:
             func(self)
-        logger.debug(f"Restoring working directory to: {self.prev_cwd}")
+        logger.debug("Restoring working directory to: %s", self.prev_cwd)
         set_current_working_directory(self.prev_cwd)
-        logger.debug(f"Cleaning up test directory: {self.cwd}")
+        logger.debug("Cleaning up test directory: %s", self.cwd)
         delete_directory(self.cwd)
 
     @functools.wraps(func)
     async def async_wrapper(self):
         if func is not None:
             await func(self)
-        logger.debug(f"Restoring working directory to: {self.prev_cwd}")
+        logger.debug("Restoring working directory to: %s", self.prev_cwd)
         set_current_working_directory(self.prev_cwd)
-        logger.debug(f"Cleaning up async test directory: {self.cwd}")
+        logger.debug("Cleaning up async test directory: %s", self.cwd)
         delete_directory(self.cwd)
 
     return async_wrapper if iscoroutinefunction(func) else wrapper
@@ -85,7 +85,7 @@ class AutoCWDTestCase(unittest.TestCase):
 
     @classmethod
     def __init_subclass__(cls: Type, **kwargs) -> None:
-        logger.debug(f"Initializing AutoCWDTestCase subclass: {cls.__name__}")
+        logger.debug("Initializing AutoCWDTestCase subclass: %s", cls.__name__)
         dct = dict(cls.__dict__)
         impl_setUp = dct.get("setUp", cls._dummy)
         impl_tearDown = dct.get("tearDown", cls._dummy)
@@ -100,7 +100,7 @@ class AsyncAutoCWDTestCase(unittest.IsolatedAsyncioTestCase):
 
     @classmethod
     def __init_subclass__(cls: Type, **kwargs) -> None:
-        logger.debug(f"Initializing AsyncAutoCWDTestCase subclass: {cls.__name__}")
+        logger.debug("Initializing AsyncAutoCWDTestCase subclass: %s", cls.__name__)
         dct = dict(cls.__dict__)
         async_impl_setUp = dct.get("asyncSetUp", cls._async_dummy)
         async_impl_tearDown = dct.get("asyncTearDown", cls._async_dummy)

@@ -52,7 +52,7 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
         # Get existing schema
         existing_schemas = await db.get_schemas()
         if table_name not in existing_schemas:
-            logger.warning(f"Table '{table_name}' does not exist")
+            logger.warning("Table '%s' does not exist", table_name)
             return False
 
         existing_schema = existing_schemas[table_name]
@@ -60,9 +60,12 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
         # Compare columns
         if len(existing_schema.columns) != len(expected_schema.columns):
             logger.warning(
-                f"Column count mismatch in '{table_name}': "
-                f"expected {len(expected_schema.columns)}, "
-                f"got {len(existing_schema.columns)}"
+                "Column count mismatch in '%s': "
+                "expected %d, "
+                "got %d",
+                table_name,
+                len(expected_schema.columns),
+                len(existing_schema.columns)
             )
             return False
 
@@ -77,15 +80,18 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
                     expected_col.unique != existing_col.unique or
                     expected_col.foreign_key != existing_col.foreign_key
             ):
-                logger.warning(f"Column mismatch in '{table_name}': expected {expected_col}, got {existing_col}")
+                logger.warning("Column mismatch in '%s': expected %s, got %s", table_name, expected_col, existing_col)
                 return False
 
         # Compare indexes
         if len(existing_schema.indexes) != len(expected_schema.indexes):
             logger.warning(
-                f"Index count mismatch in '{table_name}': "
-                f"expected {len(expected_schema.indexes)}, "
-                f"got {len(existing_schema.indexes)}"
+                "Index count mismatch in '%s': "
+                "expected %d, "
+                "got %d",
+                table_name,
+                len(expected_schema.indexes),
+                len(existing_schema.indexes)
             )
             return False
 
@@ -97,13 +103,13 @@ async def validate_schema(db: Database, table_name: str, expected_schema: TableS
                     expected_idx.columns != existing_idx.columns or
                     expected_idx.unique != existing_idx.unique
             ):
-                logger.warning(f"Index mismatch in '{table_name}': expected {expected_idx}, got {existing_idx}")
+                logger.warning("Index mismatch in '%s': expected %s, got %s", table_name, expected_idx, existing_idx)
                 return False
 
         return True
 
     except Exception as e:
-        logger.error(f"Error validating schema for '{table_name}': {str(e)}")
+        logger.error("Error validating schema for '%s': %s", table_name, str(e))
         return False
 
 
@@ -233,10 +239,10 @@ class DatabaseInitializer(ABC):
             # Create or validate each table
             for table_name, expected_schema in table_schemas.items():
                 if table_name not in existing_schemas:
-                    logger.info(f"Creating table '{table_name}'")
+                    logger.info("Creating table '%s'", table_name)
                     await db.create_table(expected_schema)
                 else:
-                    logger.info(f"Validating table '{table_name}'")
+                    logger.info("Validating table '%s'", table_name)
                     if not await validate_schema(db, table_name, expected_schema):
                         raise ValueError(
                             f"Schema validation failed for table '{table_name}'. "
@@ -246,7 +252,7 @@ class DatabaseInitializer(ABC):
             logger.info("Database initialization completed successfully")
 
         except Exception as e:
-            logger.error(f"Error initializing database: {str(e)}")
+            logger.error("Error initializing database: %s", str(e))
             raise
 
 

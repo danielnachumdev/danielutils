@@ -12,7 +12,7 @@ class Heap(Generic[T]):
     """
 
     def __init__(self, comparer: Comparer) -> None:
-        logger.debug(f"Initializing Heap with comparer: {type(comparer).__name__}")
+        logger.debug("Initializing Heap with comparer: %s", type(comparer).__name__)
         self.arr: list = []
         self.comparer = comparer
 
@@ -22,17 +22,17 @@ class Heap(Generic[T]):
         Args:
             val (Any): the object to add to the heap
         """
-        logger.debug(f"Pushing value to heap: {val}")
+        logger.debug("Pushing value to heap: %s", val)
         res: Union[int, float] = -1
         curr_index = len(self)
         self.arr.append(val)
-        logger.debug(f"Added value at index {curr_index}, heap size: {len(self.arr)}")
+        logger.debug("Added value at index %s, heap size: %s", curr_index, len(self.arr))
         parent_index = curr_index // 2 - (1 - curr_index % 2)
         while res < 0 and parent_index >= 0:
             res = self.comparer.compare(
                 self[parent_index], self[curr_index])
             if res < 0:
-                logger.debug(f"Swapping values at indices {parent_index} and {curr_index}")
+                logger.debug("Swapping values at indices %s and %s", parent_index, curr_index)
                 self.arr[parent_index], self.arr[curr_index] = self[curr_index], self[parent_index]
                 curr_index = parent_index
                 parent_index = curr_index // 2 - (1 - curr_index % 2)
@@ -61,11 +61,11 @@ class Heap(Generic[T]):
             logger.warning("Attempted to pop from empty heap")
             raise IndexError("pop from empty heap")
         
-        logger.debug(f"Popping from heap, current size: {len(self)}")
+        logger.debug("Popping from heap, current size: %s", len(self))
         res = self[0]
         self.arr[0], self.arr[-1] = self[-1], self[0]
         self.arr.pop()
-        logger.debug(f"Swapped root with last element, new size: {len(self)}")
+        logger.debug("Swapped root with last element, new size: %s", len(self))
         flag = True
         curr_index = 0
         while flag:
@@ -73,11 +73,11 @@ class Heap(Generic[T]):
             child2_index = curr_index * 2 + 2
             if len(self) > child2_index:
                 if self.comparer.compare(self[child1_index], self[child2_index]) < 0:
-                    logger.debug(f"Swapping with right child at index {child2_index}")
+                    logger.debug("Swapping with right child at index %s", child2_index)
                     self.arr[curr_index], self.arr[child2_index] = self[child2_index], self[curr_index]
                     curr_index = child2_index
                 elif self.comparer.compare(self[child1_index], self[child2_index]) > 0:
-                    logger.debug(f"Swapping with left child at index {child1_index}")
+                    logger.debug("Swapping with left child at index %s", child1_index)
                     self.arr[curr_index], self.arr[child1_index] = self[child1_index], self[curr_index]
                     curr_index = child1_index
                 else:
@@ -86,7 +86,7 @@ class Heap(Generic[T]):
             else:
                 if len(self) > child1_index:
                     if self.comparer.compare(self[child1_index], self[curr_index]) > 0:
-                        logger.debug(f"Swapping with only child at index {child1_index}")
+                        logger.debug("Swapping with only child at index %s", child1_index)
                         self.arr[curr_index], self.arr[child1_index] = self[child1_index], self[curr_index]
                         curr_index = child1_index
                     else:
@@ -95,7 +95,7 @@ class Heap(Generic[T]):
                 else:
                     logger.debug("No children, heap property satisfied")
                     flag = False
-        logger.debug(f"Heap pop completed, returning: {res}")
+        logger.debug("Heap pop completed, returning: %s", res)
         return res
 
     def __str__(self):
@@ -110,7 +110,7 @@ class Heap(Generic[T]):
         if self.is_empty():
             logger.warning("Attempted to peek at empty heap")
             raise IndexError("peek at empty heap")
-        logger.debug(f"Peeking at heap top: {self[0]}")
+        logger.debug("Peeking at heap top: %s", self[0])
         return self[0]
 
 

@@ -30,13 +30,13 @@ class ClassInfo:
     # r"(?P<decorations>[\s\S]*)?^class (?P<name>\w[\w\d]*)(?:\((?P<bases>.*)\))?:(?P<body>[\s\S]+)"
 
     def __init__(self, cls: Type) -> None:
-        logger.debug(f"Creating ClassInfo for: {cls}")
+        logger.debug("Creating ClassInfo for: %s", cls)
         if isoftype(cls, _GenericAlias):  # type:ignore
             logger.debug("Converting generic alias to origin type")
             cls = get_origin(cls)  # type:ignore
         if not inspect.isclass(cls):
             error_msg = f"'{cls.__name__}' is not a class"
-            logger.error(f"ClassInfo creation failed: {error_msg}")
+            logger.error("ClassInfo creation failed: %s", error_msg)
             raise TypeError(error_msg)
         self._cls = cls
         self._src_code: str = ""
@@ -44,9 +44,9 @@ class ClassInfo:
         self._bases: List[ArgumentInfo] = []
         self._functions: List[FunctionInfo] = []
         self._decorations: List[DecoratorInfo] = []
-        logger.debug(f"Parsing source code for class: {cls.__name__}")
+        logger.debug("Parsing source code for class: %s", cls.__name__)
         self._parse_src_code()
-        logger.info(f"ClassInfo created successfully for: {cls.__name__}")
+        logger.info("ClassInfo created successfully for: %s", cls.__name__)
 
     def _parse_src_code(self) -> None:
         logger.debug("Parsing source code")
@@ -56,18 +56,18 @@ class ClassInfo:
             logger.error("Failed to match class definition regex")
             raise SyntaxError()
         decorators, name, bases, _ = m.groupdict().values()
-        logger.debug(f"Parsed class name: {name}, bases: {bases}")
+        logger.debug("Parsed class name: %s, bases: %s", name, bases)
         self._name = name
         self._bases = ArgumentInfo.from_str(bases)
-        logger.debug(f"Parsed {len(self._bases)} base classes")
+        logger.debug("Parsed %s base classes", len(self._bases))
         self._parse_body()
 
         if decorators is not None:
-            logger.debug(f"Parsing {len(decorators.strip().splitlines())} decorators")
+            logger.debug("Parsing %s decorators", len(decorators.strip().splitlines()))
             for substr in decorators.strip().splitlines():
                 self._decorations.append(
                     DecoratorInfo.from_str(substr.strip()))
-        logger.debug(f"Parsed {len(self._decorations)} decorators")
+        logger.debug("Parsed %s decorators", len(self._decorations))
 
     def _parse_body(self) -> None:
         for attr in dir(self._cls):

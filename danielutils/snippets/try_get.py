@@ -16,10 +16,10 @@ def try_get(supplier: Callable[[], Any]) -> Optional[Any]:
     """
     try:
         result = supplier()
-        logger.debug(f"try_get succeeded for supplier: {supplier.__name__}")
+        logger.debug("try_get succeeded for supplier: %s", supplier.__name__)
         return result
     except Exception as e:
-        logger.debug(f"try_get failed for supplier: {supplier.__name__} with {type(e).__name__}: {e}")
+        logger.debug("try_get failed for supplier: %s with %s: %s", supplier.__name__, type(e).__name__, e)
         return None
 
 

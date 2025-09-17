@@ -22,16 +22,16 @@ def threadify(func: FuncT) -> FuncT:
     Returns:
         Callable: the modified function
     """
-    logger.debug(f"Creating threadify decorator for function {func.__name__}")
+    logger.debug("Creating threadify decorator for function %s", func.__name__)
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        logger.debug(f"Starting thread for function {func.__name__}")
+        logger.debug("Starting thread for function %s", func.__name__)
         thread = threading.Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
-        logger.debug(f"Thread started for {func.__name__}, thread_id={thread.ident}")
+        logger.debug("Thread started for %s, thread_id=%s", func.__name__, thread.ident)
 
-    logger.debug(f"Threadify decorator applied to {func.__name__}")
+    logger.debug("Threadify decorator applied to %s", func.__name__)
     return wrapper
 
 

@@ -26,7 +26,7 @@ def generate_except(generator: Generator[Any, None, None],
             items_yielded += 1
             yield value
     
-    logger.info(f"generate_except completed: processed {items_processed} items, yielded {items_yielded} items")
+    logger.info("generate_except completed: processed %s items, yielded %s items", items_processed, items_yielded)
 
 
 def generate_when(generator: Generator[Any, None, None],
@@ -50,7 +50,7 @@ def generate_when(generator: Generator[Any, None, None],
             items_yielded += 1
             yield value
     
-    logger.info(f"generate_when completed: processed {items_processed} items, yielded {items_yielded} items")
+    logger.info("generate_when completed: processed %s items, yielded %s items", items_processed, items_yielded)
 
 
 __all__ = [

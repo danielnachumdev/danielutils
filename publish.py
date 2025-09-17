@@ -9,11 +9,12 @@ from tqdm import tqdm
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.0.53",
+        version="1.1",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
         min_python=Version(3, 8, 0),
+        dependencies=[],
         homepage="https://github.com/danielnachumdev/danielutils",
         enforcers=[
             PypircEnforcer(), ReadmeEnforcer(), LicenseEnforcer(),

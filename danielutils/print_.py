@@ -27,7 +27,7 @@ def mprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
     """
     if not areoneof(args, [str]):
         raise TypeError("s must be a string")
-    logger.debug(f"Printing {len(args)} mathematical expressions to {stream}")
+    logger.debug("Printing %d mathematical expressions to %s", len(args), stream)
     stream.write(sep.join([mprint_parse_one(s) for s in args]) + end)
 
 

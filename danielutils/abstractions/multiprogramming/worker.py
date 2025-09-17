@@ -18,11 +18,11 @@ class Worker(ABC):
 
     def __init__(self, id: int,
                  pool: "danielutils.abstractions.multiprogramming.worker_pool.WorkerPool") -> None:  # pylint: disable=redefined-builtin #noqa
-        logger.debug(f"Initializing Worker with id={id}")
+        logger.debug("Initializing Worker with id=%s", id)
         self.id = id
         self.pool = pool
         self.thread: Thread = Thread(target=self._loop)
-        logger.debug(f"Worker {id} initialized successfully")
+        logger.debug("Worker %s initialized successfully", id)
 
     @abstractmethod
     def _work(self, obj: Any) -> None:
@@ -32,45 +32,45 @@ class Worker(ABC):
     def _loop(self) -> None:
         """main loop of the worker
         """
-        logger.debug(f"Worker {self.id} main loop started")
+        logger.debug("Worker %s main loop started", self.id)
         while True:
             try:
                 obj = self.acquire()
                 if obj is not None:
-                    logger.debug(f"Worker {self.id} acquired job: {type(obj[0]).__name__}")
+                    logger.debug("Worker %s acquired job: %s", self.id, type(obj[0]).__name__)
                     self.work(obj[0])
                 else:
-                    logger.debug(f"Worker {self.id} received None job, exiting loop")
+                    logger.debug("Worker %s received None job, exiting loop", self.id)
                     break
             except Exception as e:  # pylint: disable=broad-exception-caught
-                logger.error(f"Worker {self.id} thread encountered an error: {type(e).__name__}: {e}")
+                logger.error("Worker %s thread encountered an error: %s: %s", self.id, type(e).__name__, e)
                 break
-        logger.debug(f"Worker {self.id} main loop ended")
+        logger.debug("Worker %s main loop ended", self.id)
 
     def run(self) -> None:
         """will start self._run() as a new thread with the argument given in __init__
         """
-        logger.debug(f"Starting worker {self.id} thread")
+        logger.debug("Starting worker %s thread", self.id)
         self.thread.start()
-        logger.debug(f"Worker {self.id} thread started successfully")
+        logger.debug("Worker %s thread started successfully", self.id)
 
     def is_alive(self) -> bool:
         """returns whether the worker is alive or not
         """
         is_alive = self.thread.is_alive()
-        logger.debug(f"Worker {self.id} is_alive: {is_alive}")
+        logger.debug("Worker %s is_alive: %s", self.id, is_alive)
         return is_alive
 
     def work(self, obj: Any) -> None:
         """performed the actual work that needs to happen
         execution of a single job
         """
-        logger.debug(f"Worker {self.id} starting work on job: {type(obj).__name__}")
+        logger.debug("Worker %s starting work on job: %s", self.id, type(obj).__name__)
         try:
             self._work(obj)
-            logger.debug(f"Worker {self.id} completed work on job: {type(obj).__name__}")
+            logger.debug("Worker %s completed work on job: %s", self.id, type(obj).__name__)
         except Exception as e:
-            logger.error(f"Worker {self.id} failed to process job {type(obj).__name__}: {type(e).__name__}: {e}")
+            logger.error("Worker %s failed to process job %s: %s: %s", self.id, type(obj).__name__, type(e).__name__, e)
             raise
         finally:
             self._notify()
@@ -80,7 +80,7 @@ class Worker(ABC):
         to signal actions if needed
         will call 'notification_function'
         """
-        logger.debug(f"Worker {self.id} notifying pool of job completion")
+        logger.debug("Worker %s notifying pool of job completion", self.id)
         # TODO
         self.pool._notify_subscribers()  # type:ignore  # pylint: disable=protected-access
 
@@ -90,12 +90,12 @@ class Worker(ABC):
         Returns:
             Optional[tuple[Any]]: tuple of job object or None
         """
-        logger.debug(f"Worker {self.id} attempting to acquire job from pool")
+        logger.debug("Worker %s attempting to acquire job from pool", self.id)
         job = self.pool._acquire()  # pylint: disable=protected-access
         if job is not None:
-            logger.debug(f"Worker {self.id} acquired job: {type(job[0]).__name__}")
+            logger.debug("Worker %s acquired job: %s", self.id, type(job[0]).__name__)
         else:
-            logger.debug(f"Worker {self.id} no jobs available in pool")
+            logger.debug("Worker %s no jobs available in pool", self.id)
         return job
 
 

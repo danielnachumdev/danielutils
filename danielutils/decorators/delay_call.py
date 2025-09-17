@@ -22,21 +22,21 @@ def delay_call(seconds: Union[float, int], blocking: bool = True) -> Callable[[F
         blocking (bool, optional): whether to block the main thread
         when waiting or to wait in a different thread. Defaults to True.
     """
-    logger.debug(f"Creating delay_call decorator with {seconds}s delay, blocking={blocking}")
+    logger.debug("Creating delay_call decorator with %ss delay, blocking=%s", seconds, blocking)
 
     def deco(func: FuncT) -> FuncT:
-        logger.debug(f"Applying delay_call decorator to function {func.__name__}")
+        logger.debug("Applying delay_call decorator to function %s", func.__name__)
         @decorate_conditionally(threadify, not blocking)
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            logger.debug(f"Delaying call to {func.__name__} by {seconds} seconds")
+            logger.debug("Delaying call to %s by %s seconds", func.__name__, seconds)
             time.sleep(seconds)
-            logger.debug(f"Delay completed, calling {func.__name__}")
+            logger.debug("Delay completed, calling %s", func.__name__)
             result = func(*args, **kwargs)
-            logger.debug(f"Delayed function {func.__name__} completed")
+            logger.debug("Delayed function %s completed", func.__name__)
             return result
 
-        logger.debug(f"Delay_call decorator applied to {func.__name__}")
+        logger.debug("Delay_call decorator applied to %s", func.__name__)
         return wrapper
 
     return deco

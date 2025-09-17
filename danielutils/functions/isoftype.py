@@ -438,7 +438,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
             result = HANDLERS[t_origin](params)  # type:ignore
             return result
         # These imports must explicitly be specifically here and not at the top
-        logger.warning(f"Unhandled t_origin: {t_origin}, returning True")
+        logger.warning("Unhandled t_origin: %s, returning True", t_origin)
         from danielutils import warning, get_traceback
         warning(
             f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")

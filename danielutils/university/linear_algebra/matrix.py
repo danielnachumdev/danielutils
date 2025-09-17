@@ -171,7 +171,7 @@ class Matrix:
 
     def __matmul__(self, other: 'Matrix') -> 'Matrix':
         if not (self.width == other.height):
-            logger.error(f"Matrix multiplication dimension mismatch: {self.width} != {other.height}")
+            logger.error("Matrix multiplication dimension mismatch: %s != %s", self.width, other.height)
             raise ValueError(
                 f"Can't perform Matrix multiplication on A={repr(self)} and B={repr(other)} as A.width != B.height")
         res = Matrix(self.height, other.width, 0)

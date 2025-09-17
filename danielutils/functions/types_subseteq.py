@@ -12,7 +12,7 @@ if get_python_version() >= (3, 9):
 def to_set(x: Union[type, Iterable[type]]) -> Set[int]:
     """converts type/types to a set representing them
     """
-    logger.debug(f"Converting type to set: {x}")
+    logger.debug("Converting type to set: %s", x)
     res: Set[int] = set()
     if hasattr(x, "__origin__") and x.__origin__ is Union:
         logger.debug("Processing Union type")
@@ -24,9 +24,9 @@ def to_set(x: Union[type, Iterable[type]]) -> Set[int]:
             res.update(to_set(v))
         return res
     else:
-        logger.debug(f"Adding single type ID: {id(x)}")
+        logger.debug("Adding single type ID: %s", id(x))
         res.update(set([id(x)]))
-    logger.debug(f"Result set: {res}")
+    logger.debug("Result set: %s", res)
     return res
 
 
@@ -40,9 +40,9 @@ def types_subseteq(a: Union[type, Iterable[type]], b: Union[type, Iterable[type]
     Returns:
         bool: result of containment
     """
-    logger.debug(f"Checking type subset: {a} ⊆ {b}")
+    logger.debug("Checking type subset: %s ⊆ %s", a, b)
     result = to_set(a).issubset(to_set(b))
-    logger.debug(f"Type subset result: {result}")
+    logger.debug("Type subset result: %s", result)
     return result
 
 

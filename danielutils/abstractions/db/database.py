@@ -24,16 +24,16 @@ class Database(ABC):
         @functools.wraps(db_method)
         async def wrapper(self: 'Database', *args: Any, **kwargs: Any) -> Any:
             method_name = db_method.__name__
-            logger.debug(f"Executing database method: {method_name}")
+            logger.debug("Executing database method: %s", method_name)
             try:
                 result = await db_method(self, *args, **kwargs)
-                logger.debug(f"Database method '{method_name}' completed successfully")
+                logger.debug("Database method '%s' completed successfully", method_name)
                 return result
             except DBException as e:
-                logger.error(f"Database method '{method_name}' failed with DBException: {e}")
+                logger.error("Database method '%s' failed with DBException: %s", method_name, e)
                 raise
             except Exception as e:
-                logger.error(f"Database method '{method_name}' failed with {type(e).__name__}: {e}")
+                logger.error("Database method '%s' failed with %s: %s", method_name, type(e).__name__, e)
                 raise cls._default_class_exception_conversion(e)
 
         return cast(F, wrapper)
@@ -54,7 +54,7 @@ class Database(ABC):
     @classmethod
     def __init_subclass__(cls) -> None:
         """Initialize subclass by wrapping all public methods with exception handling"""
-        logger.debug(f"Initializing Database subclass: {cls.__name__}")
+        logger.debug("Initializing Database subclass: %s", cls.__name__)
         wrapped_methods = []
         for name, method in cls.__dict__.items():
             if (
@@ -65,7 +65,7 @@ class Database(ABC):
             ):
                 setattr(cls, name, cls._wrap_db_exceptions(method))
                 wrapped_methods.append(name)
-        logger.debug(f"Database subclass '{cls.__name__}' initialized with {len(wrapped_methods)} wrapped methods: {wrapped_methods}")
+        logger.debug("Database subclass '%s' initialized with %s wrapped methods: %s", cls.__name__, len(wrapped_methods), wrapped_methods)
 
     @classmethod
     def _default_class_exception_conversion(cls, e: Exception) -> Exception:
@@ -79,7 +79,7 @@ class Database(ABC):
         Returns:
             Exception: The converted exception
         """
-        logger.warning(f"Converting exception {type(e).__name__} to DBException: {e}")
+        logger.warning("Converting exception %s to DBException: %s", type(e).__name__, e)
         return DBException(f"Database error: {str(e)}")
 
     async def __aenter__(self) -> 'Database':
@@ -89,9 +89,9 @@ class Database(ABC):
         Returns:
             Database: The database instance for use in the context
         """
-        logger.debug(f"Entering database context for {self.__class__.__name__}")
+        logger.debug("Entering database context for %s", self.__class__.__name__)
         await self.connect()
-        logger.debug(f"Database context entered successfully for {self.__class__.__name__}")
+        logger.debug("Database context entered successfully for %s", self.__class__.__name__)
         return self
 
     async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[Exception], exc_tb: Optional[Any]) -> None:
@@ -103,11 +103,11 @@ class Database(ABC):
             exc_val: The exception instance that was raised, if any
             exc_tb: The traceback for the exception, if any
         """
-        logger.debug(f"Exiting database context for {self.__class__.__name__}")
+        logger.debug("Exiting database context for %s", self.__class__.__name__)
         if exc_type is not None:
-            logger.warning(f"Database context exited with exception: {exc_type.__name__}: {exc_val}")
+            logger.warning("Database context exited with exception: %s: %s", exc_type.__name__, exc_val)
         await self.disconnect()
-        logger.debug(f"Database context exited successfully for {self.__class__.__name__}")
+        logger.debug("Database context exited successfully for %s", self.__class__.__name__)
 
     @abstractmethod
     async def connect(self) -> None:

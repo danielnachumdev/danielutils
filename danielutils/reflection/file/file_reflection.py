@@ -23,7 +23,7 @@ def get_caller_file_name() -> Optional[str]:
         return None
     frame = cast(FrameType, frame)
     filename = frame.f_code.co_filename
-    logger.debug(f"Caller file name: {filename}")
+    logger.debug("Caller file name: %s", filename)
     return filename
 
 
@@ -43,7 +43,7 @@ def get_current_file_name() -> Optional[str]:
         logger.debug("No file path available")
         return None
     filename = filepath.split('\\')[-1]
-    logger.debug(f"Current file name: {filename}")
+    logger.debug("Current file name: %s", filename)
     return filename
 
 
@@ -53,7 +53,7 @@ def get_current_folder_path() -> Optional[str]:
         logger.debug("No file path available")
         return None
     folder_path = "\\".join(filepath.split("\\")[:-1])
-    logger.debug(f"Current folder path: {folder_path}")
+    logger.debug("Current folder path: %s", folder_path)
     return folder_path
 
 
@@ -63,7 +63,7 @@ def get_current_folder_name() -> Optional[str]:
         logger.debug("No file path available")
         return None
     folder_name = filepath.split("\\")[-2]
-    logger.debug(f"Current folder name: {folder_name}")
+    logger.debug("Current folder name: %s", folder_name)
     return folder_name
 
 
@@ -71,7 +71,7 @@ def get_current_directory() -> str:
     """returns the name of the directory of main script"""
     logger.debug("Getting current directory")
     directory = os.path.dirname(os.path.abspath(get_caller_file_name()))  # type:ignore # noqa
-    logger.debug(f"Current directory: {directory}")
+    logger.debug("Current directory: %s", directory)
     return directory
 
 

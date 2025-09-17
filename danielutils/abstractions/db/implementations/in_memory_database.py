@@ -75,7 +75,7 @@ class InMemoryDatabase(Database):
             if column.type == ColumnType.AUTOINCREMENT:
                 self.auto_increment_counters[schema.name][column.name] = 0
 
-        self.logger.info(f"Created table '{schema.name}'")
+        self.logger.info("Created table '%s'", schema.name)
 
     def _get_next_auto_increment_id(self, table: str, column: str) -> int:
         """Get the next available ID for an auto-increment column"""
@@ -161,7 +161,7 @@ class InMemoryDatabase(Database):
         # Add row
         self.tables[table][row_data['id']] = row_data
         self.logger.info(
-            f"Inserted row into '{table}' with ID '{row_data['id']}'")
+            "Inserted row into '%s' with ID '%s'", table, row_data['id'])
         return row_data['id']
 
     async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
@@ -232,7 +232,7 @@ class InMemoryDatabase(Database):
                 row.update(query.data)
                 updated_count += 1
 
-        self.logger.info(f"Updated '{updated_count}' rows in '{query.table}'")
+        self.logger.info("Updated '%s' rows in '%s'", updated_count, query.table)
         return updated_count
 
     async def delete(self, query: DeleteQuery) -> int:
@@ -254,7 +254,7 @@ class InMemoryDatabase(Database):
             del self.tables[query.table][row_id]
 
         self.logger.info(
-            f"Deleted {len(rows_to_delete)} rows from '{query.table}'")
+            "Deleted %d rows from '%s'", len(rows_to_delete), query.table)
         return len(rows_to_delete)
 
     def _validate_column_type(self, column: TableColumn, value: Any) -> bool:

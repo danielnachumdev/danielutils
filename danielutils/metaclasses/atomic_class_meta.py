@@ -9,7 +9,7 @@ class AtomicClassMeta(type):
     """will make all of the class's function atomic
     """
     def __new__(mcs, name, bases, namespace):
-        logger.info(f"Creating atomic class: {name}")
+        logger.info("Creating atomic class: %s", name)
         
         # Process class methods
         class_methods_processed = 0
@@ -27,7 +27,7 @@ class AtomicClassMeta(type):
                         namespace[k] = atomic(v)  # type:ignore
                         inherited_methods_processed += 1
         
-        logger.info(f"AtomicClassMeta: {name} created with {class_methods_processed} class methods and {inherited_methods_processed} inherited methods made atomic")
+        logger.info("AtomicClassMeta: %s created with %s class methods and %s inherited methods made atomic", name, class_methods_processed, inherited_methods_processed)
         return super().__new__(mcs, name, bases, namespace)
 
 

@@ -22,7 +22,7 @@ class Stack(Generic[T]):
         Args:
             value (Any): item to push
         """
-        logger.debug(f"Pushing value to stack: {value}")
+        logger.debug("Pushing value to stack: %s", value)
         if self.head is None:
             self.head = Node(value)
             logger.debug("Created first node in stack")
@@ -31,7 +31,7 @@ class Stack(Generic[T]):
             self.head = new_head
             logger.debug("Added new head node to stack")
         self.size += 1
-        logger.debug(f"Stack size is now: {self.size}")
+        logger.debug("Stack size is now: %s", self.size)
 
     def pop(self) -> T:
         """pop an item from the stack
@@ -43,7 +43,7 @@ class Stack(Generic[T]):
             res = self.head.data  # type:ignore
             self.size -= 1
             self.head = self.head.next  # type:ignore
-            logger.debug(f"Popped value from stack: {res}, remaining size: {self.size}")
+            logger.debug("Popped value from stack: %s, remaining size: %s", res, self.size)
             return res
         logger.warning("Attempted to pop from empty stack")
         raise RuntimeError("Can't pop from an empty stack")
@@ -58,7 +58,7 @@ class Stack(Generic[T]):
             logger.debug("Peek called on empty stack")
             return None
         result = self.head.data  # type:ignore
-        logger.debug(f"Peeked at stack top: {result}")
+        logger.debug("Peeked at stack top: %s", result)
         return result
 
     def __len__(self) -> int:

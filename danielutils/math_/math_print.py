@@ -14,7 +14,7 @@ def mprint_parse_one(s: str) -> str:
     Returns:
         str: the result
     """
-    logger.info(f"Parsing mathematical string: {s}")
+    logger.info("Parsing mathematical string: %s", s)
 
     def inner(res: str, index: int, dct: dict):
         start = index
@@ -43,7 +43,7 @@ def mprint_parse_one(s: str) -> str:
             res += c
         i += 1
     
-    logger.info(f"Parsing completed, result: {res}")
+    logger.info("Parsing completed, result: %s", res)
     return res
 
 

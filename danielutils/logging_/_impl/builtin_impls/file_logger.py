@@ -10,14 +10,14 @@ logger = get_logger(__name__)
 
 class FIleLogger(LoggerStrategyImplBase):
     def __init__(self, output_path: str, logger_id: str, delete_if_already_exists: bool = True, channel: str = "all"):
-        logger.info(f"Initializing FileLogger: path={output_path}, id={logger_id}, delete_existing={delete_if_already_exists}, channel={channel}")
+        logger.info("Initializing FileLogger: path=%s, id=%s, delete_existing=%s, channel=%s", output_path, logger_id, delete_if_already_exists, channel)
         
         if delete_if_already_exists:
             delete_file(output_path)
         
         parent = str(Path(output_path).parent.absolute().resolve())
         if not directory_exists(parent):
-            logger.info(f"Creating parent directory: {parent}")
+            logger.info("Creating parent directory: %s", parent)
             create_directory(parent)
         
         self.output_path: str = str(Path(output_path).absolute().resolve())
@@ -27,7 +27,7 @@ class FIleLogger(LoggerStrategyImplBase):
                 f.write(s)
 
         super().__init__(foo, logger_id, channel)
-        logger.info(f"FileLogger {logger_id} initialized successfully")
+        logger.info("FileLogger %s initialized successfully", logger_id)
 
 
 __all__ = [

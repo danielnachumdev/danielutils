@@ -10,15 +10,15 @@ class MockImportObject:
     """
 
     def __init__(self, msg: str):
-        logger.info(f"Initializing MockImportObject with message: {msg}")
+        logger.info("Initializing MockImportObject with message: %s", msg)
         self._msg = msg
 
     def __getattr__(self, item):
-        logger.warning(f"MockImportObject attribute access blocked: {item} - {self._msg}")
+        logger.warning("MockImportObject attribute access blocked: %s - %s", item, self._msg)
         raise ImportError(self._msg)
 
     def __call__(self, *args, **kwargs):
-        logger.warning(f"MockImportObject call blocked with {len(args)} args and {len(kwargs)} kwargs - {self._msg}")
+        logger.warning("MockImportObject call blocked with %s args and %s kwargs - %s", len(args), len(kwargs), self._msg)
         raise ImportError(self._msg)
 
 

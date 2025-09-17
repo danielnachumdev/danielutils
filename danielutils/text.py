@@ -86,10 +86,10 @@ def is_float(s: str) -> bool:
     """
     try:
         float(s)
-        logger.debug(f"String '{s}' is a valid float")
+        logger.debug("String '%s' is a valid float", s)
         return True
     except ValueError:
-        logger.debug(f"String '{s}' is not a valid float")
+        logger.debug("String '%s' is not a valid float", s)
         return False
 
 
@@ -144,10 +144,10 @@ def is_hex(s: str) -> bool:
     """
     try:
         int(s, 16)
-        logger.debug(f"String '{s}' is a valid hexadecimal")
+        logger.debug("String '%s' is a valid hexadecimal", s)
         return True
     except ValueError:
-        logger.debug(f"String '{s}' is not a valid hexadecimal")
+        logger.debug("String '%s' is not a valid hexadecimal", s)
         return False
 
 
