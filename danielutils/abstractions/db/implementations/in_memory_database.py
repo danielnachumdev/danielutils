@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, Any, List, Type, Union, Sequence
 from datetime import datetime
-from ...logging_.utils import get_logger
+from ....logging_.utils import get_logger
 
 try:
     from starlette import status
@@ -14,7 +14,6 @@ from ..database import Database, TableSchema
 from ..database_definitions import Operator, WhereClause, Condition, SelectQuery, UpdateQuery, DeleteQuery, ColumnType, \
     TableColumn
 from ..database_exceptions import DBValidationError, DBQueryError, DBConnectionError, DBException
-from danielutils.logging_.utils import get_logger
 
 class InMemoryDatabase(Database):
     """In-memory database implementation using dictionaries"""

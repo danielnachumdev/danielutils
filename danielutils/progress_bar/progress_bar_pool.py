@@ -2,7 +2,7 @@ import logging
 from typing import Type, List, Optional, Iterator
 from .progress_bar import ProgressBar
 from ..print_ import bprint
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

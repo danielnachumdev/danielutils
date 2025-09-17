@@ -1,7 +1,7 @@
 import logging
 from typing import Generic, TypeVar, Iterator, List as List
 from ...reflection import get_python_version
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 if get_python_version() >= (3, 9):
     from builtins import list as List

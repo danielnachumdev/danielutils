@@ -1,8 +1,7 @@
 import logging
 from typing import Optional, Generator, TypeVar, Generic
 from .graph import Node
-from danielutils.logging_.utils import get_logger
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 logger = get_logger(__name__)
 
 T = TypeVar('T')

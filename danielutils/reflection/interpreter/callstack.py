@@ -2,7 +2,7 @@ import logging
 import inspect
 from typing import Optional
 from types import FrameType
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

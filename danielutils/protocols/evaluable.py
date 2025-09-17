@@ -1,7 +1,7 @@
 import logging
 from abc import abstractmethod
 from typing import Protocol, TypeVar, runtime_checkable
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

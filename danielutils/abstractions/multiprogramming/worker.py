@@ -4,7 +4,7 @@ from typing import Optional, Any, Tuple as Tuple
 import logging
 import danielutils  # this is explicitly this way to prevent circular import
 from ...reflection import get_python_version
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 if get_python_version() >= (3, 9):
     from builtins import tuple as Tuple  # type:ignore

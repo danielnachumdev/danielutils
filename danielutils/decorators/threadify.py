@@ -3,7 +3,7 @@ from typing import Callable, TypeVar
 import functools
 import threading
 from ..versioned_imports import ParamSpec
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

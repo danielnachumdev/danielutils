@@ -3,7 +3,7 @@ import logging
 import random
 from typing import ContextManager, Set, List, Literal, Optional
 from ..io_ import file_exists, delete_file
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

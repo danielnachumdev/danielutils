@@ -2,7 +2,7 @@ import logging
 from typing import Sequence, Any, Union
 from .isoneof import isoneof
 from ..reflection import get_python_version
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 if get_python_version() < (3, 9):

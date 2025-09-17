@@ -1,6 +1,6 @@
 import logging
 from .math_symbols import subscript_dict, superscript_dict
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

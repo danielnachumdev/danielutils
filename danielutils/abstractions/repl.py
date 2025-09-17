@@ -2,11 +2,10 @@ import copy, re
 import logging
 from typing import Any, Callable, Union, Tuple as Tuple, List as List, Dict as Dict
 from ..reflection import get_python_version  # pylint :disable=relative-beyond-top-level
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 if get_python_version() >= (3, 9):
     from builtins import tuple as Tuple, list as List, dict as Dict  # type:ignore
-from danielutils.logging_.utils import get_logger
 logger = get_logger(__name__)
 
 

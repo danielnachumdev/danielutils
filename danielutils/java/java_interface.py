@@ -3,7 +3,7 @@ import logging
 from abc import abstractmethod, ABC
 from typing import Protocol, runtime_checkable, Any, Callable, ParamSpec, Generic
 from ..reflection import ClassInfo
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

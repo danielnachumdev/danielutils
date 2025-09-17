@@ -5,7 +5,7 @@ import functools
 from .decorate_conditionally import decorate_conditionally
 from .threadify import threadify
 from ..versioned_imports import ParamSpec
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

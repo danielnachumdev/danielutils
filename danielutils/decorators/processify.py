@@ -6,7 +6,7 @@ from typing import Any, Dict
 
 from ..reflection import get_prev_frame
 from ..abstractions.multiprogramming import process_id
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

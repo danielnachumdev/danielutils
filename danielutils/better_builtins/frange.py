@@ -2,8 +2,7 @@ import math
 import decimal
 import logging
 from typing import Callable, Optional, Iterator, Sequence, overload, Union
-from danielutils.logging_.utils import get_logger
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 logger = get_logger(__name__)
 
 

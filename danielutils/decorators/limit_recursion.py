@@ -6,7 +6,7 @@ from typing import Any, Callable, TypeVar
 from .validate import validate
 from ..colors import warning
 from ..versioned_imports import ParamSpec
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

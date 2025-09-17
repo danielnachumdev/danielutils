@@ -8,10 +8,9 @@ from ..custom_types import Supplier
 from ..decorators import normalize_decorator
 from .time_strategy import LinearTimeStrategy, ConstantTimeStrategy
 from ..versioned_imports import ParamSpec
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 P = ParamSpec("P")
-from danielutils.logging_.utils import get_logger
 logger = get_logger(__name__)
 
 

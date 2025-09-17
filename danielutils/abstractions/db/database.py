@@ -4,8 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Callable, TypeVar, cast, Optional, Set
 from .database_exceptions import DBException
 from .database_definitions import TableSchema, SelectQuery, UpdateQuery, DeleteQuery
-from danielutils.logging_.utils import get_logger
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 logger = get_logger(__name__)
 
 # Type variable for the decorator

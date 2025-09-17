@@ -6,7 +6,7 @@ from ..aliases import Supplier, Consumer
 from .backoff_strategies import ConstantBackOffStrategy
 
 from .backoff_strategy import BackOffStrategy
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 T = TypeVar("T")
 

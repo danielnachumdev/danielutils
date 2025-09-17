@@ -7,7 +7,7 @@ from ..decorators import timeout, validate
 from ..conversions import str_to_bytes
 from ..generators import join_generators, generator_from_stream
 from ..reflection import get_python_version
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

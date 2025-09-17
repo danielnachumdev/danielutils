@@ -3,7 +3,7 @@ import logging
 from typing import Any, List as List, Optional, Tuple as Tuple, Type, Protocol
 from dataclasses import dataclass
 from ..interpreter import get_python_version
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

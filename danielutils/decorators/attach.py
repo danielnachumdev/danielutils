@@ -3,8 +3,7 @@ import logging
 from typing import Callable, Optional, TypeVar
 from .validate import validate
 from ..versioned_imports import ParamSpec
-from danielutils.logging_.utils import get_logger
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 logger = get_logger(__name__)
 
 T = TypeVar("T")

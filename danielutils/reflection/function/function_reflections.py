@@ -2,7 +2,7 @@ import inspect
 import logging
 from typing import Optional, Callable
 from ..interpreter import get_python_version, get_prev_frame
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 if get_python_version() < (3, 9):
     from typing import Set as Set  # pylint: disable=ungrouped-imports

@@ -4,7 +4,7 @@ import logging
 from typing import Callable, TypeVar, Union
 from .validate import validate
 from ..versioned_imports import ParamSpec
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

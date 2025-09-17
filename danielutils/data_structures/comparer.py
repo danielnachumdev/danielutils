@@ -1,9 +1,8 @@
-from .logging_.utils import get_logger
 """Comparer class"""
 import logging
 from typing import Callable,  Union, Generic, TypeVar
+from ..logging_.utils import get_logger
 from .functions import default_weight_function
-from danielutils.logging_.utils import get_logger
 logger = get_logger(__name__)
 
 U = TypeVar("U")

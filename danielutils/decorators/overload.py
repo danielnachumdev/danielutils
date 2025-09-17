@@ -7,7 +7,7 @@ from ..functions import isoftype, isoneof, isoneof_strict
 from ..exceptions import OverloadDuplication, OverloadNotFound
 from .deprecate import deprecate
 from ..versioned_imports import ParamSpec
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

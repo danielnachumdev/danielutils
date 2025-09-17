@@ -1,7 +1,7 @@
 import logging
 from typing import IO, Generator, Any, Iterable, Union
 from ..decorators import validate
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

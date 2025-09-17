@@ -1,7 +1,7 @@
 import logging
 from typing import TypeVar, Iterable
 from ..custom_types import Consumer
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

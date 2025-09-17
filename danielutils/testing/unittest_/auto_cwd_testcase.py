@@ -9,7 +9,7 @@ from typing import Callable, Type, Coroutine, Union, Any
 from ...random_ import RandomDataGenerator
 from ...io_ import create_directory, delete_directory, directory_exists
 from ...path import get_current_working_directory, set_current_working_directory
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

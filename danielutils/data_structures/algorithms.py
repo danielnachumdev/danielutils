@@ -3,8 +3,7 @@ from collections import defaultdict
 from typing import TypeVar, List, Callable, Dict
 from itertools import product
 from copy import deepcopy
-from danielutils.logging_.utils import get_logger
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 logger = get_logger(__name__)
 
 NodeT = TypeVar("NodeT")

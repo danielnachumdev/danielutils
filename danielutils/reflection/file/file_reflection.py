@@ -4,7 +4,7 @@ import os
 from typing import Optional, cast
 from types import FrameType
 from ..interpreter.callstack import _get_prev_frame_from
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

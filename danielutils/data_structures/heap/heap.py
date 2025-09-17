@@ -1,8 +1,7 @@
 import logging
 from typing import Union, TypeVar, Generic
 from ..comparer import Comparer
-from danielutils.logging_.utils import get_logger
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 logger = get_logger(__name__)
 
 T = TypeVar("T")

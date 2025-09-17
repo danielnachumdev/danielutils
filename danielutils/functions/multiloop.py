@@ -1,7 +1,7 @@
 import logging
 from typing import Iterable, Generator, List
 from .flatten import flatten
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

@@ -2,8 +2,7 @@ import asyncio
 import logging
 from asyncio import Task
 from typing import List, Coroutine, Any, Tuple, Optional, Set, AsyncIterator, Iterator, TypeVar
-from danielutils.logging_.utils import get_logger
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 logger = get_logger(__name__)
 
 

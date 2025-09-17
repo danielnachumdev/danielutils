@@ -1,6 +1,6 @@
 import logging
 from ..better_builtins.counter import Counter
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

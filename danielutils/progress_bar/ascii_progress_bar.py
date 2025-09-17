@@ -5,7 +5,7 @@ from typing import Optional, Iterable, Sized, Iterator
 from .progress_bar import ProgressBar
 from .progress_bar_pool import ProgressBarPool
 from ..print_ import bprint
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

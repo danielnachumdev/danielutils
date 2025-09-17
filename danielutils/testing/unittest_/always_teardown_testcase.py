@@ -4,7 +4,7 @@ import unittest
 from _collections_abc import Coroutine
 from typing import Optional, Callable, Type
 from unittest import TestResult
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

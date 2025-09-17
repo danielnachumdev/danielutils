@@ -7,7 +7,7 @@ from .function_info import FunctionInfo
 from .decorator_info import DecoratorInfo
 from .argument_info import ArgumentInfo
 from ...functions import isoftype
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

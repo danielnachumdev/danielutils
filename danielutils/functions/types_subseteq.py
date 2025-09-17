@@ -1,7 +1,7 @@
 import logging
 from typing import Iterable, get_args, Union, Set as Set
 from ..reflection import get_python_version
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

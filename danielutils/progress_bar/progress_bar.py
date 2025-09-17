@@ -3,7 +3,7 @@ import math
 import time
 from abc import ABC, abstractmethod
 from typing import Optional, Type, List, Iterable, Any
-from .logging_.utils import get_logger
+from ..logging_.utils import get_logger
 
 try:
     from tqdm import tqdm

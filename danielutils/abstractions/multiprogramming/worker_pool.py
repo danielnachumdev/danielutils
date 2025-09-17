@@ -4,11 +4,10 @@ from typing import Optional, Any, Type as t_type, Tuple as Tuple, List as List
 from threading import Semaphore
 from .worker import Worker
 from ...reflection import get_python_version
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 if get_python_version() >= (3, 9):
     from builtins import type as t_type, tuple as Tuple, list as List  # type:ignore
-from danielutils.logging_.utils import get_logger
 logger = get_logger(__name__)
 
 

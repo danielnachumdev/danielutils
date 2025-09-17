@@ -3,8 +3,7 @@ import logging
 from typing import Literal, Dict, Any, Optional, Tuple
 from .database import Database
 from .implementations import InMemoryDatabase, SQLiteDatabase, PersistentInMemoryDatabase, RedisDatabase
-from danielutils.logging_.utils import get_logger
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 logger = get_logger(__name__)
 
 MAPPING = {

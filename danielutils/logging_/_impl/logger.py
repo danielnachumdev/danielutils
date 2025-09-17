@@ -5,7 +5,7 @@ from typing import Type, Optional, Dict, List
 
 from .log_level import LogLevel
 from .logger_strategy_impl_base import LoggerStrategyImplBase
-from ..logging_.utils import get_logger
+from ..utils import get_logger
 
 logger = get_logger(__name__)
 

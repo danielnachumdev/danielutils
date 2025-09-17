@@ -1,6 +1,6 @@
 import logging
 from ..backoff_strategy import BackOffStrategy
-from ..logging_.utils import get_logger
+from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
 

@@ -24,7 +24,7 @@ class TestLevel1Basic(BaseCommandTest):
         cmd = AsyncCommand.cmd("echo test")
 
         # Verify basic properties
-        self.assertEqual(cmd.args, ['cmd', '/c', 'echo', 'test'])
+        self.assertEqual(['cmd', '/c', 'echo test'], cmd.args)
         self.assertEqual(cmd.command_type, CommandType.CLI)
         self.assertIsNone(cmd.timeout)
         self.assertIsNone(cmd.cwd)
@@ -56,7 +56,7 @@ class TestLevel1Basic(BaseCommandTest):
             )
 
             # Verify all parameters are set correctly
-            self.assertEqual(cmd.args, ['cmd', '/c', 'echo', 'test'])
+            self.assertEqual(['cmd', '/c', 'echo test'], cmd.args)
             self.assertEqual(cmd.command_type, CommandType.GUI)
             self.assertEqual(cmd.timeout, 5.0)
             self.assertEqual(cmd.cwd, Path(temp_dir))
@@ -78,7 +78,7 @@ class TestLevel1Basic(BaseCommandTest):
         # Test string representation
         repr_str = repr(cmd)
         self.assertIn('AsyncCommand', repr_str)
-        self.assertIn("['cmd', '/c', 'echo', 'test']", repr_str)
+        self.assertIn("['cmd', '/c', 'echo test']", repr_str)
         self.assertIn('pending', repr_str)
 
     def test_04_simple_successful_execution(self) -> None:
@@ -122,7 +122,7 @@ class TestLevel1Basic(BaseCommandTest):
         cmd = AsyncCommand.cmd('echo Hello World')
 
         # Verify factory creates correct command
-        self.assertEqual(cmd.args, ['cmd', '/c', 'echo', 'Hello', 'World'])
+        self.assertEqual(['cmd', '/c', 'echo Hello World'], cmd.args)
         self.assertEqual(cmd.command_type, CommandType.CLI)
 
         # Test execution
