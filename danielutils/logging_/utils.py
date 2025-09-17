@@ -1,7 +1,7 @@
 import logging
 import sys
 import io
-from typing import Optional
+from typing import Optional, Dict, List
 
 
 class UTF8StreamHandler(logging.StreamHandler):
@@ -166,7 +166,7 @@ def setup_stdout_logging_handler(
     return root_logger
 
 
-def get_logger_handlers() -> dict[str, list[logging.Handler]]:
+def get_logger_handlers() -> Dict[str, List[logging.Handler]]:
     """
     Get all registered loggers and their handlers.
 
