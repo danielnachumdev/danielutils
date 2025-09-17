@@ -20,10 +20,9 @@ from .process_kill_context import CalculatorKillContext
 class TestLevel5ProcessManagement(BaseCommandTest):
     """Level 5: Process management and advanced scenarios tests."""
 
-    @classmethod
-    def setUpClass(cls) -> None:
+    def setUp(self) -> None:
         if not hasattr(asyncio, "to_thread"):
-            cls.skipTest("asyncio.to_thread is not available")
+            self.skipTest("asyncio.to_thread is not available")
 
     def _get_calculator_pids(self) -> Set[int]:
         """Get list of currently running calculator process PIDs."""
