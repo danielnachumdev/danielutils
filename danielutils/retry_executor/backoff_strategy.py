@@ -1,4 +1,8 @@
+import logging
 from ..aliases import Supplier
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class BackOffStrategy:
@@ -11,10 +15,12 @@ class BackOffStrategy:
 
     def get_backoff(self) -> float:
         """
+        Get the backoff time in milliseconds.
 
         :return: amount of milliseconds to sleep
         """
-        return self._supp()
+        backoff_time = self._supp()
+        return backoff_time
 
 
 __all__ = [

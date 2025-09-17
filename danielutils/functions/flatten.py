@@ -1,4 +1,8 @@
+import logging
 from typing import Iterable
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def flatten(iterable: Iterable) -> list:
@@ -21,6 +25,7 @@ def flatten(iterable: Iterable) -> list:
             result.extend(flatten(i))
         else:
             result.append(i)
+    
     return result
 
 __all__=[

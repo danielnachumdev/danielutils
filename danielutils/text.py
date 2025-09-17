@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+import logging
 from typing import Union
 from .decorators.validate import validate
 from .functions.check_foreach import check_foreach
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 HEBREW_LETTERS = ['\u05D0', '\u2135', '\uFB21', '\uFB2E', '\uFB2F',
                   '\uFB30', '\uFB4F', '\u05D1', '\u2136', '\uFB31',
                   '\uFB4C', '\u05D2', '\u2137', '\uFB32', '\u05D3',
@@ -82,8 +86,10 @@ def is_float(s: str) -> bool:
     """
     try:
         float(s)
+        logger.debug(f"String '{s}' is a valid float")
         return True
     except ValueError:
+        logger.debug(f"String '{s}' is not a valid float")
         return False
 
 
@@ -138,8 +144,10 @@ def is_hex(s: str) -> bool:
     """
     try:
         int(s, 16)
+        logger.debug(f"String '{s}' is a valid hexadecimal")
         return True
     except ValueError:
+        logger.debug(f"String '{s}' is not a valid hexadecimal")
         return False
 
 

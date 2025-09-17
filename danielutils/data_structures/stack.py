@@ -1,5 +1,9 @@
+import logging
 from typing import Optional, Generator, TypeVar, Generic
 from .graph import Node
+from danielutils.logging_.utils import get_logger
+from .logging_.utils import get_logger
+logger = get_logger(__name__)
 
 T = TypeVar('T')
 
@@ -11,6 +15,7 @@ class Stack(Generic[T]):
     def __init__(self) -> None:
         self.head: Optional[Node[T]] = None
         self.size = 0
+        logger.debug("Stack initialized")
 
     def push(self, value: T):
         """push an item to the stack
@@ -18,12 +23,16 @@ class Stack(Generic[T]):
         Args:
             value (Any): item to push
         """
+        logger.debug(f"Pushing value to stack: {value}")
         if self.head is None:
             self.head = Node(value)
+            logger.debug("Created first node in stack")
         else:
             new_head = Node(value, self.head)
             self.head = new_head
+            logger.debug("Added new head node to stack")
         self.size += 1
+        logger.debug(f"Stack size is now: {self.size}")
 
     def pop(self) -> T:
         """pop an item from the stack
@@ -35,7 +44,9 @@ class Stack(Generic[T]):
             res = self.head.data  # type:ignore
             self.size -= 1
             self.head = self.head.next  # type:ignore
+            logger.debug(f"Popped value from stack: {res}, remaining size: {self.size}")
             return res
+        logger.warning("Attempted to pop from empty stack")
         raise RuntimeError("Can't pop from an empty stack")
 
     def peek(self) -> Optional[T]:
@@ -45,8 +56,11 @@ class Stack(Generic[T]):
             Optional[T]
         """
         if self.is_empty():
+            logger.debug("Peek called on empty stack")
             return None
-        return self.head.data  # type:ignore
+        result = self.head.data  # type:ignore
+        logger.debug(f"Peeked at stack top: {result}")
+        return result
 
     def __len__(self) -> int:
         return self.size

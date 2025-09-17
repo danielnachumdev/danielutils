@@ -1,7 +1,11 @@
 import functools
+import logging
 from typing import Callable, Any, TypeVar
 import threading
 from .validate import validate
+from danielutils.logging_.utils import get_logger
+from .logging_.utils import get_logger
+logger = get_logger(__name__)
 
 from ..versioned_imports import ParamSpec
 
@@ -21,13 +25,19 @@ def atomic(func: FuncT) -> FuncT:
     Returns:
         Callable: the thread safe function
     """
+    logger.debug(f"Making function {func.__name__} atomic (thread-safe)")
     lock = threading.Lock()
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs) -> Any:
+        logger.debug(f"Acquiring lock for atomic function {func.__name__}")
         with lock:
-            return func(*args, **kwargs)
+            logger.debug(f"Executing atomic function {func.__name__}")
+            result = func(*args, **kwargs)
+            logger.debug(f"Atomic function {func.__name__} completed")
+            return result
 
+    logger.debug(f"Atomic decorator applied to {func.__name__}")
     return wrapper
 
 

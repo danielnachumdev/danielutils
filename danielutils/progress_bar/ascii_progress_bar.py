@@ -1,9 +1,13 @@
+import logging
 import time
 from typing import Optional, Iterable, Sized, Iterator
 
 from .progress_bar import ProgressBar
 from .progress_bar_pool import ProgressBarPool
 from ..print_ import bprint
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class AsciiProgressBar(ProgressBar):
@@ -43,9 +47,12 @@ class AsciiProgressBar(ProgressBar):
         self.delta: float = 0
         self.prev_value: float = self.initial_value
         self.bprint_row_index = bprint.current_row
+        logger.info(f"AsciiProgressBar initialized: {desc} (total={total_}, position={position})")
 
     def __iter__(self):
+        logger.info(f"Starting iteration over AsciiProgressBar: {self.desc}")
         self.bprint_row_index = bprint.current_row
+        items_processed = 0
         for v in self.iterator:
             self.update(0)
             yield v
@@ -54,10 +61,12 @@ class AsciiProgressBar(ProgressBar):
             if len(bprint.rows) > 0:
                 bprint.rows.pop()
             self.update(1)
+            items_processed += 1
             bprint.move_up()
             bprint.clear_line()
             if len(bprint.rows) > 0:
                 bprint.rows.pop()
+        logger.info(f"Completed iteration: processed {items_processed} items")
         if self.position > 0:
             self.reset()
         else:

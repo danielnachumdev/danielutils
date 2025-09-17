@@ -1,7 +1,11 @@
 import inspect, re
+import logging
 from typing import Any, List as List, Optional, Tuple as Tuple, Type, Protocol
 from dataclasses import dataclass
 from ..interpreter import get_python_version
+from ..logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 argument_kwargs = dict(frozen=True)
 FunctionDeclaration_kwargs = dict(frozen=True)
@@ -25,7 +29,8 @@ def get_explicitly_declared_functions(cls: type) -> List[str]:
     Returns:
         list[str]: A list of names of the functions explicitly declared in the class.
     """
-    return [func for func, val in inspect.getmembers(cls, predicate=inspect.isfunction)]
+    functions = [func for func, val in inspect.getmembers(cls, predicate=inspect.isfunction)]
+    return functions
 
 
 def get_mro(obj: Any) -> List[type]:
@@ -38,7 +43,8 @@ def get_mro(obj: Any) -> List[type]:
         list[type]: the resulting mro for the object
     """
     if isinstance(obj, type):
-        return obj.mro()
+        mro = obj.mro()
+        return mro
     return get_mro(obj.__class__)
 
 
@@ -62,7 +68,8 @@ class Argument:
             default=self.default,
         )
         dct.update(override_kwargs)
-        return Argument(**dct)
+        result = Argument(**dct)
+        return result
 
 
 func_pattern = re.compile(
@@ -115,11 +122,13 @@ class FunctionDeclaration:
             generics=self.generics,
         )
         dct.update(override_kwargs)
-        return FunctionDeclaration(**dct)  # type:ignore
+        result = FunctionDeclaration(**dct)  # type:ignore
+        return result
 
     @property
     def has_generics(self) -> bool:
-        return self.generics is not None and len(self.generics) > 0
+        has_generics = self.generics is not None and len(self.generics) > 0
+        return has_generics
 
     @staticmethod
     def get_declared_functions(cls) -> List['FunctionDeclaration']:
@@ -129,9 +138,13 @@ class FunctionDeclaration:
             Generator[str, None, None]: yields str values which are names of declared functions
         """
         if not isinstance(cls, type):
+            logger.error(f"Invalid type for cls: {type(cls)}, expected type")
             raise TypeError('cls must be a Class')
+        
         src = inspect.getsource(cls)
+        
         bases = [o for o in map(remove_whitespace, class_pattern.findall(src)) if len(o) > 0]
+        
         parameters = []
         for base in bases:
             if '[' in base and ']' in base:
@@ -139,8 +152,11 @@ class FunctionDeclaration:
                 for arg in split_args(s):
                     if len(arg) == 1:
                         parameters.append(arg)
+        
         res = []
-        for code, name, args, ret in func_pattern.findall(src):
+        function_matches = func_pattern.findall(src)
+        
+        for code, name, args, ret in function_matches:
             name: str = name.strip()  # type:ignore
             args: Optional[str] = remove_whitespace(args) if args is not None else None  # type:ignore
             arguments = []
@@ -148,7 +164,8 @@ class FunctionDeclaration:
                 for arg in split_args(args):
                     arguments.append(Argument(*arg_pattern.match(remove_whitespace(arg)).groups()))
             ret: Optional[str] = ret.strip() if ret is not None and len(ret) != 0 else None # type:ignore
-            res.append(FunctionDeclaration(name, tuple(arguments), ret, decorators=None, generics=tuple(parameters)))
+            func_decl = FunctionDeclaration(name, tuple(arguments), ret, decorators=None, generics=tuple(parameters))
+            res.append(func_decl)
 
         return res
 
@@ -156,7 +173,8 @@ class FunctionDeclaration:
         if not isinstance(other, FunctionDeclaration):
             return False
 
-        return self.name == other.name and self.arguments == self.arguments and self.return_type == other.return_type
+        result = self.name == other.name and self.arguments == other.arguments and self.return_type == other.return_type
+        return result
 
     def __hash__(self) -> int:
         return hash((self.name, self.arguments, self.return_type))
@@ -192,10 +210,13 @@ class ClassDeclaration:
     @staticmethod
     def from_cls(cls) -> 'ClassDeclaration':
         if type(cls) not in {type, _ProtocolMeta}:
+            logger.error(f"Invalid type for cls: {type(cls)}, expected type or Protocol")
             raise TypeError('obj must be a Class')
 
         src = "\n".join([l for l in inspect.getsource(cls).splitlines() if not remove_whitespace(l).startswith("@")])
+        
         bases = class_pattern.match(src).group(1).split(",")
+        
         parameters = []
         for base in bases:
             if '[' in base and ']' in base:
@@ -204,18 +225,23 @@ class ClassDeclaration:
                     if len(arg) == 1:
                         parameters.append(arg)
 
-        return ClassDeclaration(
+        orig_bases = getattr(cls, "__orig_bases__", getattr(cls, "__args__", ()))
+        functions = FunctionDeclaration.get_declared_functions(cls)
+        
+        result = ClassDeclaration(
             cls,
             cls.__name__,
             cls.__module__,
-            getattr(cls, "__orig_bases__", getattr(cls, "__args__", ())),
+            orig_bases,
             tuple(parameters) or None,
-            FunctionDeclaration.get_declared_functions(cls)
+            functions
         )
+        return result
 
     @property
     def is_generic(self) -> bool:
-        return self.generics is not None and len(self.generics) > 0
+        is_generic = self.generics is not None and len(self.generics) > 0
+        return is_generic
 
 
 __all__ = [

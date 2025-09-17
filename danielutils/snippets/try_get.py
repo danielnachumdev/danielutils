@@ -1,4 +1,8 @@
+import logging
 from typing import Callable, Any, Optional
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def try_get(supplier: Callable[[], Any]) -> Optional[Any]:
@@ -11,8 +15,11 @@ def try_get(supplier: Callable[[], Any]) -> Optional[Any]:
         Optional[Any]: return value
     """
     try:
-        return supplier()
-    except:
+        result = supplier()
+        logger.debug(f"try_get succeeded for supplier: {supplier.__name__}")
+        return result
+    except Exception as e:
+        logger.debug(f"try_get failed for supplier: {supplier.__name__} with {type(e).__name__}: {e}")
         return None
 
 

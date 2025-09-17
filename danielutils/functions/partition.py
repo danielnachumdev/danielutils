@@ -1,7 +1,12 @@
+import logging
 from typing import List, Generator, Tuple, Union
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def partitions(n: int, k: int) -> Generator[List[int], None, None]:
+    logger.info(f"Generating partitions of {n} into {k} parts")
     from ..decorators import memo_generator
 
     @memo_generator
@@ -28,7 +33,10 @@ def partitions(n: int, k: int) -> Generator[List[int], None, None]:
 
 
 def num_partitions(n: int, k: int) -> int:
-    return len(list(partitions(n, k)))
+    logger.info(f"Counting number of partitions of {n} into {k} parts")
+    result = len(list(partitions(n, k)))
+    logger.info(f"Found {result} partitions")
+    return result
 
 
 __all__ = [

@@ -1,13 +1,17 @@
 import inspect
+import logging
 import re
 import traceback
 import functools
 from typing import Callable, Iterable, Any, Generator, Optional, Union,\
+from .logging_.utils import get_logger
     List as List, Set as Set, Type as t_type, Dict as Dict
 from ..reflection import get_python_version
 if get_python_version() >= (3, 9):
     from builtins import list as List, set as Set, type as t_type, dict as Dict  # type:ignore
 # from ..decorators.decorate_conditionally import decorate_conditionally
+
+logger = get_logger(__name__)
 
 
 class InterfaceHelper:
@@ -89,7 +93,6 @@ class InterfaceHelper:
         """
         # In python 3.8 this function always return the first occurrence so some tests fail
         src = inspect.getsource(cls).splitlines()
-        print(src)
         for line in src:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
@@ -106,6 +109,7 @@ class InterfaceHelper:
             caller_frame = traceback.format_stack()[-2]
             is_super_call = bool(re.match(
                 fr"\s+File \".*\", line \d+, in __init__\n\s+(?:super\(\)|{cls_name})\.__init__\(.*\)\n", caller_frame))
+            
             if is_super_call:
                 mro = instance.__class__.mro()
                 i = 0
@@ -118,13 +122,16 @@ class InterfaceHelper:
                         result = getattr(cls, InterfaceHelper.ORIGINAL_INIT)(
                             *args, **kwargs)
                         return result
+                logger.error(f"No original init found in MRO for {cls_name}")
                 raise NotImplementedError(
                     f"Can't use super().__init__(...) in {cls_name}.__init__(...) "
                     "if the __init__ function is not defined a parent interface")
 
             if missing:
+                logger.warning(f"Interface {cls_name} missing implementations: {missing}")
                 raise NotImplementedError(f"Can't instantiate '{cls_name}' because it is an interface."
                                           f" It is missing implementations for {missing}")
+            logger.warning(f"Attempting to instantiate interface {cls_name}")
             raise NotImplementedError(
                 f"'{cls_name}' is an interface, Can't create instances")
         return __interface_init__
@@ -138,6 +145,7 @@ class InterfaceHelper:
         """
         @functools.wraps(original)
         def __interface_handler__(*args, **kwargs):
+            logger.warning(f"Generic handler called for unimplemented method in interface {cls}")
             raise NotImplementedError(
                 f"Interface {cls} must be implemented")
         return __interface_handler__
@@ -164,15 +172,20 @@ class Interface(type):
 
     @staticmethod
     def _handle_new_interface(mcs, name: str, bases: tuple, namespace: Dict[str, Any]) -> type:
+        logger.info(f"Handling new interface creation: {name}")
         namespace[InterfaceHelper.ORIGINAL_INIT] = None
         if "__init__" in namespace:
             namespace[InterfaceHelper.ORIGINAL_INIT] = namespace["__init__"]
         namespace["__init__"] = InterfaceHelper.create_init_handler(
             name, original=namespace[InterfaceHelper.ORIGINAL_INIT])
+        
+        abstract_methods = 0
         for k, v in namespace.items():
             if callable(v) and not k == "__init__":
                 if not InterfaceHelper.is_func_implemented(v):
                     namespace[k] = InterfaceHelper.create_generic_handler(k, v)
+                    abstract_methods += 1
+        logger.info(f"Created interface {name} with {abstract_methods} abstract methods")
         namespace[Interface.KEY] = True
         return type.__new__(mcs, name, bases, namespace)
 

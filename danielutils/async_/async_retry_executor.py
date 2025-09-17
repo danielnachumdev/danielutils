@@ -1,6 +1,6 @@
 import asyncio
 import functools
-import json
+import logging
 from datetime import datetime
 from typing import Literal, Optional, Any, Mapping, Iterable, Callable, Coroutine
 
@@ -8,8 +8,11 @@ from ..custom_types import Supplier
 from ..decorators import normalize_decorator
 from .time_strategy import LinearTimeStrategy, ConstantTimeStrategy
 from ..versioned_imports import ParamSpec
+from .logging_.utils import get_logger
 
 P = ParamSpec("P")
+from danielutils.logging_.utils import get_logger
+logger = get_logger(__name__)
 
 
 class AsyncRetryExecutor:
@@ -18,8 +21,10 @@ class AsyncRetryExecutor:
             timeout_strategy: Supplier[float] = LinearTimeStrategy(30, 5),
             delay_strategy: Supplier[float] = ConstantTimeStrategy(0)
     ) -> None:
+        logger.info(f"Initializing AsyncRetryExecutor with timeout_strategy={type(timeout_strategy).__name__}, delay_strategy={type(delay_strategy).__name__}")
         self.timeout_strategy = timeout_strategy
         self.delay_strategy = delay_strategy
+        logger.debug(f"AsyncRetryExecutor initialized successfully")
 
     def is_transient(self, e: Exception) -> bool:
         """
@@ -42,35 +47,27 @@ class AsyncRetryExecutor:
     ) -> Optional[Any]:
         args = list(args) if args else []
         kwargs = dict(kwargs) if kwargs else {}
+        logger.info(f"Starting async retry execution for {func.__name__} with max_tries={max_tries}")
+        
         for i in range(1, max_tries + 1):
             timeout = self.timeout_strategy()
             delay = self.delay_strategy()
+            logger.debug(f"Attempt {i}/{max_tries} with timeout={timeout}s, delay={delay}s")
             try:
-                return await asyncio.wait_for(func(*args, **kwargs), timeout=timeout)
+                result = await asyncio.wait_for(func(*args, **kwargs), timeout=timeout)
+                logger.info(f"Async retry execution succeeded on attempt {i}")
+                return result
             except Exception as e:
                 if self.is_transient(e):
-                    self.warn(f"Failed attempt {i}/{max_tries}", function=func, args=args, kwargs=kwargs, exception=e,
-                              timestamp=datetime.now().isoformat())
+                    logger.warning(f"Failed attempt {i}/{max_tries} with transient exception: {type(e).__name__}: {e}")
                     if i < max_tries - 1 and delay > 0:
+                        logger.debug(f"Waiting {delay}s before next attempt")
                         await asyncio.sleep(delay)
                 else:
+                    logger.error(f"Non-transient exception on attempt {i}: {type(e).__name__}: {e}")
                     raise e
-        self.error("Failed all attempts", function=func, args=args, kwargs=kwargs, timestamp=datetime.now().isoformat())
+        logger.error(f"Failed all {max_tries} attempts for {func.__name__}")
         raise RuntimeError(f"Failed all attempts")
-
-    def log(self, level: Literal["INFO", "WARNING", "ERROR"], message: str, **kwargs) -> None:
-        kwargs["level"] = level
-        kwargs["message"] = message
-        print(json.dumps(kwargs, default=str))
-
-    def info(self, message: str, **kwargs) -> None:
-        self.log("INFO", message, **kwargs)
-
-    def warn(self, message: str, **kwargs) -> None:
-        self.log("WARNING", message, **kwargs)
-
-    def error(self, message: str, **kwargs) -> None:
-        self.log("ERROR", message, **kwargs)
 
 
 @normalize_decorator

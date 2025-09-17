@@ -1,7 +1,11 @@
+import logging
 import time
 from datetime import datetime
 from typing import Callable, TypeVar
 from .versioned_imports import ParamSpec
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -18,10 +22,13 @@ def measure(func: Callable[P, T]) -> Callable[P, float]:
     """
 
     def wrapper(*args, **kwargs) -> float:
+        logger.debug(f"Measuring execution time of function: {func.__name__}")
         start = time.time()
         func(*args, **kwargs)
         end = time.time()
-        return end - start
+        execution_time = end - start
+        logger.debug(f"Function {func.__name__} executed in {execution_time:.4f} seconds")
+        return execution_time
 
     return wrapper
 

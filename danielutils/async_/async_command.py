@@ -1,3 +1,4 @@
+from .logging_.utils import get_logger
 """
 Generic AsyncCommand class for standardized async command execution.
 
@@ -14,6 +15,8 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Union, Callable, Dict, Literal
 from datetime import datetime
+
+logger = get_logger(__name__)
 
 
 @dataclass
@@ -125,6 +128,7 @@ class AsyncCommand:
             on_complete: Callback called when command completes
             on_error: Callback called when command fails
         """
+        logger.debug(f"Initializing AsyncCommand with args={args}, command_type={command_type}, timeout={timeout}")
         self.args = args
         self.command_type = command_type
         if timeout is not None:
@@ -142,6 +146,7 @@ class AsyncCommand:
         self._process: Optional[subprocess.Popen] = None
         self._result: Optional[CommandExecutionResult] = None
         self._start_time: Optional[datetime] = None
+        logger.debug(f"AsyncCommand initialized successfully with state={self._state}")
 
     @property
     def state(self) -> CommandState:

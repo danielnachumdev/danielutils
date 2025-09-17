@@ -1,7 +1,10 @@
+import logging
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
     ForwardRef, Literal, Optional, Protocol, Generic, Type, List, Tuple, Set, Dict
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
+from .logging_.utils import get_logger
+logger = get_logger(__name__)
 
 
 class _tmp(Protocol): ...
@@ -399,6 +402,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
         True if the object is of the specified type, False otherwise.
     """
     if not isinstance(strict, bool):
+        logger.error("'strict' parameter must be of type bool")
         raise TypeError("'strict' must be of type bool")
 
     obj_origin, obj_args, obj_hints = __isoftype_inquire(V)
@@ -431,15 +435,18 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
             if t_origin in (list, tuple, dict, set, dict, Iterable):
                 if not isinstance(V, t_origin):  # type:ignore
                     return False
-            return HANDLERS[t_origin](params)  # type:ignore
+            result = HANDLERS[t_origin](params)  # type:ignore
+            return result
         # These imports must explicitly be specifically here and not at the top
+        logger.warning(f"Unhandled t_origin: {t_origin}, returning True")
         from danielutils import warning, get_traceback
         warning(
             f"In function isoftype, unhandled t_origin: {t_origin} returning True. stacktrace:")
         print(*get_traceback())
         return True
 
-    return __handle_type_origin(params)
+    result = __handle_type_origin(params)
+    return result
 
 
 __all__ = [

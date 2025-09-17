@@ -1,9 +1,13 @@
 import json
+import logging
 from datetime import datetime
 from typing import Type, Optional, Dict, List
 
 from .log_level import LogLevel
 from .logger_strategy_impl_base import LoggerStrategyImplBase
+from ..logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class _LoggerImpl:
@@ -43,10 +47,12 @@ class _LoggerImpl:
 
     def _log(self, level: LogLevel, message: str, channel: str, **metadata):
         message = str(message)
-        for logger in LoggerStrategyImplBase._loggers[channel]:
-            logger(self.parse_message(
+        loggers_count = len(LoggerStrategyImplBase._loggers[channel])
+        
+        for logger_instance in LoggerStrategyImplBase._loggers[channel]:
+            logger_instance(self.parse_message(
                 self.origin,
-                logger.logger_id,
+                logger_instance.logger_id,
                 channel,
                 level,
                 message,
@@ -71,9 +77,11 @@ class _LoggerImpl:
 class Logger:
     @classmethod
     def __init_subclass__(cls, **kwargs) -> None:
+        logger.info(f"Initializing Logger subclass: {cls.__qualname__}")
         cls._logger = _LoggerImpl(cls)
         cls._registered_loggers: List[LoggerStrategyImplBase] = []
         cls.init_subscribers()
+        logger.info(f"Logger subclass {cls.__qualname__} initialized successfully")
 
     @classmethod
     @property
@@ -85,8 +93,10 @@ class Logger:
         pass
 
     @classmethod
-    def register_logger(cls, logger: LoggerStrategyImplBase) -> None:
-        cls._registered_loggers.append(logger)
+    def register_logger(cls, logger_instance: LoggerStrategyImplBase) -> None:
+        logger.info(f"Registering logger {logger_instance.logger_id} for class {cls.__qualname__}")
+        cls._registered_loggers.append(logger_instance)
+        logger.info(f"Logger registered successfully, total registered: {len(cls._registered_loggers)}")
 
 
 class GlobalLogger(Logger):

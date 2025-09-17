@@ -1,11 +1,15 @@
 import functools
 import inspect
+import logging
 from typing import Callable, get_type_hints, cast, TypeVar, Union
 from ..functions.isoftype import isoftype
 from ..reflection import get_function_return_type
 from ..exceptions import EmptyAnnotationException, \
     InvalidDefaultValueException, ValidationException, InvalidReturnValueException
 from ..versioned_imports import ParamSpec
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 T = TypeVar("T")
 P = ParamSpec("P")
@@ -33,16 +37,21 @@ def validate(strict: Union[FuncT, bool] = True) -> FuncT:
     Returns:
         Callable: A wrapper function that performs the validation and calls the original function.
     """
+    logger.debug(f"Creating validate decorator with strict={strict}")
     if not isoftype(strict, Union[bool, Callable]):
+        logger.error(f"Invalid strict parameter type: {type(strict)}")
         raise TypeError(
             "the argument for validate must be a Callable or a boolean to mark strict use")
 
     def deco(func: FuncT) -> FuncT:
+        logger.debug(f"Applying validate decorator to function {func.__name__}")
         SKIP_SET = {"self", "cls", "args", "kwargs"}
         if not callable(func):
+            logger.error(f"Object {func} is not callable")
             raise TypeError(
                 "The validate decorator must only decorate a function")
         func_name = f"{func.__module__}.{func.__qualname__}"
+        logger.debug(f"Validating function: {func_name}")
         # get the signature of the function
         signature = inspect.signature(func)
         for arg_name, arg_param in signature.parameters.items():

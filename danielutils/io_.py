@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import subprocess
 from typing import IO, Iterator, Generator, Optional, cast, Union, List as List
 # import shutil
@@ -6,6 +7,9 @@ from pathlib import Path
 import os
 from .decorators import validate
 from .reflection import get_python_version
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 if get_python_version() >= (3, 9):
     from builtins import list as List
@@ -75,12 +79,15 @@ def read_file(path: str, read_bytes: bool = False) -> Union[List[str], List[byte
     try:
         if read_bytes:
             with open(path, "rb") as f:
-                return f.readlines()
+                result = f.readlines()
         else:
             with open(path, "r", encoding="mbcs") as f:
-                return f.readlines()
+                result = f.readlines()
+        return result
     except Exception as e:
+        logger.error(f"Error reading file {path}: {e}")
         if isinstance(e, UnicodeDecodeError):
+            logger.error("Unicode decode error, suggesting to use read_bytes=True")
             raise UnicodeDecodeError(e.encoding, e.object, e.start, e.end,
                                      "Can't read byte in file.\nTo use with bytes use: read_bytes = True ") from e
         raise e

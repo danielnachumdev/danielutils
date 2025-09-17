@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Type, Any, Sequence
+from ..logging_.utils import get_logger
 
 try:
     from sqlalchemy import inspect, Column
@@ -14,8 +15,8 @@ except ImportError:
 
 from .database import Database
 from .database_definitions import ColumnType, TableSchema, TableColumn as ColumnSchema, TableIndex as IndexSchema
-
-logger = logging.getLogger(__name__)
+from danielutils.logging_.utils import get_logger
+logger = get_logger(__name__)
 
 TYPE_MAPPING = {
     'INTEGER': ColumnType.INTEGER,

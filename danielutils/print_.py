@@ -1,9 +1,13 @@
+import logging
 import sys
 from typing import IO, List
 from .functions.areoneof import areoneof
 from .math_.math_print import mprint_parse_one
 from .decorators import atomic, deprecate
 from .colors import warning
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def mprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
@@ -23,6 +27,7 @@ def mprint(*args, sep: str = " ", end: str = "\n", stream=sys.stdout) -> None:
     """
     if not areoneof(args, [str]):
         raise TypeError("s must be a string")
+    logger.debug(f"Printing {len(args)} mathematical expressions to {stream}")
     stream.write(sep.join([mprint_parse_one(s) for s in args]) + end)
 
 

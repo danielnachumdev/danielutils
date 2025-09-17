@@ -1,5 +1,9 @@
+import logging
 from typing import Iterable, Generator, List
 from .flatten import flatten
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def _combine2(iter1: Iterable, iter2: Iterable) -> Generator:
@@ -22,19 +26,24 @@ def multiloop(*iterables: Iterable, pre_load: bool = False) -> Generator:
     Yields:
         Generator: A generator that yields tuples, each containing one combination of values from the iterables.
     """
+    logger.info(f"Starting multiloop with {len(iterables)} iterables, pre_load={pre_load}")
+    
     if len(iterables) == 1:
         yield from iterables[0]
         return
 
     arr: List[Iterable] = list(iterables)
     if pre_load:
+        logger.info("Pre-loading iterables into memory")
         arr = [list(itr) for itr in iterables]
 
     cur = _combine2(*arr[:2])
     for itr in arr[2:]:
         cur = _combine2(cur, itr)
+    
     for v in cur:
-        yield tuple(flatten(v))
+        flattened = tuple(flatten(v))
+        yield flattened
 
 
 __all__ = [

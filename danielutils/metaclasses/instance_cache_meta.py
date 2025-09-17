@@ -1,4 +1,8 @@
+import logging
 from ..better_builtins.counter import Counter
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class InstanceCacheMeta(type):
@@ -16,6 +20,8 @@ class InstanceCacheMeta(type):
 
     """
     def __new__(mcs, name, bases, namespace):
+        logger.info(f"Creating InstanceCacheMeta class: {name}")
+        
         INIT = "__init__"
         instance_2_id: dict = {}
         id_2_instance: dict = {}
@@ -25,16 +31,24 @@ class InstanceCacheMeta(type):
             original_init = namespace[INIT]
 
         def new_init(*args, **kwargs):
-            id_2_instance[counter.get()] = args[0]
-            instance_2_id[args[0]] = counter.get()
+            instance_id = counter.get()
+            instance = args[0]
+            id_2_instance[instance_id] = instance
+            instance_2_id[instance] = instance_id
             counter.increment()
             if original_init:
                 original_init(*args, **kwargs)
 
         def get_id(instance):
+            if instance not in instance_2_id:
+                logger.warning(f"Instance {instance} not found in cache")
+                raise KeyError(f"Instance {instance} not found in cache")
             return instance_2_id[instance]
 
         def get_instance(id_: int):
+            if id_ not in id_2_instance:
+                logger.warning(f"Instance with ID {id_} not found in cache")
+                raise KeyError(f"Instance with ID {id_} not found in cache")
             return id_2_instance[id_]
 
         def instances():
@@ -45,4 +59,8 @@ class InstanceCacheMeta(type):
         namespace["get_instance"] = staticmethod(get_instance)
         namespace[INIT] = new_init
 
+        logger.info(f"InstanceCacheMeta: {name} created with instance caching enabled")
         return super().__new__(mcs, name, bases, namespace)
+__all__ =[
+    "InstanceCacheMeta"
+]

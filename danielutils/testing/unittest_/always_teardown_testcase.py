@@ -1,8 +1,12 @@
 import functools
+import logging
 import unittest
 from _collections_abc import Coroutine
 from typing import Optional, Callable, Type
 from unittest import TestResult
+from ..logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class AlwaysTeardownTestCase(unittest.TestCase):
@@ -12,6 +16,7 @@ class AlwaysTeardownTestCase(unittest.TestCase):
     """
 
     def run(self, result=None) -> Optional[TestResult]:
+        logger.debug(f"Setting up AlwaysTeardownTestCase for test: {self._testMethodName}")
         test_method = getattr(self, self._testMethodName)
         wrapped_test = self._cleanup_wrapper(test_method, KeyboardInterrupt)
         setattr(self, self._testMethodName, wrapped_test)
@@ -26,6 +31,7 @@ class AlwaysTeardownTestCase(unittest.TestCase):
             try:
                 return method(*args, **kwargs)
             except exception:
+                logger.debug(f"Exception {exception.__name__} caught in test, running cleanup for: {method.__name__}")
                 self.tearDown()
                 self.doCleanups()
                 raise
@@ -40,6 +46,7 @@ class AsyncAlwaysTeardownTestCase(unittest.IsolatedAsyncioTestCase):
     """
 
     def run(self, result=None) -> Optional[TestResult]:
+        logger.debug(f"Setting up AsyncAlwaysTeardownTestCase for test: {self._testMethodName}")
         test_method = getattr(self, self._testMethodName)
         wrapped_test = self._cleanup_wrapper(test_method, KeyboardInterrupt)
         setattr(self, self._testMethodName, wrapped_test)
@@ -54,6 +61,7 @@ class AsyncAlwaysTeardownTestCase(unittest.IsolatedAsyncioTestCase):
             try:
                 return await method(*args, **kwargs)  # type: ignore
             except exception:
+                logger.debug(f"Exception {exception.__name__} caught in async test, running cleanup for: {method.__name__}")
                 self.tearDown()
                 self.doCleanups()
                 raise

@@ -2,6 +2,7 @@ import json
 import logging
 from typing import List, Dict, Any, Optional, Type, Union, Sequence
 from datetime import datetime
+from ...logging_.utils import get_logger
 
 try:
     import redis.asyncio as redis
@@ -16,7 +17,7 @@ from ..database_definitions import (
     Operator, WhereClause, Condition, ColumnType, TableColumn
 )
 from ..database_exceptions import DBException, DBValidationError, DBQueryError, DBConnectionError
-
+from danielutils.logging_.utils import get_logger
 
 class RedisDatabase(Database):
     """Redis implementation of the Database abstract class"""
@@ -54,7 +55,7 @@ class RedisDatabase(Database):
         self.decode_responses = decode_responses
         self._db: redis.Redis = None  # type:ignore
         self._connected = False
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger(__name__)
 
         # Redis key prefixes
         self.SCHEMA_PREFIX = "schema:"

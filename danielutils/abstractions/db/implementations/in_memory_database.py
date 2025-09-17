@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Any, List, Type, Union, Sequence
 from datetime import datetime
+from ...logging_.utils import get_logger
 
 try:
     from starlette import status
@@ -13,7 +14,7 @@ from ..database import Database, TableSchema
 from ..database_definitions import Operator, WhereClause, Condition, SelectQuery, UpdateQuery, DeleteQuery, ColumnType, \
     TableColumn
 from ..database_exceptions import DBValidationError, DBQueryError, DBConnectionError, DBException
-
+from danielutils.logging_.utils import get_logger
 
 class InMemoryDatabase(Database):
     """In-memory database implementation using dictionaries"""
@@ -43,7 +44,7 @@ class InMemoryDatabase(Database):
         # table_name -> {column_name -> last_used_id}
         self.auto_increment_counters: Dict[str, Dict[str, int]] = {}
         self._connected = False
-        self.logger = logging.getLogger(__name__)
+        self.logger = get_logger(__name__)
 
     async def connect(self) -> None:
         """Connect to the database (no-op for in-memory)"""

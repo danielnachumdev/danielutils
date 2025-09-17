@@ -1,5 +1,9 @@
+import logging
 from typing import Optional, IO
 from .decorators import validate
+from danielutils.logging_.utils import get_logger
+from .logging_.utils import get_logger
+logger = get_logger(__name__)
 
 RESET = "\033[0m"
 
@@ -30,6 +34,7 @@ class ColoredText:
         Returns:
             str: The given text with an RGB color applied to it.
         """
+        logger.debug(f"Applying RGB color ({red}, {green}, {blue}) to text: {text[:50]}...")
         return f"\033[38;2;{red};{green};{blue}m{text}{RESET}"
 
     @staticmethod
@@ -126,7 +131,9 @@ class ColoredText:
         Returns:
             bool: boolean result
         """
-        return stream.isatty()
+        result = stream.isatty()
+        logger.debug(f"Color support check for stream: {result}")
+        return result
 
 
 def __special_print(*args, sep: str = " ", end: str = "\n", start_with: Optional[str] = None):

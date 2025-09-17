@@ -1,7 +1,9 @@
+import logging
 import math
 import time
 from abc import ABC, abstractmethod
 from typing import Optional, Type, List, Iterable, Any
+from .logging_.utils import get_logger
 
 try:
     from tqdm import tqdm
@@ -9,6 +11,8 @@ except ImportError:
     from ..mock_ import MockImportObject
 
     tqdm = MockImportObject("`tqdm` is not installed")  # type:ignore
+
+logger = get_logger(__name__)
 
 
 class ProgressBar(ABC):
@@ -28,6 +32,7 @@ class ProgressBar(ABC):
         self.unit = unit
         self.bar_format = bar_format
         self.writes: List[str] = []
+        logger.info(f"ProgressBar initialized: {desc} (total={total}, position={position}, unit={unit})")
 
     @property
     def num_writes(self):
@@ -45,8 +50,9 @@ class ProgressBar(ABC):
         """A function to write additional text with the progress bar
         """
         processed = list(map(str, args))
+        message = sep.join(processed) + end
         self._write(*processed, sep=sep, end=end)
-        self.writes.append(sep.join(processed) + end)
+        self.writes.append(message)
 
     @abstractmethod
     def reset(self) -> None:

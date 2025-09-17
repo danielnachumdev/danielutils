@@ -1,4 +1,8 @@
+import logging
 from typing import Optional
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class DeletedException(AttributeError):
@@ -25,6 +29,7 @@ def deleted(func, cls_name: Optional[str] = None):
 
     def new_func(*args, **kwargs):  # pylint: disable=unused-argument
         nonlocal func
+        logger.warning(f"Attempted to call deleted function: {func.__qualname__}")
         raise DeletedException(msg)
     return new_func
 
@@ -34,6 +39,8 @@ class ImplicitDataDeleterMeta(type):
     and will replace them with a new function which will raise and error
     """
     def __new__(mcs, name, bases, namespace):
+        logger.info(f"Creating ImplicitDataDeleterMeta class: {name}")
+        
         cls_functions = set()
         for k, v in namespace.items():
             if callable(v):
@@ -57,6 +64,8 @@ class ImplicitDataDeleterMeta(type):
         cls_dct = {func.__name__: func for func in cls_functions}
         to_delete = set({k: v for k, v in parent_dct.items()
                          if k not in cls_dct}.values())
+        
+        deleted_count = 0
         for func in to_delete:
             if func.__name__ in dir(object):
                 if func.__name__ in {"__init__"}:
@@ -66,7 +75,9 @@ class ImplicitDataDeleterMeta(type):
                 namespace[func.__name__] = lambda self: True
             else:
                 namespace[func.__name__] = deleted(func, name)
+                deleted_count += 1
 
+        logger.info(f"ImplicitDataDeleterMeta: {name} created with {deleted_count} functions marked as deleted")
         return super().__new__(mcs, name, bases, namespace)
 
 

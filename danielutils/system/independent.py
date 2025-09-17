@@ -1,3 +1,4 @@
+import logging
 from typing import IO, Optional, cast, Union, Generator, Tuple as Tuple, List as List
 from pathlib import Path
 import subprocess
@@ -6,6 +7,9 @@ from ..decorators import timeout, validate
 from ..conversions import str_to_bytes
 from ..generators import join_generators, generator_from_stream
 from ..reflection import get_python_version
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 if get_python_version() >= (3, 9):
     from builtins import tuple as Tuple, list as List  # type:ignore
@@ -26,15 +30,21 @@ def cm(*args: str, shell: bool = True) -> Tuple[int, bytes, bytes]:
     Returns:
         Tuple[int, bytes, bytes]: return code, stdout, stderr
     """
+    logger.info(f"Executing command: {' '.join(args)} (shell={shell})")
     if not isinstance(shell, bool):
+        logger.error("'shell' parameter must be of type bool")
         raise TypeError(
             "In function 'cm' param 'shell' must be of type bool")
+    
     for i, arg in enumerate(args):
         path_obj = Path(args[i])
         if path_obj.is_file() or path_obj.is_dir():
             args = (*args[:i], f"\"{arg}\"", *args[i + 1:])
-    res = subprocess.run(" ".join(args), shell=shell,
+    
+    command_str = " ".join(args)
+    res = subprocess.run(command_str, shell=shell,
                          capture_output=True, check=False)
+    logger.info(f"Command completed with return code: {res.returncode}")
     return res.returncode, res.stdout, res.stderr
 
 

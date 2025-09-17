@@ -1,6 +1,10 @@
+import logging
 import functools
 from typing import Callable
 from ..decorators import overload
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class OverloadMeta(type):
@@ -20,25 +24,8 @@ class OverloadMeta(type):
         return overload(func)  # type:ignore
 
     def __new__(mcs, name, bases, namespace):
-        # og_getattribute = None
-        # if "__getattribute__" in namespace:
-        #     og_getattribute = namespace["__getattribute__"]
-
-        # def __getattribute__(self, name: str) -> Any:
-        #     if not hasattr(type(self), name):
-        #         if og_getattribute:
-        #             return og_getattribute(self, name)
-        #         return object.__getattribute__(self, name)
-
-        #     function_obj: OverloadMeta.overload = getattr(
-        #         type(self), name)
-
-        #     @functools.wraps(function_obj)
-        #     def wrapper(*args, **kwargs):
-        #         return function_obj(self, *args, **kwargs)
-
-        #     return wrapper
-
+        logger.info(f"Creating overload class: {name}")
+        
         def create_wrapper(v: overload):
             @functools.wraps(next(iter(v._functions.values()))[0])  # type:ignore# pylint: disable=protected-access
             def wrapper(*args, **kwargs):
@@ -46,11 +33,13 @@ class OverloadMeta(type):
 
             return wrapper
 
+        overloaded_functions = 0
         for k, v in namespace.items():
             if isinstance(v, overload):  # type:ignore
                 namespace[k] = create_wrapper(v)
-        # namespace["__getattribute__"] = __getattribute__
+                overloaded_functions += 1
 
+        logger.info(f"OverloadMeta: {name} created with {overloaded_functions} overloaded functions")
         return super().__new__(mcs, name, bases, namespace)
 
 

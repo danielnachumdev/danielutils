@@ -1,8 +1,12 @@
+import logging
 import math
 import random
 from fractions import Fraction
 from typing import Tuple, Iterator, Union, Iterable, Protocol, runtime_checkable, Optional, List
 from copy import copy, deepcopy
+from ..logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 @runtime_checkable
@@ -167,6 +171,7 @@ class Matrix:
 
     def __matmul__(self, other: 'Matrix') -> 'Matrix':
         if not (self.width == other.height):
+            logger.error(f"Matrix multiplication dimension mismatch: {self.width} != {other.height}")
             raise ValueError(
                 f"Can't perform Matrix multiplication on A={repr(self)} and B={repr(other)} as A.width != B.height")
         res = Matrix(self.height, other.width, 0)
@@ -200,6 +205,7 @@ class Matrix:
         return self.height * self.width
 
     def determinant(self) -> Union[float, 'Polynomial']:
+        logger.warning("Matrix.determinant() is not implemented")
         pass
 
     def transpose(self) -> 'Matrix':

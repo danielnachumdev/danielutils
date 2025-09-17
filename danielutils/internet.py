@@ -1,3 +1,4 @@
+import logging
 import urllib.request
 import urllib.parse
 from urllib.parse import urlparse
@@ -5,6 +6,10 @@ import urllib
 from typing import Tuple as Tuple
 from .decorators import validate
 from .reflection import get_python_version
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
+
 if get_python_version() >= (3, 9):
     from builtins import tuple as Tuple  # type:ignore
 
@@ -22,11 +27,13 @@ def get_html(url: str) -> str:
     Returns:
         str: the html as a string
     """
+    logger.info(f"Fetching HTML from URL: {url}")
     user_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.7) Gecko/2009021910 Firefox/3.0.7'
     headers = {'User-Agent': user_agent, }
     req = urllib.request.Request(url, headers=headers)
     with urllib.request.urlopen(req) as f:
         html = f.read().decode('UTF-8')
+    logger.info(f"Successfully fetched HTML, length: {len(html)} characters")
     # return bs4(html, 'html.parser').prettify()
     return html
 

@@ -1,5 +1,9 @@
 import json
+import logging
 from .decorators import validate
+from danielutils.logging_.utils import get_logger
+from .logging_.utils import get_logger
+logger = get_logger(__name__)
 
 
 @validate  # type:ignore # type:ignore
@@ -12,7 +16,10 @@ def dict_to_json(dct: dict) -> str:
     Returns:
         str: the json as string
     """
-    return json.dumps(dct, indent=4)
+    logger.debug(f"Converting dict with {len(dct)} keys to JSON")
+    result = json.dumps(dct, indent=4)
+    logger.debug(f"JSON conversion completed, result length: {len(result)}")
+    return result
 
 
 @validate  # type:ignore
@@ -25,7 +32,10 @@ def json_to_dict(json_str: str) -> dict:
     Returns:
         dict: a python dict from the json
     """
-    return json.loads(json_str)
+    logger.debug(f"Converting JSON string (length: {len(json_str)}) to dict")
+    result = json.loads(json_str)
+    logger.debug(f"JSON parsing completed, dict has {len(result)} keys")
+    return result
 
 
 __all__ = [

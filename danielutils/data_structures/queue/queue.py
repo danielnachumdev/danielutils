@@ -1,9 +1,13 @@
+import logging
 from typing import Generic, TypeVar, Iterator, List as List
 from ...reflection import get_python_version
+from ..logging_.utils import get_logger
 
 if get_python_version() >= (3, 9):
     from builtins import list as List
 T = TypeVar("T")
+
+logger = get_logger(__name__)
 
 
 class Queue(Generic[T]):
@@ -11,6 +15,7 @@ class Queue(Generic[T]):
 
     def __init__(self) -> None:
         self.data: list = []
+        logger.debug("Queue initialized")
 
     def pop(self) -> T:
         """return the oldest element while removing it from the queue
@@ -18,7 +23,13 @@ class Queue(Generic[T]):
         Returns:
             Any: result
         """
-        return self.data.pop()
+        if self.is_empty():
+            logger.warning("Attempted to pop from empty queue")
+            raise IndexError("pop from empty queue")
+        
+        result = self.data.pop()
+        logger.debug(f"Popped element from queue, remaining size: {len(self.data)}")
+        return result
 
     def push(self, value: T) -> None:
         """adds a new element to the queue
@@ -27,6 +38,7 @@ class Queue(Generic[T]):
             value (Any): the value to add
         """
         self.data.insert(0, value)
+        logger.debug(f"Pushed element to queue, new size: {len(self.data)}")
 
     def peek(self) -> T:
         """returns the oldest element in the queue 
@@ -35,7 +47,13 @@ class Queue(Generic[T]):
         Returns:
             Any: result
         """
-        return self.data[-1]
+        if self.is_empty():
+            logger.warning("Attempted to peek at empty queue")
+            raise IndexError("peek at empty queue")
+        
+        result = self.data[-1]
+        logger.debug(f"Peeked at element in queue, size: {len(self.data)}")
+        return result
 
     def __len__(self) -> int:
         return len(self.data)
@@ -63,8 +81,10 @@ class Queue(Generic[T]):
         Args:
             arr (list): the objects to push
         """
+        logger.debug(f"Pushing {len(arr)} elements to queue")
         for v in arr:
             self.push(v)
+        logger.info(f"Successfully pushed {len(arr)} elements to queue")
 
 
 __all__ = [

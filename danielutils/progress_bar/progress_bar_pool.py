@@ -1,6 +1,10 @@
+import logging
 from typing import Type, List, Optional, Iterator
 from .progress_bar import ProgressBar
 from ..print_ import bprint
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class ProgressBarPool:
@@ -11,18 +15,21 @@ class ProgressBarPool:
             global_options: Optional[dict] = None,
             individual_options: Optional[List[Optional[dict]]] = None
     ) -> None:
+        logger.info(f"Creating ProgressBarPool with {num_of_bars} bars using {pbar_class.__name__}")
         self.bars: List[ProgressBar] = []
         if global_options is None:
             global_options = {}
         if individual_options is None:
             individual_options = [{} for _ in range(num_of_bars)]
         if len(individual_options) != num_of_bars:
-            raise ValueError(
-                "must supply the same number of options as there are bars")
+            error_msg = "must supply the same number of options as there are bars"
+            logger.error(f"ProgressBarPool initialization failed: {error_msg}")
+            raise ValueError(error_msg)
         for i in range(num_of_bars):
             if individual_options[i] is None:
                 individual_options[i] = {}
         max_desc_length: int = max([len(individual_options[i].get("desc", f"pbar {i}")) for i in range(num_of_bars)])
+        
         for i in range(num_of_bars):
             final_options: dict = global_options.copy()
             final_options.update(individual_options[i])  # type:ignore
@@ -36,6 +43,7 @@ class ProgressBarPool:
             )
             self.bars.append(t)
         self.writes: List[str] = []
+        logger.info(f"ProgressBarPool created successfully with {len(self.bars)} progress bars")
 
     def __getitem__(self, index: int) -> ProgressBar:
         return self.bars[index]

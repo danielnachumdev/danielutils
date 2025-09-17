@@ -1,4 +1,8 @@
+import logging
 from .math_symbols import subscript_dict, superscript_dict
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def mprint_parse_one(s: str) -> str:
@@ -10,6 +14,7 @@ def mprint_parse_one(s: str) -> str:
     Returns:
         str: the result
     """
+    logger.info(f"Parsing mathematical string: {s}")
 
     def inner(res: str, index: int, dct: dict):
         start = index
@@ -23,6 +28,7 @@ def mprint_parse_one(s: str) -> str:
                 res += char
         index -= 1
         return res, index
+    
     res: str = ""
     i = 0
     while i < len(s):
@@ -36,6 +42,8 @@ def mprint_parse_one(s: str) -> str:
         else:
             res += c
         i += 1
+    
+    logger.info(f"Parsing completed, result: {res}")
     return res
 
 

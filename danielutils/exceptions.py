@@ -1,4 +1,11 @@
 
+import logging
+
+from danielutils.logging_.utils import get_logger
+from .logging_.utils import get_logger
+
+logger = get_logger(__name__)
+
 
 class OverloadException(Exception):
     """Base exception for overload decorator
@@ -77,6 +84,7 @@ class PrintCatchOne:
 
     def __exit__(self, cls, instance, traceback):
         if instance:
+            logger.error(f"Exception caught in PrintCatchOne: {cls} {instance}")
             from .colors import error  # pylint: disable=cyclic-import
             error(f"{cls} {instance}")
             return isinstance(instance, cls)

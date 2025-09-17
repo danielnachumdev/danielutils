@@ -1,8 +1,12 @@
 import functools
+import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Callable, TypeVar, cast, Optional, Set
 from .database_exceptions import DBException
 from .database_definitions import TableSchema, SelectQuery, UpdateQuery, DeleteQuery
+from danielutils.logging_.utils import get_logger
+from ..logging_.utils import get_logger
+logger = get_logger(__name__)
 
 # Type variable for the decorator
 F = TypeVar('F', bound=Callable[..., Any])
@@ -20,11 +24,17 @@ class Database(ABC):
 
         @functools.wraps(db_method)
         async def wrapper(self: 'Database', *args: Any, **kwargs: Any) -> Any:
+            method_name = db_method.__name__
+            logger.debug(f"Executing database method: {method_name}")
             try:
-                return await db_method(self, *args, **kwargs)
-            except DBException:
+                result = await db_method(self, *args, **kwargs)
+                logger.debug(f"Database method '{method_name}' completed successfully")
+                return result
+            except DBException as e:
+                logger.error(f"Database method '{method_name}' failed with DBException: {e}")
                 raise
             except Exception as e:
+                logger.error(f"Database method '{method_name}' failed with {type(e).__name__}: {e}")
                 raise cls._default_class_exception_conversion(e)
 
         return cast(F, wrapper)
@@ -45,6 +55,8 @@ class Database(ABC):
     @classmethod
     def __init_subclass__(cls) -> None:
         """Initialize subclass by wrapping all public methods with exception handling"""
+        logger.debug(f"Initializing Database subclass: {cls.__name__}")
+        wrapped_methods = []
         for name, method in cls.__dict__.items():
             if (
                     callable(method) and
@@ -53,6 +65,8 @@ class Database(ABC):
                     and name in cls._get_functions_with_auto_converted_exceptions()
             ):
                 setattr(cls, name, cls._wrap_db_exceptions(method))
+                wrapped_methods.append(name)
+        logger.debug(f"Database subclass '{cls.__name__}' initialized with {len(wrapped_methods)} wrapped methods: {wrapped_methods}")
 
     @classmethod
     def _default_class_exception_conversion(cls, e: Exception) -> Exception:
@@ -66,6 +80,7 @@ class Database(ABC):
         Returns:
             Exception: The converted exception
         """
+        logger.warning(f"Converting exception {type(e).__name__} to DBException: {e}")
         return DBException(f"Database error: {str(e)}")
 
     async def __aenter__(self) -> 'Database':
@@ -75,7 +90,9 @@ class Database(ABC):
         Returns:
             Database: The database instance for use in the context
         """
+        logger.debug(f"Entering database context for {self.__class__.__name__}")
         await self.connect()
+        logger.debug(f"Database context entered successfully for {self.__class__.__name__}")
         return self
 
     async def __aexit__(self, exc_type: Optional[type], exc_val: Optional[Exception], exc_tb: Optional[Any]) -> None:
@@ -87,24 +104,35 @@ class Database(ABC):
             exc_val: The exception instance that was raised, if any
             exc_tb: The traceback for the exception, if any
         """
+        logger.debug(f"Exiting database context for {self.__class__.__name__}")
+        if exc_type is not None:
+            logger.warning(f"Database context exited with exception: {exc_type.__name__}: {exc_val}")
         await self.disconnect()
+        logger.debug(f"Database context exited successfully for {self.__class__.__name__}")
 
     @abstractmethod
     async def connect(self) -> None:
-        """Establish connection to the database"""
+        """Establish connection to the database
+        Note: Implementations should log connection attempts and results
+        """
 
     @abstractmethod
     async def disconnect(self) -> None:
-        """Close the database connection"""
+        """Close the database connection
+        Note: Implementations should log disconnection attempts and results
+        """
 
     @abstractmethod
     def is_connected(self) -> bool:
-        """Check if the database connection is open"""
+        """Check if the database connection is open
+        Note: Implementations should log connection status checks
+        """
 
     @abstractmethod
     async def get_schemas(self) -> Dict[str, TableSchema]:
         """
         Get the complete database schema
+        Note: Implementations should log schema retrieval operations
 
         Returns:
             Dict[str, TableSchema]: Dictionary mapping table names to their schemas
@@ -114,6 +142,7 @@ class Database(ABC):
     async def create_table(self, schema: TableSchema) -> None:
         """
         Create a new table in the database
+        Note: Implementations should log table creation operations
 
         Args:
             schema (TableSchema): Schema definition for the table
@@ -123,6 +152,7 @@ class Database(ABC):
     async def insert(self, table: str, data: Dict[str, Any]) -> Any:
         """
         Insert a record into the specified table
+        Note: Implementations should log insert operations with table name and data size
 
         Args:
             table (str): Name of the table to insert into
@@ -136,6 +166,7 @@ class Database(ABC):
     async def get(self, query: SelectQuery) -> List[Dict[str, Any]]:
         """
         Get records from the database
+        Note: Implementations should log query operations with table name and result count
 
         Args:
             query (SelectQuery): Query definition containing table name, conditions, ordering, etc.
@@ -148,6 +179,7 @@ class Database(ABC):
     async def update(self, query: UpdateQuery) -> int:
         """
         Update records in the database
+        Note: Implementations should log update operations with table name and affected row count
 
         Args:
             query (UpdateQuery): Query definition containing table name, conditions, and data to update
@@ -160,6 +192,7 @@ class Database(ABC):
     async def delete(self, query: DeleteQuery) -> int:
         """
         Delete records from the database
+        Note: Implementations should log delete operations with table name and affected row count
 
         Args:
             query (DeleteQuery): Query definition containing table name and conditions

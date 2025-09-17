@@ -1,9 +1,15 @@
+import logging
 import platform
+from ..logging_.utils import get_logger
+from ..logging_.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 def _get_python_version_untyped() -> tuple:
     values = (int(v) for v in platform.python_version().split("."))
-    return tuple(values)  # type:ignore
+    version = tuple(values)  # type:ignore
+    return version
 
 
 if _get_python_version_untyped() < (3, 9):
@@ -18,7 +24,9 @@ def get_python_version() -> Tuple[int, int, int]:
     Returns:
         tuple[int, int, int]: version
     """
-    return _get_python_version_untyped()  # type:ignore
+    version = _get_python_version_untyped()
+    logger.info(f"Python version: {version}")
+    return version  # type:ignore
 
 
 __all__ = [
