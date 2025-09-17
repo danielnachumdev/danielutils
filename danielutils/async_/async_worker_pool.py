@@ -71,6 +71,10 @@ class AsyncWorkerPool:
                 self._pbar.update(1)
             self._queue.task_done()
         self.log(logging.INFO, "Worker %d completed %d tasks (success: %d, failure: %d)", worker_id, task_index, len(tasks['success']), len(tasks['failure']))
+        if tasks['success']:
+            self.log(logging.INFO, "Worker %d successful tasks: %s", worker_id, ', '.join(tasks['success']))
+        if tasks['failure']:
+            self.log(logging.WARNING, "Worker %d failed tasks: %s", worker_id, ', '.join(tasks['failure']))
 
     async def start(self) -> None:
         """Starts the worker pool."""
