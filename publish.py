@@ -26,10 +26,10 @@ def main() -> None:
         global_quality_assurance_runners=[
             MypyRunner(bound="<=150", configuration_path="./mypy.ini"),
             PylintRunner(bound=">=0.8", configuration_path="./.pylintrc"),
-            # UnittestRunner(bound=">=0.5"),
+            UnittestRunner(bound=">=0.8"),
         ],
         pbar=tqdm(desc="QA", leave=False),  # type: ignore
-        # demo=True
+        demo=True
     )
 
 

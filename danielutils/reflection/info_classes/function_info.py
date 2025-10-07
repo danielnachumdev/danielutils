@@ -1,10 +1,13 @@
 import inspect
 import re
 import ast
+import logging
 from dataclasses import dataclass
 from typing import Type, List, Callable, Optional, Tuple, Dict, Any
 from .decorator_info import DecoratorInfo
 from .argument_info import ArgumentInfo
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -125,6 +128,16 @@ class FunctionInfo:
         re.MULTILINE)
 
     def __init__(self, func: Callable, owner: Type) -> None:
+        # Check for lambda functions
+        if getattr(func, '__name__', None) == '<lambda>':
+            raise TypeError(
+                f"'{func.__name__}' is not a user defined function")
+
+        # Check for abstract methods
+        if getattr(func, '__isabstractmethod__', False):
+            raise TypeError(
+                f"'{func.__name__}' is not a user defined function")
+
         try:
             if inspect.isdatadescriptor(func):
                 inspect.getsource(func.fget)  # type: ignore
@@ -159,7 +172,10 @@ class FunctionInfo:
 
         self._name = name
         if arguments is not None:
-            self._arguments = ArgumentInfo.from_str(arguments)
+            all_args = ArgumentInfo.from_str(arguments)
+            # Filter out separator arguments (/, *) - they are syntax markers, not actual arguments
+            self._arguments = [arg for arg in all_args if not (
+                arg.is_kwargs_only and arg.name == "/") and not (arg.is_args and arg.name is None)]
 
         self._return_type = "None"
         if return_type is not None:
@@ -411,6 +427,13 @@ class FunctionInfo:
     @property
     def stats(self) -> FunctionStats:
         """Returns comprehensive function statistics."""
+        # TODO: FunctionInfo.stats property is not yet ready for production use
+        # This functionality is experimental and may not provide accurate results
+        # The complexity analysis, typing analysis, and code structure analysis
+        # need further testing and refinement before being considered stable
+        logger.warning(
+            "FunctionInfo.stats property is experimental and not yet ready for production use")
+
         complexity = self._analyze_complexity()
         typing = self._analyze_typing()
         code = self._analyze_code_structure()

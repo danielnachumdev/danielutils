@@ -6,7 +6,7 @@ from typing import List, Iterable, Type, TypeVar, Generic, get_origin
 from .function_info import FunctionInfo
 from .decorator_info import DecoratorInfo
 from .argument_info import ArgumentInfo
-from ...functions import isoftype
+
 from ...logging_.utils import get_logger
 
 logger = get_logger(__name__)
@@ -31,11 +31,11 @@ class ClassInfo:
 
     def __init__(self, cls: Type) -> None:
         logger.debug("Creating ClassInfo for: %s", cls)
-        if isoftype(cls, _GenericAlias):  # type:ignore
+        if isinstance(cls, _GenericAlias):
             logger.debug("Converting generic alias to origin type")
             cls = get_origin(cls)  # type:ignore
         if not inspect.isclass(cls):
-            error_msg = f"'{cls.__name__}' is not a class"
+            error_msg = f"'{getattr(cls, '__name__', type(cls).__name__)}' is not a class"
             logger.error("ClassInfo creation failed: %s", error_msg)
             raise TypeError(error_msg)
         self._cls = cls
@@ -50,11 +50,28 @@ class ClassInfo:
 
     def _parse_src_code(self) -> None:
         logger.debug("Parsing source code")
-        self._src_code = inspect.getsource(self._cls)
+        try:
+            self._src_code = inspect.getsource(self._cls)
+        except (OSError, TypeError) as e:
+            logger.warning(
+                "Source code not available for class: %s - %s", self._cls.__name__, e)
+            self._src_code = ""
+            # Fall back to runtime introspection
+            self._name = self._cls.__name__
+            self._bases = []
+            self._parse_body()
+            return
+
         m = ClassInfo.CLASS_DEFINITION_REGEX.match(self._src_code)
         if m is None:
-            logger.error("Failed to match class definition regex")
-            raise SyntaxError()
+            logger.warning(
+                "Failed to match class definition regex, falling back to runtime introspection")
+            # Fall back to runtime introspection
+            self._name = self._cls.__name__
+            self._bases = []
+            self._parse_body()
+            return
+
         decorators, name, bases, _ = m.groupdict().values()
         logger.debug("Parsed class name: %s, bases: %s", name, bases)
         self._name = name
@@ -63,10 +80,17 @@ class ClassInfo:
         self._parse_body()
 
         if decorators is not None:
-            logger.debug("Parsing %s decorators", len(decorators.strip().splitlines()))
+            logger.debug("Parsing %s decorators", len(
+                decorators.strip().splitlines()))
             for substr in decorators.strip().splitlines():
-                self._decorations.append(
-                    DecoratorInfo.from_str(substr.strip()))
+                try:
+                    self._decorations.append(
+                        DecoratorInfo.from_str(substr.strip()))
+                except ValueError as e:
+                    logger.warning(
+                        "Failed to parse decorator '%s': %s", substr.strip(), e)
+                    # Skip invalid decorators
+                    continue
         logger.debug("Parsed %s decorators", len(self._decorations))
 
     def _parse_body(self) -> None:
@@ -87,6 +111,10 @@ class ClassInfo:
             try:
                 self._functions.append(FunctionInfo(
                     obj, self._cls))  # type: ignore
+            except TypeError as e:
+                # Skip functions that can't be parsed (e.g., lambda, built-ins)
+                logger.debug("Skipping function '%s': %s", attr, e)
+                continue
             except Exception as e:
                 raise Exception(
                     f"Error parsing function '{attr}' of class '{self._name}': {e}", e) from e

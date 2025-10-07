@@ -144,7 +144,7 @@ class TestDecorationInfo(unittest.TestCase):
         arguments = [ArgumentInfo(
             "arg1", "str", None, False, False, False, None)]
         decoration_info = DecoratorInfo("test", arguments)
-        expected = 'DecoratorInfo(name="test", arguments=[ArgumentInfo(name="arg1")])'
+        expected = 'DecoratorInfo(name="test", arguments=[ArgumentInfo(name="arg1", type=str)])'
         self.assertEqual(expected, repr(decoration_info))
 
     def test_repr_with_complex_arguments(self):
