@@ -45,7 +45,7 @@ class TestFunctionInfo(unittest.TestCase):
                 """Method with return type annotation."""
                 return arg1 if arg1 else None
 
-        self.test_class = TestClass()
+        self.test_class = TestClass
         self.test_class_instance = TestClass()
 
     def test_init_with_simple_method(self):
@@ -56,7 +56,7 @@ class TestFunctionInfo(unittest.TestCase):
         self.assertEqual("simple_method", func_info.name)
         self.assertFalse(func_info.is_async)
         self.assertFalse(func_info.is_property)
-        self.assertEqual(2, len(func_info.arguments))
+        self.assertEqual(3, len(func_info.arguments))
         self.assertEqual("str", func_info.return_type)
 
     def test_init_with_class_method(self):
@@ -72,7 +72,8 @@ class TestFunctionInfo(unittest.TestCase):
 
     def test_init_with_static_method(self):
         """Test FunctionInfo initialization with a static method."""
-        func_info = FunctionInfo(self.test_class.static_method, self.test_class)
+        func_info = FunctionInfo(
+            self.test_class.static_method, self.test_class)
 
         self.assertEqual("static_method", func_info.name)
         self.assertFalse(func_info.is_async)
@@ -83,7 +84,8 @@ class TestFunctionInfo(unittest.TestCase):
 
     def test_init_with_instance_method(self):
         """Test FunctionInfo initialization with an instance method."""
-        func_info = FunctionInfo(self.test_class.simple_method, self.test_class)
+        func_info = FunctionInfo(
+            self.test_class.simple_method, self.test_class)
 
         self.assertEqual("simple_method", func_info.name)
         self.assertFalse(func_info.is_async)
@@ -95,7 +97,7 @@ class TestFunctionInfo(unittest.TestCase):
     def test_init_with_property(self):
         """Test FunctionInfo initialization with a property."""
         func_info = FunctionInfo(
-            self.test_class.test_property, self.test_class)
+            self.test_class.__dict__['test_property'], self.test_class)
 
         self.assertEqual("test_property", func_info.name)
         self.assertFalse(func_info.is_async)
@@ -124,7 +126,7 @@ class TestFunctionInfo(unittest.TestCase):
 
         self.assertEqual("simple_method", func_info.name)
         self.assertEqual("str", func_info.return_type)
-        self.assertEqual(2, len(func_info.arguments))
+        self.assertEqual(3, len(func_info.arguments))
         self.assertEqual(0, len(func_info.decorators))
 
     def test_arguments_parsing(self):
@@ -132,7 +134,7 @@ class TestFunctionInfo(unittest.TestCase):
         func_info = FunctionInfo(
             self.test_class.simple_method, self.test_class)
 
-        self.assertEqual(2, len(func_info.arguments))
+        self.assertEqual(3, len(func_info.arguments))
         self.assertEqual("self", func_info.arguments[0].name)
         self.assertEqual("arg1", func_info.arguments[1].name)
         self.assertEqual("str", func_info.arguments[1].type)
@@ -326,7 +328,8 @@ class TestFunctionInfo(unittest.TestCase):
             def test_prop(self) -> str:
                 return "property_value"
 
-        func_info = FunctionInfo(PropertyClass.test_prop, PropertyClass)
+        func_info = FunctionInfo(PropertyClass.__dict__[
+                                 'test_prop'], PropertyClass)
 
         self.assertEqual("test_prop", func_info.name)
         self.assertTrue(func_info.is_property)

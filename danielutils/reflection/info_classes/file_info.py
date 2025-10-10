@@ -4,6 +4,7 @@ import io
 import importlib.util
 import inspect
 import json
+import logging
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import List, Set, Dict, Any, Optional, Tuple
@@ -13,6 +14,8 @@ from dataclasses import dataclass
 from .import_info import ImportInfo, ImportType
 from .class_info import ClassInfo
 from .function_info import FunctionInfo, FunctionStats
+
+logger = logging.getLogger(__name__)
 
 
 class CodeQualityLevel(Enum):
@@ -798,6 +801,14 @@ class FileInfo:
     @property
     def stats(self) -> FileStats:
         """Returns comprehensive file statistics."""
+        # TODO: FileInfo.stats property is not yet ready for production use
+        # This functionality is experimental and may not provide accurate results
+        # The file complexity analysis, typing analysis, code structure analysis,
+        # and dynamic analysis methods need further testing and refinement
+        # before being considered stable
+        logger.warning(
+            "FileInfo.stats property is experimental and not yet ready for production use")
+
         complexity = self._calculate_file_complexity_stats()
         typing = self._calculate_file_type_stats()
         code = self._calculate_file_code_stats()
@@ -956,6 +967,12 @@ class FileInfo:
 
     def get_dynamic_class_info(self) -> List[ClassInfo]:
         """Returns detailed ClassInfo objects for all classes."""
+        # TODO: get_dynamic_class_info method is not yet ready for production use
+        # This functionality is experimental and may not provide accurate results
+        # Dynamic module loading and class analysis need further testing and refinement
+        logger.warning(
+            "FileInfo.get_dynamic_class_info method is experimental and not yet ready for production use")
+
         if ClassInfo is None:
             print("ClassInfo unavailable; skipping dynamic class analysis.")
             return []
@@ -975,6 +992,12 @@ class FileInfo:
 
     def get_dynamic_function_info(self) -> List[FunctionInfo]:
         """Returns detailed FunctionInfo objects for all functions."""
+        # TODO: get_dynamic_function_info method is not yet ready for production use
+        # This functionality is experimental and may not provide accurate results
+        # Dynamic module loading and function analysis need further testing and refinement
+        logger.warning(
+            "FileInfo.get_dynamic_function_info method is experimental and not yet ready for production use")
+
         if FunctionInfo is None:
             print("FunctionInfo unavailable; skipping dynamic function analysis.")
             return []
@@ -1144,12 +1167,6 @@ class FileInfo:
 
     def __repr__(self) -> str:
         return f"FileInfo('{self.file_path}')"
-
-    # ==================== LEGACY COMPATIBILITY ====================
-
-    def print_summary(self) -> None:
-        """Legacy method for printing summary (deprecated, use export_summary)."""
-        print(self.export_summary())
 
 
 __all__ = [

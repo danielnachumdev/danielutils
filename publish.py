@@ -9,7 +9,7 @@ from tqdm import tqdm
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.1",
+        version="1.1.2",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A python utils library for things I find useful",
@@ -26,10 +26,9 @@ def main() -> None:
         global_quality_assurance_runners=[
             MypyRunner(bound="<=150", configuration_path="./mypy.ini"),
             PylintRunner(bound=">=0.8", configuration_path="./.pylintrc"),
-            UnittestRunner(bound=">=0.5"),
+            UnittestRunner(bound=">=0.8"),
         ],
         pbar=tqdm(desc="QA", leave=False),  # type: ignore
-        demo=True
     )
 
 

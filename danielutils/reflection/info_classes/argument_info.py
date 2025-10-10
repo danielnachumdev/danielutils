@@ -77,9 +77,10 @@ class ArgumentInfo:
         kwargs, args, kwarg_only, pname, parameters, name, type, default_value = m.groups()
         type = None if type is None else type.strip()
         default_value = None if default_value is None else default_value.strip()
+
         return ArgumentInfo(
             name=name or pname or (args.strip("*") if args else None) or (
-                kwargs.strip("*") if kwargs else None) or (kwarg_only.strip("/") if kwarg_only else None) or None,
+                kwargs.strip("*") if kwargs else None) or (kwarg_only if kwarg_only else None) or None,
             type=type,
             default=default_value,
             is_kwargs=kwargs is not None,
@@ -111,6 +112,9 @@ class ArgumentInfo:
         res = []
         for start, end in zip(indices[:-1], indices[1:]):
             substr = string[start + 1:end].strip()
+            # Skip standalone * (keyword-only separator)
+            if substr == "*":
+                continue
             res.append(ArgumentInfo._parse_one(substr))
         return res
 

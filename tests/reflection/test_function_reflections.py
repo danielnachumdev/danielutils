@@ -57,7 +57,7 @@ class TestFunctionReflections(unittest.TestCase):
 
         def foo6(x: int) -> None: ...
 
-        self.assertTrue(is_function_annotated_properly(foo5))
+        self.assertTrue(is_function_annotated_properly(foo6))
 
     def test_get_current_func(self):
         self.assertEqual(self.test_get_current_func, get_current_func())
