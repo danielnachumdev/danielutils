@@ -480,5 +480,98 @@ class TestArgumentInfo(unittest.TestCase):
         self.assertNotEqual(arg1.default, arg2.default)
 
 
+class TestArgumentInfoDecoratorContext(unittest.TestCase):
+    """Test cases for ArgumentInfo when parsing decorator call arguments (literal values).
+
+    This differs from definition context where arguments have names, types, and defaults.
+    In decorator context, we parse actual literal values passed to decorators.
+    """
+
+    def test_from_str_string_literal_single_quotes(self):
+        """Test from_str with string literal in single quotes (decorator argument)."""
+        result = ArgumentInfo.from_str("'test_string'")
+
+        self.assertEqual(1, len(result))
+        # String literal should be stored in default field
+        # Name should be None since it's a literal value, not a parameter definition
+        self.assertIn("test_string", result[0].default or "")
+
+    def test_from_str_string_literal_double_quotes(self):
+        """Test from_str with string literal in double quotes (decorator argument)."""
+        result = ArgumentInfo.from_str('"test_string"')
+
+        self.assertEqual(1, len(result))
+        # String literal should be stored in default field
+        self.assertIn("test_string", result[0].default or "")
+
+    def test_from_str_numeric_literal(self):
+        """Test from_str with numeric literal (decorator argument)."""
+        result = ArgumentInfo.from_str("42")
+
+        self.assertEqual(1, len(result))
+        # Numeric literal should be stored in default field
+        self.assertEqual("42", result[0].default)
+
+    def test_from_str_boolean_literal(self):
+        """Test from_str with boolean literal (decorator argument)."""
+        result = ArgumentInfo.from_str("True")
+
+        self.assertEqual(1, len(result))
+        # Boolean literal should be stored in default field
+        self.assertEqual("True", result[0].default)
+
+    def test_from_str_none_literal(self):
+        """Test from_str with None literal (decorator argument)."""
+        result = ArgumentInfo.from_str("None")
+
+        self.assertEqual(1, len(result))
+        # None literal should be stored in default field
+        self.assertEqual("None", result[0].default)
+
+    def test_from_str_list_literal(self):
+        """Test from_str with list literal (decorator argument)."""
+        result = ArgumentInfo.from_str("[1, 2, 3]")
+
+        self.assertEqual(1, len(result))
+        # List literal should be stored in default field
+        self.assertIn("1", result[0].default or "")
+        self.assertIn("2", result[0].default or "")
+        self.assertIn("3", result[0].default or "")
+
+    def test_from_str_dict_literal(self):
+        """Test from_str with dict literal (decorator argument)."""
+        result = ArgumentInfo.from_str("{'key': 'value'}")
+
+        self.assertEqual(1, len(result))
+        # Dict literal should be stored in default field
+        self.assertIn("key", result[0].default or "")
+        self.assertIn("value", result[0].default or "")
+
+    def test_from_str_string_with_quotes_inside(self):
+        """Test from_str with string containing quotes (decorator argument)."""
+        result = ArgumentInfo.from_str('"test\\"string"')
+
+        self.assertEqual(1, len(result))
+        # String with escaped quotes should be parsed correctly
+        self.assertIsNotNone(result[0].default)
+
+    def test_from_str_empty_string_literal(self):
+        """Test from_str with empty string literal (decorator argument)."""
+        result = ArgumentInfo.from_str('""')
+
+        self.assertEqual(1, len(result))
+        # Empty string should be parsed
+        self.assertIsNotNone(result[0].default)
+
+    def test_from_str_complex_expression(self):
+        """Test from_str with complex expression (decorator argument)."""
+        result = ArgumentInfo.from_str("some_function(1, 2)")
+
+        self.assertEqual(1, len(result))
+        # Complex expression should be stored in default field
+        self.assertIsNotNone(result[0].default)
+        self.assertIn("some_function", result[0].default or "")
+
+
 if __name__ == '__main__':
     unittest.main()

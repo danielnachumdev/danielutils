@@ -7,14 +7,16 @@ ARGUMENT_INFO_REGEX: re.Pattern = re.compile(
 
 
 class ArgumentInfo:
-    def __init__(self,
-                 name: Optional[str],
-                 type: Optional[str],
-                 default: Optional[str],
-                 is_kwargs: bool,
-                 is_args: bool,
-                 is_kwargs_only: bool,
-                 parameters: Optional[List]):
+    def __init__(
+            self,
+            name: Optional[str],
+            type: Optional[str],
+            default: Optional[str],
+            is_kwargs: bool,
+            is_args: bool,
+            is_kwargs_only: bool,
+            parameters: Optional[List]
+    ) -> None:
         self._name = name
         self._type = type
         self._default = default
@@ -70,6 +72,92 @@ class ArgumentInfo:
 
     @staticmethod
     def _parse_one(string: str) -> 'ArgumentInfo':
+        string = string.strip()
+
+        # Handle string literals (decorator context)
+        if string.startswith('"') or string.startswith("'"):
+            # Extract the string literal (handling escaped quotes)
+            quote_char = string[0]
+            # Find the matching closing quote
+            i = 1
+            while i < len(string):
+                if string[i] == quote_char and (i == 0 or string[i-1] != '\\'):
+                    # Found matching quote
+                    literal_value = string[:i+1]
+                    return ArgumentInfo(
+                        name=None,
+                        type=None,
+                        default=literal_value,
+                        is_kwargs=False,
+                        is_args=False,
+                        is_kwargs_only=False,
+                        parameters=None
+                    )
+                i += 1
+            # If no closing quote found, treat the whole string as the literal
+            return ArgumentInfo(
+                name=None,
+                type=None,
+                default=string,
+                is_kwargs=False,
+                is_args=False,
+                is_kwargs_only=False,
+                parameters=None
+            )
+
+        # Handle other literals (numbers, booleans, None, etc.) - check BEFORE regex
+        # In decorator context, these are always literals, not parameter definitions
+        if string:
+            # Check for numeric literal (starts with digit, possibly with decimal point or negative)
+            if string[0].isdigit() or (len(string) > 1 and string[0] == '-' and string[1].isdigit()):
+                return ArgumentInfo(
+                    name=None,
+                    type=None,
+                    default=string,
+                    is_kwargs=False,
+                    is_args=False,
+                    is_kwargs_only=False,
+                    parameters=None
+                )
+            # Check for boolean or None literals
+            if string in ('True', 'False', 'None'):
+                return ArgumentInfo(
+                    name=None,
+                    type=None,
+                    default=string,
+                    is_kwargs=False,
+                    is_args=False,
+                    is_kwargs_only=False,
+                    parameters=None
+                )
+            # Check for list/dict literals or function calls (starts with bracket, brace, or identifier followed by paren)
+            if string.startswith('[') or string.startswith('{') or string.startswith('('):
+                return ArgumentInfo(
+                    name=None,
+                    type=None,
+                    default=string,
+                    is_kwargs=False,
+                    is_args=False,
+                    is_kwargs_only=False,
+                    parameters=None
+                )
+            # Check for function call pattern (identifier followed by opening paren)
+            # This handles cases like "some_function(1, 2)"
+            if '(' in string and not string.startswith('='):
+                # Check if it looks like a function call (has identifier before paren)
+                parts = string.split('(', 1)
+                if len(parts) == 2 and parts[0].strip() and (parts[0].strip()[0].isalpha() or parts[0].strip()[0] == '_'):
+                    return ArgumentInfo(
+                        name=None,
+                        type=None,
+                        default=string,
+                        is_kwargs=False,
+                        is_args=False,
+                        is_kwargs_only=False,
+                        parameters=None
+                    )
+
+        # Try regex matching for normal argument patterns
         m = ARGUMENT_INFO_REGEX.match(string)
         if m is None:
             raise ValueError(f"Invalid argument info string: {string}")
@@ -99,15 +187,33 @@ class ArgumentInfo:
         string = string.strip()
         indices = [-1]
         stack: List[str] = []
+        in_string = False
+        string_char = None
         for i, c in enumerate(string):
-            if c in {'[', ']'}:
-                if c == '[':
-                    stack.append(c)
-                else:
-                    stack.pop()
-            elif len(stack) == 0:
-                if c == ",":
-                    indices.append(i)
+            # Track string literals
+            if c in {'"', "'"} and (i == 0 or string[i-1] != '\\'):
+                if not in_string:
+                    in_string = True
+                    string_char = c
+                elif c == string_char:
+                    in_string = False
+                    string_char = None
+            # Track brackets, braces, and parentheses only when not in string
+            elif not in_string:
+                if c in {'[', ']', '{', '}', '(', ')'}:
+                    if c in {'[', '{', '('}:
+                        stack.append(c)
+                    else:
+                        # Match closing brackets/braces/parens with opening ones
+                        if stack:
+                            opening = stack[-1]
+                            if (c == ']' and opening == '[') or \
+                               (c == '}' and opening == '{') or \
+                               (c == ')' and opening == '('):
+                                stack.pop()
+                elif len(stack) == 0:
+                    if c == ",":
+                        indices.append(i)
         indices.append(len(string))
         res = []
         for start, end in zip(indices[:-1], indices[1:]):

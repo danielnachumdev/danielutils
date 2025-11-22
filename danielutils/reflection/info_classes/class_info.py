@@ -53,8 +53,7 @@ class ClassInfo:
         try:
             self._src_code = inspect.getsource(self._cls)
         except (OSError, TypeError) as e:
-            logger.warning(
-                "Source code not available for class: %s - %s", self._cls.__name__, e)
+            logger.warning("Source code not available for class: %s - %s", self._cls.__name__, e)
             self._src_code = ""
             # Fall back to runtime introspection
             self._name = self._cls.__name__
@@ -64,8 +63,7 @@ class ClassInfo:
 
         m = ClassInfo.CLASS_DEFINITION_REGEX.match(self._src_code)
         if m is None:
-            logger.warning(
-                "Failed to match class definition regex, falling back to runtime introspection")
+            logger.warning("Failed to match class definition regex, falling back to runtime introspection")
             # Fall back to runtime introspection
             self._name = self._cls.__name__
             self._bases = []
@@ -80,15 +78,12 @@ class ClassInfo:
         self._parse_body()
 
         if decorators is not None:
-            logger.debug("Parsing %s decorators", len(
-                decorators.strip().splitlines()))
+            logger.debug("Parsing %s decorators", len(decorators.strip().splitlines()))
             for substr in decorators.strip().splitlines():
                 try:
-                    self._decorations.append(
-                        DecoratorInfo.from_str(substr.strip()))
+                    self._decorations.append(DecoratorInfo.from_str(substr.strip()))
                 except ValueError as e:
-                    logger.warning(
-                        "Failed to parse decorator '%s': %s", substr.strip(), e)
+                    logger.warning("Failed to parse decorator '%s': %s", substr.strip(), e)
                     # Skip invalid decorators
                     continue
         logger.debug("Parsed %s decorators", len(self._decorations))
