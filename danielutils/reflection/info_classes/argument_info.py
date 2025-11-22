@@ -178,13 +178,51 @@ class ArgumentInfo:
         )
 
     @staticmethod
+    def _strip_comments(string: str) -> str:
+        """Strip comments from string while preserving string literals."""
+        result = []
+        in_string = False
+        string_char = None
+        i = 0
+        while i < len(string):
+            c = string[i]
+            # Track string literals
+            if c in {'"', "'"} and (i == 0 or string[i-1] != '\\'):
+                if not in_string:
+                    in_string = True
+                    string_char = c
+                elif c == string_char:
+                    in_string = False
+                    string_char = None
+                result.append(c)
+            # Handle comments (only when not in string)
+            elif not in_string and c == '#':
+                # Skip everything from # to end of line (or end of string)
+                # Keep the newline if present to preserve line structure
+                while i < len(string) and string[i] != '\n':
+                    i += 1
+                # Include the newline if we found one
+                if i < len(string) and string[i] == '\n':
+                    result.append('\n')
+                    i += 1
+                    continue
+                else:
+                    # End of string, break
+                    break
+            else:
+                result.append(c)
+            i += 1
+        return ''.join(result)
+
+    @staticmethod
     def from_str(string: str) -> List['ArgumentInfo']:
         if string is None:
             return []
         string = string.strip()
         if not string:
             return []
-        string = string.strip()
+        # Strip comments before processing
+        string = ArgumentInfo._strip_comments(string).strip()
         indices = [-1]
         stack: List[str] = []
         in_string = False
@@ -220,6 +258,9 @@ class ArgumentInfo:
             substr = string[start + 1:end].strip()
             # Skip standalone * (keyword-only separator)
             if substr == "*":
+                continue
+            # Skip empty strings (from comment-only lines)
+            if not substr:
                 continue
             res.append(ArgumentInfo._parse_one(substr))
         return res

@@ -207,7 +207,7 @@ class TestFunctionInfo(unittest.TestCase):
     def test_init_with_lambda(self):
         """Test FunctionInfo initialization with lambda raises TypeError."""
 
-        def lambda_func(x): return x
+        lambda_func = lambda x: x
 
         with self.assertRaises(TypeError):
             FunctionInfo(lambda_func, object)
@@ -450,6 +450,36 @@ class TestFunctionInfo(unittest.TestCase):
         self.assertEqual("Dict[str, List[Optional[int]]]",
                          func_info.return_type)
         self.assertEqual(3, len(func_info.arguments))  # self, arg1, arg2
+
+    def test_method_with_multiline_arguments_and_comments(self):
+        """Test FunctionInfo with method having multiline arguments with comments on each line."""
+
+        class MultilineCommentClass:
+            def multiline_with_comments(
+                self,  # The instance reference
+                arg1: str,  # First string argument
+                arg2: int = 42,  # Second integer argument with default
+                arg3: Optional[float] = None  # Third optional float argument
+            ) -> str:
+                return f"{arg1}: {arg2}: {arg3}"
+
+        func_info = FunctionInfo(
+            MultilineCommentClass.multiline_with_comments, MultilineCommentClass)
+
+        self.assertEqual("multiline_with_comments", func_info.name)
+        self.assertEqual("str", func_info.return_type)
+        # Should parse 4 arguments: self, arg1, arg2, arg3 (comments should be ignored)
+        self.assertEqual(4, len(func_info.arguments))
+        # Verify argument names are correct (comments shouldn't affect parsing)
+        self.assertEqual("self", func_info.arguments[0].name)
+        self.assertEqual("arg1", func_info.arguments[1].name)
+        self.assertEqual("str", func_info.arguments[1].type)
+        self.assertEqual("arg2", func_info.arguments[2].name)
+        self.assertEqual("int", func_info.arguments[2].type)
+        self.assertEqual("42", func_info.arguments[2].default)
+        self.assertEqual("arg3", func_info.arguments[3].name)
+        self.assertEqual("Optional[float]", func_info.arguments[3].type)
+        self.assertEqual("None", func_info.arguments[3].default)
 
 
 if __name__ == '__main__':
