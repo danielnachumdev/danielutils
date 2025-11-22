@@ -53,7 +53,8 @@ class ClassInfo:
         try:
             self._src_code = inspect.getsource(self._cls)
         except (OSError, TypeError) as e:
-            logger.warning("Source code not available for class: %s - %s", self._cls.__name__, e)
+            logger.warning(
+                "Source code not available for class: %s - %s", self._cls.__name__, e)
             self._src_code = ""
             # Fall back to runtime introspection
             self._name = self._cls.__name__
@@ -63,7 +64,8 @@ class ClassInfo:
 
         m = ClassInfo.CLASS_DEFINITION_REGEX.match(self._src_code)
         if m is None:
-            logger.warning("Failed to match class definition regex, falling back to runtime introspection")
+            logger.warning(
+                "Failed to match class definition regex, falling back to runtime introspection")
             # Fall back to runtime introspection
             self._name = self._cls.__name__
             self._bases = []
@@ -73,17 +75,29 @@ class ClassInfo:
         decorators, name, bases, _ = m.groupdict().values()
         logger.debug("Parsed class name: %s, bases: %s", name, bases)
         self._name = name
-        self._bases = ArgumentInfo.from_str(bases)
+        try:
+            self._bases = ArgumentInfo.from_str(bases)
+        except ValueError as e:
+            raise ValueError(
+                f"Failed to parse base classes for class '{name}': {e}\n"
+                f"Bases string: {repr(bases)}"
+            ) from e
         logger.debug("Parsed %s base classes", len(self._bases))
         self._parse_body()
 
         if decorators is not None:
-            logger.debug("Parsing %s decorators", len(decorators.strip().splitlines()))
+            logger.debug("Parsing %s decorators", len(
+                decorators.strip().splitlines()))
             for substr in decorators.strip().splitlines():
                 try:
-                    self._decorations.append(DecoratorInfo.from_str(substr.strip()))
+                    self._decorations.append(
+                        DecoratorInfo.from_str(substr.strip()))
                 except ValueError as e:
-                    logger.warning("Failed to parse decorator '%s': %s", substr.strip(), e)
+                    error_msg = (
+                        f"Failed to parse decorator for class '{name}': {e}\n"
+                        f"Decorator string: {repr(substr.strip())}"
+                    )
+                    logger.warning(error_msg)
                     # Skip invalid decorators
                     continue
         logger.debug("Parsed %s decorators", len(self._decorations))

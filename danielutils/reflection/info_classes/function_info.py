@@ -166,13 +166,26 @@ class FunctionInfo:
         decorators, async_, name, arguments, return_type, body = m.groups()
         if decorators is not None:
             for substr in decorators.strip().splitlines():
-                self._decorators.append(DecoratorInfo.from_str(substr.strip()))
+                try:
+                    self._decorators.append(
+                        DecoratorInfo.from_str(substr.strip()))
+                except ValueError as e:
+                    raise ValueError(
+                        f"Failed to parse decorator for function '{name}': {e}\n"
+                        f"Decorator string: {repr(substr.strip())}"
+                    ) from e
 
         self._is_async = async_ is not None
 
         self._name = name
         if arguments is not None:
-            all_args = ArgumentInfo.from_str(arguments)
+            try:
+                all_args = ArgumentInfo.from_str(arguments)
+            except ValueError as e:
+                raise ValueError(
+                    f"Failed to parse arguments for function '{name}': {e}\n"
+                    f"Arguments string: {repr(arguments)}"
+                ) from e
             # Filter out separator arguments (/, *) - they are syntax markers, not actual arguments
             self._arguments = [arg for arg in all_args if not (
                 arg.is_kwargs_only and arg.name == "/") and not (arg.is_args and arg.name is None)]

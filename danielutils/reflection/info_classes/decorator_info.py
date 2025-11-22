@@ -25,10 +25,19 @@ class DecoratorInfo:
     def from_str(string: str) -> 'DecoratorInfo':
         m = DecoratorInfo.DECORATOR_INFO_REGEX.match(string)
         if m is None:
-            raise ValueError()
+            raise ValueError(f"Invalid decorator format: {repr(string)}")
 
         name, arguments = m.groups()
-        args = ArgumentInfo.from_str(arguments)
+        if arguments:
+            try:
+                args = ArgumentInfo.from_str(arguments)
+            except ValueError as e:
+                raise ValueError(
+                    f"Failed to parse arguments for decorator '{name}': {e}\n"
+                    f"Arguments string: {repr(arguments)}"
+                ) from e
+        else:
+            args = []
         return DecoratorInfo(name, args)
 
     def __str__(self) -> str:

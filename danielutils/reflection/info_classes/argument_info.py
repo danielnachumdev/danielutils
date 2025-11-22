@@ -254,7 +254,7 @@ class ArgumentInfo:
                         indices.append(i)
         indices.append(len(string))
         res = []
-        for start, end in zip(indices[:-1], indices[1:]):
+        for idx, (start, end) in enumerate(zip(indices[:-1], indices[1:])):
             substr = string[start + 1:end].strip()
             # Skip standalone * (keyword-only separator)
             if substr == "*":
@@ -262,7 +262,14 @@ class ArgumentInfo:
             # Skip empty strings (from comment-only lines)
             if not substr:
                 continue
-            res.append(ArgumentInfo._parse_one(substr))
+            try:
+                res.append(ArgumentInfo._parse_one(substr))
+            except ValueError as e:
+                raise ValueError(
+                    f"Failed to parse argument {idx + 1}: {e}\n"
+                    f"Argument string: {repr(substr)}\n"
+                    f"Full arguments string: {repr(string)}"
+                ) from e
         return res
 
 
