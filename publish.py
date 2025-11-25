@@ -12,7 +12,7 @@ def main() -> None:
         version="1.1.22",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
-        description="A python utils library for things I find useful",
+        description="A comprehensive Python utilities library providing type-safe collections, async programming tools, database abstractions, retry executors, data structures, and developer productivity enhancements to streamline Python development workflows",
         min_python=Version(3, 8, 0),
         dependencies=[],
         homepage="https://github.com/danielnachumdev/danielutils",
