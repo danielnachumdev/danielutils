@@ -19,8 +19,11 @@ def get_all_modules() -> Set[str]:
     # Get modules from the Python Standard Library
     stdlib_modules = set()
     for module in pkgutil.iter_modules():
-        if not module.ispkg and module.module_finder.path.startswith(sys.prefix):  # type:ignore
-            stdlib_modules.add(module.name)
+        try:
+            if not module.ispkg and module.module_finder.path.startswith(sys.prefix):  # type:ignore
+                stdlib_modules.add(module.name)
+        except AttributeError:
+            pass
 
     # Combine built-in modules and modules from the Python Standard Library
     all_modules.update(builtin_modules)
