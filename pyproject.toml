@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "danielutils"
-version = "1.1.22"
+version = "1.1.23"
 authors = [
     { name = "danielnachumdev", email = "danielnachumdev@gmail.com" },
 ]
 dependencies = []
 keywords = []
 license = { "file" = "./LICENSE" }
-description = "A python utils library for things I find useful"
+description = "A comprehensive Python utilities library providing type-safe collections, async programming tools, database abstractions, retry executors, data structures, and developer productivity enhancements to streamline Python development workflows"
 readme = {file = "./README.md", content-type = "text/markdown"}
 requires-python = ">=3.8.0"
 classifiers = [
@@ -20,9 +20,9 @@ classifiers = [
 	"Programming Language :: Python :: 3",
 	"Operating System :: Microsoft :: Windows"
 ]
-
 [tool.setuptools]
 packages = ["danielutils"]
+
 [tool.setuptools.package-data]
 "danielutils" = ["py.typed"]
 
