@@ -1,0 +1,16 @@
+quickpub>=3.0.0
+mypy
+pylint
+tqdm
+types-tqdm
+twine
+redis
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+setuptools
+wheel
+pytest
+pytest-xdist
+pytest-asyncio
