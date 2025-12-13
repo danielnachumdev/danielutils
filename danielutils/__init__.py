@@ -1,3 +1,4 @@
+__version__ = "1.1.24"
 """danielutils is a convenience library of functions decorators
     data-structures and more that make my development workflow faster
 """

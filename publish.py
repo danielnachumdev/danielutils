@@ -1,15 +1,13 @@
-import json
-
-from quickpub import publish, Version, MypyRunner, PylintRunner, UnittestRunner, PypircEnforcer, LocalVersionEnforcer, \
+from quickpub import publish, Version, MypyRunner, PylintRunner, PypircEnforcer, LocalVersionEnforcer, \
     ReadmeEnforcer, PypiRemoteVersionEnforcer, LicenseEnforcer, GithubUploadTarget, PypircUploadTarget, \
-    SetuptoolsBuildSchema, CondaPythonProvider
+    SetuptoolsBuildSchema, CondaPythonProvider, PytestRunner
 from tqdm import tqdm
 
 
 def main() -> None:
     publish(
         name="danielutils",
-        version="1.1.23",
+        version="1.1.24",
         author="danielnachumdev",
         author_email="danielnachumdev@gmail.com",
         description="A comprehensive Python utilities library providing type-safe collections, async programming tools, database abstractions, retry executors, data structures, and developer productivity enhancements to streamline Python development workflows",
@@ -26,7 +24,7 @@ def main() -> None:
         global_quality_assurance_runners=[
             MypyRunner(bound="<=150", configuration_path="./mypy.ini"),
             PylintRunner(bound=">=0.8", configuration_path="./.pylintrc"),
-            UnittestRunner(bound=">=0.8"),
+            PytestRunner(bound=">=0.8"),
         ],
         pbar=tqdm(desc="QA", leave=False),  # type: ignore
     )
