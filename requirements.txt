@@ -1,4 +1,5 @@
-quickpub>=3.0.0
+quickpub>=4.0.0
+githooklib>=1.0.0
 mypy
 pylint
 tqdm
