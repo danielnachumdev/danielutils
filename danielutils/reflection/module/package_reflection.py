@@ -20,7 +20,8 @@ def get_all_modules() -> Set[str]:
     stdlib_modules = set()
     for module in pkgutil.iter_modules():
         try:
-            if not module.ispkg and module.module_finder.path.startswith(sys.prefix):  # type:ignore
+            # type:ignore
+            if not module.ispkg and hasattr(module.module_finder, 'path') and module.module_finder.path.startswith(sys.prefix):
                 stdlib_modules.add(module.name)
         except AttributeError:
             pass
