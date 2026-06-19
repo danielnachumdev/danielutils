@@ -12,6 +12,14 @@ def _create_operator(op: Operator, reverse: bool = False) -> Callable[['Conditio
         if reverse:
             lhs, rhs = rhs, lhs
 
+        if reverse and op == Operator.ADD and other == 0:
+            return self
+
+        if isinstance(other, ConditionalVariable) and op == Operator.ADD:
+            combined = _combine_iid_bernoulli_sums(lhs, other)
+            if combined is not None:
+                return combined
+
         if isinstance(other, (int, float, Fraction)):
             return ProbabilityExpression(lhs, op, rhs)
 
@@ -21,12 +29,30 @@ def _create_operator(op: Operator, reverse: bool = False) -> Callable[['Conditio
             o = other.op
             return AccumulationExpression(l, o, r)
 
-        # if isinstance(rhs, ConditionalVariable):
-        #     return AccumulationExpression(ProbabilityExpression(lhs), op, ProbabilityExpression(rhs))
-
         raise NotImplementedError("Not Implemented")
 
     return operator
+
+
+def _combine_iid_bernoulli_sums(lhs: 'ConditionalVariable', rhs: 'ConditionalVariable'):
+    from .discrete.bernoulli import Bernoulli
+    from .discrete.binomial import Binomial
+    from .discrete.bernoulli_sum import BernoulliSum
+
+    def count_and_p(variable: ConditionalVariable):
+        if isinstance(variable, Bernoulli):
+            return 1, variable.p
+        if isinstance(variable, BernoulliSum):
+            return variable.n, variable.p
+        if isinstance(variable, Binomial):
+            return variable.n, variable.p
+        return None, None
+
+    left_n, left_p = count_and_p(lhs)
+    right_n, right_p = count_and_p(rhs)
+    if left_n is None or right_n is None or left_p != right_p:
+        return None
+    return BernoulliSum(left_p, left_n + right_n)
 
 class ConditionalVariable(ABC):
     OPERATOR_TYPE = Callable[['ConditionalVariable', Any], Evaluable]
@@ -63,6 +89,8 @@ class ConditionalVariable(ABC):
 
     def is_independent(self, other) -> bool:
         if not isinstance(other, ConditionalVariable):
+            return False
+        if self is other:
             return False
         if not self.supp.is_finite and not other.supp.is_finite:
             raise ValueError("Can't check if two variables are independent if their supp is not finite")

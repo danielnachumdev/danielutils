@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Generator, Any, Tuple as Tuple
 from threading import Semaphore  # , Condition
 from ..decorators import threadify
@@ -74,6 +75,7 @@ def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
                 queue.push((index, value))
             queue_status_semaphore.release()
             items_processed += 1
+            time.sleep(0)
         logger.debug("Thread %s finished processing, processed %s items", index, items_processed)
         finished_threads_counter.increment()
 
@@ -86,22 +88,19 @@ def join_generators(*generators) -> Generator[Tuple[int, Any], None, None]:
         thread_entry_point(i, generator)
 
     total_yielded = 0
-    while finished_threads_counter.get() < len(generators):
+    while True:
         queue_status_semaphore.acquire()
         with edit_queue_semaphore:
-            # needed for the very last iteration of the "while" loop. see above comment
-            if not queue.is_empty():
+            while not queue.is_empty():
                 item = queue.pop()
                 total_yielded += 1
                 yield item
-    
-    remaining_items = 0
-    with edit_queue_semaphore:
-        for value in queue:
-            remaining_items += 1
-            yield value
-    
-    logger.info("join_generators completed, yielded %s items total", total_yielded + remaining_items)
+        if finished_threads_counter.get() == len(generators):
+            with edit_queue_semaphore:
+                if queue.is_empty():
+                    break
+
+    logger.info("join_generators completed, yielded %s items total", total_yielded)
 
 
 __all__ = [

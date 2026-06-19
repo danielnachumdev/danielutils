@@ -1,7 +1,7 @@
 
 import logging
 from abc import abstractmethod, ABC
-from typing import Protocol, runtime_checkable, Any, Callable, ParamSpec, Generic
+from typing import Protocol, runtime_checkable, Any, Callable, Generic
 from ..reflection import ClassInfo
 from ..logging_.utils import get_logger
 

@@ -62,17 +62,25 @@ class ClassInfo:
             self._parse_body()
             return
 
-        m = ClassInfo.CLASS_DEFINITION_REGEX.match(self._src_code)
+        class_name = self._cls.__name__
+        class_pattern = re.compile(
+            rf"(?P<decorations>[\s\S]*?)(?:^|\n)\s*class {re.escape(class_name)}\b"
+            rf"(?:\((?P<bases>.*)\))?:(?P<body>[\s\S]+)",
+            re.MULTILINE,
+        )
+        m = class_pattern.search(self._src_code)
         if m is None:
             logger.warning(
                 "Failed to match class definition regex, falling back to runtime introspection")
             # Fall back to runtime introspection
-            self._name = self._cls.__name__
+            self._name = class_name
             self._bases = []
             self._parse_body()
             return
 
-        decorators, name, bases, _ = m.groupdict().values()
+        decorators = m.group("decorations")
+        bases = m.group("bases")
+        name = class_name
         logger.debug("Parsed class name: %s, bases: %s", name, bases)
         self._name = name
         try:

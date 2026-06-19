@@ -7,6 +7,7 @@ from typing import Callable, Iterable, Any, Generator, Optional, Union, \
     List as List, Set as Set, Type as t_type, Dict as Dict
 from ..logging_.utils import get_logger
 from ..reflection import get_python_version
+from ..reflection.declarations import _should_use_runtime_introspection, _source_matches_class
 if get_python_version() >= (3, 9):
     from builtins import list as List, set as Set, type as t_type, dict as Dict  # type:ignore
 # from ..decorators.decorate_conditionally import decorate_conditionally
@@ -52,7 +53,19 @@ class InterfaceHelper:
         if hasattr(func, Interface.FUNC_KEY):
             return not func.__dict__[Interface.FUNC_KEY]
 
-        src = inspect.getsource(func)
+        if getattr(func, "__is_interface_handler__", False):
+            return False
+
+        try:
+            src = inspect.getsource(func)
+        except (OSError, TypeError):
+            code = func.__code__
+            if code.co_code == b'd\x00S\x00' and code.co_consts == (None,):
+                return False
+            if code.co_code == (lambda: ...).__code__.co_code:
+                return False
+            return True
+
         if re.match(Interface.IMPLICIT_ABSTRACT, src):
             return False
 
@@ -68,6 +81,8 @@ class InterfaceHelper:
             Generator[str, None, None]: yields str which are function names
         """
         for func_name in InterfaceHelper.get_declared_function_names(cls):
+            if func_name not in cls.__dict__:
+                continue
             func = cls.__dict__[func_name]
             if not InterfaceHelper.is_func_implemented(func):
                 yield func_name
@@ -80,9 +95,21 @@ class InterfaceHelper:
             Generator[str, None, None]: yields str which are function names
         """
         for func_name in InterfaceHelper.get_declared_function_names(cls):
+            if func_name not in cls.__dict__:
+                continue
             func = cls.__dict__[func_name]
             if InterfaceHelper.is_func_implemented(func):
                 yield func_name
+
+    @staticmethod
+    def _runtime_declared_function_names(cls) -> Generator[str, None, None]:
+        expected_qualname_prefix = f"{cls.__qualname__}."
+        for name, value in cls.__dict__.items():
+            if not inspect.isfunction(value):
+                continue
+            if getattr(value, "__qualname__", "") != expected_qualname_prefix + name:
+                continue
+            yield name
 
     @staticmethod
     def get_declared_function_names(cls) -> Generator[str, None, None]:
@@ -91,12 +118,24 @@ class InterfaceHelper:
         Yields:
             Generator[str, None, None]: yields str values which are names of declared functions
         """
-        # In python 3.8 this function always return the first occurrence so some tests fail
-        src = inspect.getsource(cls).splitlines()
-        for line in src:
+        if _should_use_runtime_introspection(cls):
+            yield from InterfaceHelper._runtime_declared_function_names(cls)
+            return
+
+        try:
+            source = inspect.getsource(cls)
+            if not _source_matches_class(cls, source):
+                raise OSError("source does not match class")
+            source_lines = source.splitlines()
+        except (OSError, TypeError):
+            yield from InterfaceHelper._runtime_declared_function_names(cls)
+            return
+
+        for line in source_lines:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
-                yield func_name
+                if func_name in cls.__dict__:
+                    yield func_name
 
     @staticmethod
     def create_init_handler(cls_name, missing: Optional[Union[List[str],
@@ -148,6 +187,7 @@ class InterfaceHelper:
             logger.warning("Generic handler called for unimplemented method in interface %s", cls)
             raise NotImplementedError(
                 f"Interface {cls} must be implemented")
+        __interface_handler__.__is_interface_handler__ = True
         return __interface_handler__
 
 
@@ -155,7 +195,7 @@ class Interface(type):
     """This is a metaclass that will enable better_builtins that inherit it directly (or indirectly)
         to behave like interfaces in OOP languages like java
     """
-    IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*\w+)?:\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
+    IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*[\w\[\],\s]+)?:(?:[^\n]*)\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
     KEY = "__is_interface__"
     FUNC_KEY = "__is_abstractmethod__"
 

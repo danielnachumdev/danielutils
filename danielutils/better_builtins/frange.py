@@ -23,11 +23,17 @@ class frange(Sequence[float]):
         return n.is_integer()
 
     @staticmethod
+    def _lcm_int(a: int, b: int) -> int:
+        if hasattr(math, "lcm"):
+            return math.lcm(a, b)
+        return abs(a * b) // math.gcd(a, b)
+
+    @staticmethod
     def _lcm_float(a: float, b: float) -> float:
         prec = min(5, max(decimal.getcontext().prec, 10))
         a = round(a, prec)
         b = round(b, prec)
-        return math.lcm(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec
+        return frange._lcm_int(int(a * 10 ** prec), int(b * 10 ** prec)) / 10 ** prec
 
     @staticmethod
     def _find_min_step(s1: float, s2: float) -> float:
@@ -156,7 +162,14 @@ class frange(Sequence[float]):
         Returns:
             bool
         """
-        return len(self) != float("inf")
+        if self.stop in (float("inf"), float("-inf")):
+            return False
+        if self.start in (float("inf"), float("-inf")):
+            return False
+        try:
+            return len(self) != float("inf")
+        except TypeError:
+            return False
 
     @property
     def is_infinite(self) -> bool:

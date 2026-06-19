@@ -8,7 +8,7 @@ import sys
 import time
 import json
 import subprocess
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Tuple
 from ..models import TestFunctionState, ModuleState, TestResult, TestRunSummary, TestDiscovery
 from .discovery import TestDiscoveryService
 from .execution import TestExecutor
@@ -173,7 +173,7 @@ class TestRunner:
             print(f"Error loading previous results: {e}")
             self.previous_results = None
     
-    def _should_skip_module(self, module_path: str) -> tuple[bool, str]:
+    def _should_skip_module(self, module_path: str) -> Tuple[bool, str]:
         """Determine if a module should be skipped based on previous results."""
         logger.debug("Checking if module should be skipped: %s", module_path)
         

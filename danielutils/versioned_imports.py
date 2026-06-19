@@ -19,7 +19,13 @@ except ImportError:
 
     TypeAlias = Any  # type: ignore
 
+try:
+    from typing import Annotated
+except ImportError:
+    from typing_extensions import Annotated
+
 __all__ = [
     "ParamSpec",
-    "TypeAlias"
+    "TypeAlias",
+    "Annotated",
 ]

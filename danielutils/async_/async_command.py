@@ -6,6 +6,7 @@ with state tracking, result handling, and CLI/GUI strategy support using async p
 """
 
 import asyncio
+import functools
 import logging
 import os
 import subprocess
@@ -17,6 +18,13 @@ from datetime import datetime
 from ..logging_.utils import get_logger
 
 logger = get_logger(__name__)
+
+
+async def _to_thread(func: Callable, /, *args, **kwargs):
+    if hasattr(asyncio, "to_thread"):
+        return await asyncio.to_thread(func, *args, **kwargs)
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, functools.partial(func, *args, **kwargs))
 
 
 @dataclass
@@ -461,7 +469,7 @@ class AsyncCommand:
             # Wait for completion with timeout
             try:
                 returncode = await asyncio.wait_for(
-                    asyncio.to_thread(self._process.wait),
+                    _to_thread(self._process.wait),
                     timeout=effective_timeout
                 )
 
@@ -494,7 +502,7 @@ class AsyncCommand:
 
                 try:
                     self._process.kill()
-                    await asyncio.to_thread(self._process.wait)
+                    await _to_thread(self._process.wait)
                 except (OSError, subprocess.SubprocessError, BaseException):
                     pass
                 returncode = -1
@@ -637,9 +645,14 @@ class AsyncCommand:
         """Clean up resources and ensure proper shutdown."""
         if self._process:
             try:
-                if self._process.poll() is None:
+                if hasattr(self._process, "poll"):
+                    if self._process.poll() is None:
+                        self._process.kill()
+                    self._process.wait(timeout=1.0)
+                elif getattr(self._process, "returncode", None) is None:
                     self._process.kill()
-                self._process.wait(timeout=1.0)
+                    if hasattr(self._process, "wait"):
+                        self._process.wait()
             except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
                 pass
             finally:

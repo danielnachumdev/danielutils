@@ -128,15 +128,35 @@ class FunctionInfo:
         re.MULTILINE)
 
     def __init__(self, func: Callable, owner: Type) -> None:
+        func = inspect.unwrap(func)
+
         # Check for lambda functions
         if getattr(func, '__name__', None) == '<lambda>':
             raise TypeError(
                 f"'{func.__name__}' is not a user defined function")
 
-        # Check for abstract methods
+        self._func = func
+        self._decorators: List[DecoratorInfo] = []
+        self._arguments: List[ArgumentInfo] = []
+        self._return_type: str = ""
+        self._owner = owner
+        self._source_code: str = ""
+        self._ast_tree: Optional[ast.AST] = None
+        self._is_async = False
+        self._is_property = False
+        self._name = getattr(func, "__name__", "<unknown>")
+
         if getattr(func, '__isabstractmethod__', False):
-            raise TypeError(
-                f"'{func.__name__}' is not a user defined function")
+            try:
+                if inspect.isdatadescriptor(func):
+                    inspect.getsource(func.fget)  # type: ignore
+                    self._is_property = True
+                else:
+                    inspect.getsource(func)
+                self._parse_src_code()
+            except (OSError, TypeError):
+                pass
+            return
 
         try:
             if inspect.isdatadescriptor(func):
@@ -145,16 +165,9 @@ class FunctionInfo:
             else:
                 inspect.getsource(func)
                 self._is_property = False  # type: ignore
-        except:
+        except (OSError, TypeError):
             raise TypeError(
-                f"'{func.__name__}' is not a user defined function")
-        self._func = func
-        self._decorators: List[DecoratorInfo] = []
-        self._arguments: List[ArgumentInfo] = []
-        self._return_type: str = ""
-        self._owner = owner
-        self._source_code: str = ""
-        self._ast_tree: Optional[ast.AST] = None
+                f"'{getattr(func, '__name__', type(func).__name__)}' is not a user defined function")
         self._parse_src_code()
 
     def _parse_src_code(self) -> None:

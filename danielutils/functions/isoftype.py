@@ -1,6 +1,7 @@
 import logging
 from typing import get_args, get_origin, get_type_hints, Any, Union, TypeVar, \
     ForwardRef, Literal, Optional, Protocol, Generic, Type, List, Tuple, Set, Dict
+import inspect
 from collections.abc import Callable, Generator, Iterable
 from ..reflection import get_python_version
 from ..logging_.utils import get_logger
@@ -274,13 +275,28 @@ def __handle_type_origin(params: tuple) -> bool:
     return isinstance(V, T)
 
 
+def _is_java_interface_type(cls: Any) -> bool:
+    try:
+        from ..java import JavaInterface
+    except ImportError:
+        return False
+    return JavaInterface in getattr(cls, "__mro__", [])
+
+
 def __handle_protocol(params: tuple, /, allow_classes: bool = False) -> bool:
     # TODO is_protocol, _is_runtime_protocol
     from ..reflection import FunctionDeclaration, ClassDeclaration
     V, T, strict, obj_origin, obj_args, obj_hints, t_origin, t_args, t_hints = params
 
     if T is Protocol:
-        return Protocol in getattr(V, "__mro__", [])
+        mro = getattr(V, "__mro__", [])
+        if Protocol in mro:
+            return True
+        try:
+            from ..java import JavaInterface
+        except ImportError:
+            return False
+        return JavaInterface in mro or any(getattr(base, "__is_interface__", False) for base in mro)
     if T in getattr(V, "__mro__", []):
         return False
     if type(V) == type and type(T) == _GenericAlias and not allow_classes:
@@ -289,12 +305,14 @@ def __handle_protocol(params: tuple, /, allow_classes: bool = False) -> bool:
         return isinstance(V, T)
     if type(V) != type:
         V = type(V)
-    if t_origin is None:
-        t_origin = T
 
-    cls = ClassDeclaration.from_cls(t_origin)
+    interface_cls = T if inspect.isclass(T) else t_origin
+    if interface_cls is Protocol:
+        return False
+
+    cls = ClassDeclaration.from_cls(interface_cls)
     declared_funcs: List[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(V))
-    required_funcs: List[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(t_origin))
+    required_funcs: List[FunctionDeclaration] = list(FunctionDeclaration.get_declared_functions(interface_cls))
 
     for i, req_func in enumerate(required_funcs):
         if req_func.has_generics:
@@ -308,9 +326,12 @@ def __handle_protocol(params: tuple, /, allow_classes: bool = False) -> bool:
                         if generic not in cls.generics:
                             return False
                         correct_type = t_args[cls.generics.index(generic)]
-                        new_name = correct_type.__name__
-                        if new_name == "Union":
+                        if getattr(correct_type, "__origin__", None) is Union:
                             new_name = str(correct_type).replace("typing.Union", "Union")
+                        elif hasattr(correct_type, "__name__"):
+                            new_name = correct_type.__name__
+                        else:
+                            new_name = str(correct_type).replace("typing.", "")
                         changed_argument = required_funcs[i].arguments[aindex].duplicate(type=new_name)
                         new_arguments = list(required_funcs[i].arguments)[::]
                         new_arguments[aindex] = changed_argument
@@ -422,7 +443,7 @@ def isoftype(V: Any, T: Any, /, strict: bool = True) -> bool:
 
     if T is Union:
         t_origin = Union  # type:ignore
-    elif T is Protocol or Protocol in getattr(T, "__mro__", []):
+    elif T is Protocol or Protocol in getattr(T, "__mro__", []) or _is_java_interface_type(T):
         t_origin = Protocol  # type:ignore
     elif Protocol in getattr(V, "__mro__", []):
         t_origin = Protocol  # type:ignore
