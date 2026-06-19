@@ -1,32 +1,31 @@
 from pathlib import Path
+from typing import Any
 
 from quickpub import publish, Version, MypyRunner, PylintRunner, PypircEnforcer, LocalVersionEnforcer, \
-    ReadmeEnforcer, PypiRemoteVersionEnforcer, LicenseEnforcer, PypircUploadTarget, \
+    ReadmeEnforcer, PypiRemoteVersionEnforcer, LicenseEnforcer, GithubUploadTarget, PypircUploadTarget, \
     SetuptoolsBuildSchema, PytestRunner
-from quickpub.enforcers import exit_if
-from quickpub.proxy import cm
+from quickpub.strategies.upload_target import UploadTarget
 from tqdm import tqdm
 
-VERSION = "1.1.25"
 
+class PyprojectRestoreUploadTarget(UploadTarget):
+    """Restore full pyproject.toml before GithubUploadTarget commits."""
 
-def _commit_and_push(version: str) -> None:
-    ret, _, stderr = cm("git", "add", ".")
-    exit_if(ret != 0, stderr.decode(encoding="utf-8"))
-    ret, _, stderr = cm("git", "commit", "-m", f"updated to version {version}")
-    exit_if(ret != 0, stderr.decode(encoding="utf-8"))
-    ret, _, stderr = cm("git", "push")
-    exit_if(ret != 0, stderr.decode(encoding="utf-8"))
+    def __init__(self, pyproject_backup: str, verbose: bool = False) -> None:
+        super().__init__(verbose)
+        self.pyproject_backup = pyproject_backup
+
+    def upload(self, **kwargs: Any) -> None:
+        Path("pyproject.toml").write_text(self.pyproject_backup, encoding="utf-8")
 
 
 def main() -> None:
     pyproject_path = Path("pyproject.toml")
     pyproject_backup = pyproject_path.read_text(encoding="utf-8")
-    published = False
     try:
         publish(
             name="danielutils",
-            version=VERSION,
+            version="1.1.25",
             author="danielnachumdev",
             author_email="danielnachumdev@gmail.com",
             description="A comprehensive Python utilities library providing type-safe collections, async programming tools, database abstractions, retry executors, data structures, and developer productivity enhancements to streamline Python development workflows",
@@ -43,7 +42,11 @@ def main() -> None:
                 LocalVersionEnforcer(), PypiRemoteVersionEnforcer()
             ],
             build_schemas=[SetuptoolsBuildSchema()],
-            upload_targets=[PypircUploadTarget()],
+            upload_targets=[
+                PypircUploadTarget(),
+                PyprojectRestoreUploadTarget(pyproject_backup),
+                GithubUploadTarget(),
+            ],
             global_quality_assurance_runners=[
                 MypyRunner(bound="<=158"),
                 PylintRunner(bound=">=0.8"),
@@ -51,12 +54,8 @@ def main() -> None:
             ],
             pbar=tqdm(desc="QA", leave=False),  # type: ignore
         )
-        published = True
     finally:
         pyproject_path.write_text(pyproject_backup, encoding="utf-8")
-
-    if published:
-        _commit_and_push(VERSION)
 
 
 if __name__ == "__main__":
