@@ -637,9 +637,14 @@ class AsyncCommand:
         """Clean up resources and ensure proper shutdown."""
         if self._process:
             try:
-                if self._process.poll() is None:
+                if hasattr(self._process, "poll"):
+                    if self._process.poll() is None:
+                        self._process.kill()
+                    self._process.wait(timeout=1.0)
+                elif getattr(self._process, "returncode", None) is None:
                     self._process.kill()
-                self._process.wait(timeout=1.0)
+                    if hasattr(self._process, "wait"):
+                        self._process.wait()
             except (OSError, subprocess.SubprocessError, subprocess.TimeoutExpired):
                 pass
             finally:

@@ -2,8 +2,9 @@ import unittest
 import os
 
 from danielutils.async_.async_command import AsyncCommand
-from tests.base_command import BaseCommandTest
+from tests.base_command import BaseCommandTest, requires_windows_class
 
+@requires_windows_class
 class TestWslFactory(BaseCommandTest):
     """Test cases for AsyncCommand.wsl factory method."""
 

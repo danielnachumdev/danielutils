@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 from danielutils import AsyncCommand, CommandType, CommandState
-from tests.base_command import BaseCommandTest
+from tests.base_command import BaseCommandTest, requires_windows
 
 
 class TestLevel1Basic(BaseCommandTest):
@@ -83,7 +83,7 @@ class TestLevel1Basic(BaseCommandTest):
 
     def test_04_simple_successful_execution(self) -> None:
         """Test simple successful command execution."""
-        cmd = AsyncCommand.cmd('echo Hello World')
+        cmd = self.echo_command('Hello World')
         result = self.run_async(cmd.execute())
 
         # Verify execution was successful
@@ -102,7 +102,7 @@ class TestLevel1Basic(BaseCommandTest):
 
     def test_05_command_execution_result_properties(self) -> None:
         """Test CommandExecutionResult properties and methods."""
-        cmd = AsyncCommand.cmd('echo test')
+        cmd = self.echo_command('test')
         result = self.run_async(cmd.execute())
 
         # Test basic properties
@@ -117,6 +117,7 @@ class TestLevel1Basic(BaseCommandTest):
         self.assertIn('SUCCESS', str_repr)
         self.assertIn('test', str_repr)
 
+    @requires_windows
     def test_06_shell_command_factory(self) -> None:
         """Test shell command factory method."""
         cmd = AsyncCommand.cmd('echo Hello World')
@@ -129,6 +130,7 @@ class TestLevel1Basic(BaseCommandTest):
         result = self.run_async(cmd.execute())
         self.assert_command_success(result, 'Hello World')
 
+    @requires_windows
     def test_07_command_with_working_directory(self) -> None:
         """Test command execution with working directory."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -142,6 +144,7 @@ class TestLevel1Basic(BaseCommandTest):
             self.assert_command_success(result)
             self.assertIn(temp_dir, result.stdout)
 
+    @requires_windows
     def test_08_command_with_environment_variables(self) -> None:
         """Test command execution with environment variables."""
         cmd = AsyncCommand(
@@ -169,7 +172,7 @@ class TestLevel1Basic(BaseCommandTest):
 
     def test_10_command_state_after_execution(self) -> None:
         """Test command state after execution."""
-        cmd = AsyncCommand.cmd('echo test')
+        cmd = self.echo_command('test')
 
         # Before execution
         self.assertEqual(cmd.state, CommandState.PENDING)

@@ -13,10 +13,11 @@ import tempfile
 from typing import Set
 
 from danielutils import AsyncCommand, CommandType, CommandState
-from tests.base_command import BaseCommandTest
+from tests.base_command import BaseCommandTest, requires_windows_class
 from .process_kill_context import CalculatorKillContext
 
 
+@requires_windows_class
 class TestLevel5ProcessManagement(BaseCommandTest):
     """Level 5: Process management and advanced scenarios tests."""
 

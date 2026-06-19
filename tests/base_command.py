@@ -3,11 +3,29 @@ Base test class for Command tests.
 """
 
 import subprocess
-from typing import List, Optional, Any
+import sys
+import unittest
+from typing import List, Optional, Any, Type, TypeVar
 from unittest.mock import patch, MagicMock
 
 from danielutils import AsyncCommand, CommandType, CommandState, CommandExecutionResult
 from tests.base import BaseTest
+
+REQUIRES_WINDOWS_REASON = "requires Windows"
+REQUIRES_WSL_REASON = "requires Windows with WSL"
+
+requires_windows = unittest.skipUnless(sys.platform == "win32", REQUIRES_WINDOWS_REASON)
+requires_wsl = unittest.skipUnless(sys.platform == "win32", REQUIRES_WSL_REASON)
+
+_TestCaseT = TypeVar("_TestCaseT", bound=type)
+
+
+def requires_windows_class(cls: _TestCaseT) -> _TestCaseT:
+    """Apply @requires_windows to every test_* method on a test class."""
+    for name, value in list(cls.__dict__.items()):
+        if name.startswith("test_") and callable(value):
+            setattr(cls, name, requires_windows(value))
+    return cls
 
 
 class BaseCommandTest(BaseTest):
@@ -35,18 +53,31 @@ class BaseCommandTest(BaseTest):
     ) -> AsyncCommand:
         """Create a simple command for testing."""
         if args is None:
-            # Use Windows-compatible command
-            cmd = AsyncCommand.cmd("echo test", command_type=command_type, **kwargs)
+            cmd = self.echo_command("test", command_type=command_type, **kwargs)
         else:
             cmd = AsyncCommand(args, command_type=command_type, **kwargs)
+            self._created_commands.append(cmd)
+        return cmd
+
+    def echo_command(self, message: str, **kwargs: Any) -> AsyncCommand:
+        """Create a cross-platform echo command."""
+        cmd = AsyncCommand(["echo", message], **kwargs)
+        self._created_commands.append(cmd)
+        return cmd
+
+    def ping_command(self, count: int, **kwargs: Any) -> AsyncCommand:
+        """Create a cross-platform long-running ping command."""
+        if sys.platform == "win32":
+            args = ["ping", "127.0.0.1", "-n", str(count)]
+        else:
+            args = ["ping", "-c", str(count), "127.0.0.1"]
+        cmd = AsyncCommand(args, **kwargs)
         self._created_commands.append(cmd)
         return cmd
 
     def create_successful_command(self, **kwargs: Any) -> AsyncCommand:
         """Create a command that will succeed."""
-        cmd = AsyncCommand.cmd("echo Hello World", **kwargs)
-        self._created_commands.append(cmd)
-        return cmd
+        return self.echo_command("Hello World", **kwargs)
 
     def create_failing_command(self, **kwargs: Any) -> AsyncCommand:
         """Create a command that will fail."""
@@ -54,9 +85,7 @@ class BaseCommandTest(BaseTest):
 
     def create_timeout_command(self, timeout: float = 0.1, **kwargs: Any) -> AsyncCommand:
         """Create a command that will timeout."""
-        cmd = AsyncCommand.cmd("ping 127.0.0.1 -n 100", timeout=timeout, **kwargs)
-        self._created_commands.append(cmd)
-        return cmd
+        return self.ping_command(100, timeout=timeout, **kwargs)
 
     def create_gui_command(self, **kwargs: Any) -> AsyncCommand:
         """Create a GUI command for testing."""
@@ -127,5 +156,10 @@ class BaseCommandTest(BaseTest):
 
 
 __all__ = [
-    "BaseCommandTest"
+    "REQUIRES_WINDOWS_REASON",
+    "REQUIRES_WSL_REASON",
+    "requires_windows",
+    "requires_wsl",
+    "requires_windows_class",
+    "BaseCommandTest",
 ]

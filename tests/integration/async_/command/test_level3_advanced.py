@@ -13,7 +13,7 @@ These tests assume Level 1 and Level 2 tests pass.
 import tempfile
 
 from danielutils import AsyncCommand, CommandType, CommandState, CommandExecutionResult
-from tests.base_command import BaseCommandTest
+from tests.base_command import BaseCommandTest, requires_windows
 
 
 class TestLevel3Advanced(BaseCommandTest):
@@ -21,10 +21,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_24_command_timeout_handling(self) -> None:
         """Test command timeout handling."""
-        cmd = AsyncCommand(
-            ['ping', '127.0.0.1', '-n', '100'],
-            timeout=0.1
-        )
+        cmd = self.ping_command(100, timeout=0.1)
         result = self.run_async(cmd.execute())
 
         # Verify timeout occurred
@@ -46,9 +43,7 @@ class TestLevel3Advanced(BaseCommandTest):
             timeout_command = cmd
             timeout_result = result
 
-        cmd = AsyncCommand(
-            ['ping', '127.0.0.1', '-n', '100'],
-            timeout=0.1,
+        cmd = self.ping_command(100, timeout=0.1,
             on_complete=complete_callback
         )
         result = self.run_async(cmd.execute())
@@ -64,7 +59,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_26_command_wait_functionality(self) -> None:
         """Test command wait functionality."""
-        cmd = AsyncCommand.cmd("echo test")
+        cmd = self.echo_command("test")
 
         # Wait for pending command (should execute it)
         result = self.run_async(cmd.wait())
@@ -75,7 +70,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_27_command_wait_already_completed(self) -> None:
         """Test waiting for already completed command."""
-        cmd = AsyncCommand.cmd("echo test")
+        cmd = self.echo_command("test")
 
         # Execute command first
         result1 = self.run_async(cmd.execute())
@@ -90,7 +85,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_28_command_kill_not_running(self) -> None:
         """Test killing a command that is not running."""
-        cmd = AsyncCommand.cmd("echo test")
+        cmd = self.echo_command("test")
 
         # Try to kill pending command
         killed = cmd.kill()
@@ -101,7 +96,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_29_command_kill_after_completion(self) -> None:
         """Test killing a command after it has completed."""
-        cmd = AsyncCommand.cmd("echo test")
+        cmd = self.echo_command("test")
 
         # Execute command
         result = self.run_async(cmd.execute())
@@ -116,7 +111,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_30_command_state_transitions(self) -> None:
         """Test command state transitions during execution."""
-        cmd = AsyncCommand.cmd("echo test")
+        cmd = self.echo_command("test")
 
         # Initial state
         self.assertEqual(cmd.state, CommandState.PENDING)
@@ -134,7 +129,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_31_command_multiple_executions(self) -> None:
         """Test multiple executions of the same command."""
-        cmd = AsyncCommand.cmd("echo test")
+        cmd = self.echo_command("test")
 
         # First execution
         result1 = self.run_async(cmd.execute())
@@ -157,10 +152,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_32_command_execution_with_long_running_process(self) -> None:
         """Test command execution with a long-running process."""
-        cmd = AsyncCommand(
-            ['ping', '127.0.0.1', '-n', '5'],
-            timeout=2.0
-        )
+        cmd = self.ping_command(5, timeout=2.0)
         result = self.run_async(cmd.execute())
 
         # Should timeout due to short timeout
@@ -171,10 +163,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_33_command_execution_with_very_short_timeout(self) -> None:
         """Test command execution with very short timeout."""
-        cmd = AsyncCommand(
-            ['ping', '127.0.0.1', '-n', '100'],
-            timeout=0.01
-        )
+        cmd = self.ping_command(100, timeout=0.01)
         result = self.run_async(cmd.execute())
 
         # Should timeout very quickly
@@ -185,9 +174,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_34_command_execution_with_no_timeout(self) -> None:
         """Test command execution with no timeout."""
-        cmd = AsyncCommand(
-            ['ping', '127.0.0.1', '-n', '3']
-        )
+        cmd = self.ping_command(3)
         result = self.run_async(cmd.execute())
 
         # Should complete successfully
@@ -196,6 +183,7 @@ class TestLevel3Advanced(BaseCommandTest):
         self.assertFalse(result.timeout_occurred)
         self.assertFalse(result.killed)
 
+    @requires_windows
     def test_35_command_execution_with_environment_and_timeout(self) -> None:
         """Test command execution with environment variables and timeout."""
         cmd = AsyncCommand.cmd(
@@ -209,6 +197,7 @@ class TestLevel3Advanced(BaseCommandTest):
         self.assert_command_success(result, 'timeout_test')
         self.assertFalse(result.timeout_occurred)
 
+    @requires_windows
     def test_36_command_execution_with_cwd_and_timeout(self) -> None:
         """Test command execution with working directory and timeout."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -237,8 +226,8 @@ class TestLevel3Advanced(BaseCommandTest):
         def error_callback(cmd, exception):
             callbacks_called.append('error')
 
-        cmd = AsyncCommand.cmd(
-            "echo callback_test",
+        cmd = self.echo_command(
+            "callback_test",
             timeout=1.0,
             on_start=start_callback,
             on_complete=complete_callback,
@@ -252,8 +241,8 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_38_command_execution_with_gui_and_timeout(self) -> None:
         """Test GUI command execution with timeout."""
-        cmd = AsyncCommand.cmd(
-            "echo GUI timeout test",
+        cmd = self.echo_command(
+            "GUI timeout test",
             command_type=CommandType.GUI,
             timeout=1.0
         )
@@ -267,7 +256,7 @@ class TestLevel3Advanced(BaseCommandTest):
 
     def test_39_command_state_consistency_during_execution(self) -> None:
         """Test that command state remains consistent during execution."""
-        cmd = AsyncCommand.cmd("echo consistency_test")
+        cmd = self.echo_command("consistency_test")
 
         # Track state changes
         states = []
@@ -291,6 +280,7 @@ class TestLevel3Advanced(BaseCommandTest):
         self.assertIn(('start', CommandState.RUNNING), states)
         self.assertIn(('complete', CommandState.COMPLETED), states)
 
+    @requires_windows
     def test_40_command_execution_with_mixed_parameters_advanced(self) -> None:
         """Test command execution with all advanced parameters combined."""
         with tempfile.TemporaryDirectory() as temp_dir:

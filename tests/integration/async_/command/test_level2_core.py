@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 
 from danielutils import AsyncCommand, CommandType, CommandState, CommandExecutionResult
-from tests.base_command import BaseCommandTest
+from tests.base_command import BaseCommandTest, requires_windows
 
 
 class TestLevel2Core(BaseCommandTest):
@@ -58,7 +58,7 @@ class TestLevel2Core(BaseCommandTest):
             complete_command = cmd
             complete_result = result
 
-        cmd = AsyncCommand.cmd("echo Hello World", on_complete=complete_callback)
+        cmd = self.echo_command("Hello World", on_complete=complete_callback)
         result = self.run_async(cmd.execute())
 
         # Verify complete callback was called
@@ -79,7 +79,7 @@ class TestLevel2Core(BaseCommandTest):
             start_called = True
             start_command = cmd
 
-        cmd = AsyncCommand.cmd("echo test", on_start=start_callback)
+        cmd = self.echo_command("test", on_start=start_callback)
         result = self.run_async(cmd.execute())
 
         # Verify start callback was called
@@ -103,8 +103,7 @@ class TestLevel2Core(BaseCommandTest):
             callbacks_called.append('error')
 
         # Test successful command
-        cmd = AsyncCommand.cmd(
-            "echo test",
+        cmd = self.echo_command("test",
             on_start=start_callback,
             on_complete=complete_callback,
             on_error=error_callback
@@ -117,7 +116,7 @@ class TestLevel2Core(BaseCommandTest):
 
     def test_15_gui_command_execution(self) -> None:
         """Test GUI command execution (no output capture)."""
-        cmd = AsyncCommand.cmd("echo GUI Test", command_type=CommandType.GUI)
+        cmd = self.echo_command("GUI Test", command_type=CommandType.GUI)
         result = self.run_async(cmd.execute())
 
         # Verify GUI command properties
@@ -130,11 +129,11 @@ class TestLevel2Core(BaseCommandTest):
     def test_16_cli_vs_gui_command_types(self) -> None:
         """Test difference between CLI and GUI command types."""
         # CLI command
-        cli_cmd = AsyncCommand.cmd("echo CLI Test", command_type=CommandType.CLI)
+        cli_cmd = self.echo_command("CLI Test", command_type=CommandType.CLI)
         cli_result = self.run_async(cli_cmd.execute())
 
         # GUI command
-        gui_cmd = AsyncCommand.cmd("echo GUI Test", command_type=CommandType.GUI)
+        gui_cmd = self.echo_command("GUI Test", command_type=CommandType.GUI)
         gui_result = self.run_async(gui_cmd.execute())
 
         # Verify differences
@@ -145,6 +144,7 @@ class TestLevel2Core(BaseCommandTest):
         self.assertIn('CLI Test', cli_result.stdout)
         self.assertEqual(gui_result.stdout, '')
 
+    @requires_windows
     def test_17_environment_variables_complex(self) -> None:
         """Test complex environment variable scenarios."""
         env = {
@@ -161,6 +161,7 @@ class TestLevel2Core(BaseCommandTest):
         self.assertIn('value1', result.stdout)
         self.assertIn('value2', result.stdout)
 
+    @requires_windows
     def test_18_working_directory_complex(self) -> None:
         """Test complex working directory scenarios."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -179,7 +180,7 @@ class TestLevel2Core(BaseCommandTest):
 
     def test_19_command_with_timeout_parameter(self) -> None:
         """Test command with timeout parameter (not execution timeout)."""
-        cmd = AsyncCommand.cmd("echo test", timeout=10.0)
+        cmd = self.echo_command("test", timeout=10.0)
 
         # Verify timeout parameter is set
         self.assertEqual(cmd.timeout, 10.0)
@@ -188,6 +189,7 @@ class TestLevel2Core(BaseCommandTest):
         result = self.run_async(cmd.execute())
         self.assert_command_success(result)
 
+    @requires_windows
     def test_20_command_execution_with_mixed_parameters(self) -> None:
         """Test command execution with all parameters combined."""
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -218,7 +220,7 @@ class TestLevel2Core(BaseCommandTest):
 
     def test_21_command_result_immutability(self) -> None:
         """Test that command result is immutable after execution."""
-        cmd = AsyncCommand.cmd("echo test")
+        cmd = self.echo_command("test")
         result = self.run_async(cmd.execute())
 
         # Store original values
