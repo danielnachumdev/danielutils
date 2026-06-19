@@ -195,9 +195,9 @@ class TestFunctionInfo(unittest.TestCase):
             def abstract_method(self) -> str:
                 pass
 
-        # Note: This will raise TypeError because abstract methods don't have source code
-        with self.assertRaises(TypeError):
-            FunctionInfo(AbstractClass.abstract_method, AbstractClass)
+        func_info = FunctionInfo(AbstractClass.abstract_method, AbstractClass)
+        self.assertTrue(func_info.is_abstract)
+        self.assertEqual("abstract_method", func_info.name)
 
     def test_init_with_builtin_function(self):
         """Test FunctionInfo initialization with builtin function raises TypeError."""

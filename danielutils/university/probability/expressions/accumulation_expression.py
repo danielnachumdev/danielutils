@@ -8,18 +8,32 @@ from ....data_structures import BinarySyntaxTree as BST
 
 def _create_operator(op: Operator, reverse: bool = False) -> Callable[['AccumulationExpression', Any], Evaluable]:
         def operator(self, other) -> Evaluable:
-            op
             lhs, rhs = self, other
             if reverse:
                 lhs, rhs = rhs, lhs
+            if isinstance(other, (int, float, Fraction)) and op in Operator.order_operators():
+                rhs_expr = ProbabilityExpression(lhs.lhs, op, other) if op in Operator.inequalities() else ProbabilityExpression(other)
+                return AccumulationExpression(lhs, Operator.AND, rhs_expr)
             raise NotImplementedError("Not Implemented")
 
         return operator
 
 class AccumulationExpression(Evaluable):
     @staticmethod
+    def _to_leaf(value: Any) -> BST.Node:
+        if isinstance(value, BST.Node):
+            return value
+        return BST.Node(value)
+
+    @staticmethod
     def _probability_expression_to_nodes(expr: ProbabilityExpression) -> BST.Node:  # type:ignore
-        return BST.Node(expr.op, BST.Node(expr.lhs), BST.Node(expr.rhs))
+        if expr.op is None:
+            return AccumulationExpression._to_leaf(expr.lhs)
+        return BST.Node(
+            expr.op,
+            AccumulationExpression._to_leaf(expr.lhs),
+            AccumulationExpression._to_leaf(expr.rhs),
+        )
 
 
     @staticmethod
@@ -60,12 +74,34 @@ class AccumulationExpression(Evaluable):
         root = BST.Node(op, l, r)
         self._tree = BST(root)
 
-    __eq__ = _create_operator(Operator.EQ)  # type:ignore
-    __ne__ = _create_operator(Operator.NE)  # type:ignore
-    __gt__ = _create_operator(Operator.GT)
-    __ge__ = _create_operator(Operator.GE)
-    __lt__ = _create_operator(Operator.LT)
-    __le__ = _create_operator(Operator.LE)
+    _eq_operator = _create_operator(Operator.EQ)
+    _ne_operator = _create_operator(Operator.NE)
+    _gt_operator = _create_operator(Operator.GT)
+    _ge_operator = _create_operator(Operator.GE)
+    _lt_operator = _create_operator(Operator.LT)
+    _le_operator = _create_operator(Operator.LE)
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, AccumulationExpression):
+            return self.is_equal(other)
+        return self._eq_operator(other)  # type:ignore[return-value]
+
+    def __ne__(self, other) -> bool:
+        if isinstance(other, AccumulationExpression):
+            return not self.is_equal(other)
+        return self._ne_operator(other)  # type:ignore[return-value]
+
+    def __gt__(self, other):
+        return self._gt_operator(other)
+
+    def __ge__(self, other):
+        return self._ge_operator(other)
+
+    def __lt__(self, other):
+        return self._lt_operator(other)
+
+    def __le__(self, other):
+        return self._le_operator(other)
 
     def __bool__(self) -> bool:
         if self._tree.root.data != Operator.EQ:
@@ -114,6 +150,9 @@ class AccumulationExpression(Evaluable):
     def evaluate(self) -> Fraction:
         if not self._is_valid_tree():
             raise AttributeError("Expression is not valid")
+        root = self._tree.root
+        if root.data == Operator.EQ:
+            return self._evaluate_equality(root)
         if (d := self._tree.depth()) == 3:
             # example: a < X < b
             # =>       ____&____          1
@@ -134,19 +173,86 @@ class AccumulationExpression(Evaluable):
             lhs = ProbabilityExpression(X, op1, a)
             rhs = ProbabilityExpression(Y, op2, b)
             main_operator = self._tree.root.data
+            if X is Y:
+                if main_operator == Operator.AND:
+                    return AccumulationExpression._expression_intersection(lhs, rhs)
+                numerator: Fraction = AccumulationExpression._expression_intersection(lhs, rhs)
+                denominator: Fraction = rhs.evaluate()
+                return numerator / denominator
             if X.is_dependent(Y):
-                if X is Y:
-                    if main_operator == Operator.AND:
-                        return AccumulationExpression._expression_intersection(lhs, rhs)
-                    else:  # main_operator == Operator.GIVEN
-                        numerator: Fraction = AccumulationExpression._expression_intersection(lhs, rhs)
-                        denominator: Fraction = rhs.evaluate()
-                        return numerator / denominator
                 raise NotImplementedError("This part is not implemented yet")
             raise NotImplementedError("Illegal State?")
 
         # example: a < X < Y < b
         raise NotImplementedError("This part is not implemented yet")
+
+    @staticmethod
+    def _leaf_value(node: BST.Node) -> Any:
+        return node.data
+
+    def _evaluate_equality(self, root: BST.Node) -> Fraction:
+        from ..conditional_variable import ConditionalVariable
+
+        left = root.left
+        right = root.right
+        if left is None or right is None:
+            raise AttributeError("Expression is not valid")
+
+        right_value = self._leaf_value(right)
+        if isinstance(left.data, Operator) and left.left is not None and left.right is not None:
+            lhs_val = self._leaf_value(left.left)
+            rhs_val = self._leaf_value(left.right)
+            if isinstance(lhs_val, ConditionalVariable):
+                variable = lhs_val
+                operand = rhs_val
+                if left.data == Operator.ADD:
+                    target = right_value - operand
+                elif left.data == Operator.SUB:
+                    target = right_value + operand
+                else:
+                    raise NotImplementedError("This part is not implemented yet")
+                return variable.evaluate(target, Operator.EQ)
+            if isinstance(rhs_val, ConditionalVariable):
+                variable = rhs_val
+                operand = lhs_val
+                if left.data == Operator.ADD:
+                    target = right_value - operand
+                elif left.data == Operator.SUB:
+                    target = operand - right_value
+                else:
+                    raise NotImplementedError("This part is not implemented yet")
+                return variable.evaluate(target, Operator.EQ)
+
+        left_value = self._leaf_value(left)
+        if isinstance(right.data, Operator) and right.left is not None and right.right is not None:
+            lhs_val = self._leaf_value(right.left)
+            rhs_val = self._leaf_value(right.right)
+            if isinstance(lhs_val, ConditionalVariable):
+                variable = lhs_val
+                operand = rhs_val
+                if right.data == Operator.ADD:
+                    target = left_value - operand
+                elif right.data == Operator.SUB:
+                    target = left_value + operand
+                else:
+                    raise NotImplementedError("This part is not implemented yet")
+                return variable.evaluate(target, Operator.EQ)
+            if isinstance(rhs_val, ConditionalVariable):
+                variable = rhs_val
+                operand = lhs_val
+                if right.data == Operator.ADD:
+                    target = left_value - operand
+                elif right.data == Operator.SUB:
+                    target = operand - left_value
+                else:
+                    raise NotImplementedError("This part is not implemented yet")
+                return variable.evaluate(target, Operator.EQ)
+
+        if isinstance(left_value, ConditionalVariable):
+            return left_value.evaluate(right_value, Operator.EQ)
+        if isinstance(right_value, ConditionalVariable):
+            return right_value.evaluate(left_value, Operator.EQ)
+        raise AttributeError("Expression is not valid")
 
     def duplicate(self) -> 'AccumulationExpression':
         return copy.deepcopy(self)

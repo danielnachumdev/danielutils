@@ -1,6 +1,7 @@
 import unittest
 import shutil
 import json
+import tempfile
 from pathlib import Path
 from datetime import datetime
 from typing import cast
@@ -16,11 +17,7 @@ class TestPersistentDatabase(unittest.IsolatedAsyncioTestCase):
     @classmethod
     def setUpClass(cls):
         """Set up test environment"""
-        # Set up test data directory
-        cls.test_dir = Path("./test_data").resolve()
-        if cls.test_dir.exists():
-            shutil.rmtree(cls.test_dir)
-        cls.test_dir.mkdir()
+        cls.test_dir = Path(tempfile.mkdtemp(prefix="persistent_db_"))
 
     @classmethod
     def tearDownClass(cls):
@@ -77,7 +74,6 @@ class TestPersistentDatabase(unittest.IsolatedAsyncioTestCase):
         await self.db.disconnect()
         if self.test_dir.exists():
             shutil.rmtree(self.test_dir)
-        self.test_dir.mkdir()
 
     async def test_persistence_across_connections(self):
         """Test that data persists across database connections"""

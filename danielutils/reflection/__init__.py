@@ -3,3 +3,4 @@ from .file import *
 from .function import *
 from .info_classes import *
 from .module import *
+from .declarations import *

@@ -450,7 +450,7 @@ class Relation:
         G = F.minimal_cover()
 
         # 2
-        for f in G:
+        for f in sorted(G, key=lambda dep: (str(dep.tuple()[0]), str(dep.tuple()[1]))):
             X, A = f.tuple()
             res.append(X + A)
 
@@ -684,7 +684,7 @@ class FunctionalDependencyGroup:
         #         minimal_g = G__
 
         G_: set = set()
-        for f in set(G):
+        for f in sorted(G, key=lambda dep: (str(dep.tuple()[0]), str(dep.tuple()[1]))):
             X, A = f.tuple()
             if len(X) > 1:
                 for B in X:
@@ -693,27 +693,27 @@ class FunctionalDependencyGroup:
             G_.add(FunctionDependency.from_attributes(X, A))
         G = set(G_)
         del G_
-        minimal_g: set = set(range(len(G) + 1))
+        minimal_g: Set[FunctionDependency] = set()
 
         def backtracking_helper(G: Set[FunctionDependency], excluded: set):
             nonlocal minimal_g
             OG = set(G)
-            for f in OG:
-                if not f in excluded:
+            for f in sorted(OG, key=lambda dep: (str(dep.tuple()[0]), str(dep.tuple()[1]))):
+                if f not in excluded:
                     if f.follows_from(set(G)):
                         excluded.add(f)
                         backtracking_helper(set(OG), excluded)
                         G.remove(f)
                         excluded.remove(f)
-            if len(G) < len(minimal_g):
-                minimal_g = G
+            if not minimal_g or len(G) < len(minimal_g):
+                minimal_g = set(G)
 
         backtracking_helper(G, set())
         # for f in set(G):
         #     if f.follows_from(set(G)):
         #         G.remove(f)
 
-        return list(sorted(minimal_g))  # type:ignore
+        return sorted(minimal_g, key=lambda dep: (str(dep.tuple()[0]), str(dep.tuple()[1])))
 
     def tuples(self) -> Generator[Tuple[Attribute, Attribute], None, None]:
         """Generate tuples (X, Y) of functional dependencies in the FunctionalDependencyGroup.

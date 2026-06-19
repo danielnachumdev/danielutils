@@ -110,9 +110,8 @@ class TestWeek10(unittest.TestCase):
         })
         got = set(R.find_3NF_decomposition(F))
         expected = {RE.from_string("AB"),
-                    RE.from_string("AB"),
                     RE.from_string("BC"),
-                    RE.from_string("BD"),
+                    RE.from_string("AD"),
                     RE.from_string("EF"),
                     RE.from_string("EG"),
                     RE.from_string("EH"),

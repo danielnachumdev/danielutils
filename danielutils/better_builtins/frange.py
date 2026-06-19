@@ -156,7 +156,14 @@ class frange(Sequence[float]):
         Returns:
             bool
         """
-        return len(self) != float("inf")
+        if self.stop in (float("inf"), float("-inf")):
+            return False
+        if self.start in (float("inf"), float("-inf")):
+            return False
+        try:
+            return len(self) != float("inf")
+        except TypeError:
+            return False
 
     @property
     def is_infinite(self) -> bool:

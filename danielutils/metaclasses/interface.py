@@ -155,7 +155,7 @@ class Interface(type):
     """This is a metaclass that will enable better_builtins that inherit it directly (or indirectly)
         to behave like interfaces in OOP languages like java
     """
-    IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*\w+)?:\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
+    IMPLICIT_ABSTRACT = r"\s*def \w+\(.*?\)(?:\s*->\s*[\w\[\],\s]+)?:(?:[^\n]*)\n(?:\s*\"{3}.*\"{3}\n)?\s*\.{3}\n"
     KEY = "__is_interface__"
     FUNC_KEY = "__is_abstractmethod__"
 

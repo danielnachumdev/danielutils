@@ -1,4 +1,5 @@
 import asyncio
+import os
 import unittest
 import json
 
@@ -9,22 +10,34 @@ from danielutils.abstractions.db.database_definitions import (
     WhereClause, Condition, Operator
 )
 
+import pytest
+
 import redis.asyncio as redis
+
+pytestmark = pytest.mark.xdist_group("redis_db")
+
+
+def _redis_db_number() -> int:
+    worker = os.environ.get("PYTEST_XDIST_WORKER", "master")
+    if worker == "master":
+        return 0
+    return (sum(ord(char) for char in worker) % 15) + 1
 
 
 class TestRedisDatabase(unittest.IsolatedAsyncioTestCase):
     """Test cases for RedisDatabase implementation (integration with real Redis)"""
 
     async def asyncSetUp(self):
+        self._redis_db = _redis_db_number()
         # Try to connect to Redis, skip tests if not available
         try:
-            self._redis = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+            self._redis = redis.Redis(host='localhost', port=6379, db=self._redis_db, decode_responses=True)
             await self._redis.ping()
         except Exception as e:
             raise unittest.SkipTest(f"Redis server is not available: {e}")
         # Flush DB before each test for isolation
         await self._redis.flushdb()
-        self.db = RedisDatabase(host='localhost', port=6379, db=0)
+        self.db = RedisDatabase(host='localhost', port=6379, db=self._redis_db)
         await self.db.connect()
         self.sample_schema = TableSchema(
             name="users",
