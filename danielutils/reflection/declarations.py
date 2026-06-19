@@ -1,7 +1,7 @@
 import inspect
 import re
 from dataclasses import dataclass
-from typing import Any, List, Optional, Protocol, Tuple, Type
+from typing import Any, List, Optional, Protocol, Tuple, Type, Union
 
 from .interpreter import get_python_version
 
@@ -72,6 +72,27 @@ def split_args(args: str) -> List[str]:
     return res
 
 
+def _format_type_name(type_obj: Any) -> Optional[str]:
+    if type_obj is None or type_obj is inspect.Parameter.empty:
+        return None
+    origin = getattr(type_obj, "__origin__", None)
+    if origin is not None:
+        args = getattr(type_obj, "__args__", ())
+        formatted_args = ", ".join(_format_type_name(arg) or str(arg) for arg in args)
+        origin_name = getattr(origin, "__name__", str(origin).replace("typing.", ""))
+        return f"{origin_name}[{formatted_args}]"
+    if hasattr(type_obj, "__name__"):
+        return type_obj.__name__
+    return str(type_obj).replace("typing.", "")
+
+
+def _extract_generics_from_cls(cls: type) -> List[str]:
+    parameters: List[str] = []
+    for param in getattr(cls, "__parameters__", ()):
+        parameters.append(param.__name__)
+    return parameters
+
+
 def remove_whitespace(text: str) -> str:
     return "".join(not_whitespace_pattern.findall(text.strip())).replace("\\", "")
 
@@ -100,10 +121,42 @@ class FunctionDeclaration:
         return self.generics is not None and len(self.generics) > 0
 
     @staticmethod
+    def _from_runtime(cls: type) -> List['FunctionDeclaration']:
+        parameters = _extract_generics_from_cls(cls)
+        res: List[FunctionDeclaration] = []
+        for name, obj in cls.__dict__.items():
+            if not inspect.isfunction(obj):
+                continue
+            sig = inspect.signature(obj)
+            arguments: List[Argument] = []
+            for pname, param in sig.parameters.items():
+                if pname == "self":
+                    continue
+                ptype = _format_type_name(
+                    param.annotation if param.annotation is not inspect.Parameter.empty else None
+                )
+                default = None if param.default is inspect.Parameter.empty else repr(param.default)
+                arguments.append(Argument(pname, ptype, default))
+            return_type = _format_type_name(
+                sig.return_annotation if sig.return_annotation is not inspect.Signature.empty else None
+            )
+            res.append(FunctionDeclaration(
+                name,
+                tuple(arguments),
+                return_type,
+                decorators=None,
+                generics=tuple(parameters) or None,
+            ))
+        return res
+
+    @staticmethod
     def get_declared_functions(cls) -> List['FunctionDeclaration']:
         if not isinstance(cls, type):
             raise TypeError('cls must be a Class')
-        src = inspect.getsource(cls)
+        try:
+            src = inspect.getsource(cls)
+        except (OSError, TypeError):
+            return FunctionDeclaration._from_runtime(cls)
         bases = [item for item in map(remove_whitespace, class_pattern.findall(src)) if len(item) > 0]
         parameters: List[str] = []
         for base in bases:
@@ -167,19 +220,22 @@ class ClassDeclaration:
         if not isinstance(cls, type):
             raise TypeError('obj must be a Class')
 
-        src = "\n".join(
-            line for line in inspect.getsource(cls).splitlines()
-            if not remove_whitespace(line).startswith("@")
-        )
-        match = class_pattern.match(src)
-        bases = match.group(1).split(",") if match and match.group(1) else []
-        parameters: List[str] = []
-        for base in bases:
-            if '[' in base and ']' in base:
-                generic_args = base[base.index('[') + 1:base.rindex(']')]
-                for arg in split_args(generic_args):
-                    if len(arg) == 1:
-                        parameters.append(arg)
+        try:
+            src = "\n".join(
+                line for line in inspect.getsource(cls).splitlines()
+                if not remove_whitespace(line).startswith("@")
+            )
+            match = class_pattern.match(src)
+            bases = match.group(1).split(",") if match and match.group(1) else []
+            parameters: List[str] = []
+            for base in bases:
+                if '[' in base and ']' in base:
+                    generic_args = base[base.index('[') + 1:base.rindex(']')]
+                    for arg in split_args(generic_args):
+                        if len(arg) == 1:
+                            parameters.append(arg)
+        except (OSError, TypeError):
+            parameters = _extract_generics_from_cls(cls)
 
         return ClassDeclaration(
             cls,

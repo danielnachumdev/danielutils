@@ -326,9 +326,12 @@ def __handle_protocol(params: tuple, /, allow_classes: bool = False) -> bool:
                         if generic not in cls.generics:
                             return False
                         correct_type = t_args[cls.generics.index(generic)]
-                        new_name = correct_type.__name__
-                        if new_name == "Union":
+                        if getattr(correct_type, "__origin__", None) is Union:
                             new_name = str(correct_type).replace("typing.Union", "Union")
+                        elif hasattr(correct_type, "__name__"):
+                            new_name = correct_type.__name__
+                        else:
+                            new_name = str(correct_type).replace("typing.", "")
                         changed_argument = required_funcs[i].arguments[aindex].duplicate(type=new_name)
                         new_arguments = list(required_funcs[i].arguments)[::]
                         new_arguments[aindex] = changed_argument

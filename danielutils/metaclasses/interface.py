@@ -52,7 +52,11 @@ class InterfaceHelper:
         if hasattr(func, Interface.FUNC_KEY):
             return not func.__dict__[Interface.FUNC_KEY]
 
-        src = inspect.getsource(func)
+        try:
+            src = inspect.getsource(func)
+        except (OSError, TypeError):
+            return func.__code__.co_code != (lambda: ...).__code__.co_code
+
         if re.match(Interface.IMPLICIT_ABSTRACT, src):
             return False
 
@@ -68,6 +72,8 @@ class InterfaceHelper:
             Generator[str, None, None]: yields str which are function names
         """
         for func_name in InterfaceHelper.get_declared_function_names(cls):
+            if func_name not in cls.__dict__:
+                continue
             func = cls.__dict__[func_name]
             if not InterfaceHelper.is_func_implemented(func):
                 yield func_name
@@ -80,6 +86,8 @@ class InterfaceHelper:
             Generator[str, None, None]: yields str which are function names
         """
         for func_name in InterfaceHelper.get_declared_function_names(cls):
+            if func_name not in cls.__dict__:
+                continue
             func = cls.__dict__[func_name]
             if InterfaceHelper.is_func_implemented(func):
                 yield func_name
@@ -91,12 +99,19 @@ class InterfaceHelper:
         Yields:
             Generator[str, None, None]: yields str values which are names of declared functions
         """
-        # In python 3.8 this function always return the first occurrence so some tests fail
-        src = inspect.getsource(cls).splitlines()
-        for line in src:
+        try:
+            source_lines = inspect.getsource(cls).splitlines()
+        except (OSError, TypeError):
+            for name, value in cls.__dict__.items():
+                if inspect.isfunction(value):
+                    yield name
+            return
+
+        for line in source_lines:
             if re.match(r".*def \w+\(.*\).*:", line):
                 func_name = re.findall(r".*def (\w+)\(.*", line)[0]
-                yield func_name
+                if func_name in cls.__dict__:
+                    yield func_name
 
     @staticmethod
     def create_init_handler(cls_name, missing: Optional[Union[List[str],

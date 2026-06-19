@@ -1,3 +1,4 @@
+import sys
 import unittest
 from unittest.mock import patch, MagicMock
 from abc import ABC, abstractmethod
@@ -9,6 +10,11 @@ from danielutils.reflection.info_classes.decorator_info import DecoratorInfo
 from danielutils.reflection.info_classes.argument_info import ArgumentInfo
 
 T = TypeVar('T')
+
+requires_class_decorator_source = unittest.skipIf(
+    sys.version_info < (3, 9),
+    "inspect.getsource for dynamically defined decorated callables requires Python 3.9+",
+)
 
 
 class TestClassInfo(unittest.TestCase):
@@ -253,6 +259,7 @@ class TestClassInfo(unittest.TestCase):
         self.assertEqual(1, len(class_info.bases))
         self.assertEqual("ComplexBase", class_info.bases[0].name)
 
+    @requires_class_decorator_source
     def test_class_with_decorators(self):
         """Test ClassInfo with class having decorators."""
         def class_decorator(cls):
@@ -270,6 +277,7 @@ class TestClassInfo(unittest.TestCase):
         self.assertEqual(1, len(class_info.decorations))
         self.assertEqual("class_decorator", class_info.decorations[0].name)
 
+    @requires_class_decorator_source
     def test_class_with_multiple_decorators(self):
         """Test ClassInfo with class having multiple decorators."""
         def decorator1(cls):
@@ -529,7 +537,7 @@ class TestClassInfo(unittest.TestCase):
 
     def test_class_with_type_alias(self):
         """Test ClassInfo with class that has type aliases."""
-        from typing import TypeAlias
+        from danielutils.versioned_imports import TypeAlias
 
         MyType: TypeAlias = str
 
@@ -615,7 +623,7 @@ class TestClassInfo(unittest.TestCase):
 
     def test_class_with_annotated_types(self):
         """Test ClassInfo with class using annotated types."""
-        from typing import Annotated
+        from danielutils.versioned_imports import Annotated
 
         class AnnotatedClass:
             def annotated_method(self, arg1: Annotated[str, "description"]) -> str:

@@ -128,6 +128,8 @@ class FunctionInfo:
         re.MULTILINE)
 
     def __init__(self, func: Callable, owner: Type) -> None:
+        func = inspect.unwrap(func)
+
         # Check for lambda functions
         if getattr(func, '__name__', None) == '<lambda>':
             raise TypeError(
@@ -165,7 +167,7 @@ class FunctionInfo:
                 self._is_property = False  # type: ignore
         except (OSError, TypeError):
             raise TypeError(
-                f"'{func.__name__}' is not a user defined function")
+                f"'{getattr(func, '__name__', type(func).__name__)}' is not a user defined function")
         self._parse_src_code()
 
     def _parse_src_code(self) -> None:

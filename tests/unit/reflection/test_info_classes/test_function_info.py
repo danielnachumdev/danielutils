@@ -1,9 +1,15 @@
 import unittest
+import sys
 from unittest.mock import patch, MagicMock
 from abc import ABC, abstractmethod
-from typing import List, Optional, Callable, Dict, Literal
+from typing import List, Optional, Callable, Dict, Literal, Union
 
 from danielutils.reflection.info_classes.function_info import FunctionInfo
+
+requires_py39_inspect = unittest.skipIf(
+    sys.version_info < (3, 9),
+    "inspect.getsource for dynamically defined decorated callables requires Python 3.9+",
+)
 
 
 class TestFunctionInfo(unittest.TestCase):
@@ -142,6 +148,7 @@ class TestFunctionInfo(unittest.TestCase):
         self.assertEqual("int", func_info.arguments[2].type)
         self.assertEqual("42", func_info.arguments[2].default)
 
+    @requires_py39_inspect
     def test_decorators_parsing(self):
         """Test that decorators are parsed correctly."""
 
@@ -368,13 +375,13 @@ class TestFunctionInfo(unittest.TestCase):
         """Test FunctionInfo with method having Union type."""
 
         class UnionClass:
-            def union_method(self, arg1: str | int) -> str | None:
+            def union_method(self, arg1: Union[str, int]) -> Union[str, None]:
                 return str(arg1) if arg1 else None
 
         func_info = FunctionInfo(UnionClass.union_method, UnionClass)
 
         self.assertEqual("union_method", func_info.name)
-        self.assertEqual("str | None", func_info.return_type)
+        self.assertEqual("Union[str, None]", func_info.return_type)
         self.assertEqual(2, len(func_info.arguments))  # self, arg1
 
     def test_method_with_literal_type(self):
@@ -421,7 +428,7 @@ class TestFunctionInfo(unittest.TestCase):
 
     def test_method_with_annotated_type(self):
         """Test FunctionInfo with method having Annotated type."""
-        from typing import Annotated
+        from danielutils.versioned_imports import Annotated
 
         class AnnotatedClass:
             def annotated_method(self, arg1: Annotated[str, "description"]) -> str:

@@ -1,13 +1,20 @@
+import sys
 import unittest
 
 from danielutils.reflection.info_classes.class_info import ClassInfo
 from danielutils.reflection.info_classes.function_info import FunctionInfo
 from danielutils.reflection.info_classes.decorator_info import DecoratorInfo
 
+requires_class_decorator_source = unittest.skipIf(
+    sys.version_info < (3, 9),
+    "inspect.getsource for dynamically defined decorated callables requires Python 3.9+",
+)
+
 
 class TestDecoratorParsing(unittest.TestCase):
     """Test cases for decorator parsing in classes and functions."""
 
+    @requires_class_decorator_source
     def test_class_decorator_no_parameters(self):
         """Test class with decorator that has no parameters."""
 
@@ -24,6 +31,7 @@ class TestDecoratorParsing(unittest.TestCase):
         self.assertEqual("simple_decorator", class_info.decorations[0].name)
         self.assertEqual(0, len(class_info.decorations[0].arguments))
 
+    @requires_class_decorator_source
     def test_class_decorator_positional_parameters(self):
         """Test class with decorator that has positional parameters."""
 
@@ -43,6 +51,7 @@ class TestDecoratorParsing(unittest.TestCase):
         self.assertEqual("decorator_with_args", class_info.decorations[0].name)
         self.assertEqual(3, len(class_info.decorations[0].arguments))
 
+    @requires_class_decorator_source
     def test_class_decorator_keyword_parameters(self):
         """Test class with decorator that has keyword parameters."""
 
@@ -67,6 +76,7 @@ class TestDecoratorParsing(unittest.TestCase):
         self.assertIn("a", arg_names)
         self.assertIn("b", arg_names)
 
+    @requires_class_decorator_source
     def test_class_decorator_mixed_parameters(self):
         """Test class with decorator that has both positional and keyword parameters."""
 
@@ -199,6 +209,7 @@ class TestDecoratorParsing(unittest.TestCase):
         self.assertIsNotNone(arg.default)
         self.assertIn("test_string", arg.default)
 
+    @requires_class_decorator_source
     def test_class_decorator_string_parameter(self):
         """Test class with decorator that has one string parameter."""
 
@@ -224,6 +235,7 @@ class TestDecoratorParsing(unittest.TestCase):
         self.assertIsNotNone(arg.default)
         self.assertIn("test_string", arg.default)
 
+    @requires_class_decorator_source
     def test_multiple_decorators_on_class(self):
         """Test class with multiple decorators of different types."""
 
