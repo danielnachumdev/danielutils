@@ -18,7 +18,7 @@ keywords = []
 license = { "file" = "./LICENSE" }
 description = "A comprehensive Python utilities library providing type-safe collections, async programming tools, database abstractions, retry executors, data structures, and developer productivity enhancements to streamline Python development workflows"
 readme = {file = "./README.md", content-type = "text/markdown"}
-requires-python = ">=3.8.0"
+requires-python = ">=3.10"
 classifiers = [
 	"Development Status :: 3 - Alpha",
 	"Intended Audience :: Developers",
