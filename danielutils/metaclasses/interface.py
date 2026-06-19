@@ -7,6 +7,7 @@ from typing import Callable, Iterable, Any, Generator, Optional, Union, \
     List as List, Set as Set, Type as t_type, Dict as Dict
 from ..logging_.utils import get_logger
 from ..reflection import get_python_version
+from ..reflection.declarations import _should_use_runtime_introspection, _source_matches_class
 if get_python_version() >= (3, 9):
     from builtins import list as List, set as Set, type as t_type, dict as Dict  # type:ignore
 # from ..decorators.decorate_conditionally import decorate_conditionally
@@ -52,10 +53,18 @@ class InterfaceHelper:
         if hasattr(func, Interface.FUNC_KEY):
             return not func.__dict__[Interface.FUNC_KEY]
 
+        if getattr(func, "__is_interface_handler__", False):
+            return False
+
         try:
             src = inspect.getsource(func)
         except (OSError, TypeError):
-            return func.__code__.co_code != (lambda: ...).__code__.co_code
+            code = func.__code__
+            if code.co_code == b'd\x00S\x00' and code.co_consts == (None,):
+                return False
+            if code.co_code == (lambda: ...).__code__.co_code:
+                return False
+            return True
 
         if re.match(Interface.IMPLICIT_ABSTRACT, src):
             return False
@@ -93,18 +102,33 @@ class InterfaceHelper:
                 yield func_name
 
     @staticmethod
+    def _runtime_declared_function_names(cls) -> Generator[str, None, None]:
+        expected_qualname_prefix = f"{cls.__qualname__}."
+        for name, value in cls.__dict__.items():
+            if not inspect.isfunction(value):
+                continue
+            if getattr(value, "__qualname__", "") != expected_qualname_prefix + name:
+                continue
+            yield name
+
+    @staticmethod
     def get_declared_function_names(cls) -> Generator[str, None, None]:
         """will yield the names of all the functions declared inside a class
 
         Yields:
             Generator[str, None, None]: yields str values which are names of declared functions
         """
+        if _should_use_runtime_introspection(cls):
+            yield from InterfaceHelper._runtime_declared_function_names(cls)
+            return
+
         try:
-            source_lines = inspect.getsource(cls).splitlines()
+            source = inspect.getsource(cls)
+            if not _source_matches_class(cls, source):
+                raise OSError("source does not match class")
+            source_lines = source.splitlines()
         except (OSError, TypeError):
-            for name, value in cls.__dict__.items():
-                if inspect.isfunction(value):
-                    yield name
+            yield from InterfaceHelper._runtime_declared_function_names(cls)
             return
 
         for line in source_lines:
@@ -163,6 +187,7 @@ class InterfaceHelper:
             logger.warning("Generic handler called for unimplemented method in interface %s", cls)
             raise NotImplementedError(
                 f"Interface {cls} must be implemented")
+        __interface_handler__.__is_interface_handler__ = True
         return __interface_handler__
 
 

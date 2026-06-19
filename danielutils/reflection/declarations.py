@@ -97,6 +97,20 @@ def remove_whitespace(text: str) -> str:
     return "".join(not_whitespace_pattern.findall(text.strip())).replace("\\", "")
 
 
+def _should_use_runtime_introspection(cls: type) -> bool:
+    return "<locals>" in getattr(cls, "__qualname__", "")
+
+
+def _source_matches_class(cls: type, src: str) -> bool:
+    if _should_use_runtime_introspection(cls):
+        return False
+    class_pattern_match = re.compile(
+        rf"^\s*class\s+{re.escape(cls.__name__)}\b",
+        re.MULTILINE,
+    )
+    return class_pattern_match.search(src) is not None
+
+
 @dataclass(**function_declaration_kwargs)
 class FunctionDeclaration:
     name: str
@@ -124,8 +138,11 @@ class FunctionDeclaration:
     def _from_runtime(cls: type) -> List['FunctionDeclaration']:
         parameters = _extract_generics_from_cls(cls)
         res: List[FunctionDeclaration] = []
+        expected_qualname_prefix = f"{cls.__qualname__}."
         for name, obj in cls.__dict__.items():
             if not inspect.isfunction(obj):
+                continue
+            if getattr(obj, "__qualname__", "") != expected_qualname_prefix + name:
                 continue
             sig = inspect.signature(obj)
             arguments: List[Argument] = []
@@ -153,8 +170,12 @@ class FunctionDeclaration:
     def get_declared_functions(cls) -> List['FunctionDeclaration']:
         if not isinstance(cls, type):
             raise TypeError('cls must be a Class')
+        if _should_use_runtime_introspection(cls):
+            return FunctionDeclaration._from_runtime(cls)
         try:
             src = inspect.getsource(cls)
+            if not _source_matches_class(cls, src):
+                return FunctionDeclaration._from_runtime(cls)
         except (OSError, TypeError):
             return FunctionDeclaration._from_runtime(cls)
         bases = [item for item in map(remove_whitespace, class_pattern.findall(src)) if len(item) > 0]
@@ -168,6 +189,8 @@ class FunctionDeclaration:
         res = []
         for _, name, args, ret in func_pattern.findall(src):
             name = name.strip()
+            if name not in cls.__dict__:
+                continue
             args = remove_whitespace(args) if args is not None else None
             arguments = []
             if args is not None:
@@ -220,22 +243,27 @@ class ClassDeclaration:
         if not isinstance(cls, type):
             raise TypeError('obj must be a Class')
 
-        try:
-            src = "\n".join(
-                line for line in inspect.getsource(cls).splitlines()
-                if not remove_whitespace(line).startswith("@")
-            )
-            match = class_pattern.match(src)
-            bases = match.group(1).split(",") if match and match.group(1) else []
-            parameters: List[str] = []
-            for base in bases:
-                if '[' in base and ']' in base:
-                    generic_args = base[base.index('[') + 1:base.rindex(']')]
-                    for arg in split_args(generic_args):
-                        if len(arg) == 1:
-                            parameters.append(arg)
-        except (OSError, TypeError):
+        parameters: List[str] = []
+        if _should_use_runtime_introspection(cls):
             parameters = _extract_generics_from_cls(cls)
+        else:
+            try:
+                src = "\n".join(
+                    line for line in inspect.getsource(cls).splitlines()
+                    if not remove_whitespace(line).startswith("@")
+                )
+                if not _source_matches_class(cls, src):
+                    raise OSError("source does not match class")
+                match = class_pattern.match(src)
+                bases = match.group(1).split(",") if match and match.group(1) else []
+                for base in bases:
+                    if '[' in base and ']' in base:
+                        generic_args = base[base.index('[') + 1:base.rindex(']')]
+                        for arg in split_args(generic_args):
+                            if len(arg) == 1:
+                                parameters.append(arg)
+            except (OSError, TypeError):
+                parameters = _extract_generics_from_cls(cls)
 
         return ClassDeclaration(
             cls,
