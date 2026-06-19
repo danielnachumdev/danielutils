@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.25] - 2025-06-19
+
+### Added
+- Python 3.8–3.13 CI test matrix
+
+### Fixed
+- Python 3.8 compatibility for reflection, interface metaclass, async helpers, and type introspection
+- Runtime introspection fallback when `inspect.getsource` returns wrong same-named classes
+
+### Changed
+- Migrated dependency management from pip to uv with dev/test dependency groups
+
 ## [1.0.45] - 2025-06-28
 
 ### Added
