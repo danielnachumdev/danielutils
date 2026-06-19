@@ -13,7 +13,7 @@ import tempfile
 from typing import Set
 
 from danielutils import AsyncCommand, CommandType, CommandState
-from .base import BaseCommandTest
+from tests.base_command import BaseCommandTest
 from .process_kill_context import CalculatorKillContext
 
 

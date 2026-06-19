@@ -7,7 +7,7 @@ import subprocess
 
 from danielutils.tools.unittest_test_runner.core.execution import TestExecutor
 from danielutils.tools.unittest_test_runner.models import TestDiscovery, TestFunctionState
-from tests.test_tools.base import BaseToolTest
+from tests.unit.test_tools.base import BaseToolTest
 
 
 class TestTestExecutor(BaseToolTest):

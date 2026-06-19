@@ -14,7 +14,7 @@ import tempfile
 from pathlib import Path
 
 from danielutils import AsyncCommand, CommandType, CommandState, CommandExecutionResult
-from .base import BaseCommandTest
+from tests.base_command import BaseCommandTest
 
 
 class TestLevel2Core(BaseCommandTest):

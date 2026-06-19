@@ -1,7 +1,7 @@
 import os
 
 from danielutils.async_.async_command import AsyncCommand
-from ..base import BaseCommandTest
+from tests.base_command import BaseCommandTest
 
 
 class TestPowerShellFactory(BaseCommandTest):

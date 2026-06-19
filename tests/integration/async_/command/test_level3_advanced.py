@@ -13,7 +13,7 @@ These tests assume Level 1 and Level 2 tests pass.
 import tempfile
 
 from danielutils import AsyncCommand, CommandType, CommandState, CommandExecutionResult
-from .base import BaseCommandTest
+from tests.base_command import BaseCommandTest
 
 
 class TestLevel3Advanced(BaseCommandTest):

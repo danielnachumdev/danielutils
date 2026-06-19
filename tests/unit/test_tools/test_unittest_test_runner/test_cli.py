@@ -7,7 +7,7 @@ import sys
 from io import StringIO
 
 from danielutils.tools.unittest_test_runner.cli import run_tests
-from tests.test_tools.base import BaseToolTest
+from tests.unit.test_tools.base import BaseToolTest
 
 
 class TestCLI(BaseToolTest):

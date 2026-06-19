@@ -10,7 +10,7 @@ import time
 from typing import Set, List
 
 from danielutils import AsyncCommand
-from .base import BaseCommandTest
+from tests.base_command import BaseCommandTest
 
 
 class ProcessKillContext:

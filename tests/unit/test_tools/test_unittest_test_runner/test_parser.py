@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from danielutils.tools.unittest_test_runner.core.parser import TestOutputParser
 from danielutils.tools.unittest_test_runner.models import TestFunctionState
-from tests.test_tools.base import BaseToolTest
+from tests.unit.test_tools.base import BaseToolTest
 
 
 class TestTestOutputParser(BaseToolTest):

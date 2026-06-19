@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 from danielutils import AsyncCommand, CommandType, CommandState
-from .base import BaseCommandTest
+from tests.base_command import BaseCommandTest
 
 
 class TestLevel1Basic(BaseCommandTest):

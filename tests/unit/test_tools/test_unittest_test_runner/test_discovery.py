@@ -9,7 +9,7 @@ import os
 
 from danielutils.tools.unittest_test_runner.core.discovery import TestDiscoveryService
 from danielutils.tools.unittest_test_runner.models import TestDiscovery
-from tests.test_tools.base import BaseToolTest
+from tests.unit.test_tools.base import BaseToolTest
 
 
 class TestTestDiscoveryService(BaseToolTest):

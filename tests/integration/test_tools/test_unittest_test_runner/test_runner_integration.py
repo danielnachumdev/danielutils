@@ -11,7 +11,7 @@ from pathlib import Path
 
 from danielutils.tools.unittest_test_runner.core.runner import TestRunner
 from danielutils.tools.unittest_test_runner.models import TestDiscovery, TestFunctionState, ModuleState, TestResult, TestRunSummary
-from tests.test_tools.base import BaseToolTest
+from tests.unit.test_tools.base import BaseToolTest
 
 
 class TestTestRunnerIntegration(BaseToolTest):
