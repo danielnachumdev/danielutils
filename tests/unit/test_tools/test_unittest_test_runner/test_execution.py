@@ -1,17 +1,17 @@
 """
-Tests for the TestExecutor class.
+Tests for the UnittestExecutor class.
 """
 import unittest
 from unittest.mock import patch, MagicMock, call
 import subprocess
 
-from danielutils.tools.unittest_test_runner.core.execution import TestExecutor
-from danielutils.tools.unittest_test_runner.models import TestDiscovery, TestFunctionState
+from danielutils.tools.unittest_test_runner.core.execution import UnittestExecutor
+from danielutils.tools.unittest_test_runner.models import UnittestDiscovery, UnittestFunctionState
 from tests.unit.test_tools.base import BaseToolTest
 
 
-class TestTestExecutor(BaseToolTest):
-    """Test cases for TestExecutor."""
+class TestUnittestExecutor(BaseToolTest):
+    """Test cases for UnittestExecutor."""
     
     def setUp(self):
         """Set up test fixtures."""
@@ -19,7 +19,7 @@ class TestTestExecutor(BaseToolTest):
         self.python_path = "python"
         self.verbose = "class"
         
-        self.test_discovery = TestDiscovery(
+        self.test_discovery = UnittestDiscovery(
             modules=["tests.test_module"],
             classes={"tests.test_module": ["TestClass"]},
             functions={"tests.test_module.TestClass": ["test_function1", "test_function2"]},
@@ -27,10 +27,10 @@ class TestTestExecutor(BaseToolTest):
             total_classes=1,
             total_modules=1
         )
-        self.executor = TestExecutor(self.python_path, self.verbose, self.test_discovery)
+        self.executor = UnittestExecutor(self.python_path, self.verbose, self.test_discovery)
     
     def test_init(self):
-        """Test TestExecutor initialization."""
+        """Test UnittestExecutor initialization."""
         self.assertEqual(self.executor._python_path, self.python_path)
         self.assertEqual(self.executor._verbose, self.verbose)
         self.assertEqual(self.executor._test_discovery, self.test_discovery)
@@ -49,7 +49,7 @@ class TestTestExecutor(BaseToolTest):
         # Mock parser to return test function state
         with patch.object(self.executor._parser, 'parse_test_output') as mock_parse:
             mock_parse.return_value = (
-                [TestFunctionState(
+                [UnittestFunctionState(
                     function_name="test_function1",
                     status="passed",
                     runtime=0.001,
@@ -71,7 +71,7 @@ class TestTestExecutor(BaseToolTest):
                 1
             )
         
-        self.assertIsInstance(result, TestFunctionState)
+        self.assertIsInstance(result, UnittestFunctionState)
         self.assertEqual(result.function_name, "test_function1")
         self.assertEqual(result.status, "passed")
         
@@ -97,7 +97,7 @@ class TestTestExecutor(BaseToolTest):
         # Mock parser to return failed test function state
         with patch.object(self.executor._parser, 'parse_test_output') as mock_parse:
             mock_parse.return_value = (
-                [TestFunctionState(
+                [UnittestFunctionState(
                     function_name="test_function1",
                     status="failed",
                     runtime=0.001,
@@ -119,7 +119,7 @@ class TestTestExecutor(BaseToolTest):
                 1
             )
         
-        self.assertIsInstance(result, TestFunctionState)
+        self.assertIsInstance(result, UnittestFunctionState)
         self.assertEqual(result.function_name, "test_function1")
         self.assertEqual(result.status, "failed")
         self.assertEqual(result.error_message, "AssertionError: Test failed")
@@ -138,7 +138,7 @@ class TestTestExecutor(BaseToolTest):
             1
         )
         
-        self.assertIsInstance(result, TestFunctionState)
+        self.assertIsInstance(result, UnittestFunctionState)
         self.assertEqual(result.function_name, "test_function1")
         self.assertEqual(result.status, "error")
         self.assertIn("Error running test", result.error_message)
@@ -148,7 +148,7 @@ class TestTestExecutor(BaseToolTest):
         with patch.object(self.executor, 'run_test_function') as mock_run_function:
             # Mock individual function results
             mock_run_function.side_effect = [
-                TestFunctionState(
+                UnittestFunctionState(
                     function_name="test_function1",
                     status="passed",
                     runtime=0.001,
@@ -158,7 +158,7 @@ class TestTestExecutor(BaseToolTest):
                     should_skip=False,
                     skip_reason=""
                 ),
-                TestFunctionState(
+                UnittestFunctionState(
                     function_name="test_function2",
                     status="failed",
                     runtime=0.002,
@@ -194,7 +194,7 @@ class TestTestExecutor(BaseToolTest):
     def test_run_test_class_fallback(self, mock_run):
         """Test running a test class using fallback method when no discovery info."""
         # Create executor without discovery info
-        executor = TestExecutor(self.python_path, self.verbose, None)
+        executor = UnittestExecutor(self.python_path, self.verbose, None)
         
         # Mock successful subprocess result
         mock_result = MagicMock()
@@ -207,7 +207,7 @@ class TestTestExecutor(BaseToolTest):
         with patch.object(executor._parser, 'parse_test_output') as mock_parse:
             mock_parse.return_value = (
                 [
-                    TestFunctionState(
+                    UnittestFunctionState(
                         function_name="test_function1",
                         status="passed",
                         runtime=0.001,
@@ -217,7 +217,7 @@ class TestTestExecutor(BaseToolTest):
                         should_skip=False,
                         skip_reason=""
                     ),
-                    TestFunctionState(
+                    UnittestFunctionState(
                         function_name="test_function2",
                         status="passed",
                         runtime=0.001,
@@ -254,7 +254,7 @@ class TestTestExecutor(BaseToolTest):
         with patch.object(self.executor, 'run_test_class') as mock_run_class:
             # Mock class results
             mock_run_class.return_value = [
-                TestFunctionState(
+                UnittestFunctionState(
                     function_name="test_function1",
                     status="passed",
                     runtime=0.001,
@@ -282,7 +282,7 @@ class TestTestExecutor(BaseToolTest):
     def test_run_test_file_fallback(self, mock_run):
         """Test running a test file using fallback method when no discovery info."""
         # Create executor without discovery info
-        executor = TestExecutor(self.python_path, self.verbose, None)
+        executor = UnittestExecutor(self.python_path, self.verbose, None)
         
         # Mock successful subprocess result
         mock_result = MagicMock()
@@ -294,7 +294,7 @@ class TestTestExecutor(BaseToolTest):
         # Mock parser to return test function state
         with patch.object(executor._parser, 'parse_test_output') as mock_parse:
             mock_parse.return_value = (
-                [TestFunctionState(
+                [UnittestFunctionState(
                     function_name="test_function1",
                     status="passed",
                     runtime=0.001,

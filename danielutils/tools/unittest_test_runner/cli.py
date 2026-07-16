@@ -5,7 +5,7 @@ Command-line interface for the test runner using Google Fire.
 import logging
 import fire
 from typing import Optional, Literal
-from .core import TestRunner, VerboseLevel
+from .core import UnittestRunner, VerboseLevel
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ def run_tests(python_path: Optional[str] = None,
     logger.info("Starting test run with parameters: python_path=%s, results_file=%s, skip_threshold=%d, force=%s, target=%s, verbose=%s", 
                 python_path, results_file, skip_threshold, force, target, verbose)
     
-    runner = TestRunner(
+    runner = UnittestRunner(
         python_path=python_path,
         results_file=results_file,
         skip_threshold_hours=skip_threshold,

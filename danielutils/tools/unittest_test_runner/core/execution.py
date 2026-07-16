@@ -7,27 +7,27 @@ import logging
 import time
 import subprocess
 from typing import List, Optional, Literal
-from ..models import TestFunctionState, TestResult, ModuleState
-from .parser import TestOutputParser
+from ..models import UnittestFunctionState, UnittestResult, ModuleState
+from .parser import UnittestOutputParser
 
 logger = logging.getLogger(__name__)
 
 VerboseLevel = Literal["module", "file", "class", "function"]
 
 
-class TestExecutor:
+class UnittestExecutor:
     """Handles hierarchical test execution with _run_test_function as the core."""
     
     def __init__(self, python_path: str, verbose: VerboseLevel = "class", 
                  test_discovery: Optional[object] = None):
-        logger.debug("Initializing TestExecutor with python_path=%s, verbose=%s", python_path, verbose)
+        logger.debug("Initializing UnittestExecutor with python_path=%s, verbose=%s", python_path, verbose)
         self._python_path = python_path
         self._verbose = verbose
         self._test_discovery = test_discovery
-        self._parser = TestOutputParser(verbose)
+        self._parser = UnittestOutputParser(verbose)
     
     def run_test_function(self, module_path: str, test_class: str, test_function: str, 
-                         function_index: int = 0, total_functions: int = 0) -> TestFunctionState:
+                         function_index: int = 0, total_functions: int = 0) -> UnittestFunctionState:
         """Run a single test function and return its state. This is the core execution context."""
         logger.debug("Running test function: %s.%s.%s", module_path, test_class, test_function)
         indent = "        "  # 8 spaces for function level
@@ -66,7 +66,7 @@ class TestExecutor:
             else:
                 # Create a failed state if parsing failed
                 logger.warning("Failed to parse test output for function: %s", test_function)
-                error_state = TestFunctionState(
+                error_state = UnittestFunctionState(
                     function_name=test_function,
                     status="error",
                     runtime=0.0,
@@ -82,7 +82,7 @@ class TestExecutor:
                 
         except Exception as e:
             logger.error("Error running test function %s: %s", test_function, e)
-            error_state = TestFunctionState(
+            error_state = UnittestFunctionState(
                 function_name=test_function,
                 status="error",
                 runtime=0.0,
@@ -96,7 +96,7 @@ class TestExecutor:
                 print(f"{indent}  ⚠ {test_function} (error) - {e}")
             return error_state
     
-    def run_test_class(self, module_path: str, test_class: str, class_index: int = 0, total_classes: int = 0) -> List[TestFunctionState]:
+    def run_test_class(self, module_path: str, test_class: str, class_index: int = 0, total_classes: int = 0) -> List[UnittestFunctionState]:
         """Run all test functions in a test class and return their states."""
         logger.debug("Running test class: %s.%s", module_path, test_class)
         indent = "      "  # 6 spaces for class level
@@ -162,7 +162,7 @@ class TestExecutor:
             
             return test_functions
     
-    def run_test_file(self, module_path: str, file_index: int = 0, total_files: int = 0) -> List[TestFunctionState]:
+    def run_test_file(self, module_path: str, file_index: int = 0, total_files: int = 0) -> List[UnittestFunctionState]:
         """Run all test classes in a test file and return all test function states."""
         logger.debug("Running test file: %s", module_path)
         indent = "    "  # 4 spaces for file level

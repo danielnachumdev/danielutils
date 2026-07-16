@@ -1,5 +1,5 @@
 """
-Integration tests for the TestRunner class.
+Integration tests for the UnittestRunner class.
 """
 import unittest
 from unittest.mock import patch, MagicMock, call
@@ -9,13 +9,13 @@ import os
 import sys
 from pathlib import Path
 
-from danielutils.tools.unittest_test_runner.core.runner import TestRunner
-from danielutils.tools.unittest_test_runner.models import TestDiscovery, TestFunctionState, ModuleState, TestResult, TestRunSummary
+from danielutils.tools.unittest_test_runner.core.runner import UnittestRunner
+from danielutils.tools.unittest_test_runner.models import UnittestDiscovery, UnittestFunctionState, ModuleState, UnittestResult, UnittestRunSummary
 from tests.unit.test_tools.base import BaseToolTest
 
 
-class TestTestRunnerIntegration(BaseToolTest):
-    """Integration test cases for TestRunner."""
+class TestUnittestRunnerIntegration(BaseToolTest):
+    """Integration test cases for UnittestRunner."""
     
     def setUp(self):
         """Set up test fixtures."""
@@ -26,7 +26,7 @@ class TestTestRunnerIntegration(BaseToolTest):
         self.verbose = "class"
         
         # Create a mock test discovery
-        self.mock_discovery = TestDiscovery(
+        self.mock_discovery = UnittestDiscovery(
             modules=["tests.test_module1", "tests.test_module2"],
             classes={
                 "tests.test_module1": ["TestClass1"],
@@ -50,22 +50,22 @@ class TestTestRunnerIntegration(BaseToolTest):
         super().tearDown()
     
     def test_init(self):
-        """Test TestRunner initialization."""
-        runner = TestRunner(
+        """Test UnittestRunner initialization."""
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file
         )
         
-        self.assertEqual(runner.python_path, sys.executable)  # TestRunner converts None to sys.executable
+        self.assertEqual(runner.python_path, sys.executable)  # UnittestRunner converts None to sys.executable
         self.assertEqual(runner.verbose, self.verbose)
         self.assertEqual(runner.results_file, self.results_file)
         self.assertIsNotNone(runner.discovery_service)
         self.assertIsNotNone(runner.executor)
     
-    @patch('danielutils.tools.unittest_test_runner.core.runner.TestDiscoveryService')
+    @patch('danielutils.tools.unittest_test_runner.core.runner.UnittestDiscoveryService')
     def test_init_with_target(self, mock_discovery_service_class):
-        """Test TestRunner initialization with target."""
+        """Test UnittestRunner initialization with target."""
         # Mock the discovery service
         mock_discovery_service = MagicMock()
         mock_discovery_service_class.return_value = mock_discovery_service
@@ -78,7 +78,7 @@ class TestTestRunnerIntegration(BaseToolTest):
         mock_discovery_service.create_focused_discovery.return_value = mock_focused_discovery
         
         target = "tests.test_module1.TestClass1.test_function1"
-        runner = TestRunner(
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file,
@@ -88,8 +88,8 @@ class TestTestRunnerIntegration(BaseToolTest):
         self.assertEqual(runner.target, target)
         mock_discovery_service.create_focused_discovery.assert_called_once()
     
-    @patch('danielutils.tools.unittest_test_runner.core.runner.TestDiscoveryService')
-    @patch('danielutils.tools.unittest_test_runner.core.runner.TestExecutor')
+    @patch('danielutils.tools.unittest_test_runner.core.runner.UnittestDiscoveryService')
+    @patch('danielutils.tools.unittest_test_runner.core.runner.UnittestExecutor')
     def test_run_tests_with_discovery(self, mock_executor_class, mock_discovery_class):
         """Test running tests with discovery information."""
         # Mock discovery service
@@ -101,7 +101,7 @@ class TestTestRunnerIntegration(BaseToolTest):
         # Mock executor
         mock_executor = MagicMock()
         mock_executor.run_test_file.side_effect = [
-            [TestFunctionState(
+            [UnittestFunctionState(
                 function_name="test_function1",
                 status="passed",
                 runtime=0.001,
@@ -111,7 +111,7 @@ class TestTestRunnerIntegration(BaseToolTest):
                 should_skip=False,
                 skip_reason=""
             )],
-            [TestFunctionState(
+            [UnittestFunctionState(
                 function_name="test_function3",
                 status="failed",
                 runtime=0.002,
@@ -124,7 +124,7 @@ class TestTestRunnerIntegration(BaseToolTest):
         ]
         mock_executor_class.return_value = mock_executor
         
-        runner = TestRunner(
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file
@@ -147,7 +147,7 @@ class TestTestRunnerIntegration(BaseToolTest):
     def test_load_previous_results_file_exists(self):
         """Test loading previous results when file exists."""
         # Create a mock previous results file
-        # Create a mock previous results file in the format that TestRunSummary expects
+        # Create a mock previous results file in the format that UnittestRunSummary expects
         previous_results = {
             "timestamp": "2024-01-01 12:00:00",
             "python_executable": "python",
@@ -167,7 +167,7 @@ class TestTestRunnerIntegration(BaseToolTest):
         with open(self.results_file, 'w') as f:
             json.dump(previous_results, f)
         
-        runner = TestRunner(
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file
@@ -180,7 +180,7 @@ class TestTestRunnerIntegration(BaseToolTest):
     
     def test_load_previous_results_file_not_exists(self):
         """Test loading previous results when file doesn't exist."""
-        runner = TestRunner(
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file
@@ -192,7 +192,7 @@ class TestTestRunnerIntegration(BaseToolTest):
     
     def test_save_results_json(self):
         """Test saving results to JSON file."""
-        runner = TestRunner(
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file
@@ -200,7 +200,7 @@ class TestTestRunnerIntegration(BaseToolTest):
         
         # Create mock test results
         test_functions = [
-            TestFunctionState(
+            UnittestFunctionState(
                 function_name="test_function1",
                 status="passed",
                 runtime=0.001,
@@ -228,7 +228,7 @@ class TestTestRunnerIntegration(BaseToolTest):
             timestamp="2023-01-01 00:00:00"
         )
         
-        test_result = TestResult(
+        test_result = UnittestResult(
             module_path="tests.test_module1",
             initial_state=None,
             current_state=module_state,
@@ -236,7 +236,7 @@ class TestTestRunnerIntegration(BaseToolTest):
             warnings=[]
         )
         
-        summary = TestRunSummary(
+        summary = UnittestRunSummary(
             timestamp="2023-01-01 00:00:00",
             python_executable="python",
             total_modules=1,
@@ -273,7 +273,7 @@ class TestTestRunnerIntegration(BaseToolTest):
     def test_should_skip_module_good_shape(self):
         """Test that modules in good shape are skipped."""
         # Create a module in good shape (all tests passing, no recent failures)
-        test_function = TestFunctionState(
+        test_function = UnittestFunctionState(
             function_name="test_function1",
             status="passed",
             runtime=0.001,
@@ -300,7 +300,7 @@ class TestTestRunnerIntegration(BaseToolTest):
             timestamp="2024-01-01 12:00:00"
         )
         
-        runner = TestRunner(
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file
@@ -315,7 +315,7 @@ class TestTestRunnerIntegration(BaseToolTest):
     def test_should_skip_module_has_failures(self):
         """Test that modules with failures are not skipped."""
         # Create a module with failures
-        test_function = TestFunctionState(
+        test_function = UnittestFunctionState(
             function_name="test_function1",
             status="failed",
             runtime=0.001,
@@ -342,7 +342,7 @@ class TestTestRunnerIntegration(BaseToolTest):
             timestamp="2024-01-01 12:00:00"
         )
         
-        runner = TestRunner(
+        runner = UnittestRunner(
             python_path=self.python_path,
             verbose=self.verbose,
             results_file=self.results_file

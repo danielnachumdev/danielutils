@@ -27,10 +27,10 @@ class TestCLI(BaseToolTest):
         sys.stderr = self.original_stderr
         super().tearDown()
     
-    @patch('danielutils.tools.unittest_test_runner.cli.TestRunner')
+    @patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner')
     def test_run_tests_default_parameters(self, mock_runner_class):
         """Test run_tests with default parameters."""
-        # Mock TestRunner instance
+        # Mock UnittestRunner instance
         mock_runner = MagicMock()
         mock_runner.run_tests.return_value = MagicMock()
         mock_runner_class.return_value = mock_runner
@@ -38,7 +38,7 @@ class TestCLI(BaseToolTest):
         # Call run_tests with default parameters
         result = run_tests()
         
-        # Verify TestRunner was instantiated with correct parameters
+        # Verify UnittestRunner was instantiated with correct parameters
         mock_runner_class.assert_called_once_with(
             python_path=None,  # Will use sys.executable
             results_file="test_results.json",
@@ -53,10 +53,10 @@ class TestCLI(BaseToolTest):
         # Verify run_all_tests was called
         mock_runner.run_all_tests.assert_called_once()
     
-    @patch('danielutils.tools.unittest_test_runner.cli.TestRunner')
+    @patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner')
     def test_run_tests_with_verbose_function(self, mock_runner_class):
         """Test run_tests with verbose set to function."""
-        # Mock TestRunner instance
+        # Mock UnittestRunner instance
         mock_runner = MagicMock()
         mock_runner.run_tests.return_value = MagicMock()
         mock_runner_class.return_value = mock_runner
@@ -64,7 +64,7 @@ class TestCLI(BaseToolTest):
         # Call run_tests with verbose="function"
         result = run_tests(verbose="function")
         
-        # Verify TestRunner was instantiated with correct parameters
+        # Verify UnittestRunner was instantiated with correct parameters
         mock_runner_class.assert_called_once_with(
             python_path=None,
             results_file="test_results.json",
@@ -76,10 +76,10 @@ class TestCLI(BaseToolTest):
             show_function_results=False
         )
     
-    @patch('danielutils.tools.unittest_test_runner.cli.TestRunner')
+    @patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner')
     def test_run_tests_with_target(self, mock_runner_class):
         """Test run_tests with target specified."""
-        # Mock TestRunner instance
+        # Mock UnittestRunner instance
         mock_runner = MagicMock()
         mock_runner.run_tests.return_value = MagicMock()
         mock_runner_class.return_value = mock_runner
@@ -88,7 +88,7 @@ class TestCLI(BaseToolTest):
         target = "tests.test_module.TestClass.test_function"
         result = run_tests(target=target)
         
-        # Verify TestRunner was instantiated with correct parameters
+        # Verify UnittestRunner was instantiated with correct parameters
         mock_runner_class.assert_called_once_with(
             python_path=None,
             results_file="test_results.json",
@@ -100,10 +100,10 @@ class TestCLI(BaseToolTest):
             show_function_results=False
         )
     
-    @patch('danielutils.tools.unittest_test_runner.cli.TestRunner')
+    @patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner')
     def test_run_tests_with_custom_results_file(self, mock_runner_class):
         """Test run_tests with custom results file."""
-        # Mock TestRunner instance
+        # Mock UnittestRunner instance
         mock_runner = MagicMock()
         mock_runner.run_tests.return_value = MagicMock()
         mock_runner_class.return_value = mock_runner
@@ -112,7 +112,7 @@ class TestCLI(BaseToolTest):
         results_file = "custom_results.json"
         result = run_tests(results_file=results_file)
         
-        # Verify TestRunner was instantiated with correct parameters
+        # Verify UnittestRunner was instantiated with correct parameters
         mock_runner_class.assert_called_once_with(
             python_path=None,
             results_file=results_file,
@@ -124,10 +124,10 @@ class TestCLI(BaseToolTest):
             show_function_results=False
         )
     
-    @patch('danielutils.tools.unittest_test_runner.cli.TestRunner')
+    @patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner')
     def test_run_tests_with_python_path(self, mock_runner_class):
         """Test run_tests with custom python path."""
-        # Mock TestRunner instance
+        # Mock UnittestRunner instance
         mock_runner = MagicMock()
         mock_runner.run_tests.return_value = MagicMock()
         mock_runner_class.return_value = mock_runner
@@ -136,7 +136,7 @@ class TestCLI(BaseToolTest):
         python_path = "/usr/bin/python3"
         result = run_tests(python_path=python_path)
         
-        # Verify TestRunner was instantiated with correct parameters
+        # Verify UnittestRunner was instantiated with correct parameters
         mock_runner_class.assert_called_once_with(
             python_path=python_path,
             results_file="test_results.json",
@@ -148,10 +148,10 @@ class TestCLI(BaseToolTest):
             show_function_results=False
         )
     
-    @patch('danielutils.tools.unittest_test_runner.cli.TestRunner')
+    @patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner')
     def test_run_tests_all_parameters(self, mock_runner_class):
         """Test run_tests with all parameters specified."""
-        # Mock TestRunner instance
+        # Mock UnittestRunner instance
         mock_runner = MagicMock()
         mock_runner.run_tests.return_value = MagicMock()
         mock_runner_class.return_value = mock_runner
@@ -164,7 +164,7 @@ class TestCLI(BaseToolTest):
             target="tests.test_module.TestClass.test_function"
         )
         
-        # Verify TestRunner was instantiated with correct parameters
+        # Verify UnittestRunner was instantiated with correct parameters
         mock_runner_class.assert_called_once_with(
             python_path="/usr/bin/python3",
             results_file="custom_results.json",
@@ -176,10 +176,10 @@ class TestCLI(BaseToolTest):
             show_function_results=False
         )
     
-    @patch('danielutils.tools.unittest_test_runner.cli.TestRunner')
+    @patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner')
     def test_run_tests_returns_summary(self, mock_runner_class):
-        """Test that run_tests returns the summary from TestRunner."""
-        # Mock TestRunner instance and summary
+        """Test that run_tests returns the summary from UnittestRunner."""
+        # Mock UnittestRunner instance and summary
         mock_summary = MagicMock()
         mock_runner = MagicMock()
         mock_runner.run_tests.return_value = mock_summary
@@ -197,7 +197,7 @@ class TestCLI(BaseToolTest):
         
         for level in valid_levels:
             with self.subTest(verbose=level):
-                with patch('danielutils.tools.unittest_test_runner.cli.TestRunner') as mock_runner_class:
+                with patch('danielutils.tools.unittest_test_runner.cli.UnittestRunner') as mock_runner_class:
                     mock_runner = MagicMock()
                     mock_runner.run_tests.return_value = MagicMock()
                     mock_runner_class.return_value = mock_runner
@@ -205,7 +205,7 @@ class TestCLI(BaseToolTest):
                     # This should not raise an exception
                     result = run_tests(verbose=level)
                     
-                    # Verify TestRunner was called with correct verbose level
+                    # Verify UnittestRunner was called with correct verbose level
                     mock_runner_class.assert_called_once_with(
                         python_path=None,
                         results_file="test_results.json",

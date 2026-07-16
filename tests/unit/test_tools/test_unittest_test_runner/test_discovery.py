@@ -1,5 +1,5 @@
 """
-Tests for the TestDiscoveryService class.
+Tests for the UnittestDiscoveryService class.
 """
 import unittest
 from unittest.mock import patch, MagicMock
@@ -7,23 +7,23 @@ from pathlib import Path
 import tempfile
 import os
 
-from danielutils.tools.unittest_test_runner.core.discovery import TestDiscoveryService
-from danielutils.tools.unittest_test_runner.models import TestDiscovery
+from danielutils.tools.unittest_test_runner.core.discovery import UnittestDiscoveryService
+from danielutils.tools.unittest_test_runner.models import UnittestDiscovery
 from tests.unit.test_tools.base import BaseToolTest
 
 
-class TestTestDiscoveryService(BaseToolTest):
-    """Test cases for TestDiscoveryService."""
+class TestUnittestDiscoveryService(BaseToolTest):
+    """Test cases for UnittestDiscoveryService."""
     
     def setUp(self):
         """Set up test fixtures."""
         super().setUp()
         self.python_path = "python"
         self.verbose = "class"
-        self.discovery_service = TestDiscoveryService(self.python_path, self.verbose)
+        self.discovery_service = UnittestDiscoveryService(self.python_path, self.verbose)
     
     def test_init(self):
-        """Test TestDiscoveryService initialization."""
+        """Test UnittestDiscoveryService initialization."""
         self.assertEqual(self.discovery_service._python_path, self.python_path)
         self.assertEqual(self.discovery_service._verbose, self.verbose)
     
@@ -70,7 +70,7 @@ class TestTestDiscoveryService(BaseToolTest):
         
         discovery = self.discovery_service.discover_test_structure(test_modules)
         
-        self.assertIsInstance(discovery, TestDiscovery)
+        self.assertIsInstance(discovery, UnittestDiscovery)
         self.assertEqual(discovery.total_modules, 2)
         self.assertIn("tests.test_module1", discovery.modules)
         self.assertIn("tests.test_module2", discovery.modules)
@@ -115,7 +115,7 @@ class TestTestDiscoveryService(BaseToolTest):
     def test_create_focused_discovery(self):
         """Test creating focused discovery from target."""
         # Create a mock full discovery
-        full_discovery = TestDiscovery(
+        full_discovery = UnittestDiscovery(
             modules=["tests.test_module1", "tests.test_module2"],
             classes={
                 "tests.test_module1": ["TestClass1", "TestClass2"],

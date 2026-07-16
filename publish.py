@@ -25,7 +25,7 @@ def main() -> None:
     try:
         publish(
             name="danielutils",
-            version="1.1.25",
+            version="1.1.26",
             author="danielnachumdev",
             author_email="danielnachumdev@gmail.com",
             description="A comprehensive Python utilities library providing type-safe collections, async programming tools, database abstractions, retry executors, data structures, and developer productivity enhancements to streamline Python development workflows",

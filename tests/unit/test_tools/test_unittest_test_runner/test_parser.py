@@ -1,25 +1,25 @@
 """
-Tests for the TestOutputParser class.
+Tests for the UnittestOutputParser class.
 """
 import unittest
 from unittest.mock import patch
 
-from danielutils.tools.unittest_test_runner.core.parser import TestOutputParser
-from danielutils.tools.unittest_test_runner.models import TestFunctionState
+from danielutils.tools.unittest_test_runner.core.parser import UnittestOutputParser
+from danielutils.tools.unittest_test_runner.models import UnittestFunctionState
 from tests.unit.test_tools.base import BaseToolTest
 
 
-class TestTestOutputParser(BaseToolTest):
-    """Test cases for TestOutputParser."""
+class TestUnittestOutputParser(BaseToolTest):
+    """Test cases for UnittestOutputParser."""
     
     def setUp(self):
         """Set up test fixtures."""
         super().setUp()
         self.verbose = "class"
-        self.parser = TestOutputParser(self.verbose)
+        self.parser = UnittestOutputParser(self.verbose)
     
     def test_init(self):
-        """Test TestOutputParser initialization."""
+        """Test UnittestOutputParser initialization."""
         self.assertEqual(self.parser._verbose, self.verbose)
     
     def test_parse_test_output_success(self):

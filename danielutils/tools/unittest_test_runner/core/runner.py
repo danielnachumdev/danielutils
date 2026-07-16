@@ -1,5 +1,5 @@
 """
-Main TestRunner orchestration functionality.
+Main UnittestRunner orchestration functionality.
 """
 
 import logging
@@ -9,17 +9,17 @@ import time
 import json
 import subprocess
 from typing import List, Optional, Literal, Tuple
-from ..models import TestFunctionState, ModuleState, TestResult, TestRunSummary, TestDiscovery
-from .discovery import TestDiscoveryService
-from .execution import TestExecutor
-from .parser import TestOutputParser
+from ..models import UnittestFunctionState, ModuleState, UnittestResult, UnittestRunSummary, UnittestDiscovery
+from .discovery import UnittestDiscoveryService
+from .execution import UnittestExecutor
+from .parser import UnittestOutputParser
 
 logger = logging.getLogger(__name__)
 
 VerboseLevel = Literal["module", "file", "class", "function"]
 
 
-class TestRunner:
+class UnittestRunner:
     """Smart test runner that executes tests module by module and collects detailed statistics."""
     
     def __init__(self, 
@@ -31,7 +31,7 @@ class TestRunner:
                  target: Optional[str] = None,
                  verbose: VerboseLevel = "class",
                  show_function_results: bool = False):
-        logger.info("Initializing TestRunner with python_path=%s, results_file=%s, skip_threshold_hours=%d, force_run=%s, target=%s, verbose=%s", 
+        logger.info("Initializing UnittestRunner with python_path=%s, results_file=%s, skip_threshold_hours=%d, force_run=%s, target=%s, verbose=%s", 
                    python_path, results_file, skip_threshold_hours, force_run, target, verbose)
         
         self.python_path = python_path or sys.executable
@@ -61,12 +61,12 @@ class TestRunner:
         
         # Initialize services
         logger.debug("Initializing discovery service and parser")
-        self.discovery_service = TestDiscoveryService(self.python_path, self.verbose)
-        self.parser = TestOutputParser(self.verbose)
+        self.discovery_service = UnittestDiscoveryService(self.python_path, self.verbose)
+        self.parser = UnittestOutputParser(self.verbose)
         
         # Initialize state
-        self.results: List[TestResult] = []
-        self.previous_results: Optional[TestRunSummary] = None
+        self.results: List[UnittestResult] = []
+        self.previous_results: Optional[UnittestRunSummary] = None
         logger.debug("Loading previous results from: %s", self.results_file)
         self._load_previous_results()
         
@@ -90,7 +90,7 @@ class TestRunner:
             self.test_modules = self.discovery_service.discover_test_modules()
         
         logger.info("Discovered %d test modules", len(self.test_modules))
-        self.test_discovery: Optional[TestDiscovery] = None
+        self.test_discovery: Optional[UnittestDiscovery] = None
         self._discover_test_structure()
         
         # Apply target filtering if specified
@@ -109,7 +109,7 @@ class TestRunner:
         
         # Initialize executor
         logger.debug("Initializing test executor")
-        self.executor = TestExecutor(self.python_path, self.verbose, self.test_discovery)
+        self.executor = UnittestExecutor(self.python_path, self.verbose, self.test_discovery)
     
     def _discover_test_structure(self):
         """Discover the complete test structure for progress tracking."""
@@ -131,7 +131,7 @@ class TestRunner:
             with open(self.results_file, 'r') as f:
                 data = json.load(f)
                 
-                # Convert results list from dicts to TestResult objects
+                # Convert results list from dicts to UnittestResult objects
                 if 'results' in data and isinstance(data['results'], list):
                     results = []
                     logger.debug("Converting %d previous results from dicts to objects", len(data['results']))
@@ -139,15 +139,15 @@ class TestRunner:
                         # Convert nested dicts to proper objects
                         if 'module_state' in result_dict:
                             module_state_dict = result_dict['module_state']
-                            # Convert test_functions dict to TestFunctionState objects
+                            # Convert test_functions dict to UnittestFunctionState objects
                             test_functions = {}
                             if 'test_functions' in module_state_dict:
                                 for func_name, func_dict in module_state_dict['test_functions'].items():
-                                    test_functions[func_name] = TestFunctionState(**func_dict)
+                                    test_functions[func_name] = UnittestFunctionState(**func_dict)
                             
                             # Create ModuleState objects
-                            initial_state = TestFunctionState(**module_state_dict['initial_state']) if module_state_dict.get('initial_state') else None
-                            current_state = TestFunctionState(**module_state_dict['current_state']) if module_state_dict.get('current_state') else None
+                            initial_state = UnittestFunctionState(**module_state_dict['initial_state']) if module_state_dict.get('initial_state') else None
+                            current_state = UnittestFunctionState(**module_state_dict['current_state']) if module_state_dict.get('current_state') else None
                             
                             module_state = ModuleState(
                                 initial_state=initial_state,
@@ -155,7 +155,7 @@ class TestRunner:
                                 test_functions=test_functions
                             )
                             
-                            result = TestResult(
+                            result = UnittestResult(
                                 module_path=result_dict['module_path'],
                                 module_state=module_state,
                                 errors=result_dict.get('errors', []),
@@ -165,7 +165,7 @@ class TestRunner:
                     
                     data['results'] = results
                 
-                self.previous_results = TestRunSummary(**data)
+                self.previous_results = UnittestRunSummary(**data)
                 logger.info("Successfully loaded previous results: %d modules, %d tests", 
                            self.previous_results.total_modules, self.previous_results.total_tests)
         except Exception as e:
@@ -216,7 +216,7 @@ class TestRunner:
         logger.debug("Module %s needs attention", module_path)
         return False, "Module needs attention"
     
-    def _create_module_state(self, module_path: str, test_functions: List[TestFunctionState], 
+    def _create_module_state(self, module_path: str, test_functions: List[UnittestFunctionState], 
                            total_runtime: float) -> ModuleState:
         """Create a ModuleState from test function results."""
         if not test_functions:
@@ -357,7 +357,7 @@ class TestRunner:
         logger.info("All test execution completed")
         self._print_final_summary()
     
-    def _run_test_module(self, module_path: str) -> TestResult:
+    def _run_test_module(self, module_path: str) -> UnittestResult:
         """Run a single test module and collect detailed statistics."""
         logger.debug("Running test module: %s", module_path)
         if self.verbose in ["module", "file", "class", "function"]:
@@ -430,7 +430,7 @@ class TestRunner:
                     current_state.errors < initial_state.errors
                 )
             
-            return TestResult(
+            return UnittestResult(
                 module_path=module_path,
                 initial_state=initial_state,
                 current_state=current_state,
@@ -447,7 +447,7 @@ class TestRunner:
             
             # Create error state
             current_state = self._create_module_state(module_path, [], time.time() - start_time)
-            return TestResult(
+            return UnittestResult(
                 module_path=module_path,
                 initial_state=initial_state,
                 current_state=current_state,
@@ -463,7 +463,7 @@ class TestRunner:
             
             # Create error state
             current_state = self._create_module_state(module_path, [], time.time() - start_time)
-            return TestResult(
+            return UnittestResult(
                 module_path=module_path,
                 initial_state=initial_state,
                 current_state=current_state,
@@ -534,7 +534,7 @@ class TestRunner:
         total_execution_time = sum(r.current_state.total_runtime for r in self.results)
         
         # Create summary
-        summary = TestRunSummary(
+        summary = UnittestRunSummary(
             timestamp=time.strftime('%Y-%m-%d %H:%M:%S'),
             python_executable=self.python_path,
             total_modules=total_modules,

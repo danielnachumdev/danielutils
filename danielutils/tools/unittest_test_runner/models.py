@@ -8,7 +8,7 @@ import time
 
 
 @dataclass
-class TestFunctionState:
+class UnittestFunctionState:
     """State of an individual test function."""
     function_name: str
     status: str  # "passed", "failed", "skipped", "error", "unknown"
@@ -25,7 +25,7 @@ class TestFunctionState:
 class ModuleState:
     """State of a test module containing multiple test functions."""
     module_path: str
-    test_functions: List[TestFunctionState]
+    test_functions: List[UnittestFunctionState]
     total_tests: int
     passed: int
     failed: int
@@ -43,7 +43,7 @@ class ModuleState:
 
 
 @dataclass
-class TestResult:
+class UnittestResult:
     """Result of running a test module with initial and current states."""
     module_path: str
     initial_state: Optional[ModuleState]
@@ -54,7 +54,7 @@ class TestResult:
 
 
 @dataclass
-class TestRunSummary:
+class UnittestRunSummary:
     """Summary of a complete test run across all modules."""
     timestamp: str
     python_executable: str
@@ -68,11 +68,11 @@ class TestRunSummary:
     total_errors: int
     success_rate: float
     total_execution_time: float
-    results: List[TestResult]
+    results: List[UnittestResult]
 
 
 @dataclass
-class TestDiscovery:
+class UnittestDiscovery:
     """Represents discovered test structure for progress tracking."""
     modules: List[str]
     classes: Dict[str, List[str]]  # module -> list of classes

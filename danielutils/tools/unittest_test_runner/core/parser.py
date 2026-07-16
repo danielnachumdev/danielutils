@@ -5,19 +5,19 @@ Output parsing and result processing functionality.
 import logging
 import time
 from typing import List, Tuple
-from ..models import TestFunctionState
+from ..models import UnittestFunctionState
 
 logger = logging.getLogger(__name__)
 
 
-class TestOutputParser:
+class UnittestOutputParser:
     """Handles parsing of unittest output and creating test states."""
     
     def __init__(self, verbose: str = "class"):
-        logger.debug("Initializing TestOutputParser with verbose=%s", verbose)
+        logger.debug("Initializing UnittestOutputParser with verbose=%s", verbose)
         self._verbose = verbose
     
-    def parse_test_output(self, output_lines: List[str], stderr_lines: List[str]) -> Tuple[List[TestFunctionState], List[str], List[str]]:
+    def parse_test_output(self, output_lines: List[str], stderr_lines: List[str]) -> Tuple[List[UnittestFunctionState], List[str], List[str]]:
         """Parse unittest output to extract individual test function results."""
         logger.debug("Parsing test output: %d output lines, %d stderr lines", len(output_lines), len(stderr_lines))
         test_functions = []
@@ -114,7 +114,7 @@ class TestOutputParser:
                                 pass
                     
                     # Create test function state
-                    test_function = TestFunctionState(
+                    test_function = UnittestFunctionState(
                         function_name=test_name,
                         status=status or "unknown",
                         runtime=runtime,
@@ -146,7 +146,7 @@ class TestOutputParser:
                     if match and int(match.group(1)) > 0:
                         # This is a summary line, but we can't extract individual results
                         # Just create a placeholder
-                        test_function = TestFunctionState(
+                        test_function = UnittestFunctionState(
                             function_name="unknown",
                             status="unknown",
                             runtime=0.0,

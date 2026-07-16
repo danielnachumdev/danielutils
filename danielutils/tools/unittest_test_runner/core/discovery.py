@@ -7,18 +7,18 @@ import os
 import subprocess
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Literal
-from ..models import TestDiscovery
+from ..models import UnittestDiscovery
 
 logger = logging.getLogger(__name__)
 
 VerboseLevel = Literal["module", "file", "class", "function"]
 
 
-class TestDiscoveryService:
+class UnittestDiscoveryService:
     """Handles discovery of test structure and target parsing."""
     
     def __init__(self, python_path: str, verbose: VerboseLevel = "class"):
-        logger.debug("Initializing TestDiscoveryService with python_path=%s, verbose=%s", python_path, verbose)
+        logger.debug("Initializing UnittestDiscoveryService with python_path=%s, verbose=%s", python_path, verbose)
         self._python_path = python_path
         self._verbose = verbose
     
@@ -107,7 +107,7 @@ class TestDiscoveryService:
             
         return sorted(test_modules)
     
-    def discover_test_structure(self, test_modules: List[str]) -> TestDiscovery:
+    def discover_test_structure(self, test_modules: List[str]) -> UnittestDiscovery:
         """Discover the complete test structure for progress tracking."""
         logger.info("Discovering test structure for %d modules", len(test_modules))
         if self._verbose in ["module", "file", "class", "function"]:
@@ -192,7 +192,7 @@ class TestDiscoveryService:
         if self._verbose in ["module", "file", "class", "function"]:
             print(f"  ✅ Discovery complete: {len(modules)} modules, {total_classes} classes, {total_functions} functions")
         
-        discovery = TestDiscovery(
+        discovery = UnittestDiscovery(
             modules=modules,
             classes=classes,
             functions=functions,
@@ -254,7 +254,7 @@ class TestDiscoveryService:
         return module, class_name, function_name
     
     def create_focused_discovery(self, target_module: str, target_class: Optional[str], 
-                               target_function: Optional[str], full_discovery: TestDiscovery) -> TestDiscovery:
+                               target_function: Optional[str], full_discovery: UnittestDiscovery) -> UnittestDiscovery:
         """Create a focused test discovery based on target specification."""
         logger.debug("Creating focused discovery for target: %s.%s.%s", target_module, target_class or '', target_function or '')
         if self._verbose == "function":
@@ -312,7 +312,7 @@ class TestDiscoveryService:
         logger.info("Created focused discovery: %d modules, %d classes, %d functions", 
                    len(modules), total_classes, total_functions)
         
-        return TestDiscovery(
+        return UnittestDiscovery(
             modules=modules,
             classes=classes,
             functions=functions,

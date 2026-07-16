@@ -185,7 +185,7 @@ class TestInMemoryDatabase(unittest.IsolatedAsyncioTestCase):
             })
 
         # Test successful insert with unique value
-        new_id = self.db.insert("user", {
+        new_id = await self.db.insert("user", {
             "name": "New User",
             "age": 25,
             "email": "new@example.com",  # Unique email

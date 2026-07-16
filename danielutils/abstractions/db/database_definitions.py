@@ -1,8 +1,6 @@
 import json
 from typing import Dict, Any, List, Optional, Literal, Union, Type
 from enum import Enum
-from datetime import datetime, date, time
-from uuid import UUID
 
 try:
     from pydantic import BaseModel, Field, ConfigDict
@@ -39,23 +37,16 @@ class ColumnType(str, Enum):
 class BaseDBModel(BaseModel):
     """Base model with JSON serialization support"""
     model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            time: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-            Enum: lambda v: v.value
-        },
         arbitrary_types_allowed=True
     )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert model to dictionary"""
-        return self.model_dump()
+        return self.model_dump(mode="json")
 
     def to_json(self) -> str:
         """Convert model to JSON string"""
-        return json.dumps(self.to_dict())
+        return self.model_dump_json()
 
     @classmethod
     def from_json(cls, json_str: str) -> 'BaseDBModel':
