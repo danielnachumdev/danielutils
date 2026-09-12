@@ -193,6 +193,19 @@ class TestFunctionInfo(unittest.TestCase):
         # This should be False since the method is defined in the class itself
         self.assertFalse(func_info.is_inherited)
 
+    def test_standalone_function_without_owner(self):
+        """Test FunctionInfo with a module-level function and no owner."""
+
+        def standalone(x: int) -> str:
+            """Standalone function."""
+            return str(x)
+
+        func_info = FunctionInfo(standalone)
+        self.assertEqual("standalone", func_info.name)
+        self.assertFalse(func_info.is_inherited)
+        self.assertEqual(1, len(func_info.arguments))
+        self.assertEqual("str", func_info.return_type)
+
     def test_is_abstract_property(self):
         """Test is_abstract property."""
 

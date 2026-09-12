@@ -2,8 +2,9 @@ import inspect
 import re
 import ast
 import logging
+import types
 from dataclasses import dataclass
-from typing import Type, List, Callable, Optional, Tuple, Dict, Any
+from typing import Type, List, Callable, Optional, Tuple, Dict, Any, Union
 from .decorator_info import DecoratorInfo
 from .argument_info import ArgumentInfo
 
@@ -127,7 +128,11 @@ class FunctionInfo:
         r"(?P<decorators>(?:@[\s\S]+?)+?)?\s*(?P<async>async )?def (?P<name>\w[\w\d]*)\s*\((?P<arguments>[\s\S]+?)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
         re.MULTILINE)
 
-    def __init__(self, func: Callable, owner: Type) -> None:
+    def __init__(
+        self,
+        func: Callable,
+        owner: Optional[Union[Type, types.ModuleType]] = None,
+    ) -> None:
         func = inspect.unwrap(func)
 
         # Check for lambda functions
@@ -496,6 +501,8 @@ class FunctionInfo:
 
     @property
     def is_inherited(self) -> bool:
+        if self._owner is None:
+            return False
         return self._func in set(self._owner.__dict__.keys())
 
     @property
