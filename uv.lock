@@ -926,7 +926,7 @@ wheels = [
 
 [[package]]
 name = "danielutils"
-version = "1.1.26"
+version = "1.1.27"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic", version = "2.10.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -990,7 +990,7 @@ dev = [
     { name = "githooklib", specifier = ">=1.0.0" },
     { name = "mypy", specifier = ">=1.14.1" },
     { name = "pylint", specifier = ">=3.2.7" },
-    { name = "quickpub", specifier = ">=4.1.1" },
+    { name = "quickpub", specifier = ">=4.1.3" },
     { name = "setuptools", specifier = ">=75.3.4" },
     { name = "twine", specifier = ">=6.1.0" },
     { name = "types-tqdm", specifier = ">=4.67.0.20241221" },
@@ -2864,7 +2864,7 @@ wheels = [
 
 [[package]]
 name = "quickpub"
-version = "4.1.1"
+version = "4.1.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "danielutils" },
@@ -2875,7 +2875,7 @@ dependencies = [
     { name = "twine", version = "6.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "twine", version = "6.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b8/04/5c731edace1155539a8624526aeec81a621b7d224c3c2a6d5e188d7594ca/quickpub-4.1.1.tar.gz", hash = "sha256:29556cf25749adec8826393774beff4a26b8bb1fe20493b0290ff210de4a2d37", size = 30756, upload-time = "2026-06-19T20:53:15.608Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/62/79/4fe96d6c5153484c2641738eefd2c685aacd60a5a3eba8cf35aab0caf65c/quickpub-4.1.3.tar.gz", hash = "sha256:7c597702634774b2e558cb52ec40ac176cb1bfe1aba8fafd9ae9844c08d1dd43", size = 34628, upload-time = "2026-08-08T14:27:41.84Z" }
 
 [[package]]
 name = "readme-renderer"

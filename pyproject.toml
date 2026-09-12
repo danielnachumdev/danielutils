@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "danielutils"
-version = "1.1.26"
+version = "1.1.27"
 authors = [
     { name = "danielnachumdev", email = "danielnachumdev@gmail.com" },
 ]
@@ -36,7 +36,7 @@ dev = [
     "githooklib>=1.0.0",
     "mypy>=1.14.1",
     "pylint>=3.2.7",
-    "quickpub>=4.1.1",
+    "quickpub>=4.1.3",
     "setuptools>=75.3.4",
     "twine>=6.1.0",
     "types-tqdm>=4.67.0.20241221",
