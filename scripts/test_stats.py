@@ -70,8 +70,8 @@ def test_file_stats(target_file):
 def main():
     """Main function to handle command line arguments and run the appropriate test."""
     if len(sys.argv) != 2:
-        print("Usage: python test_stats.py <target_file>")
-        print("Example: python test_stats.py danielutils/reflection/info_classes/function_info.py")
+        print("Usage: python scripts/test_stats.py <target_file>")
+        print("Example: python scripts/test_stats.py danielutils/reflection/info_classes/function_info.py")
         sys.exit(1)
 
     target_file = sys.argv[1]

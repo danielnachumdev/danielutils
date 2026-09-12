@@ -346,8 +346,8 @@ def print_stats(stats: Dict[str, Any], folder_name: str = ""):
 def main():
     """Main function to analyze specified folders."""
     if len(sys.argv) < 2:
-        print("Usage: python folder_stats.py <folder1> [folder2] ...")
-        print("Example: python folder_stats.py danielmusicil tests")
+        print("Usage: python scripts/folder_stats.py <folder1> [folder2] ...")
+        print("Example: python scripts/folder_stats.py danielutils tests")
         print("\nThe script automatically excludes common unwanted folders and files:")
         print("  - node_modules, venv, __pycache__, build, dist, .git, etc.")
         sys.exit(1)
