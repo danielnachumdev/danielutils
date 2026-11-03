@@ -28,7 +28,7 @@ Implementation guide for coding agents changing **danielutils**. Product pitch a
 └── READMES/             # Feature deep-dives
 ```
 
-Shared CI/CD: [`danielnachumdev/actions`](https://github.com/danielnachumdev/actions) (`@v1`). How to adopt: [`HOW-TO-USE.md`](https://github.com/danielnachumdev/actions/blob/v1/HOW-TO-USE.md).
+Shared CI/CD: [`danielnachumdev/actions`](https://github.com/danielnachumdev/actions) (`@latest`). How to adopt: [`HOW-TO-USE.md`](https://github.com/danielnachumdev/actions/blob/latest/HOW-TO-USE.md).
 
 ---
 
@@ -75,8 +75,8 @@ Prefer editing floors in `pyproject.toml` and regenerating with `uv lock` / `uv 
 
 1. Branch off `main`; open a PR into `main`.
 2. Attach **exactly one** semver label: `noBump` | `bumpPatch` | `bumpMinor` | `bumpMajor`.
-3. **CI** — `…/ci.yml@v1` (tests) + `…/semver-ci.yml@v1` (validate label). Prefer **`CI / CI`** and **`Semver / Semver`**.
-4. **CD** — `…/semver-cd.yml@v1` after CI succeeds on `main`: bump → wheel → GitHub Release → floating `vMAJOR` → **PyPI** (`publish-pypi: true`), or skip on `noBump`.
+3. **CI** — `…/ci.yml@latest` (tests) + `…/semver-ci.yml@latest` (validate label). Prefer **`CI / CI`** and **`Semver / Semver`**.
+4. **CD** — `…/semver-cd.yml@latest` after CI succeeds on `main`: bump → wheel → GitHub Release → floating `vMAJOR` → **PyPI** (`publish-pypi: true`), or skip on `noBump`.
 5. Version **source of truth** is GitHub Release tags. If none yet, CD seeds from `pyproject.toml`.
 6. Dependabot PRs stay on `noBump`.
 7. Change shared CI/semver behavior in **`danielnachumdev/actions`**, not by re-vendoring here.
