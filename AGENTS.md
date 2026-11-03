@@ -11,7 +11,7 @@ Implementation guide for coding agents changing **danielutils**. Product pitch a
 | What is this? | Python utilities library (types, async, DB abstractions, retry, data structures, DX tools) |
 | Importable code | `danielutils/` |
 | Toolchain | [uv](https://docs.astral.sh/uv/) + `pyproject.toml` / `uv.lock` |
-| Python | `>=3.8` (CI matrix defaults **3.11, 3.12, 3.13** via actions) |
+| Python | `>=3.11` (CI matrix **3.11, 3.12, 3.13** via actions) |
 | Tests | `tests/` — pytest + coverage; **never delete** |
 | Secrets | Never commit `.pypirc`, API keys, tokens |
 
@@ -54,8 +54,9 @@ Config for mypy / pylint / pytest / coverage lives in `pyproject.toml`.
 ### Dependencies
 
 - **Runtime:** `pydantic`, `redis`, `sqlalchemy`, `tqdm`
-- **Dev group:** mypy, pylint, setuptools, twine, wheel, `types-tqdm`, `githooklib`
-- **Test group:** pytest, pytest-asyncio, pytest-cov, pytest-xdist, fastapi, uvicorn
+- **Dev group:** mypy, pylint≥4.0.9, setuptools≥84.1.0, twine, wheel≥0.46.2, `types-tqdm`, `githooklib`
+- **Test group:** pytest≥9.0.3, pytest-asyncio, pytest-cov, pytest-xdist, fastapi, uvicorn
+- **Constraint floors** (`[tool.uv] constraint-dependencies`): anyio, pygments, requests, setuptools, starlette, urllib3, wheel — keep in sync with Dependabot GHSA patches
 
 Prefer editing floors in `pyproject.toml` and regenerating with `uv lock` / `uv sync`.
 
