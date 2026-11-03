@@ -5,6 +5,7 @@ logs/
 reports/
 wslvenv/
 .conda/
+.cursor/
 *.json
 assets
 *.html
