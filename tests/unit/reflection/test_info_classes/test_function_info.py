@@ -1,5 +1,6 @@
 import unittest
 import sys
+import time
 from unittest.mock import patch, MagicMock
 from abc import ABC, abstractmethod
 from typing import List, Optional, Callable, Dict, Literal, Union
@@ -500,6 +501,23 @@ class TestFunctionInfo(unittest.TestCase):
         self.assertEqual("arg3", func_info.arguments[3].name)
         self.assertEqual("Optional[float]", func_info.arguments[3].type)
         self.assertEqual("None", func_info.arguments[3].default)
+
+    def test_function_definition_regex_rejects_redos_payload_quickly(self):
+        """FUNCTION_DEFINITION_REGEX must not exponentially backtrack on '@'+'a@'*n.
+
+        CodeQL py/redos (alert #5 / CWE-1333): the old decorators group
+        `(?:@[\\s\\S]+?)+?` took ~0.2s+ at n=20 and grew exponentially.
+        """
+        attack = "@" + ("a@" * 25) + "X"
+        started = time.perf_counter()
+        match = FunctionInfo.FUNCTION_DEFINITION_REGEX.match(attack)
+        elapsed = time.perf_counter() - started
+        self.assertIsNone(match)
+        self.assertLess(
+            elapsed,
+            0.05,
+            f"ReDoS-like backtracking: matched attack in {elapsed:.3f}s",
+        )
 
 
 if __name__ == '__main__':
