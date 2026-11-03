@@ -7,7 +7,7 @@
 [![Python](https://img.shields.io/pypi/pyversions/danielutils.svg)](https://pypi.org/project/danielutils/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-Requires **Python 3.8+**.
+Requires **Python 3.11+**.
 
 ## Why danielutils?
 
