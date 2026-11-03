@@ -1,7 +1,11 @@
-__version__ = "1.1.27"
 """danielutils is a convenience library of functions decorators
     data-structures and more that make my development workflow faster
 """
+from importlib.metadata import version
+
+# Always matches the installed distribution (CD stamps pyproject version into the wheel).
+__version__ = version("danielutils")
+
 # =================================================================
 # ============================= LEAFS =============================
 # =================================================================
