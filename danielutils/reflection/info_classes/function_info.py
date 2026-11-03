@@ -124,8 +124,12 @@ class FunctionStats:
 
 
 class FunctionInfo:
+    # Decorators: one `@...` line at a time. Avoid `(?:@[\s\S]+?)+?` — that form
+    # is ambiguous on `@` and exponential on inputs like '@'+('a@'*n)+'X' (ReDoS).
     FUNCTION_DEFINITION_REGEX: re.Pattern = re.compile(
-        r"(?P<decorators>(?:@[\s\S]+?)+?)?\s*(?P<async>async )?def (?P<name>\w[\w\d]*)\s*\((?P<arguments>[\s\S]+?)?\)\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
+        r"(?P<decorators>(?:[ \t]*@[^\n]*\n)+)?"
+        r"\s*(?P<async>async )?def (?P<name>\w[\w\d]*)\s*\((?P<arguments>[\s\S]+?)?\)"
+        r"\s*(?:\s*\-\>\s*(?P<return_type>[\s\S]+?)\s*)?:(?P<body>[\s\S]+)",
         re.MULTILINE)
 
     def __init__(
